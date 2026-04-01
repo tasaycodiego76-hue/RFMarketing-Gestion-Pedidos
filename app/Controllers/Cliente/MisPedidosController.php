@@ -25,12 +25,15 @@ class MisPedidosController extends BaseController
             'detalles' => [
                 'id' => $user['id'],
                 'nombre' => $user['nombre'],
-                'dni' => $user['dni'] ?? 'No registrado',
-                'celular' => $user['celular'],
+                'apellidos' => $user['apellidos'],
                 'correo' => $user['correo'],
-                // Aquí mostrará el ID (ej: "5") porque NO es null
-                'empresa' => $user['id_empresa'] ?? 'Agencia Interna',
-                'idarea' => $user['idarea'] // Área específica dentro de su empresa
+                'telefono' => $user['telefono'],
+                'tipo_doc' => $user['tipodoc'] ?? 'S/D',
+                'documento' => $user['numerodoc'] ?? 'S/D',
+                'usuario' => $user['usuario'],
+                'rol' => $user['rol'],
+                'creado_el' => $user['fechacreacion'],
+                'permisos' => 'Creación de solicitudes y seguimiento de pedidos propios'
             ]
         ]);
     }

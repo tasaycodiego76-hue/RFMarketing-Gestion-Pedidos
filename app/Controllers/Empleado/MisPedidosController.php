@@ -16,22 +16,27 @@ class MisPedidosController extends BaseController
         $user = $this->getActiveUser();
 
         if (!$user || $user['rol'] !== 'empleado') {
-            return $this->response->setJSON(['status' => 'ERROR', 'mensaje' => 'No eres un empleado.']);
+            return $this->response->setJSON(['status' => 'ERROR', 'mensaje' => 'No autorizado.']);
         }
+
+        // Identificamos si es responsable comparando el string de Postgres
+        $es_responsable = ($user['esresponsable'] === 't' || $user['esresponsable'] === true);
 
         return $this->response->setJSON([
             'status' => 'SUCCESS',
-            'actor' => $user['esresponsable'] ? 'RESPONSABLE DE ÁREA' : 'EMPLEADO',
+            'actor' => $es_responsable ? 'RESPONSABLE (Viendo sus pedidos)' : 'EMPLEADO OPERATIVO',
             'detalles' => [
                 'id' => $user['id'],
                 'nombre' => $user['nombre'],
-                'dni' => $user['dni'],
-                'celular' => $user['celular'],
+                'apellidos' => $user['apellidos'],
                 'correo' => $user['correo'],
+                'telefono' => $user['telefono'],
+                'documento' => $user['numerodoc'],
+                'rol' => $user['rol'],
                 'idarea' => $user['idarea'],
-                // LÓGICA DINÁMICA: Si id_empresa es null, devuelve "Agencia Interna"
-                'empresa' => $user['id_empresa'] ?? 'Agencia Interna',
-                'es_jefe' => (bool) $user['esresponsable']
+                'es_responsable' => $es_responsable,
+                'creado_el' => $user['fechacreacion'],
+                'permisos' => 'Visualización y actualización de tareas asignadas'
             ]
         ]);
     }

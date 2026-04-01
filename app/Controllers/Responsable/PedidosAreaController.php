@@ -15,26 +15,31 @@ class PedidosAreaController extends BaseController
     {
         $user = $this->getActiveUser();
 
-        if (!$user || $user['rol'] !== 'empleado' || !$user['esresponsable']) {
+        // Comparamos directamente con el string que manda Postgres
+        $es_responsable = ($user['esresponsable'] === 't' || $user['esresponsable'] === true);
+
+        if (!$user || $user['rol'] !== 'empleado' || !$es_responsable) {
             return $this->response->setJSON([
                 'status' => 'ERROR',
-                'mensaje' => 'Solo los Responsables de Área (Jefes) pueden ver este endpoint.'
+                'mensaje' => 'Acceso Denegado. Solo para Jefes de Área.',
             ]);
         }
 
         return $this->response->setJSON([
             'status' => 'SUCCESS',
-            'actor' => $user['esresponsable'] ? 'RESPONSABLE DE ÁREA' : 'EMPLEADO',
+            'actor' => 'RESPONSABLE DE ÁREA',
             'detalles' => [
                 'id' => $user['id'],
                 'nombre' => $user['nombre'],
-                'dni' => $user['dni'],
-                'celular' => $user['celular'],
+                'apellidos' => $user['apellidos'],
                 'correo' => $user['correo'],
+                'telefono' => $user['telefono'],
+                'documento' => $user['numerodoc'],
+                'rol' => $user['rol'],
                 'idarea' => $user['idarea'],
-                // LÓGICA DINÁMICA: Si id_empresa es null, devuelve "Agencia Interna"
-                'empresa' => $user['id_empresa'] ?? 'Agencia Interna',
-                'es_jefe' => (bool) $user['esresponsable']
+                'es_responsable' => true,
+                'creado_el' => $user['fechacreacion'],
+                'permisos' => 'Gestión de pedidos y personal del área asignada'
             ]
         ]);
     }

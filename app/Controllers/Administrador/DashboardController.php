@@ -31,11 +31,16 @@ class DashboardController extends BaseController
             'detalles' => [
                 'id' => $user['id'],
                 'nombre' => $user['nombre'],
-                'dni' => $user['dni'] ?? 'S/D',
-                'celular' => $user['celular'],
+                'apellidos' => $user['apellidos'],
                 'correo' => $user['correo'],
-                'empresa' => $user['id_empresa'] ?? 'Agencia Interna (Sede Central)',
+                'telefono' => $user['telefono'],
+                'tipo_doc' => $user['tipodoc'] ?? 'S/D',
+                'documento' => $user['numerodoc'] ?? 'S/D',
+                'usuario' => $user['usuario'],
+                'rol' => $user['rol'],
                 'idarea' => $user['idarea'] ?? 'Dirección General',
+                'es_jefe' => (bool) $user['esresponsable'],
+                'creado_el' => $user['fechacreacion'],
                 'permisos' => 'Acceso total a Usuarios, Empresas y Kanban Global'
             ]
         ]);

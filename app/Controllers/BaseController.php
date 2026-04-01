@@ -5,7 +5,7 @@ namespace App\Controllers;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
-use APP\Models\UsuarioModel;
+use App\Models\UsuarioModel;
 use Psr\Log\LoggerInterface;
 
 abstract class BaseController extends Controller
@@ -45,8 +45,8 @@ abstract class BaseController extends Controller
 
         if (!$user) { return null; }
         // Guardamos en sesión para que persista mientras navegamos
-            session()->set('test_user_id', $user['id']);
+        session()->set('test_user_id', $user['id']);
         // Si no hay ID ni sesión, devuelve null
-        return null;
+        return $user;
     }
 }
