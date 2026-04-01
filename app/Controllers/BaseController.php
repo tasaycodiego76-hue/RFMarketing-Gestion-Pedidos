@@ -5,41 +5,48 @@ namespace App\Controllers;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
+use APP\Models\UsuarioModel;
 use Psr\Log\LoggerInterface;
 
-/**
- * BaseController provides a convenient place for loading components
- * and performing functions that are needed by all your controllers.
- *
- * Extend this class in any new controllers:
- * ```
- *     class Home extends BaseController
- * ```
- *
- * For security, be sure to declare any new methods as protected or private.
- */
 abstract class BaseController extends Controller
 {
     /**
-     * Be sure to declare properties for any property fetch you initialized.
-     * The creation of dynamic property is deprecated in PHP 8.2.
-     */
-
-    // protected $session;
-
-    /**
-     * @return void
+     * Inicializa el controlador con dependencias inyectadas por CodeIgniter
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Load here all helpers you want to be available in your controllers that extend BaseController.
-        // Caution: Do not put the this below the parent::initController() call below.
+        // Cargar helpers aquí (antes de parent::initController)
         // $this->helpers = ['form', 'url'];
 
-        // Caution: Do not edit this line.
         parent::initController($request, $response, $logger);
 
-        // Preload any models, libraries, etc, here.
+        // Precargar modelos y librerías aquí
         // $this->session = service('session');
+    }
+
+    /**
+     * Obtiene el usuario (Parametro = ID / URL) activo simulado para la solicitud actual
+     * @return array|null Datos del usuario o null
+     */
+    public function getActiveUser()
+    {
+        // Obtener el ID de la URL (?test_user=X)
+        $testUserId = $this->request->getGet('test_user');
+
+        // Si no viene en la URL, intentamos sacarlo de la Sesión (para persistencia)
+        if (!$testUserId) { return $testUserId = session()->get('test_user_id'); }
+
+        // Si después de buscar en ambos lados seguimos sin ID, salimos de una vez
+        if (!$testUserId) { return null; }
+
+        //Buscamos el usuario en la BD
+        $userModel = new UsuarioModel();
+        $user = $userModel->find($testUserId);
+
+        if (!$user) { return null; }
+        // Guardamos en sesión para que persista mientras navegamos
+            session()->set('test_user_id', $user['id']);
+        // Si no hay ID ni sesión, devuelve null
+        return null;
     }
 }
