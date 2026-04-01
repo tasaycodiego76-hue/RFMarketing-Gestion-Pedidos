@@ -9,7 +9,7 @@ class MisPedidosController extends BaseController
     /**
      * Endpoint principal: muestra el dashboard del cliente (Lista Total de Pedidos Encargados)
      * Por Ahora Prueba, Para Redirigir por ID y Rol
-     * @return \CodeIgniter\HTTP\ResponseInterface
+     * @return string \CodeIgniter\HTTP\ResponseInterface
      */
     public function index()
     {
@@ -19,22 +19,14 @@ class MisPedidosController extends BaseController
             return $this->response->setJSON(['status' => 'ERROR', 'mensaje' => 'Se requiere cuenta de Cliente.']);
         }
 
-        return $this->response->setJSON([
-            'status' => 'SUCCESS',
-            'actor' => 'CLIENTE',
-            'detalles' => [
-                'id' => $user['id'],
-                'nombre' => $user['nombre'],
-                'apellidos' => $user['apellidos'],
-                'correo' => $user['correo'],
-                'telefono' => $user['telefono'],
-                'tipo_doc' => $user['tipodoc'] ?? 'S/D',
-                'documento' => $user['numerodoc'] ?? 'S/D',
-                'usuario' => $user['usuario'],
-                'rol' => $user['rol'],
-                'creado_el' => $user['fechacreacion'],
-                'permisos' => 'Creación de solicitudes y seguimiento de pedidos propios'
-            ]
-        ]);
+        // Datos para la vista
+        $data = [
+            'titulo' => 'Mis Pedidos',
+            'user' => $user,
+            'pendientes' => 1, // Esto luego lo traerás de un Modelo (Ejemplo)
+            'notif_no_leidas' => 2 // Esto luego lo traerás de un Modelo (Ejemplo)
+        ];
+
+        return view('cliente/mis_solicitudes', $data);
     }
 }
