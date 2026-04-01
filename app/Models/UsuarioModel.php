@@ -4,21 +4,37 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
+
+
 class UsuarioModel extends Model
 {
-    protected $table            = 'usuarios';
-    protected $primaryKey       = 'id';
-    protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
-    
-    // Campos permitidos para INSERT y UPDATE
-    protected $allowedFields    = [
-        'nombre', 'correo', 'clave', 'rol', 
-        'idarea', 'estado', 'telefono', 'numerodoc'
+    // Nombre de la tabla en la base de datos
+    protected $table = 'usuarios';
+    // Nombre de la columna clave primaria (ID único del usuario)
+    protected $primaryKey = 'id';
+
+    // Tipo de datos retornado: 'array' , 'object', o entidad personalizada
+    protected $returnType = 'array';
+
+    // Campos permitidos para operaciones de creación y actualización
+    // Esto previene inyección de datos no autorizados
+    protected $allowedFields = [
+        'nombre',
+        'apellidos',
+        'correo',
+        'telefono',
+        'tipodoc',
+        'numerodoc',
+        'usuario',
+        'clave',
+        'rol',
+        'idarea',
+        'esresponsable',
+        'estado',
+        'fechacreacion'
     ];
 
-    // Fechas automáticas
-    protected $useTimestamps    = true;
-    protected $createdField     = 'fecha_registro';
-    protected $updatedField     = ''; // Opcional
+    protected $useTimestamps = true;
+    protected $createdField  = 'fechacreacion'; 
+    protected $updatedField  = '';
 }

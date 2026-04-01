@@ -19,13 +19,13 @@ class Database extends Config
      */
     public string $defaultGroup = 'default';
 
-    /**
+    /* *
      * The default database connection.
      *
      * @var array<string, mixed>
      */
-    /*
-    public array $default = [
+
+    /* public array $default = [
         'DSN'          => '',
         'hostname'     => 'localhost',
         'username'     => '',
@@ -50,7 +50,7 @@ class Database extends Config
             'datetime' => 'Y-m-d H:i:s',
             'time'     => 'H:i:s',
         ],
-    ];
+    ]; */
 
     //    /**
     //     * Sample database connection for SQLite3.
@@ -74,8 +74,8 @@ class Database extends Config
     //        ],
     //    ];
 
-/**
-         * Sample database connection for SQLSRV.
+        /**
+        * Sample database connection for SQLSRV.
         *
         * @var array<string, mixed>
         */
