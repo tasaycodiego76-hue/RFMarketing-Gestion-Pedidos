@@ -13,6 +13,7 @@ $routes->get('/', 'Home::index');
 //Rutas para el Administrador
 $routes->group('admin', function ($routes) {
     $routes->get('dashboard', 'Administrador\DashboardController::index');
+    $routes->get('usuarios',        'Administrador\UsuarioController::index');
     $routes->get('usuarios/listar', 'Administrador\UsuarioController::listar');
 });
 
