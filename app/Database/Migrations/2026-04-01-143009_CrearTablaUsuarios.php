@@ -60,7 +60,7 @@ class CrearTablaUsuarios extends Migration
                 'type' => 'rol_enum',
                 'null' => false,
             ],
-            'idarea' => [
+            'idservicio' => [
                 'type' => 'BIGINT',
                 'null' => true,
             ],
@@ -84,7 +84,7 @@ class CrearTablaUsuarios extends Migration
         $this->forge->addPrimaryKey('id');
         $this->forge->addUniqueKey('correo');
         $this->forge->addUniqueKey('usuario');
-        $this->forge->addForeignKey('idarea', 'areas', 'id', 'SET NULL', 'CASCADE');
+        $this->forge->addForeignKey('idservicio', 'servicios', 'id', 'SET NULL', 'CASCADE');
         $this->forge->createTable('usuarios');
     }
 

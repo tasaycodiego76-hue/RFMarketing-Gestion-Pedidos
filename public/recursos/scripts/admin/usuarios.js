@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td class="td-usuario">${u.usuario ?? '-'}</td>
                         <td>${u.correo}</td>
                         <td class="td-rol">${u.rol}</td>
-                        <td>${u.area_nombre ?? '-'}</td>
+                        <td>${u.servicio_nombre ?? '-'}</td>
                         <td><span class="${u.estado ? 'badge-activo' : 'badge-inactivo'}">${u.estado ? 'Activo' : 'Inactivo'}</span></td>
                         <td></td>
                     </tr>

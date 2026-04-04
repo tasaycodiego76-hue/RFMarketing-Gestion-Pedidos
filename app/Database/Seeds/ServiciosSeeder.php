@@ -7,8 +7,8 @@ class ServiciosSeeder extends Seeder {
             ['nombre' => 'Diseño Gráfico',
              'descripcion' => 'Logos, flyers y manuales',
               'activo' => true],
-            ['nombre' => 'Social Media',
-             'descripcion' => 'Post de Facebook e Instagram',
+            ['nombre' => 'Edicion y Video',
+             'descripcion' => 'Edición de videos y contenido multimedia',
               'activo' => true],
         ];
         $this->db->table('servicios')->insertBatch($data);

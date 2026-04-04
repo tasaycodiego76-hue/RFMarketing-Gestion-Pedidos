@@ -21,7 +21,7 @@ class AreaSeeder extends Seeder
         $idEmpresa = $empresa ? $empresa->id : 1;
 
         $nombres = [
-            'Diseño Gráfico', 'Edicion y Video', 'ADMINISTRACION FINANCIERA Y TALENTO HUMANO',
+            'ADMINISTRACION FINANCIERA Y TALENTO HUMANO',
             'ÁREA COMERCIAL', 'ATENCIÓN AL CLIENTE', 'BIBLIOTECA', 'BIENESTAR UNIVERSITARIO',
             'COBRANZAS Y CAJA', 'COMITÉ SEGURIDAD BIOLOGICA Y QUIMICA', 
             'COMITÉ DE SEGURIDAD Y SALUD EN EL TRABAJO', 'CONTABILIDAD', 'CONTROL INTERNO',

@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call('RequerimientoSeeder');
 
         // 3. Tablas con dependencias múltiples
-        $this->call('ResponsableAreaSeeder');
+        $this->call('ResponsablesEmpresaSeeder');
         $this->call('AtencionSeeder');
 
         // 4. Tablas de historial y archivos

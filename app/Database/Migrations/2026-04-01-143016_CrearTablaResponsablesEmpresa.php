@@ -4,18 +4,18 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CrearTablaResponsablesArea extends Migration
+class CrearTablaResponsablesEmpresa extends Migration
 {
     public function up()
     {
-        $this->db->query("CREATE TYPE estado_resp_area_enum AS ENUM ('activo', 'inactivo')");
+        $this->db->query("CREATE TYPE estado_responsable_enum AS ENUM ('activo', 'inactivo')");
 
         $this->forge->addField([
             'id' => [
                 'type'           => 'BIGINT',
                 'auto_increment' => true,
             ],
-            'idarea' => [
+            'idempresa' => [
                 'type' => 'BIGINT',
                 'null' => false,
             ],
@@ -24,30 +24,29 @@ class CrearTablaResponsablesArea extends Migration
                 'null' => false,
             ],
             'fecha_inicio' => [
-                'type'    => 'TIMESTAMP',
-                'null'    => false,
-                'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP'),
+                'type' => 'TIMESTAMP',
+                'null' => false,
             ],
             'fecha_fin' => [
                 'type' => 'TIMESTAMP',
                 'null' => true,
             ],
             'estado' => [
-                'type'    => 'estado_resp_area_enum',
-                'null'    => true,
+                'type'    => 'estado_responsable_enum',
+                'null'    => false,
                 'default' => 'activo',
             ],
         ]);
 
         $this->forge->addPrimaryKey('id');
-        $this->forge->addForeignKey('idarea',    'areas',    'id', 'RESTRICT', 'CASCADE');
+        $this->forge->addForeignKey('idempresa', 'empresas', 'id', 'RESTRICT', 'CASCADE');
         $this->forge->addForeignKey('idusuario', 'usuarios', 'id', 'RESTRICT', 'CASCADE');
-        $this->forge->createTable('responsables_area');
+        $this->forge->createTable('responsables_empresa');
     }
 
     public function down()
     {
-        $this->forge->dropTable('responsables_area');
-        $this->db->query("DROP TYPE IF EXISTS estado_resp_area_enum");
+        $this->forge->dropTable('responsables_empresa');
+        $this->db->query("DROP TYPE IF EXISTS estado_responsable_enum");
     }
 }

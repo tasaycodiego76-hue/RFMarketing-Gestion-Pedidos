@@ -21,15 +21,15 @@ class UsuarioController extends Controller
 }
 
 /**
- * Devuelve la lista de usuarios con su área en JSON.
+ * Devuelve la lista de usuarios con su servicio en JSON.
  * @return \CodeIgniter\HTTP\ResponseInterface
  */
 public function listar()
 {
     $db       = \Config\Database::connect();
     $usuarios = $db->table('usuarios u')
-        ->select('u.*, a.nombre as area_nombre')
-        ->join('areas a', 'a.id = u.idarea', 'left')
+        ->select('u.*, s.nombre as servicio_nombre')
+        ->join('servicios s', 's.id = u.idservicio', 'left')
         ->get()->getResultArray();
 
     foreach ($usuarios as &$u) {

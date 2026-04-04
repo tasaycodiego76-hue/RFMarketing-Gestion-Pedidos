@@ -28,7 +28,7 @@ class UsuarioModel extends Model
         'usuario',
         'clave',
         'rol',
-        'idarea',
+        'idservicio',
         'esresponsable',
         'estado',
         'fechacreacion'

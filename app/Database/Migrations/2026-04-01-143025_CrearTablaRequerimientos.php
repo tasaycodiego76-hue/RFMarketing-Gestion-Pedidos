@@ -28,10 +28,9 @@ class CrearTablaRequerimiento extends Migration
                 'constraint' => 100,
                 'null'       => false,
             ],
-            'area' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 50,
-                'null'       => true,
+            'idarea' => [
+                'type' => 'BIGINT',
+                'null' => true, 
             ],
             'objetivo_comunicacion' => [
                 'type' => 'TEXT',
@@ -87,6 +86,7 @@ class CrearTablaRequerimiento extends Migration
         $this->forge->addPrimaryKey('id');
         $this->forge->addForeignKey('idempresa',  'empresas',  'id', 'RESTRICT', 'CASCADE');
         $this->forge->addForeignKey('idservicio', 'servicios', 'id', 'RESTRICT', 'CASCADE');
+        $this->forge->addForeignKey('idarea',     'areas',     'id', 'SET NULL', 'CASCADE');
         $this->forge->createTable('requerimiento');
     }
 
