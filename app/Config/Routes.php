@@ -15,6 +15,8 @@ $routes->group('admin', function ($routes) {
     $routes->get('dashboard', 'Administrador\DashboardController::index');
     $routes->get('usuarios',        'Administrador\UsuarioController::index');
     $routes->get('usuarios/listar', 'Administrador\UsuarioController::listar');
+    $routes->get('servicios/listar',     'Administrador\UsuarioController::listarServicios');
+    $routes->post('usuarios/registrar',  'Administrador\UsuarioController::registrar');
 });
 
 //Rutas para el Responsable (Jefe de Área)
