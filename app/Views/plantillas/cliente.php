@@ -178,7 +178,7 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- JS Plantilla -->
-    <script src="<?= base_url('recursos/js/plantillas/cliente.js') ?>"></script>
+    <script src="<?= base_url('recursos/scripts/plantillas/cliente.js') ?>"></script>
     <!-- Agregar Scrips -->
     <?= $this->renderSection('scripts') ?>
 </body>

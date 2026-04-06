@@ -4,8 +4,6 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-
-
 class UsuarioModel extends Model
 {
     // Nombre de la tabla en la base de datos
@@ -28,7 +26,8 @@ class UsuarioModel extends Model
         'usuario',
         'clave',
         'rol',
-        'idservicio',
+        'idarea',
+        'idarea_agencia',
         'esresponsable',
         'estado',
         'fechacreacion'

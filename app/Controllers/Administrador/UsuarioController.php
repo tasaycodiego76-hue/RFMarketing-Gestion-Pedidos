@@ -13,36 +13,36 @@ class UsuarioController extends Controller
      * @return string
      */
     public function index(): string
-{
-    return view('admin/usuarios', [
-        'titulo'       => 'Usuarios',
-        'tituloPagina' => 'USUARIOS',
-        'paginaActual' => 'usuarios',
-        'empresas'     => [],
-    ]);
-}
-
-/**
- * Devuelve la lista de usuarios con su servicio en JSON.
- * @return \CodeIgniter\HTTP\ResponseInterface
- */
-public function listar()
-{
-    $db       = \Config\Database::connect();
-    $usuarios = $db->table('usuarios u')
-        ->select('u.*, s.nombre as servicio_nombre')
-        ->join('servicios s', 's.id = u.idservicio', 'left')
-        ->get()->getResultArray();
-
-    foreach ($usuarios as &$u) {
-        $u['estado'] = ($u['estado'] === true || $u['estado'] === 't' || $u['estado'] == 1) ? 1 : 0;
+    {
+        return view('admin/usuarios', [
+            'titulo' => 'Usuarios',
+            'tituloPagina' => 'USUARIOS',
+            'paginaActual' => 'usuarios',
+            'empresas' => [],
+        ]);
     }
 
-    return $this->response->setJSON($usuarios);
-}
-public function listarServicios()
+    /**
+     * Devuelve la lista de usuarios con su servicio en JSON.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function listar()
     {
-        $db        = \Config\Database::connect();
+        $db = \Config\Database::connect();
+        $usuarios = $db->table('usuarios u')
+            ->select('u.*, s.nombre as servicio_nombre')
+            ->join('servicios s', 's.id = u.idservicio', 'left')
+            ->get()->getResultArray();
+
+        foreach ($usuarios as &$u) {
+            $u['estado'] = ($u['estado'] === true || $u['estado'] === 't' || $u['estado'] == 1) ? 1 : 0;
+        }
+
+        return $this->response->setJSON($usuarios);
+    }
+    public function listarServicios()
+    {
+        $db = \Config\Database::connect();
         $servicios = $db->table('servicios')
             ->where('activo', true)
             ->get()
@@ -53,8 +53,8 @@ public function listarServicios()
 
     public function registrar()
     {
-        $model          = new UsuarioModel();
-        $datos          = $this->request->getJSON(true);
+        $model = new UsuarioModel();
+        $datos = $this->request->getJSON(true);
 
         // Verificar duplicados
         if ($model->where('correo', $datos['correo'])->first()) {
@@ -74,19 +74,19 @@ public function listarServicios()
         // Si es cliente, crear empresa y responsable
         if ($datos['rol'] === 'cliente') {
             $empresaModel = new EmpresaModel();
-            $idEmpresa    = $empresaModel->insert([
+            $idEmpresa = $empresaModel->insert([
                 'nombreempresa' => $datos['razonsocial'],
-                'ruc'           => $datos['numerodoc'] ?? '',
-                'correo'        => $datos['correo'],
-                'telefono'      => $datos['telefono'] ?? '',
+                'ruc' => $datos['numerodoc'] ?? '',
+                'correo' => $datos['correo'],
+                'telefono' => $datos['telefono'] ?? '',
             ], true);
 
             $db = \Config\Database::connect();
             $db->table('responsables_empresa')->insert([
-                'idusuario'    => $id,
-                'idempresa'    => $idEmpresa,
+                'idusuario' => $id,
+                'idempresa' => $idEmpresa,
                 'fecha_inicio' => date('Y-m-d H:i:s'),
-                'estado'       => 'activo',
+                'estado' => 'activo',
             ]);
         }
 

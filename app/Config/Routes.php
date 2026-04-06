@@ -32,5 +32,7 @@ $routes->group('empleado', function ($routes) {
 //Rutas para el Cliente
 $routes->group('cliente', function ($routes) {
     $routes->get('mis_solicitudes', 'Cliente\MisPedidosController::index');
+    $routes->get('pedidos/listar', 'Cliente\MisPedidosController::listar');
+    $routes->get('nuevo-pedido/servicios', 'Cliente\MisPedidosController::servicios');
 });
 
