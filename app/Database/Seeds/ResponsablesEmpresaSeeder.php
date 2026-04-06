@@ -8,27 +8,27 @@ class ResponsablesEmpresaSeeder extends Seeder
 {
     public function run()
     {
-        $userAna  = $this->db->table('usuarios')->where('correo', '62345678@uai.edu.pe')->get()->getRow();
-        $userLuis = $this->db->table('usuarios')->where('correo', '62345678@byron.edu.pe')->get()->getRow();
+        $ana  = $this->db->table('usuarios')->where('correo', '62345678@uai.edu.pe')->get()->getRow();
+        $luis = $this->db->table('usuarios')->where('correo', '62345678@byron.edu.pe')->get()->getRow();
 
-        $empresaUAI   = $this->db->table('empresas')->where('nombreempresa', 'Universidad Autónoma de Ica')->get()->getRow();
-        $empresaByron = $this->db->table('empresas')->where('nombreempresa', 'Colegio Byron')->get()->getRow();
+        $uai   = $this->db->table('empresas')->where('nombreempresa', 'UNIVERSIDAD AUTÓNOMA DE ICA')->get()->getRow();
+        $byron = $this->db->table('empresas')->where('nombreempresa', 'COLEGIO BYRON')->get()->getRow();
 
         $data = [];
 
-        if ($userAna && $empresaUAI) {
+        if ($ana && $uai) {
             $data[] = [
-                'idusuario'    => $userAna->id,
-                'idempresa'    => $empresaUAI->id,
+                'idusuario'    => $ana->id,
+                'idempresa'    => $uai->id,
                 'fecha_inicio' => date('Y-m-d H:i:s'),
                 'estado'       => 'activo',
             ];
         }
 
-        if ($userLuis && $empresaByron) {
+        if ($luis && $byron) {
             $data[] = [
-                'idusuario'    => $userLuis->id,
-                'idempresa'    => $empresaByron->id,
+                'idusuario'    => $luis->id,
+                'idempresa'    => $byron->id,
                 'fecha_inicio' => date('Y-m-d H:i:s'),
                 'estado'       => 'activo',
             ];
