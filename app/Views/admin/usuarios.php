@@ -91,18 +91,21 @@
                     </div>
 
                     <!-- Solo empleado -->
-                    <div class="campo-empleado" style="display:none;">
-                        <div class="form-group">
-                            <label>Servicio</label>
-                            <select class="form-control" id="idservicio">
-                                <option value="">— Sin servicio —</option>
-                            </select>
+                        <div class="campo-empleado" style="display:none;">
+                            <div class="form-group">
+                                <label>Área de la Agencia</label>
+                                <select class="form-control" id="idarea_agencia">
+                                    <option value="">— Seleccione Área —</option>
+                                    <?php foreach ($areas as $a): ?>
+                                        <option value="<?= $a['id'] ?>"><?= $a['nombre'] ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input type="checkbox" class="form-check-input" id="esresponsable">
+                                <label class="form-check-label">¿Es responsable de esta área?</label>
+                            </div>
                         </div>
-                        <div class="form-check mb-3">
-                            <input type="checkbox" class="form-check-input" id="esresponsable">
-                            <label class="form-check-label">¿Es responsable del servicio?</label>
-                        </div>
-                    </div>
 
                 </form>
             </div>

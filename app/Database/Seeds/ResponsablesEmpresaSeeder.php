@@ -11,8 +11,8 @@ class ResponsablesEmpresaSeeder extends Seeder
         $ana  = $this->db->table('usuarios')->where('correo', '62345678@uai.edu.pe')->get()->getRow();
         $luis = $this->db->table('usuarios')->where('correo', '62345678@byron.edu.pe')->get()->getRow();
 
-        $uai   = $this->db->table('empresas')->where('nombreempresa', 'UNIVERSIDAD AUTÓNOMA DE ICA')->get()->getRow();
-        $byron = $this->db->table('empresas')->where('nombreempresa', 'COLEGIO BYRON')->get()->getRow();
+        $uai   = $this->db->table('empresas')->where('nombreempresa', 'Universidad Autónoma de Ica')->get()->getRow();
+        $byron = $this->db->table('empresas')->where('nombreempresa', 'Colegio Byron')->get()->getRow();
 
         $data = [];
 
