@@ -12,7 +12,7 @@ class CrearTablaRequerimiento extends Migration
 
         $this->forge->addField([
             'id' => [
-                'type'           => 'BIGINT',
+                'type' => 'BIGINT',
                 'auto_increment' => true,
             ],
             'idempresa' => [
@@ -21,16 +21,17 @@ class CrearTablaRequerimiento extends Migration
             ],
             'idservicio' => [
                 'type' => 'BIGINT',
-                'null' => false,
+                'null' => true,
+            ],
+            'servicio_personalizado' => [
+                'type' => 'VARCHAR',
+                'constraint' => 50,
+                'null' => true,
             ],
             'titulo' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 100,
-                'null'       => false,
-            ],
-            'idarea' => [
-                'type' => 'BIGINT',
-                'null' => true, 
+                'null' => false,
             ],
             'objetivo_comunicacion' => [
                 'type' => 'TEXT',
@@ -41,9 +42,9 @@ class CrearTablaRequerimiento extends Migration
                 'null' => false,
             ],
             'tipo_requerimiento' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 200,
-                'null'       => false,
+                'null' => false,
             ],
             'canales_difusion' => [
                 'type' => 'TEXT',
@@ -62,31 +63,30 @@ class CrearTablaRequerimiento extends Migration
                 'null' => false,
             ],
             'formato_otros' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 200,
-                'null'       => false,
-                'default'    => '',
+                'null' => false,
+                'default' => '',
             ],
             'fecharequerida' => [
                 'type' => 'TIMESTAMP',
                 'null' => false,
             ],
             'prioridad' => [
-                'type'    => 'prioridad_enum',
-                'null'    => false,
+                'type' => 'prioridad_enum',
+                'null' => false,
                 'default' => 'Media',
             ],
             'fechacreacion' => [
-                'type'    => 'TIMESTAMP',
-                'null'    => false,
+                'type' => 'TIMESTAMP',
+                'null' => false,
                 'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP'),
             ],
         ]);
 
         $this->forge->addPrimaryKey('id');
-        $this->forge->addForeignKey('idempresa',  'empresas',  'id', 'RESTRICT', 'CASCADE');
+        $this->forge->addForeignKey('idempresa', 'empresas', 'id', 'RESTRICT', 'CASCADE');
         $this->forge->addForeignKey('idservicio', 'servicios', 'id', 'RESTRICT', 'CASCADE');
-        $this->forge->addForeignKey('idarea',     'areas',     'id', 'SET NULL', 'CASCADE');
         $this->forge->createTable('requerimiento');
     }
 

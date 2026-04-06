@@ -60,9 +60,14 @@ class CrearTablaUsuarios extends Migration
                 'type' => 'rol_enum',
                 'null' => false,
             ],
-            'idservicio' => [
+            // Reemplaza idservicio → ahora el empleado pertenece a un área de la agencia
+            'idarea_agencia' => [
                 'type' => 'BIGINT',
-                'null' => true,
+                'null' => true,  // null si es admin o cliente
+            ],
+            'idarea' => [
+            'type' => 'BIGINT',
+            'null' => true,
             ],
             'esresponsable' => [
                 'type'    => 'BOOLEAN',
@@ -84,7 +89,8 @@ class CrearTablaUsuarios extends Migration
         $this->forge->addPrimaryKey('id');
         $this->forge->addUniqueKey('correo');
         $this->forge->addUniqueKey('usuario');
-        $this->forge->addForeignKey('idservicio', 'servicios', 'id', 'SET NULL', 'CASCADE');
+        $this->forge->addForeignKey('idarea_agencia', 'areas_agencia', 'id', 'SET NULL', 'CASCADE');
+        $this->forge->addForeignKey('idarea', 'areas', 'id', 'SET NULL', 'CASCADE');
         $this->forge->createTable('usuarios');
     }
 
