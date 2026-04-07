@@ -6,38 +6,6 @@
 
 <?= $this->section('contenido') ?>
 
-<!-- ═════════════════════════════════════════════════════════════════════════════
-     VISTA: Mis Pedidos (Cliente Dashboard)
-     
-     CONTEXTO DE DATOS RECIBIDOS DEL CONTROLADOR:
-     ─────────────────────────────────────────────
-     El controlador MisPedidosController::index() pasa estos datos:
-     • $user: Array con datos del usuario autenticado
-       - id: Identificador único del usuario en BD
-       - nombre, apellidos: Datos personales
-       - rol: Tipo de usuario (siempre 'cliente' en este endpoint)
-     • $titulo: Título de la página ("Mis Pedidos")
-     • $pendientes: Conteo de pedidos por aprobar (se actualiza dinámicamente)
-     • $notif_no_leidas: Conteo de notificaciones sin leer
-     
-     FLUJO EN TIEMPO REAL:
-     ────────────────────
-     1. Página carga → mis-pedidos.js ejecuta fetch() a /cliente/pedidos/listar
-     2. Este endpoint llama a MisPedidosController::listar()
-     3. El controlador usa AtencionModel::getPedidosPorCliente($usuarioId)
-     4. El modelo ejecuta query con INNER JOINs multinivel:
-        Usuario → Área → Empresa → Requerimiento → Atención
-     5. Los pedidos filtrados se retornan como JSON
-     6. JavaScript renderiza la tabla dinámicamente (sin reload de página)
-     
-     SEGURIDAD Y PRIVACIDAD:
-     ──────────────────────
-     ✓ Filtrado multinivel en BD: datos solo de su empresa
-     ✓ Escaping con esc() previene inyección XSS
-     ✓ ID de usuario se pasa seguro al JS global
-     ✓ Estados ENUM validan integridad de datos
-     ═════════════════════════════════════════════════════════════════════════════ -->
-
 <!-- Encabezado -->
 <div class="seccion-titulo">MIS PEDIDOS</div>
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -108,21 +76,15 @@
                 </tr>
             </thead>
             <tbody id="content-pedidos">
-                <!-- Skeleton mientras carga -->
-                <tr id="sk-tabla">
-                    <td colspan="7">
-                        <div class="sk-line sk-full mt-2"></div>
-                        <div class="sk-line sk-full"></div>
-                        <div class="sk-line sk-med"></div>
-                    </td>
-                </tr>
+                <!-- Contenido de los Pedidos -->
             </tbody>
         </table>
     </div>
 </div>
 
 <!-- Modal Selección de Servicios -->
-<div class="modal fade" id="modal-nuevo-pedido" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="modal-nuevo-pedido" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+    aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-rf">
             <div class="modal-header modal-rf-header">
@@ -133,13 +95,8 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body modal-rf-body p-4">
-                <!-- Skeleton -->
-                <div id="sk-servicios">
-                    <div class="sk-line sk-full mb-3" style="height:80px; border-radius:10px;"></div>
-                    <div class="sk-line sk-full" style="height:80px; border-radius:10px;"></div>
-                </div>
                 <!-- Cards de servicios -->
-                <div id="lista-servicios" style="display:none;"></div>
+                <div id="lista-servicios"></div>
             </div>
         </div>
     </div>

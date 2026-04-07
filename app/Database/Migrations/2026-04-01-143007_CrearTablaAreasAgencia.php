@@ -13,10 +13,6 @@ class CrearTablaAreasAgencia extends Migration
                 'type'           => 'BIGINT',
                 'auto_increment' => true,
             ],
-            'idservicio' => [
-                'type' => 'BIGINT',
-                'null' => false,
-            ],
             'nombre' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 100,
@@ -34,7 +30,6 @@ class CrearTablaAreasAgencia extends Migration
         ]);
 
         $this->forge->addPrimaryKey('id');
-        $this->forge->addForeignKey('idservicio', 'servicios', 'id', 'RESTRICT', 'CASCADE');
         $this->forge->createTable('areas_agencia');
     }
 

@@ -22,7 +22,7 @@ class CrearTablaAtencion extends Migration
                 'type' => 'BIGINT',
                 'auto_increment' => true,
             ],
-            'idformpedido' => [
+            'idrequerimiento' => [
                 'type' => 'BIGINT',
                 'null' => false,
             ],
@@ -101,7 +101,7 @@ class CrearTablaAtencion extends Migration
         ]);
 
         $this->forge->addPrimaryKey('id');
-        $this->forge->addForeignKey('idformpedido', 'requerimiento', 'id', 'RESTRICT', 'CASCADE');
+        $this->forge->addForeignKey('idrequerimiento', 'requerimiento', 'id', 'RESTRICT', 'CASCADE');
         $this->forge->addForeignKey('idadmin', 'usuarios', 'id', 'RESTRICT', 'CASCADE');
         $this->forge->addForeignKey('idempleado', 'usuarios', 'id', 'SET NULL', 'CASCADE');
         $this->forge->addForeignKey('idservicio', 'servicios', 'id', 'RESTRICT', 'CASCADE');

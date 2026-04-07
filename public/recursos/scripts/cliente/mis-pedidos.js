@@ -1,142 +1,147 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Referencias DOM
-  const tabla = document.getElementById("content-pedidos");
-  const buscador = document.getElementById("buscador");
-  const skeleton = document.getElementById("sk-servicios");
-  const lista = document.getElementById("lista-servicios");
-  const modal = document.getElementById("modal-nuevo-pedido");
+  // Referencias a elementos del DOM
+  const tablaPedidos = document.getElementById("content-pedidos");
+  const inputBuscador = document.getElementById("buscador");
+  const listaServicios = document.getElementById("lista-servicios");
+  const modalNuevoPedido = document.getElementById("modal-nuevo-pedido");
 
-  // Config de iconos y colores por servicio
-  const servicioConfig = {
-    Diseño: { icono: "bi-palette", color: "#f5c400" },
-    Audiovisual: { icono: "bi-camera-video", color: "#60a5fa" },
-  };
-
-  // ── CARGAR SERVICIOS EN EL MODAL
+  // Funcion Obtener Servicios y Cargar en el Modal
   async function cargarServicios() {
-    skeleton.style.display = "block";
-    lista.style.display = "none";
-    lista.innerHTML = "";
+    // Limpiar lista de servicios
+    listaServicios.innerHTML = "";
 
     try {
-      const res = await fetch(`${base_url}cliente/nuevo-pedido/servicios`);
-      if (!res.ok) throw new Error("Error al cargar servicios");
-      const data = await res.json();
+      // Hacer petición al servidor para obtener servicios
+      const respuesta = await fetch(
+        `${base_url}cliente/nuevo-pedido/servicios`,
+      );
+      if (!respuesta.ok) {
+        throw new Error("Error al cargar servicios");
+      }
 
-      data.forEach((s) => {
-        const cfg = servicioConfig[s.nombre] ?? {
-          icono: "bi-box",
-          color: "#888",
-        };
-        lista.innerHTML += `
-                    <div class="servicio-card" onclick="elegirServicio(${s.id})">
-                        <div class="servicio-card-icon" style="color:${cfg.color};">
-                            <i class="bi ${cfg.icono}"></i>
-                        </div>
-                        <div class="servicio-card-info">
-                            <p class="servicio-card-nombre">${s.nombre}</p>
-                            <p class="servicio-card-desc">${s.descripcion ?? ""}</p>
-                        </div>
-                        <i class="bi bi-arrow-right servicio-card-arrow"></i>
-                    </div>`;
+      const datos = await respuesta.json();
+
+      // Crear tarjetas para cada servicio
+      datos.forEach((servicio) => {
+        listaServicios.innerHTML += `
+          <div class="servicio-card" onclick="elegirServicio(${servicio.id})">
+            <div class="servicio-card-info">
+              <p class="servicio-card-nombre">${servicio.nombre}</p>
+              <p class="servicio-card-desc">${servicio.descripcion || ""}</p>
+            </div>
+            <i class="bi bi-arrow-right servicio-card-arrow"></i>
+          </div>`;
       });
 
-      skeleton.style.display = "none";
-      lista.style.display = "block";
-    } catch (e) {
-      console.error(e);
-      skeleton.style.display = "none";
-      lista.style.display = "block";
-      lista.innerHTML = `<p style="color:#555; text-align:center;">Error al cargar servicios</p>`;
+      //Servicio Personalizado / Id 0 Pára diferenciar de la BD
+      listaServicios.innerHTML += `
+        <div class="servicio-card servicio-personalizado" onclick="elegirServicio(0)">
+          <div class="servicio-card-info">
+            <p class="servicio-card-nombre">Servicio Personalizado</p>
+            <p class="servicio-card-desc">¿No encuentras lo que buscas? Cuéntanos tu idea aquí.</p>
+          </div>
+          <i class="bi bi-arrow-right servicio-card-arrow"></i>
+        </div>`;
+
+      // Mostrar lista de servicios
+      listaServicios.style.display = "block";
+    } catch (error) {
+      console.error(error);
+      listaServicios.innerHTML = `<p style="color:#555; text-align:center;">Error al cargar servicios</p>`;
+      listaServicios.style.display = "block";
     }
   }
 
-  // Cargar servicios cuando se abre el modal
-  modal.addEventListener("shown.bs.modal", cargarServicios);
+  // Llamar cargar_servicios, al Abrir el Modal
+  modalNuevoPedido.addEventListener("shown.bs.modal", cargarServicios);
 
-  // Redirige al formulario con el servicio elegido
+  // Funcion para Redirigir por Servicio (Provisional)
   window.elegirServicio = function (idServicio) {
     window.location.href = `${base_url}/cliente/nuevo-pedido/${idServicio}`;
   };
 
-  /**
-   * Obtiene los pedidos del usuario desde Backend y renderiza tabla dinámica
-   */
+  // Funcion para Otener Pedidos y Mostrarlos en la Tabla
   async function obtenerPedidos() {
     try {
-      const res = await fetch(`${base_url}/cliente/pedidos/listar`);
-      if (!res.ok) return;
-      const data = await res.json();
-
-      const skTabla = document.getElementById("sk-tabla");
-      if (skTabla) skTabla.remove();
-
-      const tabla = document.getElementById("content-pedidos");
-      tabla.innerHTML = "";
-
-      // Contadores Actualizados
-      document.getElementById("cnt-total").textContent = data.length;
-      document.getElementById("cnt-por-aprobar").textContent = data.filter(
-        (p) => p.estado === "pendiente_sin_asignar",
+      // Petición al servidor para obtener pedidos del usuario
+      const respuesta = await fetch(`${base_url}cliente/pedidos/listar`);
+      if (!respuesta.ok) {
+        return;
+      }
+      const datos = await respuesta.json();
+      // Limpiar tabla
+      tablaPedidos.innerHTML = "";
+      // Actualizar contadores en las métricas
+      document.getElementById("cnt-total").textContent = datos.length;
+      document.getElementById("cnt-por-aprobar").textContent = datos.filter(
+        (pedido) => pedido.estado === "pendiente_sin_asignar",
       ).length;
-      document.getElementById("cnt-en-proceso").textContent = data.filter((p) =>
-        ["pendiente_asignado", "en_proceso", "en_revision"].includes(p.estado),
+      document.getElementById("cnt-en-proceso").textContent = datos.filter(
+        (pedido) =>
+          ["pendiente_asignado", "en_proceso", "en_revision"].includes(
+            pedido.estado,
+          ),
       ).length;
-      document.getElementById("cnt-completado").textContent = data.filter(
-        (p) => p.estado === "finalizado",
+      document.getElementById("cnt-completado").textContent = datos.filter(
+        (pedido) => pedido.estado === "finalizado",
       ).length;
 
-      if (data.length === 0) {
-        tabla.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px;">Sin pedidos registrados</td></tr>`;
+      // Si no hay pedidos, mostrar mensaje
+      if (datos.length === 0) {
+        tablaPedidos.innerHTML = `<tr><td colspan="7" style="text-align:center;">Sin pedidos registrados</td></tr>`;
         return;
       }
 
-      // LA CLAVE: data[0] es el más nuevo, por eso su número debe ser data.length
-      data.forEach((p, index) => {
-        // Usar el ID real de la base de datos (Momentaneo)
-        const nroFila = p.idformpedido;
+      // Guardar total de registros para numeración inversa
+      const totalRegistros = datos.length;
 
-        const nombreServicio =
-          p.servicio ||
-          p.servicio_personalizado ||
-          '<span style="color:#ce8011; font-style:italic;">Personalizado</span>';
+      // Crear filas de la tabla para cada pedido
+      datos.forEach((pedido, indice) => {
+        // Número correlativo inverso (último pedido es #1)
+        const numeroVisual = totalRegistros - indice;
 
-        tabla.innerHTML += `
-        <tr data-numero="${nroFila}">
-            <td style="color:#555; font-size:11px;">#${nroFila}</td>
+        // Nombre del servicio (o personalizado si no hay)
+        const nombreServicio = pedido.servicio || pedido.servicio_personalizado;
+
+        // Agregar fila a la tabla
+        tablaPedidos.innerHTML += `
+          <tr data-numero="${pedido.idrequerimiento}">
+            <td style="color:#555; font-size:11px; font-weight:bold;">#${numeroVisual}</td>
             <td>
-                ${
-                  p.titulo
-                    ? `<span style="font-weight:600; font-size:13px;">${p.titulo}</span>`
-                    : `<span style="color:#777; font-style:italic;">Pendiente de revisión</span>`
-                }
+              ${
+                pedido.titulo
+                  ? `<span style="font-weight:600; font-size:13px;">${pedido.titulo}</span>`
+                  : `<span style="color:#777; font-style:italic;">Sin título</span>`
+              }
             </td>
             <td>${nombreServicio}</td>
-            <td>${badgeEstado(p.estado)}</td>
-            <td>${p.prioridad ? badgePrioridad(p.prioridad) : '<span style="color:#555">—</span>'}</td>
-            <td style="color:#777; font-size:11px;">${(p.fechainicio || p.fechacreacion)?.substring(0, 10) ?? "—"}</td>
+            <td>${crearBadgeEstado(pedido.estado)}</td>
+            <td>${pedido.prioridad ? crearBadgePrioridad(pedido.prioridad) : "—"}</td>
+            <td style="color:#777; font-size:11px;">${pedido.fechacreacion?.substring(0, 10)}</td>
             <td>
-                <a href="${base_url}index.php/cliente/pedidos/detalle/${p.id}" class="btn-ver" title="Ver detalle">
-                    <i class="bi bi-eye"></i>
-                </a>
+              <a href="${base_url}cliente/pedidos/detalle/${pedido.id}" class="btn-ver">
+                <i class="bi bi-eye"></i>
+              </a>
             </td>
-        </tr>`;
+          </tr>`;
       });
-    } catch (e) {
-      console.error("Error al obtener pedidos:", e);
+    } catch (error) {
+      console.error("Error al obtener pedidos:", error);
     }
   }
 
-  /**
-   * Implementa búsqueda en tiempo real sobre la tabla de pedidos
-   */
-  if (buscador) {
-    buscador.addEventListener("keyup", function () {
+  // Variable para controlar el tiempo de búsqueda
+  let temporizadorBusqueda;
+
+  // Funcion de Busqueda
+  inputBuscador.addEventListener("keyup", function () {
+    // Limpiar temporizador anterior
+    clearTimeout(temporizadorBusqueda);
+    // Esperar 1 segundo antes de buscar
+    temporizadorBusqueda = setTimeout(() => {
       const termino = this.value.trim().toLowerCase();
       const filas = document.querySelectorAll("#tablaPedidos tbody tr");
-
       filas.forEach((fila) => {
-        // Si el buscador está vacío, mostramos todo y salimos
         if (termino === "") {
           fila.style.display = "";
           return;
@@ -144,47 +149,41 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let coincide = false;
 
-        // 1. LÓGICA POR NÚMERO
-        if (/^\d+$/.test(termino)) {
-          const nroFila = fila.getAttribute("data-numero");
-          coincide = nroFila === termino;
-        }
-        // 2. LÓGICA POR TEXTO (Solo si no es un número)
-        else {
-          const titulo =
-            fila.querySelector("td:nth-child(2)")?.textContent.toLowerCase() ||
-            "";
-          const servicio =
-            fila.querySelector("td:nth-child(3)")?.textContent.toLowerCase() ||
-            "";
-          const estado =
-            fila.querySelector("td:nth-child(4)")?.textContent.toLowerCase() ||
-            "";
+        // Obtener datos de la fila para comparar
+        const numeroFila = fila.getAttribute("data-numero");
+        const numeroVisual = fila
+          .querySelector("td:first-child")
+          ?.textContent.toLowerCase();
+        const titulo = fila
+          .querySelector("td:nth-child(2)")
+          ?.textContent.toLowerCase();
+        const servicio = fila
+          .querySelector("td:nth-child(3)")
+          ?.textContent.toLowerCase();
+        const estado = fila
+          .querySelector("td:nth-child(4)")
+          ?.textContent.toLowerCase();
 
-          coincide =
-            titulo.includes(termino) ||
-            servicio.includes(termino) ||
-            estado.includes(termino);
-        }
-
-        // Aplicamos el resultado una sola vez por fila
+        // Verificar si el término coincide con algún campo
+        coincide =
+          numeroFila.includes(termino) ||
+          numeroVisual.includes(termino) ||
+          titulo.includes(termino) ||
+          servicio.includes(termino) ||
+          estado.includes(termino);
+        // Mostrar u ocultar fila según coincidencia
         fila.style.display = coincide ? "" : "none";
       });
-    });
-  }
+    }, 1000);
+  });
 
-  // Auto-ejecutar al cargar
   obtenerPedidos();
 });
+// Funciones para Crear Badge (Etiquetas visuales)
 
-/**
- * BADGES
- * Convierte el estado ENUM de BD a su representación visual (badge HTML)
- *
- * @param {string} estado - Valor ENUM de la BD
- * @returns {string} - HTML badge con clase de estilo correspondiente
- */
-function badgeEstado(estado) {
+// Badge de estado
+function crearBadgeEstado(estado) {
+  // Mapa de estados a texto y clase CSS
   const mapaEstados = {
     pendiente_sin_asignar: {
       texto: "Por Aprobar",
@@ -200,27 +199,29 @@ function badgeEstado(estado) {
     cancelado: { texto: "Cancelado", clase: "estado-cancelado" },
   };
 
+  // Obtener configuración o usar por defecto
   const config = mapaEstados[estado] || {
     texto: estado,
     clase: "estado-default",
   };
-
+  // Retornar HTML del badge
   return `<span class="badge-estado ${config.clase}">${config.texto.toUpperCase()}</span>`;
 }
 
-function badgePrioridad(prio) {
-  // Mapeo basado en tu CREATE TYPE prioridad_enum
+// Badge de prioridad
+function crearBadgePrioridad(prioridad) {
+  // Mapa de prioridades a clase CSS y etiqueta
   const mapaPrioridades = {
-    Baja: { clase: "prio-baja", label: "Baja" },
-    Media: { clase: "prio-media", label: "Media" },
-    Alta: { clase: "prio-alta", label: "Alta" },
-    Urgente: { clase: "prio-urgente", label: "¡URGENTE!" }, // Nuevo nivel
+    Baja: { clase: "prio-baja", etiqueta: "Baja" },
+    Media: { clase: "prio-media", etiqueta: "Media" },
+    Alta: { clase: "prio-alta", etiqueta: "Alta" },
   };
 
-  const config = mapaPrioridades[prio] || {
+  // Obtener configuración o usar por defecto
+  const config = mapaPrioridades[prioridad] || {
     clase: "prio-default",
-    label: prio,
+    etiqueta: prioridad,
   };
-
-  return `<span class="badge-prio ${config.clase}">${config.label}</span>`;
+  // Retornar HTML del badge
+  return `<span class="badge-prio ${config.clase}">${config.etiqueta}</span>`;
 }

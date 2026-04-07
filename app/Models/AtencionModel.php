@@ -12,7 +12,7 @@ class AtencionModel extends Model
 
     // Campos permitidos para manipulación de datos (Mass Assignment Protection)
     protected $allowedFields = [
-        'idformpedido',
+        'idrequerimiento',
         'idadmin',
         'idempleado',
         'idservicio',
@@ -32,36 +32,33 @@ class AtencionModel extends Model
         'respuestatexto'
     ];
 
-
     /**
      * Obtiene todos los pedidos de atención asociados a un cliente específico
-     * @param mixed $usuarioId ID del usuario en sesión (obtenido de la sesión activa)
-     * @return array Array asociativo con los pedidos encontrados. Si no hay pedidos, retorna array vacío.
+     * @param mixed ID del usuario en sesión (obtenido de la sesión activa)
+     * @return array Array con los pedidos encontrados. Si no hay pedidos, retorna array vacío.
      */
     public function getPedidosPorCliente($usuarioId)
     {
-        // Query SQL con JOINs multinivel para filtrar pedidos por usuario
-        // Se construye como una cadena legible para facilitar mantenimiento
         $sql = "
-            SELECT 
+            SELECT DISTINCT
                 a.id, 
                 a.titulo, 
                 a.estado, 
                 a.prioridad, 
-                a.fechacreacion, 
-                a.idformpedido,
+                r.fechacreacion,
+                a.idrequerimiento,
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
                 e.nombreempresa AS empresa
             FROM atencion a
             LEFT JOIN servicios s ON s.id = a.idservicio
-            INNER JOIN requerimiento r ON r.id = a.idformpedido
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
             INNER JOIN empresas e ON e.id = r.idempresa
             INNER JOIN areas ar ON ar.idempresa = e.id
             INNER JOIN usuarios u ON u.idarea = ar.id
             WHERE u.id = ? 
-            ORDER BY a.idformpedido DESC
+            ORDER BY a.idrequerimiento DESC 
         ";
-        // Ejecuta la query con parametrización para prevenir SQL injection
+
         return $this->db->query($sql, [$usuarioId])->getResultArray();
     }
 }

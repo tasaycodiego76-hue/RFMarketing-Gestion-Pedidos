@@ -9,16 +9,16 @@ class AreaSeeder extends Seeder
     public function run()
     {
         // Obtener la empresa principal buscando por el nombre de columna correcto: nombreempresa
-        $empresa = $this->db->table('empresas')
+        $empresaU = $this->db->table('empresas')
                             ->where('nombreempresa', 'UNIVERSIDAD AUTÓNOMA DE ICA')
                             ->get()->getRow();
         
         // Si no la encuentra, toma la primera que exista en la tabla
-        if (!$empresa) {
-            $empresa = $this->db->table('empresas')->get()->getRow();
+        if (!$empresaU) {
+            $empresaU = $this->db->table('empresas')->get()->getRow();
         }
 
-        $idEmpresa = $empresa ? $empresa->id : 1;
+        $idEmpresa = $empresaU ? $empresaU->id : 1;
 
         $nombres = [
             'ADMINISTRACION FINANCIERA Y TALENTO HUMANO',
@@ -53,5 +53,24 @@ class AreaSeeder extends Seeder
         }
 
         $this->db->table('areas')->insertBatch($data);
+
+        // 1. Buscamos la empresa de Byron específicamente
+        $empresaB = $this->db->table('empresas')
+                            ->where('nombreempresa', 'COLEGIO ADA BYRON') 
+                            ->get()->getRow();
+
+        // Si no existe Byron, usamos el ID 2 (o el que sepas que tiene en tu BD)
+        $idByron = $empresaB ? $empresaB->id : 2; 
+
+        // 2. Solo unas cuantas áreas de ejemplo
+        $ejemplos = [
+            ['nombre' => 'ATENCIÓN AL CLIENTE', 'idempresa' => $idByron, 'activo' => true],
+            ['nombre' => 'BIBLIOTECA', 'idempresa' => $idByron, 'activo' => true],
+            ['nombre' => 'GERENCIA GENERAL', 'idempresa' => $idByron, 'activo' => true],
+            ['nombre' => 'SOPORTE TECNICO', 'idempresa' => $idByron, 'activo' => true],
+        ];
+
+        // 3. Insertar solo los ejemplos
+        $this->db->table('areas')->insertBatch($ejemplos);
     }
 }

@@ -8,13 +8,13 @@ class AtencionSeeder extends Seeder
     {
         $data = [
             [
-                'idformpedido' => 1,
+                'idrequerimiento' => 1,
                 'idadmin' => 1,
                 'idempleado' => 6,
                 'idservicio' => 2,
                 'servicio_personalizado' => null,
                 'titulo' => 'Video Reel Bienvenida',
-                'prioridad' => 'Urgente',
+                'prioridad' => 'Alta',
                 'estado' => 'en_revision',
                 'num_modificaciones' => 2,
                 'respuestatexto' => 'Primera versión enviada, esperando validación de colores.',
@@ -22,7 +22,7 @@ class AtencionSeeder extends Seeder
                 'fechafin' => '2026-04-02'
             ],
             [
-                'idformpedido' => 2,
+                'idrequerimiento' => 2,
                 'idadmin' => 1,
                 'idempleado' => 3,
                 'idservicio' => 1,
@@ -36,7 +36,7 @@ class AtencionSeeder extends Seeder
                 'fechafin' => '2026-04-10'
             ],
             [
-                'idformpedido' => 3,
+                'idrequerimiento' => 3,
                 'idadmin' => 1,
                 'idempleado' => null,
                 'idservicio' => 1,
@@ -50,7 +50,7 @@ class AtencionSeeder extends Seeder
                 'fechafin' => '2026-04-18'
             ],
             [
-                'idformpedido' => 4,
+                'idrequerimiento' => 4,
                 'idadmin' => 1,
                 'idempleado' => 3,
                 'idservicio' => 1,
@@ -64,7 +64,7 @@ class AtencionSeeder extends Seeder
                 'fechafin' => '2026-04-18'
             ],
             [
-                'idformpedido' => 5,
+                'idrequerimiento' => 5,
                 'idadmin' => 1,
                 'idempleado' => null,
                 'idservicio' => null,
