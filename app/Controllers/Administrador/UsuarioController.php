@@ -22,20 +22,27 @@ class UsuarioController extends Controller
     /**
      * Devuelve la lista de usuarios con su área de agencia en JSON.
      */
-    public function listar()
-    {
-        $db       = \Config\Database::connect();
-     $usuarios = $db->table('usuarios u')
-    ->select('u.*, a.nombre as area_nombre')
-    ->join('areas_agencia a', 'a.id = u.idarea_agencia', 'left')
-    ->get()->getResultArray();
+public function listar()
+{
+    $db = \Config\Database::connect();
 
-        foreach ($usuarios as &$u) {
-            $u['estado'] = ($u['estado'] === true || $u['estado'] === 't' || $u['estado'] == 1) ? 1 : 0;
-        }
+    $usuarios = $db->table('usuarios u')
+        ->select('u.*')
+        
+        ->select("COALESCE(aa.nombre, ae.nombre, '-') as area_nombre")
+        ->join('areas_agencia aa', 'aa.id = u.idarea_agencia', 'left')
+        ->join('areas ae', 'ae.id = u.idarea', 'left')
+        ->orderBy('u.rol', 'ASC') 
+        ->orderBy('u.nombre', 'ASC')
+        ->get()->getResultArray();
 
-        return $this->response->setJSON($usuarios);
+    foreach ($usuarios as &$u) {
+        
+        $u['estado'] = ($u['estado'] === true || $u['estado'] === 't' || $u['estado'] == 1) ? 1 : 0;
     }
+
+    return $this->response->setJSON($usuarios);
+}
 
     /**
      * Lista las áreas de la agencia
@@ -43,7 +50,7 @@ class UsuarioController extends Controller
     public function listarServicios() 
     {
         $db        = \Config\Database::connect();
-        // Aquí ya lo tenías bien como 'areas_agencia'
+
         $servicios = $db->table('areas_agencia') 
             ->where('activo', true)
             ->get()

@@ -8,7 +8,7 @@ class CrearTablaRequerimiento extends Migration
 {
     public function up()
     {
-        $this->db->query("CREATE TYPE prioridad_enum AS ENUM ('Baja', 'Media', 'Alta', 'Urgente')");
+        $this->db->query("CREATE TYPE prioridad_enum AS ENUM ('Baja', 'Media', 'Alta')");
 
         $this->forge->addField([
             'id' => [
