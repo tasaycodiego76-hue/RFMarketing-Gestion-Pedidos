@@ -96,7 +96,7 @@
                                 <label>Área de la Agencia</label>
                                 <select class="form-control" id="idarea_agencia">
                                     <option value="">— Seleccione Área —</option>
-                                    <?php foreach ($areas as $a): ?>
+                                    <?php foreach ($areasAgencia as $a): ?>
                                         <option value="<?= $a['id'] ?>"><?= $a['nombre'] ?></option>
                                     <?php endforeach; ?>
                                 </select>
