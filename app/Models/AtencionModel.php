@@ -23,10 +23,9 @@ class AtencionModel extends Model
         'num_modificaciones',
         'observacion_revision',
         'fechainicio',
-        'horainicio',
         'fechafin',
-        'horafin',
         'fechacompletado',
+        'fechacreacion',
         'cancelacionmotivo',
         'fechacancelacion',
         'respuestatexto'
@@ -40,8 +39,8 @@ class AtencionModel extends Model
     public function getPedidosPorCliente($usuarioId)
     {
         $sql = "
-            SELECT DISTINCT
-                a.id, 
+            SELECT 
+                a.id AS atencion_id, 
                 a.titulo, 
                 a.estado, 
                 a.prioridad, 
@@ -50,12 +49,11 @@ class AtencionModel extends Model
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
                 e.nombreempresa AS empresa
             FROM atencion a
-            LEFT JOIN servicios s ON s.id = a.idservicio
             INNER JOIN requerimiento r ON r.id = a.idrequerimiento
             INNER JOIN empresas e ON e.id = r.idempresa
-            INNER JOIN areas ar ON ar.idempresa = e.id
-            INNER JOIN usuarios u ON u.idarea = ar.id
-            WHERE u.id = ? 
+            LEFT JOIN servicios s ON s.id = a.idservicio
+            INNER JOIN areas ar ON ar.id = (SELECT idarea FROM usuarios WHERE id = ?)
+            WHERE e.id = ar.idempresa
             ORDER BY a.idrequerimiento DESC 
         ";
 

@@ -50,4 +50,24 @@ class UsuarioModel extends Model
             ->where('usuarios.id', $idUsuario)
             ->first(); // Retorna una sola fila como array
     }
+
+    /**
+     * Obtiene la empresa vinculada al usuario a través de su área
+     * Puede ser Usada para Procesos de Guardado (Insert / POST)
+     * @param mixed $usuarioId
+     * @return array|null
+     */
+    public function getDatosEmpresaUsuario($usuarioId)
+    {
+        $sql = "
+            SELECT 
+                u.id, 
+                a.idempresa
+            FROM usuarios u
+            INNER JOIN areas a ON a.id = u.idarea
+            WHERE u.id = ?
+        ";
+
+        return $this->db->query($sql, [$usuarioId])->getRowArray();
+    }
 }
