@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class RequerimientoModel extends Model
 {
-    protected $table = 'requerimientos';
+    protected $table = 'requerimiento';
     protected $primaryKey = 'id';
     // Definimos qué columnas se pueden devolver o manipular
     protected $allowedFields = [
@@ -44,7 +44,7 @@ class RequerimientoModel extends Model
             LEFT JOIN servicios s ON s.id = r.idservicio
             WHERE r.id = ?
             ";
-            
+
         return $this->db->query($sql, [$RequerimientoID])->getRowArray();
     }
 }

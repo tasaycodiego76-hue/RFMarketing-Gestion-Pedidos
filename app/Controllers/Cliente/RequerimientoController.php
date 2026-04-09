@@ -71,31 +71,98 @@ class RequerimientoController extends BaseController
 
         // Insertar en tabla 'requerimiento'
         $reqModel = new RequerimientoModel();
+
+        // Asegurar formato de fecha para PostgreSQL TIMESTAMP
+        $fechaEntregaRaw = $this->request->getPost('fecha_entrega');
+        $fechaObjeto = new \DateTime($fechaEntregaRaw);
+
         $dataReq = [
-            'idempresa' => $userData['idempresa'], // Tomado del detalle del usuario
-            'idservicio' => !empty($idServicio) ? $idServicio : null,
+            'idempresa' => (int) $userData['idempresa'],
+            'idservicio' => !empty($idServicio) ? (int) $idServicio : null,
             'servicio_personalizado' => !empty($servPerso) ? $servPerso : null,
             'titulo' => $this->request->getPost('titulo'),
             'objetivo_comunicacion' => $this->request->getPost('objetivo'),
             'descripcion' => $this->request->getPost('descripcion'),
-            'tipo_requerimiento' => $this->request->getPost('tipo_req'),
+            'tipo_requerimiento' => $this->request->getPost('tipo_requerimiento'),
             'canales_difusion' => $this->request->getPost('canales'),
             'publico_objetivo' => $this->request->getPost('publico'),
-            'tiene_materiales' => $this->request->getPost('materiales') === 'true' ? true : false,
+            'tiene_materiales' => filter_var($this->request->getPost('materiales'), FILTER_VALIDATE_BOOLEAN),
             'formatos_solicitados' => $this->request->getPost('formatos'),
             'formato_otros' => $this->request->getPost('formato_otros') ?? '',
-            'fecharequerida' => $this->request->getPost('fecha_entrega'),
-            'prioridad' => $this->request->getPost('prioridad') ?? 'Media'
+            'fecharequerida' => $fechaObjeto->format('Y-m-d H:i:s'),
+            'prioridad' => ucfirst(strtolower($this->request->getPost('prioridad') ?? 'Media'))
         ];
 
-        // Inserta el requerimiento y obtiene el ID generado automáticamente
-        $reqModel->insert($dataReq);
+        // El método insert() ya devuelve el ID generado por defecto
+        $idGenerado = $reqModel->insert($dataReq);
 
-        /**
-         * insertID() obtiene el ID del último registro insertado
-         * Este ID es necesario para vincular la tabla 'atencion' con 'requerimiento' a través de la clave foránea 'idrequerimiento'.
-         */
-        $idGenerado = $db->insertID();
+        // Capturamos el valor booleano correctamente
+        $tieneMateriales = filter_var($this->request->getPost('materiales'), FILTER_VALIDATE_BOOLEAN);
+
+        // Obtenemos los archivos
+        $archivos = $this->request->getFiles();
+        $hayArchivos = !empty($archivos['documentos']) && $archivos['documentos'][0]->isValid();
+
+        //Validacion
+        if (!$tieneMateriales && $hayArchivos) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'msg' => 'No puedes subir archivos si marcaste que no tienes materiales.'
+            ]);
+        }
+
+        //Creacion para Validar Requerimiento Fecha Minima
+        $tiemposPorTipo = [
+            'Adaptación de Arte' => 7,
+            'Creación de Arte' => 10,
+            'Creación de Videos' => 20, // Ajusta al nombre exacto que envías
+            'Trabajo editorial' => 20
+        ];
+        $tipoReq = $this->request->getPost('tipo_requerimiento');
+        $diasNecesarios = $tiemposPorTipo[$tipoReq] ?? 7;
+
+        //Validacion /Fecha Requerida no debe ser pasada
+        $fechaMinima = $this->calcularFechaMinima($diasNecesarios);
+        $fechaEntrega = new \DateTime($fechaEntregaRaw);
+
+        // Validamos si la fecha del cliente es menor a la permitida
+        if ($fechaEntrega < $fechaMinima) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'msg' => "Para el tipo '$tipoReq', la fecha mínima de entrega es el " . $fechaMinima->format('d/m/Y') . " (requiere $diasNecesarios días hábiles)."
+            ]);
+        }
+
+        // Campos Vacios Oligatorios
+        $requeridos = ['titulo', 'objetivo', 'descripcion', 'tipo_requerimiento', 'fecha_entrega'];
+        foreach ($requeridos as $campo) {
+            if (empty($this->request->getPost($campo))) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'msg' => "El campo '$campo' es obligatorio."
+                ]);
+            }
+        }
+
+        //Prioridad Valido
+        $prioridadesValidas = ['Alta', 'Media', 'Baja'];
+        $prioridad = ucfirst(strtolower($this->request->getPost('prioridad') ?? 'Media'));
+        if (!in_array($prioridad, $prioridadesValidas)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'msg' => 'Prioridad inválida.'
+            ]);
+        }
+
+        if (!$idGenerado) {
+            $db->transRollback();
+            return $this->response->setJSON([
+                'status' => 'error',
+                'msg' => 'Fallo al insertar Requerimiento.',
+                'errors' => $reqModel->errors(), // Esto te dirá si hay un error de validación
+                'data_enviada' => $dataReq      // Para comparar con tus allowedFields
+            ]);
+        }
 
         // Insertar en tabla 'atencion' (Espejo para gestión)
         $atencionModel = new AtencionModel();
@@ -108,12 +175,11 @@ class RequerimientoController extends BaseController
             'prioridad' => $dataReq['prioridad'],
             'estado' => 'pendiente_sin_asignar',
             'respuestatexto' => '',
-            'fechafin' => $dataReq['fecharequerida']
+            'fechafin' => $fechaObjeto->format('Y-m-d')
         ];
 
-        // Inserta el registro de atención
-        $atencionModel->insert($dataAtn);
-        $idAtnGenerado = $db->insertID(); //Captura el ID Atencion para los Archivos
+        // Inserta el registro de atención y captura el ID directamente del modelo
+        $idAtnGenerado = $atencionModel->insert($dataAtn);
 
         /**
          * VERIFICAR ESTADO DE LA TRANSACCIÓN
@@ -122,9 +188,15 @@ class RequerimientoController extends BaseController
          * (tanto del requerimiento como de la atención) y devolver la BD a su estado anterior.
          */
         if ($db->transStatus() === false) {
-            // ROLLBACK: Revierte todos los cambios en caso de error
+            // LOG DE ERRORES PARA DEPURAR (Revisa writable/logs/log-xxxx.php)
+            log_message('error', 'Fallo en DB: ' . json_encode($db->error()));
+
             $db->transRollback();
-            return $this->response->setJSON(['status' => 'error', 'msg' => 'Error al crear el requerimiento en BD.']);
+            return $this->response->setJSON([
+                'status' => 'error',
+                'msg' => 'Error al crear el requerimiento en BD.',
+                'debug' => $db->error() // Solo para desarrollo, quítalo después
+            ]);
         }
 
         /**
@@ -182,6 +254,22 @@ class RequerimientoController extends BaseController
             'msg' => '¡Requerimiento enviado con éxito!',
             'id_req' => $idGenerado
         ]);
+    }
+
+    //Funcion para Falidar la Fecha Minima Segun el Tipo de Requerimiento
+    private function calcularFechaMinima($diasHabiles)
+    {
+        $fecha = new \DateTime();
+        $cont = 0;
+
+        while ($cont < $diasHabiles) {
+            $fecha->modify('+1 day');
+            // 6 = Sábado, 7 = Domingo
+            if ($fecha->format('N') < 6) {
+                $cont++;
+            }
+        }
+        return $fecha;
     }
 
     /**
