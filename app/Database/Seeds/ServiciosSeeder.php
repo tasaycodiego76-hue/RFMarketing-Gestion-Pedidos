@@ -10,14 +10,14 @@ class ServiciosSeeder extends Seeder
     {
         $servicios = [
             [
-                'nombre'      => 'Diseño Gráfico',
+                'nombre' => 'Diseño Gráfico',
                 'descripcion' => 'Logos y flyers',
-                'activo'      => true,
+                'activo' => true,
             ],
             [
-                'nombre'      => 'Edición y Video',
+                'nombre' => 'Audiovisual',
                 'descripcion' => 'Producción audiovisual y cortes',
-                'activo'      => true,
+                'activo' => true,
             ],
         ];
 

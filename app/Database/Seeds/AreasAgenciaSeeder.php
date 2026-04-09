@@ -13,11 +13,13 @@ class AreasAgenciaSeeder extends Seeder
 
         $data = [
             [
-                'nombre' => 'DISEÑO GRÁFICO',
+                'nombre' => 'Diseño Gráfico',
+                'descripcion' => 'Servicio de diseño y artes visuales.',
                 'activo' => true,
             ],
             [
-                'nombre' => 'EDICIÓN Y VIDEO',
+                'nombre' => 'Edición y Video',
+                'descripcion' => 'Servicio de producción y post-producción audiovisual.',
                 'activo' => true,
             ],
         ];

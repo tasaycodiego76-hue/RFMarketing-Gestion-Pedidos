@@ -45,26 +45,30 @@
         <div class="sidebar-profile">
             <div class="profile-avatar">
                 <?php
-                // Usamos el array que viene del endpoint (controlador)
                 $nombre = $user['nombre'] ?? 'Sin Nombre';
                 $apellidos = $user['apellidos'] ?? '';
                 $rol = $user['rol'] ?? 'CLIENTE';
-                // Generamos las iniciales para el círculo amarillo
+
+                // NUEVAS VARIABLES
+                $empresa = $user['empresa'] ?? 'Empresa no asignada';
+                $area = $user['area'] ?? 'Área General';
+
                 $n_ini = substr($nombre, 0, 1);
                 $a_ini = substr($apellidos, 0, 1);
                 $iniciales = strtoupper($n_ini . $a_ini);
                 ?>
-                <span>
-                    <?= $iniciales ?>
-                </span>
+                <span><?= $iniciales ?></span>
                 <div class="avatar-status"></div>
             </div>
             <div class="profile-info">
                 <p class="profile-name">
                     <?= esc($nombre . ' ' . $apellidos) ?>
                 </p>
-                <span class="profile-rol">
-                    <?= esc($rol) ?>
+                <span class="profile-rol d-block">
+                    <i class="bi bi-building"></i> <?= esc($empresa) ?>
+                </span>
+                <span class="profile-rol" style="opacity: 0.8; font-size: 0.75rem;">
+                    <i class="bi bi-geo-alt"></i> Area: <?= esc($area) ?>
                 </span>
             </div>
         </div>
@@ -153,11 +157,9 @@
                         <span class="topbar-user-name">
                             <?= esc($nombre . ' ' . $apellidos) ?>
                         </span>
-                        <!-- <?php if (isset($empresa)): ?>
-                            <span class="topbar-user-empresa">
-                                <?= esc($empresa) ?>
-                            </span>
-                        <?php endif; ?> -->
+                        <span class="topbar-user-empresa" style="font-size: 0.7rem; color: #888; display: block;">
+                            <?= esc($empresa) ?> | <?= esc($area) ?>
+                        </span>
                     </div>
                 </div>
 
@@ -178,7 +180,7 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- JS Plantilla -->
-    <script src="<?= base_url('recursos/js/plantillas/cliente.js') ?>"></script>
+    <script src="<?= base_url('recursos/scripts/plantillas/cliente.js') ?>"></script>
     <!-- Agregar Scrips -->
     <?= $this->renderSection('scripts') ?>
 </body>

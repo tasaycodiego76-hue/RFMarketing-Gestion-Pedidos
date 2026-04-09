@@ -13,11 +13,11 @@ class CrearTablaArchivos extends Migration
                 'type'           => 'BIGINT',
                 'auto_increment' => true,
             ],
-            'idpedido' => [
+            'idatencion' => [
                 'type' => 'BIGINT',
                 'null' => true,
             ],
-            'idformulario' => [
+            'idrequerimiento' => [
                 'type' => 'BIGINT',
                 'null' => true,
             ],
@@ -47,8 +47,8 @@ class CrearTablaArchivos extends Migration
         ]);
 
         $this->forge->addPrimaryKey('id');
-        $this->forge->addForeignKey('idpedido',     'atencion',      'id', 'SET NULL', 'CASCADE');
-        $this->forge->addForeignKey('idformulario', 'requerimiento', 'id', 'SET NULL', 'CASCADE');
+        $this->forge->addForeignKey('idatencion',     'atencion',      'id', 'SET NULL', 'CASCADE');
+        $this->forge->addForeignKey('idrequerimiento', 'requerimiento', 'id', 'SET NULL', 'CASCADE');
         $this->forge->createTable('archivos');
     }
 

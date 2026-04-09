@@ -78,9 +78,9 @@ class UsuarioController extends Controller
 
             $idEmpresa = $empresaModel->insert([
                 'nombreempresa' => $datos['razonsocial'],
-                'ruc'           => $datos['numerodoc'] ?? '',
-                'correo'        => $datos['correo'],
-                'telefono'      => $datos['telefono'] ?? '',
+                'ruc' => $datos['numerodoc'] ?? '',
+                'correo' => $datos['correo'],
+                'telefono' => $datos['telefono'] ?? '',
             ], true);
 
             $responsablesModel->asignarResponsable($id, $idEmpresa);
