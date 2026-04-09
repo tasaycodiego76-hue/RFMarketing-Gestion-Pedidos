@@ -119,9 +119,9 @@ document.addEventListener("DOMContentLoaded", function () {
             <td>${pedido.prioridad ? crearBadgePrioridad(pedido.prioridad) : "—"}</td>
             <td style="color:#777; font-size:11px;">${pedido.fechacreacion?.substring(0, 10)}</td>
             <td>
-              <a href="${base_url}cliente/pedidos/detalle/${pedido.id}" class="btn-ver">
-                <i class="bi bi-eye"></i>
-              </a>
+              <button onclick="verDetalle(${pedido.idrequerimiento})" class="btn-ver" style="border:none; background:none; cursor:pointer;">
+                  <i class="bi bi-eye" style="color: #007bff;"></i>
+              </button>
             </td>
           </tr>`;
       });
@@ -176,6 +176,13 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }, 1000);
   });
+
+  // Redirige a la vista de detalle del requerimiento (JSON)
+  window.verDetalle = function (id) {
+    if (!id){ return };
+    //Redirección dinámica: La Base_url configurada hacia el método 'detalle' del controlador de Requerimientos
+    window.location.href = `${base_url}cliente/requerimiento/detalle/${id}`;
+  };
 
   obtenerPedidos();
 });

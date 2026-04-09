@@ -104,7 +104,7 @@
 
 <!-- Pasar base_url al JS -->
 <script>
-    const base_url = "<?= base_url() ?>/";
+    const base_url = "<?= base_url() ?>";
     const userId = "<?= esc($user['id']) ?>";
     const userRol = "<?= esc($user['rol']) ?>";
 </script>

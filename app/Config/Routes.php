@@ -6,8 +6,6 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 
-
-
 $routes->get('/', 'Home::index');
 
 //Rutas para el Administrador
@@ -39,5 +37,8 @@ $routes->group('cliente', function ($routes) {
     $routes->get('nuevo-pedido/servicios', 'Cliente\MisPedidosController::servicios');
     //Prueba de Registro de Requerimiento (Servicio_Personalizado) Por Ahora sin Carga de Archivos
     $routes->post('requerimiento/guardar', 'Cliente\RequerimientoController::guardar');
+    // Ruta para obtener el JSON con toda la info (EndPoint)
+    $routes->get('requerimiento/detalle/(:num)', 'Cliente\RequerimientoController::detalle/$1');
+    // Ruta especial para VER los archivos protegidos
+    $routes->get('requerimiento/archivo/(:any)', 'Cliente\RequerimientoController::verArchivo/$1');
 });
-

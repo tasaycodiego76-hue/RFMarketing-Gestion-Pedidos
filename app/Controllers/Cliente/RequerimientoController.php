@@ -14,12 +14,15 @@ class RequerimientoController extends BaseController
      * Procesa el guardado de un nuevo requerimiento y su respectiva atención
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
-    public function guardar(){
+    public function guardar()
+    {
         // Obtener usuario de la sesión para seguridad
         $userSession = $this->getActiveUser();
         $idUsuario = is_array($userSession) ? $userSession['id'] : $userSession;
         // Validacion
-        if (!$idUsuario) { return $this->response->setJSON(['status' => 'error', 'msg' => 'Sesión no válida.']); }
+        if (!$idUsuario) {
+            return $this->response->setJSON(['status' => 'error', 'msg' => 'Sesión no válida.']);
+        }
 
         // Buscamos a qué empresa pertenece este usuario/área
         $usuarioModel = new UsuarioModel();
@@ -154,7 +157,7 @@ class RequerimientoController extends BaseController
                     // Registrar info del archivo en tabla 'archivos' para rastreo
                     $archivoModel->insert([
                         'idrequerimiento' => $idGenerado, //Id del Requerimiento
-                        'idatencion'      => $idAtnGenerado, //Id de la Atencion
+                        'idatencion' => $idAtnGenerado, //Id de la Atencion
                         'nombre' => $file->getClientName(), //Nombre Original del Archivo
                         'ruta' => 'uploads/requerimientos/' . $nombreNuevo,  //Ruta para Descarga (Futuro)
                         'tipo' => $file->getClientMimeType(),  //Tipo MIME (PDF, .doc, PNG, etc)
@@ -186,18 +189,92 @@ class RequerimientoController extends BaseController
      * @param $file Archivo a validar
      * @return array ['valido' => bool, 'error' => string|null]
      */
-    private function validarArchivo($file){
+    private function validarArchivo($file)
+    {
         // Tamaño máximo: 500MB
         $tamanoMaximo = 500 * 1024 * 1024;
-        
+
         if (!$file->isValid() || $file->hasMoved()) {
             return ['valido' => false, 'error' => 'Archivo inválido o ya procesado'];
         }
-        
+
         if ($file->getSize() > $tamanoMaximo) {
             return ['valido' => false, 'error' => 'Archivo excede 500MB'];
         }
-        
+
         return ['valido' => true, 'error' => null];
+    }
+
+    /**
+     * Endpoint: Obtiene el detalle completo de un requerimiento en formato JSON
+     * @param mixed $RequerimientoID
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function detalle($RequerimientoID)
+    {
+        // Instanciar modelos necesarios
+        $reqModel = new RequerimientoModel();
+        $archivoModel = new ArchivoModel();
+
+        // Obtener datos completos del requerimiento
+        $data = $reqModel->getDetalleCompleto($RequerimientoID);
+
+        // Validación - Si no existe el requerimiento, retornar error
+        if (!$data) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'msg' => 'Requerimiento no encontrado'
+            ]);
+        }
+
+        // Traer todos los archivos vinculados a este requerimiento
+        $archivos = $archivoModel->where('idrequerimiento', $RequerimientoID)->findAll();
+
+        // Retornar respuesta JSON con éxito y toda la información
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data' => [
+                'requerimiento' => $data,        // Datos del requerimiento + estado + servicio
+                'archivos' => $archivos          // Array con archivos asociados
+            ]
+        ]);
+    }
+
+    /**
+     * Visualiza/Descarga un archivo de requerimiento de forma segura
+     * @param mixed $nombreArchivo
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function verArchivo($nombreArchivo)
+    {
+        // Limpieza de seguridad
+        // basename() elimina cualquier ruta (ej: "uploads/archivo.pdf" → "archivo.pdf")
+        $nombreArchivo = basename($nombreArchivo);
+
+        // Construir la ruta completa del archivo en el servidor
+        // WRITEPATH es la carpeta writable de CodeIgniter (fuera del directorio público)
+        $rutaCompleta = WRITEPATH . 'uploads/requerimientos/' . $nombreArchivo;
+
+        // Validar que el archivo existe y es un archivo (no una carpeta)
+        if (!is_file($rutaCompleta)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound(
+                "El archivo no existe o no puede ser accedido."
+            );
+        }
+
+        // Obtener información del archivo
+        $mimeType = mime_content_type($rutaCompleta);
+        $size = filesize($rutaCompleta);
+
+        // Servir el archivo con headers HTTP apropiados
+        return $this->response
+            ->setHeader('Content-Type', $mimeType) //Tipo de Contenido (PDF, imagen, DOCX, etc)
+            // Controla como mostrar el archivo:
+            //  - 'inline' → Muestra en el navegador si es posible (PDFs, imágenes)
+            ->setHeader('Content-Disposition', 'inline; filename="' . $nombreArchivo . '"')
+            ->setHeader('Cache-Control', 'max-age=31536000')// Instrucción de CACHÉ 
+            // setBody(): Inserta el contenido binario del archivo en la respuesta HTTP
+            // file_get_contents() lee TODO el archivo en memoria
+            ->setBody(file_get_contents($rutaCompleta));
     }
 }
