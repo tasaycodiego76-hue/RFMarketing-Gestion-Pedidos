@@ -8,8 +8,7 @@
  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="<?= base_url('recursos/styles/paginas/admin.css') ?>" rel="stylesheet">
-    <link href="<?= base_url('recursos/styles/paginas/admin.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('recursos/styles/admin/paginas/admin.css') ?>" rel="stylesheet">
     <?= $this->renderSection('styles') ?>
 </head>
 <body>

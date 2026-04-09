@@ -18,7 +18,14 @@ $routes->group('admin', function ($routes) {
     $routes->post('usuarios/registrar',  'Administrador\UsuarioController::registrar');
     $routes->put('usuarios/editar/(:num)',   'Administrador\UsuarioController::editar/$1');  // editar: guardar
     $routes->post('usuarios/toggleEstado',   'Administrador\UsuarioController::toggleEstado'); // habilitar/deshabilitar
-});
+
+    $routes->get('areas',             'Administrador\AreasController::index');
+    $routes->get('areas/clientes', 'Administrador\AreasController::clientes');
+    $routes->post('areas/registrar',  'Administrador\AreasController::registrar');
+    $routes->post('areas/clientes/registrar', 'Administrador\AreasController::registrarCliente');
+    $routes->get('areas/clientes/listar/(:num)', 'Administrador\AreasController::listarPorEmpresa/$1');
+    $routes->post('areas/clientes/registrar',    'Administrador\AreasController::registrarCliente');
+    });
 
 //Rutas para el Responsable (Jefe de Área)
 $routes->group('responsable', function ($routes) {
