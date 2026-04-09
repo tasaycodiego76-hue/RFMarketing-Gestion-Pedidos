@@ -60,10 +60,9 @@ class CrearTablaUsuarios extends Migration
                 'type' => 'rol_enum',
                 'null' => false,
             ],
-            // Reemplaza idservicio → ahora el empleado pertenece a un área de la agencia
             'idarea_agencia' => [
                 'type' => 'BIGINT',
-                'null' => true,  // null si es admin o cliente
+                'null' => true,  
             ],
             'idarea' => [
             'type' => 'BIGINT',

@@ -1,182 +1,201 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    const tabla = document.querySelector('#tabla-usuarios');
+    const tabla      = document.querySelector('#tabla-usuarios');
     const formulario = document.querySelector('#form-usuario');
     const selectRol  = document.querySelector('#rol');
     const btnGuardar = document.querySelector('#btn-guardar');
 
-    // trae usuarios del backend y los pinta en la tabla
-    // ─── CARGAR SERVICIOS ──────────────────────────────────
-async function cargarServicios() {
-    try {
-        const response = await fetch(BASE_URL + 'admin/servicios/listar');
-        const data     = await response.json();
-        const select   = document.querySelector('#idservicio');
-
-        select.innerHTML = '<option value="">— Sin servicio —</option>';
-        data.forEach(s => {
-            select.innerHTML += `<option value="${s.id}">${s.nombre}</option>`;
-        });
-    } catch (e) {
-        console.error('Error al cargar servicios:', e);
+    // ─── NOTIFICACIÓN ──────────────────────────────────────
+    function notificar(mensaje) {
+        alert(mensaje);
     }
-}
+
+    // ─── LISTAR USUARIOS ───────────────────────────────────
     async function obtenerUsuarios() {
-        try {
-            const response = await fetch(BASE_URL + 'admin/usuarios/listar');
-            const data     = await response.json();
+        const response = await fetch(BASE_URL + 'admin/usuarios/listar');
+        const data     = await response.json();
 
-            if (response.status != 200) { return; }
-            if (!data) { return; }
+        tabla.innerHTML = '';
+        data.forEach(u => {
+            const badge     = u.estado ? `<span class="badge-activo">Activo</span>` : `<span class="badge-inactivo">Inactivo</span>`;
+            const btnToggle = u.estado
+                ? `<button class="btn btn-sm btn-warning"  onclick="toggleEstado(${u.id}, true)">Deshabilitar</button>`
+                : `<button class="btn btn-sm btn-success"  onclick="toggleEstado(${u.id}, false)">Habilitar</button>`;
 
-            tabla.innerHTML = '';
-
-            // recorre cada usuario y arma la fila
-            data.forEach(u => {
-                tabla.innerHTML += `
-                    <tr>
-                        <td class="td-nombre">${u.nombre} ${u.apellidos}</td>
-                        <td class="td-usuario">${u.usuario ?? '-'}</td>
-                        <td>${u.correo}</td>
-                        <td class="td-rol">${u.rol}</td>
-                        <td>${u.servicio_nombre ?? '-'}</td>
-                        <td><span class="${u.estado ? 'badge-activo' : 'badge-inactivo'}">${u.estado ? 'Activo' : 'Inactivo'}</span></td>
-                        <td></td>
-                    </tr>
-                `;
-            });
-        } catch (e) {
-            console.error('Error al obtener los usuarios', e);
-        }
+            tabla.innerHTML += `
+                <tr>
+                    <td>${u.nombre} ${u.apellidos}</td>
+                    <td>${u.usuario ?? '-'}</td>
+                    <td>${u.correo}</td>
+                    <td>${u.rol}</td>
+                    <td>${u.area_nombre ?? '-'}</td>
+                    <td>${badge}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="editarUsuario(${u.id})">Editar</button>
+                        ${btnToggle}
+                    </td>
+                </tr>`;
+        });
     }
 
-    // ─── LÍMITES POR TIPO DOC ──────────────────────────────
-    function actualizarDoc(tipo) {
-    const numerodoc = document.querySelector('#numerodoc');
-    if (tipo === 'DNI') {
-        numerodoc.setAttribute('maxlength', '8');
-        numerodoc.setAttribute('minlength', '8');
-        numerodoc.placeholder = '8 dígitos';
-    } else if (tipo === 'RUC') {
-        numerodoc.setAttribute('maxlength', '11');
-        numerodoc.setAttribute('minlength', '11');
-        numerodoc.placeholder = '11 dígitos';
-    } else if (tipo === 'CE') {
-        numerodoc.setAttribute('maxlength', '12');
-        numerodoc.setAttribute('minlength', '9');
-        numerodoc.placeholder = '9-12 caracteres';
-    }
-}
-    // ─── LÓGICA POR ROL ────────────────────────────────────
+    // ─── CAMBIO DE ROL ─────────────────────────────────────
     selectRol.addEventListener('change', function () {
-        const rol    = this.value;
+        const rol     = this.value; 
         const tipodoc = document.querySelector('#tipodoc');
+        const rs      = document.querySelector('#razonsocial');
+        const aa      = document.querySelector('#idarea_agencia');
 
-        // ocultar todo
         document.querySelectorAll('.campo-todos, .campo-cliente, .campo-empleado')
             .forEach(el => el.style.display = 'none');
-        btnGuardar.disabled = true;
+        [rs, aa].forEach(el => { if (el) el.disabled = true; });
 
+        btnGuardar.disabled = !rol;
         if (!rol) return;
 
-        // campos comunes a todos
-        document.querySelector('.campo-todos').style.display = 'block';
+        const config = {
+            empleado: { docs: 'DNI/CE', label: 'Nombre',                 show: '.campo-empleado', field: aa },
+            cliente:  { docs: 'RUC',    label: 'Nombre del Responsable',  show: '.campo-cliente',  field: rs }
+        };
 
-        if (rol === 'administrador') {
-            // tipodoc libre: DNI, CE (no RUC porque no es empresa)
-            tipodoc.innerHTML = `
-                <option value="DNI">DNI</option>
-                <option value="CE">CE</option>
-            `;
-            document.querySelector('#label-nombre').textContent = 'Nombre';
-        }
+        const c = config[rol];
+        document.querySelector('.campo-todos').style.display    = 'block';
+        document.querySelector('#label-nombre').textContent     = c.label;
+        tipodoc.innerHTML = c.docs === 'RUC'
+            ? '<option value="RUC">RUC</option>'
+            : '<option value="DNI">DNI</option><option value="CE">CE</option>';
 
-        if (rol === 'empleado') {
-            tipodoc.innerHTML = `
-                <option value="DNI">DNI</option>
-                <option value="CE">CE</option>
-            `;
-            actualizarDoc('DNI'); 
-            document.querySelector('#label-nombre').textContent = 'Nombre';
-            document.querySelectorAll('.campo-empleado')
-                .forEach(el => el.style.display = 'block');
-            tipodoc.onchange = () => actualizarDoc(tipodoc.value);
-        }
-        if (rol === 'cliente') {
-            // cliente es empresa: solo RUC
-            tipodoc.innerHTML = `<option value="RUC">RUC</option>`;
-            actualizarDoc('RUC');
-            document.querySelector('#label-nombre').textContent = 'Nombre del Responsable';
-            document.querySelector('.campo-cliente').style.display = 'block';
-        }
+        document.querySelectorAll(c.show).forEach(el => el.style.display = 'block');
+        if (c.field) c.field.disabled = false;
 
-        btnGuardar.disabled = false;
+        actualizarDoc(tipodoc.value);
+        tipodoc.onchange = () => actualizarDoc(tipodoc.value);
     });
 
-    // ─── REGISTRAR ─────────────────────────────────────────
-    async function registrarUsuario() {
-        try {
-            const rol = selectRol.value;
+    function actualizarDoc(tipo) {
+    const nd = document.querySelector('#numerodoc');
+    const limites = {
+        DNI: { max: '8',  min: '8',  ph: '8 dígitos' },
+        RUC: { max: '11', min: '11', ph: '11 dígitos' },
+        CE:  { max: '12', min: '9',  ph: '9-12 caracteres' }
+    };
+    const l = limites[tipo];
+    if (!l) return;
+    nd.setAttribute('maxlength', l.max);
+    nd.setAttribute('minlength', l.min);
+    nd.placeholder = l.ph;
+}
 
-            const datos = {
-                rol,
-                nombre:    document.querySelector('#nombre').value,
-                apellidos: document.querySelector('#apellidos').value,
-                correo:    document.querySelector('#correo').value,
-                telefono:  document.querySelector('#telefono').value,
-                tipodoc:   document.querySelector('#tipodoc').value,
-                numerodoc: document.querySelector('#numerodoc').value,
-                usuario:   document.querySelector('#usuario').value,
-                clave:     document.querySelector('#clave').value,
-            };
+    // ─── GUARDAR (REGISTRAR O EDITAR) ──────────────────────
+    formulario.addEventListener('submit', async function (e) {
+        e.preventDefault();
 
-            if (rol === 'cliente') {
-                datos.razonsocial = document.querySelector('#razonsocial').value;
-            }
+        const editId = formulario.dataset.editId;
+        const rol    = selectRol.value;
 
-            if (rol === 'empleado') {
-                datos.idservicio    = document.querySelector('#idservicio').value || null;
-                datos.esresponsable = document.querySelector('#esresponsable').checked;
-            }
+        const datos = {
+            rol,
+            nombre:    document.querySelector('#nombre').value,
+            apellidos: document.querySelector('#apellidos').value,
+            correo:    document.querySelector('#correo').value,
+            telefono:  document.querySelector('#telefono').value,
+            tipodoc:   document.querySelector('#tipodoc').value,
+            numerodoc: document.querySelector('#numerodoc').value,
+            usuario:   document.querySelector('#usuario').value,
+        };
 
-            const response = await fetch(BASE_URL + 'admin/usuarios/registrar', {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify(datos)
-            });
+        const clave = document.querySelector('#clave').value;
+        if (clave) datos.clave = clave;
 
-            const data = await response.json();
-            alert(data.message);
-
-            if (!data.success) { return; }
-
-            $('#modal-usuario').modal('hide');
-            formulario.reset();
-            selectRol.value = '';
-            selectRol.dispatchEvent(new Event('change'));
-            obtenerUsuarios();
-
-        } catch (e) {
-            console.error('Error al registrar usuario:', e);
+        if (rol === 'cliente')  { datos.razonsocial = document.querySelector('#razonsocial').value; }
+        if (rol === 'empleado') {
+            datos.idarea_agencia = document.querySelector('#idarea_agencia').value || null;
+            datos.esresponsable  = document.querySelector('#esresponsable').checked;
         }
-    }
 
-    // ─── ABRIR MODAL ───────────────────────────────────────
-    document.querySelector('#btn-nuevo').addEventListener('click', () => {
+        const url    = editId ? BASE_URL + 'admin/usuarios/editar/' + editId : BASE_URL + 'admin/usuarios/registrar';
+        const method = editId ? 'PUT' : 'POST';
+
+        const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos) });
+        const data     = await response.json();
+
+        notificar(data.message);
+        if (!data.success) return;
+
+        $('#modal-usuario').modal('hide');
         formulario.reset();
+        delete formulario.dataset.editId;
         selectRol.value = '';
         selectRol.dispatchEvent(new Event('change'));
-        $('#modal-usuario').modal('show');
+        obtenerUsuarios();
     });
 
-    // ─── EVENTOS ───────────────────────────────────────────
-    formulario.addEventListener('submit', function(event) {
-    event.preventDefault();
-    registrarUsuario();
+    // ─── EDITAR USUARIO ────────────────────────────────────
+    window.editarUsuario = async function (id) {
+        const response = await fetch(BASE_URL + 'admin/usuarios/obtener/' + id);
+        const u        = await response.json();
+
+        formulario.reset();
+        formulario.dataset.editId = id;
+
+        const inputClave = document.querySelector('#clave');
+        inputClave.removeAttribute('required');
+        inputClave.placeholder = 'Dejar en blanco para no cambiar';
+
+        selectRol.value = u.rol;
+        selectRol.dispatchEvent(new Event('change'));
+
+        setTimeout(() => {
+            document.querySelector('#nombre').value    = u.nombre    ?? '';
+            document.querySelector('#apellidos').value = u.apellidos ?? '';
+            document.querySelector('#correo').value    = u.correo    ?? '';
+            document.querySelector('#telefono').value  = u.telefono  ?? '';
+            document.querySelector('#tipodoc').value   = u.tipodoc   ?? '';
+            document.querySelector('#numerodoc').value = u.numerodoc ?? '';
+            document.querySelector('#usuario').value   = u.usuario   ?? '';
+
+            if (u.rol === 'cliente')  document.querySelector('#razonsocial').value   = u.razonsocial    ?? '';
+            if (u.rol === 'empleado') {
+                document.querySelector('#idarea_agencia').value = u.idarea_agencia ?? '';
+                document.querySelector('#esresponsable').checked = !!u.esresponsable;
+            }
+
+            actualizarDoc(document.querySelector('#tipodoc').value);
+        }, 50);
+
+        document.querySelector('#modal-usuario .modal-title').textContent = 'Editar Usuario';
+        $('#modal-usuario').modal('show');
+    };
+
+    // ─── TOGGLE ESTADO ─────────────────────────────────────
+    window.toggleEstado = async function (id, estadoActual) {
+        const mensaje = estadoActual
+            ? '¿Seguro que deseas deshabilitar este usuario?'
+            : '¿Deseas volver a habilitar este usuario?';
+
+        if (!confirm(mensaje)) return;
+
+        const response = await fetch(BASE_URL + 'admin/usuarios/toggleEstado', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ id, estado: !estadoActual })
+        });
+        const data = await response.json();
+
+        notificar(data.message);
+        if (data.success) obtenerUsuarios();
+    };
+
+    // ─── NUEVO USUARIO ─────────────────────────────────────
+document.querySelector('#btn-nuevo').addEventListener('click', () => {
+    formulario.reset();
+    delete formulario.dataset.editId;
+
+    document.querySelector('#modal-usuario .modal-title').textContent = 'Nuevo Usuario';
+    selectRol.value = '';
+    selectRol.dispatchEvent(new Event('change'));
+    $('#modal-usuario').modal('show');
 });
 
-    // ─── INIT ──────────────────────────────────────────────
-    cargarServicios();
+    // ─── INICIO ────────────────────────────────────────────
     obtenerUsuarios();
-
 });

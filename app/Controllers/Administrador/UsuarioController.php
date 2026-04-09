@@ -5,58 +5,59 @@ namespace App\Controllers\Administrador;
 use CodeIgniter\Controller;
 use App\Models\UsuarioModel;
 use App\Models\EmpresaModel;
+use App\Models\AreasAgenciaModel;
+use App\Models\ResponsablesEmpresaModel;
 
 class UsuarioController extends Controller
 {
-    /**
-     * Muestra la vista principal de gestión de usuarios.
-     * @return string
-     */
     public function index(): string
-{
-    return view('admin/usuarios', [
-        'titulo'       => 'Usuarios',
-        'tituloPagina' => 'USUARIOS',
-        'paginaActual' => 'usuarios',
-        'empresas'     => [],
-    ]);
-}
-
-/**
- * Devuelve la lista de usuarios con su servicio en JSON.
- * @return \CodeIgniter\HTTP\ResponseInterface
- */
-public function listar()
-{
-    $db       = \Config\Database::connect();
-    $usuarios = $db->table('usuarios u')
-        ->select('u.*, s.nombre as servicio_nombre')
-        ->join('servicios s', 's.id = u.idservicio', 'left')
-        ->get()->getResultArray();
-
-    foreach ($usuarios as &$u) {
-        $u['estado'] = ($u['estado'] === true || $u['estado'] === 't' || $u['estado'] == 1) ? 1 : 0;
-    }
-
-    return $this->response->setJSON($usuarios);
-}
-public function listarServicios()
     {
-        $db        = \Config\Database::connect();
-        $servicios = $db->table('servicios')
-            ->where('activo', true)
-            ->get()
-            ->getResultArray();
+        $areasAgenciaModel = new AreasAgenciaModel();
 
-        return $this->response->setJSON($servicios);
+        return view('admin/usuarios', [
+            'titulo'       => 'Usuarios',
+            'tituloPagina' => 'USUARIOS',
+            'paginaActual' => 'usuarios',
+            'areasAgencia' => $areasAgenciaModel->findAll(),
+        ]);
     }
 
+    /**
+     * Retorna la lista de usuarios con su área asignada
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function listar()
+    {
+        $model    = new UsuarioModel();
+        $usuarios = $model->listarConArea();
+
+        foreach ($usuarios as &$u) {
+            $u['estado'] = ($u['estado'] === true || $u['estado'] === 't' || $u['estado'] == 1) ? 1 : 0;
+        }
+
+        return $this->response->setJSON($usuarios);
+    }
+
+    /**
+     *  Retorna las áreas activas para el modal de registro.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function listarServicios()
+    {
+        $model = new AreasAgenciaModel();
+
+        return $this->response->setJSON($model->listarActivas());
+    }
+
+    /**
+      * Registra un nuevo usuario. Si es cliente, también crea su empresa y lo asigna como responsable.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
     public function registrar()
     {
-        $model          = new UsuarioModel();
-        $datos          = $this->request->getJSON(true);
+        $model = new UsuarioModel();
+        $datos = $this->request->getJSON(true);
 
-        // Verificar duplicados
         if ($model->where('correo', $datos['correo'])->first()) {
             return $this->response->setJSON(['success' => false, 'message' => 'El correo ya está registrado']);
         }
@@ -71,25 +72,80 @@ public function listarServicios()
             return $this->response->setJSON(['success' => false, 'message' => 'Error al registrar']);
         }
 
-        // Si es cliente, crear empresa y responsable
         if ($datos['rol'] === 'cliente') {
-            $empresaModel = new EmpresaModel();
-            $idEmpresa    = $empresaModel->insert([
+            $empresaModel      = new EmpresaModel();
+            $responsablesModel = new ResponsablesEmpresaModel();
+
+            $idEmpresa = $empresaModel->insert([
                 'nombreempresa' => $datos['razonsocial'],
                 'ruc'           => $datos['numerodoc'] ?? '',
                 'correo'        => $datos['correo'],
                 'telefono'      => $datos['telefono'] ?? '',
             ], true);
 
-            $db = \Config\Database::connect();
-            $db->table('responsables_empresa')->insert([
-                'idusuario'    => $id,
-                'idempresa'    => $idEmpresa,
-                'fecha_inicio' => date('Y-m-d H:i:s'),
-                'estado'       => 'activo',
-            ]);
+            $responsablesModel->asignarResponsable($id, $idEmpresa);
         }
 
         return $this->response->setJSON(['success' => true, 'message' => 'Usuario registrado correctamente']);
+    }
+
+    /**
+     * * Retorna los datos de un usuario por ID para el modal de edición.
+     * @param mixed $id
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function obtener($id)
+    {
+        $model = new UsuarioModel();
+        $u     = $model->obtenerConArea((int) $id);
+
+        if (!$u) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Usuario no encontrado']);
+        }
+
+        return $this->response->setJSON($u);
+    }
+
+    /**
+     * Actualiza los datos de un usuario.
+     * @param mixed $id
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function editar($id)
+    {
+        $model = new UsuarioModel();
+        $datos = $this->request->getJSON(true);
+
+        if ($model->where('correo', $datos['correo'])->where('id !=', $id)->first()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'El correo ya está en uso']);
+        }
+        if ($model->where('usuario', $datos['usuario'])->where('id !=', $id)->first()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'El usuario ya está en uso']);
+        }
+
+        if (!empty($datos['clave'])) {
+            $datos['clave'] = password_hash($datos['clave'], PASSWORD_DEFAULT);
+        } else {
+            unset($datos['clave']);
+        }
+
+        $model->update($id, $datos);
+
+        return $this->response->setJSON(['success' => true, 'message' => 'Usuario actualizado correctamente']);
+    }
+
+    /**
+     * Activa o desactiva un usuario según el estado recibido.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function toggleEstado()
+    {
+        $model = new UsuarioModel();
+        $datos = $this->request->getJSON(true);
+
+        $model->update($datos['id'], ['estado' => (bool) $datos['estado']]);
+
+        $msg = $datos['estado'] ? 'habilitado' : 'deshabilitado';
+        return $this->response->setJSON(['success' => true, 'message' => "Usuario $msg correctamente"]);
     }
 }
