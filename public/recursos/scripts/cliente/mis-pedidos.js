@@ -163,6 +163,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const estado = fila
           .querySelector("td:nth-child(4)")
           ?.textContent.toLowerCase();
+        const prioridad = fila
+          .querySelector("td:nth-child(5)")
+          ?.textContent.toLowerCase();
 
         // Verificar si el término coincide con algún campo
         coincide =
@@ -170,7 +173,8 @@ document.addEventListener("DOMContentLoaded", function () {
           numeroVisual.includes(termino) ||
           titulo.includes(termino) ||
           servicio.includes(termino) ||
-          estado.includes(termino);
+          estado.includes(termino) ||
+          prioridad.includes(termino);;
         // Mostrar u ocultar fila según coincidencia
         fila.style.display = coincide ? "" : "none";
       });
@@ -179,9 +183,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Redirige a la vista de detalle del requerimiento (JSON)
   window.verDetalle = function (id) {
-    if (!id){ return };
+    if (!id) {
+      return;
+    }
     //Redirección dinámica: La Base_url configurada hacia el método 'detalle' del controlador de Requerimientos
-    window.location.href = `${base_url}cliente/requerimiento/detalle/${id}`;
+    window.location.href = `${base_url}cliente/detalle_requerimiento/${id}`;
   };
 
   obtenerPedidos();

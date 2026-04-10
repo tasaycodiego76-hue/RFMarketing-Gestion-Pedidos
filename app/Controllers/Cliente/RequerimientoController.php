@@ -11,6 +11,49 @@ use App\Models\UsuarioModel;
 class RequerimientoController extends BaseController
 {
     /**
+     * Funcion que Renderiza la Vista de la Plantilla e Insertara los Detalles del Requerimiento
+     * @param mixed $id
+     * @return string|\CodeIgniter\HTTP\RedirectResponse|\CodeIgniter\HTTP\ResponseInterface
+     */
+    public function vistaDetalle($id)
+    {
+        // Obtiene el usuario de la sesión
+        $user = $this->getActiveUser();
+
+        // Validación de Seguridad
+        if (!is_array($user) || $user['rol'] !== 'cliente') {
+            // Si no es cliente, lo mandamos al login o inicio con un flashdata
+            return redirect()->to(base_url('/'))->with('error', 'Acceso denegado.');
+        }
+
+        // Traer datos del usuario para el Sidebar/TopBar
+        $usuarioModel = new UsuarioModel();
+        $userData = $usuarioModel->getDetalleUsuario($user['id']);
+
+        // Instanciar modelos de requerimientos
+        $reqModel = new RequerimientoModel();
+        $archivoModel = new ArchivoModel();
+
+        // Obtener el requerimiento
+        $detalle = $reqModel->getDetalleCompleto($id);
+
+        // Validar existencia
+        if (!$detalle) {
+            return redirect()->to(base_url('cliente/mis_solicitudes'))->with('error', 'No encontrado.');
+        }   
+
+        // Obtener archivos
+        $archivos = $archivoModel->where('idrequerimiento', $id)->findAll();
+
+        // Renderizar Vista
+        return view('cliente/detalle_requerimiento', [
+            'requerimiento' => $detalle, // Datos del centro de la página
+            'archivos' => $archivos,      // Lista de archivos
+            'user' => $userData       // Informacion para el Sidebar / Topbar (Plantilla)
+        ]);
+    }
+
+    /**
      * Procesa el guardado de un nuevo requerimiento y su respectiva atención
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
@@ -280,7 +323,7 @@ class RequerimientoController extends BaseController
     private function validarArchivo($file)
     {
         // Tamaño máximo: 500MB
-        $tamanoMaximo = 500 * 1024 * 1024;
+        $tamanoMaximo = 100 * 1024 * 1024;
 
         if (!$file->isValid() || $file->hasMoved()) {
             return ['valido' => false, 'error' => 'Archivo inválido o ya procesado'];

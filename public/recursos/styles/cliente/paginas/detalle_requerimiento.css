@@ -1,0 +1,499 @@
+/* Fuente Bebas para títulos */
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
+.bebas {
+  font-family: "Bebas Neue", sans-serif;
+}
+
+.seccion-titulo {
+  font-size: 11px;
+  font-weight: 700;
+  color: #666;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 25px 0 15px 0;
+}
+.seccion-titulo::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #1e1e1e;
+}
+
+.card {
+  background: #111 !important;
+  border: 1px solid #1e1e1e !important;
+  border-radius: 12px;
+}
+
+.servicio-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #888;
+  padding: 3px 10px;
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+}
+
+/* Badges de Estado y Prioridad */
+.badge-estado,
+.badge-prio {
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+/* Colores de Estados */
+.estado-pendiente_sin_asignar {
+  background: rgba(245, 196, 0, 0.12);
+  color: #f5c400;
+}
+.estado-en_proceso {
+  background: rgba(96, 165, 250, 0.12);
+  color: #60a5fa;
+}
+.estado-completado {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+/* Colores de Prioridad */
+.prio-alta {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+.prio-media {
+  background: rgba(245, 196, 0, 0.12);
+  color: #f5c400;
+}
+.prio-baja {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.detalle-titulo {
+  color: #f0f0f0;
+  font-size: 1.5rem;
+}
+.detalle-empresa {
+  font-size: 12px;
+  color: #555;
+}
+.detalle-sep {
+  height: 1px;
+  background: #1e1e1e;
+}
+
+.campo-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #555;
+  margin-bottom: 6px;
+}
+.campo-valor {
+  font-size: 13px;
+  color: #ccc;
+  line-height: 1.6;
+}
+
+.info-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+.info-item i {
+  color: #444;
+}
+.info-label {
+  display: block;
+  font-size: 9px;
+  color: #555;
+  font-weight: 700;
+}
+.info-valor {
+  font-size: 13px;
+  color: #ccc;
+}
+
+.tag-item {
+  font-size: 11px;
+  color: #aaa;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 5px 12px;
+}
+
+.btn-rf-outline {
+  border: 1px solid #333;
+  color: #ccc;
+  padding: 6px 15px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 13px;
+  transition: 0.3s;
+}
+.btn-rf-outline:hover {
+  background: #222;
+  color: #fff;
+}
+
+.brief-box {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 3px solid #f5c400; /* Color amarillo RF */
+  font-size: 13.5px;
+  color: #ddd;
+  line-height: 1.8;
+}
+
+.file-item {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #1e1e1e !important;
+}
+
+.file-item:hover {
+  background: rgba(245, 196, 0, 0.05) !important;
+  padding-left: 5px;
+}
+
+.file-icon i {
+  color: #f5c400;
+}
+
+.italic {
+  font-style: italic;
+}
+
+:root {
+  --bg-card: #111111;
+  --border-color: #222;
+  --text-muted: #888;
+  --accent: #f5c400;
+}
+
+.card-glass {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.bebas {
+  font-family: "Bebas Neue", sans-serif;
+  letter-spacing: 1px;
+}
+
+.titulo-proyecto {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-top: 20px;
+}
+
+.info-block label {
+  display: block;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.info-block p {
+  color: #eee;
+  font-size: 14px;
+  margin-bottom: 0;
+}
+.full-width {
+  grid-column: span 2;
+}
+
+.brief-text {
+  padding: 15px;
+  background: #0a0a0a;
+  border-radius: 8px;
+  border-left: 2px solid #333;
+}
+
+/* Sección de Entrega (Links de Canva/TikTok) */
+.border-entrega {
+  border: 1px dashed #444;
+  background: linear-gradient(to right, #111, #161616);
+}
+
+.label-entrega {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.btn-entrega-link {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 12px 20px;
+  background: var(--accent);
+  color: #000;
+  border-radius: 8px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.btn-entrega-link:hover {
+  background: #fff;
+  transform: translateY(-2px);
+}
+
+/* Sidebar Steps */
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.icon-step {
+  font-size: 1.2rem;
+  color: #444;
+}
+
+.step-label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.step-value {
+  display: block;
+  font-size: 13px;
+  color: #fff;
+}
+
+/* Badges */
+.badge-tag {
+  background: #222;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.badge-prio {
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.prio-alta {
+  background: #400;
+  color: #ff4d4d;
+}
+.prio-media {
+  background: #430;
+  color: #ffaa00;
+}
+
+.status-en_revision {
+  background: #002b36;
+  color: #2aa198;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.tag-footer {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #ccc;
+}
+
+/* Paleta de colores Dark Capturas */
+:root {
+  --bg-body: #0a0a0a;
+  --card-bg: #111111;
+  --border-color: #222222;
+  --text-main: #ffffff;
+  --text-muted: #666666;
+  --accent-yellow: #f5c400;
+}
+
+.card-dark-main {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.bebas {
+  font-family: "Bebas Neue", sans-serif;
+}
+
+.main-project-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.label-tiny {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.content-text {
+  color: #ccc;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.brief-container {
+  background: #0d0d0d;
+  border: 1px solid #1a1a1a;
+  padding: 15px;
+  border-radius: 8px;
+  color: #bbb;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Timeline vertical de la derecha */
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.timeline-item i {
+  color: #444;
+  font-size: 1.2rem;
+}
+.timeline-item.active-step i {
+  color: #28a745;
+}
+
+.t-label {
+  display: block;
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.t-value {
+  display: block;
+  font-size: 13px;
+  color: #fff;
+  margin-top: 2px;
+}
+
+/* Badges */
+.badge-type {
+  background: #222;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  margin-right: 8px;
+}
+.badge-status {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  margin-right: 8px;
+}
+.status-en_revision {
+  background: #002b36;
+  color: #2aa198;
+}
+.status-en_proceso {
+  background: #00254d;
+  color: #3399ff;
+}
+.status-completado {
+  background: #1a331a;
+  color: #44ff44;
+}
+
+.badge-priority {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+}
+.prio-alta {
+  background: #4d0000;
+  color: #ff4d4d;
+}
+.prio-media {
+  background: #4d3300;
+  color: #ffaa00;
+}
+
+/* Tags inferiores */
+.tag-outline {
+  border: 1px solid #333;
+  padding: 6px 14px;
+  border-radius: 8px;
+  color: #999;
+  font-size: 11px;
+  background: #1a1a1a;
+}
+
+.file-card-mini {
+  display: flex;
+  align-items: center;
+  background: #000;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #222;
+}
+
+.f-name {
+  color: #fff;
+  font-size: 12px;
+  display: block;
+}
+.f-size {
+  color: #555;
+  font-size: 11px;
+}
+
+.btn-link-entrega {
+  background: var(--accent-yellow);
+  color: #000;
+  padding: 10px 18px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-block;
+  font-size: 13px;
+  transition: 0.3s;
+}
+
+.btn-link-entrega:hover {
+  background: #fff;
+}

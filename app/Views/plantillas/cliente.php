@@ -50,8 +50,8 @@
                 $rol = $user['rol'] ?? 'CLIENTE';
 
                 // NUEVAS VARIABLES
-                $empresa = $user['empresa'] ?? 'Empresa no asignada';
-                $area = $user['area'] ?? 'Área General';
+                $empresa = $user['nombre_empresa'] ?? $user['empresa'] ?? 'Empresa no asignada';
+                $area = $user['nombre_area'] ?? $user['area'] ?? 'Área General';
 
                 $n_ini = substr($nombre, 0, 1);
                 $a_ini = substr($apellidos, 0, 1);
@@ -78,16 +78,10 @@
             <p class="nav-section-label">MI CUENTA</p>
             <ul>
                 <li>
-                    <a href="<?= base_url('cliente/') ?>"
-                        class="nav-link-item <?= (uri_string() == 'cliente/') ? 'active' : '' ?>">
+                    <a href="<?= base_url('cliente/mis_solicitudes') . '?test_user=' . ($user['id'] ?? '') ?>"
+                        class="nav-link-item <?= (uri_string() == 'cliente/mis_solicitudes') ? 'active' : '' ?>">
                         <span class="nav-icon"><i class="bi bi-briefcase"></i></span>
                         <span class="nav-text">Mis Pedidos</span>
-                        <!-- Badge de pedidos pendientes — dinámico -->
-                        <?php if (isset($pendientes) && $pendientes > 0): ?>
-                            <span class="nav-badge">
-                                <?= $pendientes ?>
-                            </span>
-                        <?php endif; ?>
                     </a>
                 </li>
                 <li>

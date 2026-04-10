@@ -34,16 +34,22 @@ class RequerimientoModel extends Model
     public function getDetalleCompleto($RequerimientoID)
     {
         $sql = "
-            SELECT 
-                r.*,
-                a.estado,
-                a.prioridad AS atn_prioridad,
-                s.nombre AS nombre_servicio 
-            FROM requerimiento r
-            INNER JOIN atencion a ON a.idrequerimiento = r.id
-            LEFT JOIN servicios s ON s.id = r.idservicio
-            WHERE r.id = ?
-            ";
+        SELECT 
+            r.*,
+            a.estado,
+            a.prioridad AS atn_priority, -- Evitamos conflictos de nombres
+            a.num_modificaciones,
+            a.respuestatexto,
+            a.fechainicio,
+            a.fechafin,
+            s.nombre AS nombre_servicio,
+            u.nombre AS empleado_nombre -- Traemos el nombre del diseñador
+        FROM requerimiento r
+        INNER JOIN atencion a ON a.idrequerimiento = r.id
+        LEFT JOIN servicios s ON s.id = r.idservicio
+        LEFT JOIN usuarios u ON u.id = a.idempleado -- Unimos con usuarios para el nombre
+        WHERE r.id = ?
+    ";
 
         return $this->db->query($sql, [$RequerimientoID])->getRowArray();
     }

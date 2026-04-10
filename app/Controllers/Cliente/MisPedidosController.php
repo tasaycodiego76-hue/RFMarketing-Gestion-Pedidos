@@ -20,7 +20,7 @@ class MisPedidosController extends BaseController
         $user = $this->getActiveUser();
 
         // Validación obligatoria: usuario debe existir y ser cliente
-        if (!$user || $user['rol'] !== 'cliente') {
+        if (!is_array($user) || $user['rol'] !== 'cliente') {
             return $this->response->setJSON([
                 'status' => 'ERROR',
                 'mensaje' => 'Se requiere cuenta de Cliente. Acceso denegado.'
