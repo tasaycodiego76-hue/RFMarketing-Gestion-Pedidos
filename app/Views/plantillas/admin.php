@@ -36,7 +36,7 @@
                 <i class="bi bi-chevron-down ms-auto arrow-icon"></i>
             </div>
 
-            <div class="nav-sub-menu <?= (strpos($paginaActual, 'empresa') !== false) ? 'show' : '' ?>" id="menu-empresas">
+            <div class="nav-sub-menu <?= ($paginaActual == 'todas_empresas' || $paginaActual == 'kanban') ? 'show' : '' ?>" id="menu-empresas">
                 <a href="<?= site_url('admin/empresas') ?>" class="nav-enlace sub-enlace <?= ($paginaActual == 'todas_empresas') ? 'activo' : '' ?>">
                     <i style="font-size: 10px;"></i> Todas las Empresas
                 </a>
@@ -55,7 +55,11 @@
             <i class="bi bi-people"></i> Usuarios
         </a>
         <a href="<?= site_url('admin/areas') ?>" class="nav-enlace <?= ($paginaActual == 'areas') ? 'activo' : '' ?>">
-            <i class="bi bi-diagram-3"></i> Áreas
+    <i class="bi bi-diagram-3"></i> Áreas
+</a>
+        </a>
+        <a href="<?= site_url('admin/empresas') ?>" class="nav-enlace <?= ($paginaActual == 'empresas') ? 'activo' : '' ?>">
+            <i class="bi bi-building"></i> Empresas
         </a>
     </nav>
 
@@ -110,6 +114,14 @@
     const BASE_URL = '<?= base_url() ?>';
 </script>
 <?= $this->renderSection('scripts') ?>
+
+<script>
+    // Toggle dropdown "Gestionar Empresas"
+    document.getElementById('btn-empresas-toggle').addEventListener('click', function () {
+        document.getElementById('menu-empresas').classList.toggle('show');
+        this.querySelector('.arrow-icon').classList.toggle('rotado');
+    });
+</script>
 
 </body>
 </html>

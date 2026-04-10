@@ -25,6 +25,17 @@ $routes->group('admin', function ($routes) {
     $routes->post('areas/clientes/registrar', 'Administrador\AreasController::registrarCliente');
     $routes->get('areas/clientes/listar/(:num)', 'Administrador\AreasController::listarPorEmpresa/$1');
     $routes->post('areas/clientes/registrar',    'Administrador\AreasController::registrarCliente');
+
+    $routes->get('empresas',             'Administrador\EmpresasController::index');
+
+    $routes->get('kanban/(:num)/(:num)', 'Administrador\Kanban::index/$1/$2');
+    // Kanban acciones
+$routes->post('kanban/asignar',        'Administrador\Kanban::asignar');
+$routes->post('kanban/cambiarEstado',  'Administrador\Kanban::cambiarEstado');
+$routes->post('kanban/cancelar',       'Administrador\Kanban::cancelar');
+$routes->get('kanban/empleados/(:num)', 'Administrador\Kanban::empleadosPorArea/$1');
+$routes->get('kanban/detalle/(:num)',   'Administrador\Kanban::detalle/$1');
+
     });
 
 //Rutas para el Responsable (Jefe de Área)

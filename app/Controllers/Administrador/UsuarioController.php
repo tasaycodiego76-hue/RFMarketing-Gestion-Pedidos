@@ -11,16 +11,19 @@ use App\Models\ResponsablesEmpresaModel;
 class UsuarioController extends Controller
 {
     public function index(): string
-    {
-        $areasAgenciaModel = new AreasAgenciaModel();
+{
+    $areasAgenciaModel = new AreasAgenciaModel();
+    $empresaModel      = new EmpresaModel();
 
-        return view('admin/usuarios', [
-            'titulo'       => 'Usuarios',
-            'tituloPagina' => 'USUARIOS',
-            'paginaActual' => 'usuarios',
-            'areasAgencia' => $areasAgenciaModel->findAll(),
-        ]);
-    }
+    return view('admin/usuarios', [
+        'titulo'       => 'Usuarios',
+        'tituloPagina' => 'USUARIOS',
+        'paginaActual' => 'usuarios',
+        'areasAgencia' => $areasAgenciaModel->findAll(),
+        'empresas'     => $empresaModel->findAll(),
+    ]);
+}
+
 
     /**
      * Retorna la lista de usuarios con su área asignada

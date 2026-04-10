@@ -11,17 +11,20 @@ class AreasController extends Controller
 {
     // GET admin/areas  →  tab Agencia
     public function index(): string
-    {
-        $areasAgenciaModel = new AreasAgenciaModel();
-        
-        return view('admin/areas', [
-            'titulo'       => 'Areas',
-            'tituloPagina' => 'AREAS',
-            'paginaActual' => 'areas',
-            'tabActivo'    => 'agencia',
-            'areas' => $areasAgenciaModel->listarConResponsable(),   
-        ]);
-    }
+{
+    $areasAgenciaModel = new AreasAgenciaModel();
+    $empresaModel      = new EmpresaModel();
+
+    return view('admin/areas', [
+        'titulo'       => 'Areas',
+        'tituloPagina' => 'AREAS',
+        'paginaActual' => 'areas',
+        'tabActivo'    => 'agencia',
+        'areas'        => $areasAgenciaModel->listarConResponsable(),
+        'empresas'     => $empresaModel->findAll(),
+    ]);
+}
+
 
     // GET admin/areas/clientes  →  tab Clientes
     public function clientes(): string
