@@ -17,7 +17,7 @@ class RequerimientoController extends BaseController
      */
     public function vistaDetalle($id)
     {
-        // Obtiene el usuario de la sesión
+        // Obtiene el usuario de la sesióna
         $user = $this->getActiveUser();
 
         // Validación de Seguridad

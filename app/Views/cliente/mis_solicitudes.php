@@ -134,6 +134,7 @@
                 </div>
 
                 <div class="modal-body modal-rf-body p-4">
+                    <!-- SECTION 1: Datos Iniciales -->
                     <div class="wizard-section" id="section-1">
                         <div class="autofill mb-4">
                             <div class="autofill-title"><span>&#10003;</span> DATOS DE TU CUENTA</div>
@@ -207,9 +208,78 @@
                             <input type="date" name="fecha_entrega" class="field-input" required>
                         </div>
                     </div>
-
                     <!-- SECTION 2: Detalles y Formatos  -->
+                    <div class="wizard-section d-none" id="section-2">
 
+                        <!-- Descripción -->
+                        <div class="field mb-3">
+                            <label>DESCRIPCIÓN DETALLADA</label>
+                            <textarea name="descripcion" class="field-input" style="height:80px;"
+                                placeholder="Describe con detalle lo que necesitas..." required></textarea>
+                        </div>
+
+                        <!-- Público objetivo -->
+                        <div class="field mb-3">
+                            <label>PÚBLICO OBJETIVO</label>
+                            <textarea name="publico" class="field-input" style="height:50px;"
+                                placeholder="¿A quién va dirigido? Tono del mensaje..." required></textarea>
+                        </div>
+
+                        <!-- Canales de difusión -->
+                        <div class="field mb-3">
+                            <label>¿EN DÓNDE SE VA A DIFUNDIR?</label>
+                            <p class="campo-sublabel">Selecciona como máximo 3 opciones.</p>
+                            <div class="checks-grid" id="canales-checks"></div>
+                        </div>
+
+                        <!-- Formatos solicitados -->
+                        <div class="field mb-3">
+                            <label>¿EN QUÉ FORMATO QUIERES TU REQUERIMIENTO?</label>
+                            <div class="checks-grid" id="formatos-checks"></div>
+                        </div>
+
+                        <!-- Formato otros -->
+                        <div class="field mb-2" id="contenedor-formato-otros" style="display:none;">
+                            <label>SOLO SI MENCIONASTE OTROS — MENCIONA EL FORMATO Y MEDIDAS</label>
+                            <input type="text" name="formato_otros" class="field-input"
+                                placeholder="Ej: Banner 3x2 metros, formato PNG">
+                        </div>
+
+                        <!-- ¿Tiene materiales? -->
+                        <div class="field mb-3">
+                            <label>¿CUENTAS CON MATERIALES DE REFERENCIA?</label>
+                            <select name="materiales" id="select-materiales" class="form-select field-select" required>
+                                <option value="" disabled selected>Seleccionar...</option>
+                                <option value="archivos">Sí, tengo archivos para adjuntar</option>
+                                <option value="link">Sí, tengo un link de referencia</option>
+                                <option value="ambos">Sí, tengo archivos y link</option>
+                                <option value="no">No, no tengo materiales</option>
+                            </select>
+                        </div>
+
+                        <!-- Subida de archivos -->
+                        <div class="field mb-3" id="contenedor-archivos" style="display:none;">
+                            <label>ADJUNTA TUS ARCHIVOS</label>
+                            <p class="campo-sublabel">Máximo 100MB por archivo. PDF, imágenes, videos, documentos.</p>
+                            <div class="upload-area" id="upload-area"
+                                onclick="document.getElementById('input-archivos').click()">
+                                <i class="bi bi-cloud-arrow-up" style="font-size:28px; color:#555;"></i>
+                                <p style="color:#555; font-size:12px; margin:6px 0 0 0;">Haz clic o arrastra tus
+                                    archivos aquí</p>
+                            </div>
+                            <input type="file" name="documentos[]" id="input-archivos" multiple style="display:none;"
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.zip">
+                            <div id="lista-archivos" style="margin-top:8px;"></div>
+                        </div>
+
+                        <!-- Link de referencia -->
+                        <div class="field mb-3" id="contenedor-link" style="display:none;">
+                            <label>LINK DE REFERENCIA (Google Drive, WeTransfer, etc.)</label>
+                            <input type="text" name="url_referencia" class="field-input"
+                                placeholder="https://drive.google.com/...">
+                        </div>
+
+                    </div>
                     <!-- SECTION 3: Archivos y Confirmación -->
 
                 </div>
