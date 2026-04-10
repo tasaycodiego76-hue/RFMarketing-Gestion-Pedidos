@@ -58,6 +58,10 @@ class CrearTablaRequerimiento extends Migration
                 'type' => 'BOOLEAN',
                 'null' => false,
             ],
+            'url_subida' => [
+                'type' => 'TEXT',
+                'null' => true,
+            ],
             'formatos_solicitados' => [
                 'type' => 'TEXT',
                 'null' => false,

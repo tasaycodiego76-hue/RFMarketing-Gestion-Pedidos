@@ -40,7 +40,7 @@ class RequerimientoController extends BaseController
         // Validar existencia
         if (!$detalle) {
             return redirect()->to(base_url('cliente/mis_solicitudes'))->with('error', 'No encontrado.');
-        }   
+        }
 
         // Obtener archivos
         $archivos = $archivoModel->where('idrequerimiento', $id)->findAll();
@@ -130,6 +130,7 @@ class RequerimientoController extends BaseController
             'canales_difusion' => $this->request->getPost('canales'),
             'publico_objetivo' => $this->request->getPost('publico'),
             'tiene_materiales' => filter_var($this->request->getPost('materiales'), FILTER_VALIDATE_BOOLEAN),
+            'url_subida' => $this->request->getPost('url_referencia'),
             'formatos_solicitados' => $this->request->getPost('formatos'),
             'formato_otros' => $this->request->getPost('formato_otros') ?? '',
             'fecharequerida' => $fechaObjeto->format('Y-m-d H:i:s'),

@@ -67,10 +67,9 @@ class CrearTablaAtencion extends Migration
                 'type' => 'TEXT',
                 'null' => true,
             ],
-            'respuestatexto' => [
-                // NOT NULL tal como está en el schema original
+            'url_entrega' => [
                 'type' => 'TEXT',
-                'null' => false,
+                'null' => true,
                 'default' => '',
             ],
             'fechainicio' => [

@@ -28,7 +28,7 @@ class AtencionModel extends Model
         'fechacreacion',
         'cancelacionmotivo',
         'fechacancelacion',
-        'respuestatexto'
+        'url_entrega'
     ];
 
     /**

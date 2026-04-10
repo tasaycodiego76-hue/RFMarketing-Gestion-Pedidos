@@ -17,7 +17,7 @@ class AtencionSeeder extends Seeder
                 'prioridad' => 'Alta',
                 'estado' => 'en_revision',
                 'num_modificaciones' => 2,
-                'respuestatexto' => 'Primera versión enviada, esperando validación de colores.',
+                'url_entrega' => null,
                 'fechainicio' => '2026-04-02 08:30:00',
                 'fechafin' => '2026-04-02'
             ],
@@ -31,7 +31,7 @@ class AtencionSeeder extends Seeder
                 'prioridad' => 'Media',
                 'estado' => 'en_proceso',
                 'num_modificaciones' => 0,
-                'respuestatexto' => 'Se inicia el diseño base.',
+                'url_entrega' => null,
                 'fechainicio' => date('Y-m-d H:i:s'),
                 'fechafin' => '2026-04-10'
             ],
@@ -45,7 +45,7 @@ class AtencionSeeder extends Seeder
                 'prioridad' => 'Media',
                 'estado' => 'pendiente_sin_asignar',
                 'num_modificaciones' => 0,
-                'respuestatexto' => 'Requerimiento recibido, pendiente de revisión técnica.',
+                'url_entrega' => null,
                 'fechainicio' => date('Y-m-d H:i:s'),
                 'fechafin' => '2026-04-18'
             ],
@@ -59,7 +59,7 @@ class AtencionSeeder extends Seeder
                 'prioridad' => 'Alta',
                 'estado' => 'pendiente_asignado',
                 'num_modificaciones' => 0,
-                'respuestatexto' => 'Asignado a Jose Guerra, pendiente de confirmación.',
+                'url_entrega' => null,
                 'fechainicio' => date('Y-m-d H:i:s'),
                 'fechafin' => '2026-04-18'
             ],
@@ -73,7 +73,7 @@ class AtencionSeeder extends Seeder
                 'prioridad' => 'Media',
                 'estado' => 'pendiente_sin_asignar',
                 'num_modificaciones' => 0,
-                'respuestatexto' => 'Recibido en bandeja de entrada.',
+                'url_entrega' => null,
                 'fechainicio' => date('Y-m-d H:i:s'),
                 'fechafin' => '2026-04-10'
             ]

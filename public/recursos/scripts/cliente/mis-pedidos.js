@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Crear tarjetas para cada servicio
       datos.forEach((servicio) => {
         listaServicios.innerHTML += `
-          <div class="servicio-card" onclick="elegirServicio(${servicio.id})">
+          <div class="servicio-card" onclick="elegirServicio(${servicio.id}, '${servicio.nombre}')">
             <div class="servicio-card-info">
               <p class="servicio-card-nombre">${servicio.nombre}</p>
               <p class="servicio-card-desc">${servicio.descripcion || ""}</p>
@@ -54,11 +54,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Llamar cargar_servicios, al Abrir el Modal
   modalNuevoPedido.addEventListener("shown.bs.modal", cargarServicios);
-
-  // Funcion para Redirigir por Servicio (Provisional)
-  window.elegirServicio = function (idServicio) {
-    window.location.href = `${base_url}/cliente/nuevo-pedido/${idServicio}`;
-  };
 
   // Funcion para Otener Pedidos y Mostrarlos en la Tabla
   async function obtenerPedidos() {
@@ -174,12 +169,185 @@ document.addEventListener("DOMContentLoaded", function () {
           titulo.includes(termino) ||
           servicio.includes(termino) ||
           estado.includes(termino) ||
-          prioridad.includes(termino);;
+          prioridad.includes(termino);
         // Mostrar u ocultar fila según coincidencia
         fila.style.display = coincide ? "" : "none";
       });
     }, 1000);
   });
+
+  window.elegirServicio = function (idServicio, nombreServicio) {
+    const elModalForm = document.getElementById("modal-formulario-detalle");
+    if (!elModalForm) return;
+
+    // 1. Configuración de Estilos según tu CSS original
+    const configEstilos = {
+        1: { label: 'Diseño Gráfico', cls: 'sd' },  // Amarillo
+        2: { label: 'AudioVisual', cls: 'sav' },    // Azul
+        0: { label: 'Personalizado', cls: 'sot' }   // Morado
+    };
+    const estilo = configEstilos[idServicio] || configEstilos[0];
+
+    // 2. Elementos de la UI
+    const inputId = document.getElementById("form-idservicio");
+    const badgeContainer = document.getElementById("wbadge-container"); // Contenedor del badge
+    const txtServicio = document.getElementById("txt-servicio-seleccionado");
+    const tituloForm = document.getElementById("form-titulo-servicio");
+
+    // 3. Inyectar el Badge con tu clase original
+    if (badgeContainer) {
+        badgeContainer.innerHTML = `<span class="sbadge ${estilo.cls}">${estilo.label}</span>`;
+    }
+    
+    if (inputId) inputId.value = idServicio;
+    if (txtServicio) txtServicio.innerText = nombreServicio || "Servicio Especial";
+    if (tituloForm) {
+        tituloForm.innerText = idServicio === 0 ? "CUÉNTANOS TU IDEA" : "DETALLE DEL REQUERIMIENTO";
+    }
+
+    // 4. Lógica de mostrar/ocultar (Campos de Personalizado)
+    const contNombrePers = document.getElementById("contenedor-nombre-personalizado");
+    const listaEstandar = document.getElementById("lista-requerimientos-estandar");
+    const reqLibre = document.getElementById("requerimiento-libre");
+    
+    if (idServicio === 0) {
+        if (contNombrePers) contNombrePers.style.display = "block";
+        if (reqLibre) reqLibre.style.display = "block";
+        if (listaEstandar) listaEstandar.style.display = "block";
+    } else {
+        if (contNombrePers) contNombrePers.style.display = "none";
+        if (reqLibre) reqLibre.style.display = "none";
+        if (listaEstandar) listaEstandar.style.display = "block";
+    }
+
+    // 5. Cerrar modal de selección y abrir Wizard
+    const elModalSeleccion = document.getElementById("modal-nuevo-pedido");
+    if (elModalSeleccion) {
+        const instance = bootstrap.Modal.getInstance(elModalSeleccion);
+        if (instance) instance.hide();
+    }
+
+    irAlPaso(1);
+    const modalForm = new bootstrap.Modal(elModalForm);
+    modalForm.show();
+};
+
+  function irAlPaso(numeroPaso) {
+    const secciones = document.querySelectorAll(".wizard-section");
+    const indicadores = document.querySelectorAll(".step");
+    const btnAtras = document.getElementById("btn-atras");
+    const btnSiguiente = document.getElementById("btn-siguiente");
+    const btnEnviar = document.getElementById("btn-enviar");
+
+    // Si no existen los elementos básicos, abortamos
+    if (secciones.length === 0 || !btnSiguiente) return;
+
+    // Actualizar variable global de seguimiento
+    pasoActual = numeroPaso;
+
+    // Ocultar todas las secciones y quitar estados activos
+    secciones.forEach((s) => s.classList.add("d-none"));
+    indicadores.forEach((i) => i.classList.remove("active"));
+
+    // Mostrar sección actual
+    const seccionActiva = document.getElementById(`section-${numeroPaso}`);
+    const indicadorActivo = document.getElementById(`step-${numeroPaso}-indicador`);
+
+    if (seccionActiva) seccionActiva.classList.remove("d-none");
+    if (indicadorActivo) indicadorActivo.classList.add("active");
+
+    // Actualizar título del paso
+    const pasoLabels = {
+      1: "Info básica",
+      2: "Detalles y formatos",
+      3: "Confirmar y enviar"
+    };
+    const tituloForm = document.getElementById("form-titulo-servicio");
+    if (tituloForm) {
+      tituloForm.innerText = `Paso ${numeroPaso}: ${pasoLabels[numeroPaso]}`;
+    }
+
+    // Control de botones Atrás
+    if (btnAtras) {
+      btnAtras.classList.toggle("d-none", numeroPaso === 1);
+    }
+
+    // Control de botones Siguiente/Enviar
+    if (numeroPaso === 3) {
+      // Último paso: mostrar Enviar, ocultar Siguiente
+      btnSiguiente.classList.add("d-none");
+      if (btnEnviar) btnEnviar.classList.remove("d-none");
+    } else {
+      // Pasos anteriores: mostrar Siguiente, ocultar Enviar
+      btnSiguiente.classList.remove("d-none");
+      if (btnEnviar) btnEnviar.classList.add("d-none");
+    }
+  }
+
+  window.retrocederPaso = function () {
+    if (pasoActual <= 1) return;
+    irAlPaso(pasoActual - 1);
+  };
+
+  // Lógica para mostrar el input de URL si dice que sí tiene materiales (Solo Si Existe)
+  const selectMateriales = document.getElementById("select-materiales");
+
+  if (selectMateriales) {
+    selectMateriales.addEventListener("change", function () {
+      const inputUrl = document.getElementById("input-url-referencia");
+      if (inputUrl) {
+        inputUrl.style.display = this.value === "si" ? "block" : "none";
+      }
+    });
+  }
+
+  let pasoActual = 1;
+
+  document.getElementById("btn-siguiente").addEventListener("click", function () {
+      validarYPasar();
+    });
+
+  // Modificación necesaria en validarYPasar para que no bloquee campos ocultos
+  function validarYPasar() {
+    const seccionActual = document.getElementById(`section-${pasoActual}`);
+    if (!seccionActual) return;
+
+    // Solo validamos inputs que sean VISIBLES y requeridos
+    const inputs = seccionActual.querySelectorAll(
+      "input[required], select[required], textarea[required]",
+    );
+
+    let valido = true;
+    inputs.forEach((input) => {
+      // Si el padre está oculto, no validamos
+      if (input.offsetParent === null) return;
+
+      if (!input.value.trim()) {
+        input.classList.add("is-invalid");
+        valido = false;
+      } else {
+        input.classList.remove("is-invalid");
+      }
+    });
+
+    if (!valido) {
+      alert("Por favor completa todos los campos requeridos");
+      return;
+    }
+
+    // POR AHORA: Solo mostramos un mensaje cuando completa Paso 1
+    if (pasoActual === 1) {
+      alert("✅ Paso 1 completado correctamente. Los próximos pasos se habilitarán pronto.");
+      return;
+    }
+
+    // Lógica para pasos futuros (2 y 3)
+    if (pasoActual === 2) {
+      generarResumen();
+    }
+
+    irAlPaso(pasoActual + 1);
+  }
 
   // Redirige a la vista de detalle del requerimiento (JSON)
   window.verDetalle = function (id) {

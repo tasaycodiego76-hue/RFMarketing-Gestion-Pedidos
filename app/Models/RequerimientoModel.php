@@ -20,6 +20,7 @@ class RequerimientoModel extends Model
         'canales_difusion',
         'publico_objetivo',
         'tiene_materiales',
+        'url_subida',
         'formatos_solicitados',
         'formato_otros',
         'fecharequerida',
