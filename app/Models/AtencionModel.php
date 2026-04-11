@@ -59,4 +59,31 @@ class AtencionModel extends Model
 
         return $this->db->query($sql, [$usuarioId])->getResultArray();
     }
+public function contarPorEstado(string $estado): int
+{
+    return $this->where('estado', $estado)->countAllResults();
+}
+
+public function contarActivos(): int
+{
+    return $this->whereIn('estado', ['pendiente_asignado', 'en_proceso'])->countAllResults();
+}
+
+public function contarPorEstadoEmpresa(string $estado, int $idEmpresa): int
+{
+    return $this->db->table('atencion a')
+        ->join('requerimiento r', 'r.id = a.idrequerimiento')
+        ->where('a.estado', $estado)
+        ->where('r.idempresa', $idEmpresa)
+        ->countAllResults();
+}
+
+public function contarActivosEmpresa(int $idEmpresa): int
+{
+    return $this->db->table('atencion a')
+        ->join('requerimiento r', 'r.id = a.idrequerimiento')
+        ->whereIn('a.estado', ['pendiente_asignado', 'en_proceso'])
+        ->where('r.idempresa', $idEmpresa)
+        ->countAllResults();
+}
 }

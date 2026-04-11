@@ -138,7 +138,7 @@ class Kanban extends Controller
         }
 
         // Archivos vinculados
-        $archivos = $db->query("SELECT * FROM archivos WHERE idatencion = ?", [$idAtencion])->getResultArray();
+      $archivos = [];
 
         return $this->response->setJSON(['status' => 'success', 'data' => $data, 'archivos' => $archivos]);
     }

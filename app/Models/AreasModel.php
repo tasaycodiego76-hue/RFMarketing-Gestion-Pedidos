@@ -29,4 +29,8 @@ class AreasModel extends Model
     {
         return $this->where('idempresa', $idEmpresa)->findAll();
     }
+    public function obtenerActivas(): array
+{
+    return $this->where('activo', true)->findAll();
+}
 }

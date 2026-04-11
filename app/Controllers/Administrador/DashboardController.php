@@ -3,46 +3,37 @@
 namespace App\Controllers\Administrador;
 
 use App\Controllers\BaseController;
+use App\Models\EmpresaModel;
+use App\Models\AtencionModel;
+use App\Models\AreasAgenciaModel;
 
 class DashboardController extends BaseController
 {
-    /**
-     * Endpoint principal del dashboard del administrador
-     * Por Ahora Prueba, Para Redirigir por ID y Rol
-     * @return \CodeIgniter\HTTP\ResponseInterface
-     */
-    public function index()
+    public function index(): string
     {
-        // Obtener usuario activo (simulado vía ?test_user=ID)
-        $user = $this->getActiveUser();
+        $atencionModel = new AtencionModel();
+        $empresaModel  = new EmpresaModel();
+        $areaModel = new AreasAgenciaModel();
 
-        // Verificar que el usuario exista y sea administrador
-        if (!$user || $user['rol'] !== 'administrador') {
-            return $this->response->setJSON([
-                'status' => 'ERROR',
-                'mensaje' => 'Acceso Denegado. Se requiere rol de Administrador.',
-                'tu_id' => $user['id'] ?? 'Ninguno'
-            ]);
-        }
+        $porAprobar  = $atencionModel->contarPorEstado('pendiente_sin_asignar');
+        $activos = $atencionModel->contarActivos();
+        $completados = $atencionModel->contarPorEstado('finalizado');
+        $total       = max(1, $porAprobar + $activos + $completados);
 
-        return $this->response->setJSON([
-            'status' => 'SUCCESS',
-            'actor' => 'ADMINISTRADOR GENERAL',
-            'detalles' => [
-                'id' => $user['id'],
-                'nombre' => $user['nombre'],
-                'apellidos' => $user['apellidos'],
-                'correo' => $user['correo'],
-                'telefono' => $user['telefono'],
-                'tipo_doc' => $user['tipodoc'] ?? 'S/D',
-                'documento' => $user['numerodoc'] ?? 'S/D',
-                'usuario' => $user['usuario'],
-                'rol' => $user['rol'],
-                'idarea' => $user['idarea'] ?? 'Dirección General',
-                'es_jefe' => (bool) $user['esresponsable'],
-                'creado_el' => $user['fechacreacion'],
-                'permisos' => 'Acceso total a Usuarios, Empresas y Kanban Global'
-            ]
+        return view('admin/dashboard', [
+            'titulo'         => 'Dashboard',
+            'tituloPagina'   => 'DASHBOARD',
+            'paginaActual'   => 'dashboard',
+            'porAprobar'     => $porAprobar,
+            'activos'        => $activos,
+            'enRevision'     => $atencionModel->contarPorEstado('en_revision'),
+            'completados'    => $completados,
+            'empresas'       => $empresaModel->obtenerConStats(),
+            'areas' => $areaModel->listarActivas(),
+            'totalPedidos'   => $total,
+            'pctActivos'     => round($activos     / $total * 100),
+            'pctPorAprobar'  => round($porAprobar  / $total * 100),
+            'pctCompletados' => round($completados / $total * 100),
         ]);
     }
 }

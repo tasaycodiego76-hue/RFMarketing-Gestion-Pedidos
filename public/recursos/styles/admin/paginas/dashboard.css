@@ -1,0 +1,155 @@
+/* panel.css — Dashboard de Administración */
+
+/* Estilo general de las tarjetas */
+.card {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    color: #f0f0f0;
+}
+
+/* Títulos de cada sección */
+.seccion-titulo {
+    font-size: 9px;
+    font-weight: 700;
+    color: #888; 
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    margin-top: 22px;
+}
+.seccion-titulo:first-child { margin-top: 0; }
+.seccion-titulo::after { content: ''; flex: 1; height: 1px; background: #1e1e1e; }
+
+/* Números y etiquetas del resumen superior */
+.met-label { font-size: 11px; color: #bbb; margin-bottom: 6px; } 
+.met-num   { font-family: 'Bebas Neue', sans-serif; font-size: 44px; line-height: 1; letter-spacing: 1px; }
+.met-sub   { font-size: 11px; color: #888; margin-top: 4px; } 
+
+/* Colores de estado (Amarillo, Morado, Verde, Rojo) */
+.amarillo { color: #F5C400; }
+.morado   { color: #c084fc; }
+.verde    { color: #22c55e; }
+.rojo     { color: #ef4444; }
+
+/* Tarjetas de las empresas */
+.emp-card {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color .15s;
+}
+.emp-card:hover { border-color: rgba(255,255,255,0.1); }
+
+/* Cabecera interna de la tarjeta de empresa */
+.emp-head {
+    padding: 12px 14px;
+    border-bottom: 1px solid #1e1e1e;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #0a0a0a;
+}
+.emp-inicial {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px; flex-shrink: 0;
+}
+.emp-nombre {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px; letter-spacing: 2px;
+    color: #fff; line-height: 1;
+}
+.emp-ruc { font-size: 10px; color: #888; margin-top: 2px; } 
+
+/* Alerta de "nueva" en rojo */
+.emp-badge {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(239,68,68,.1);
+    border: 1px solid rgba(239,68,68,.2);
+    border-radius: 20px;
+    padding: 3px 9px;
+    font-size: 11px; font-weight: 700; color: #ef4444;
+}
+.badge-punto {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    animation: parpadeo 1.4s ease infinite;
+}
+
+/* Estadísticas numéricas dentro de la empresa */
+.emp-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid #1e1e1e;
+}
+.emp-stat {
+    padding: 10px;
+    text-align: center;
+    border-right: 1px solid #1e1e1e;
+}
+.emp-stat:last-child { border-right: none; }
+.emp-stat-num   { font-family: 'Bebas Neue', sans-serif; font-size: 26px; line-height: 1; }
+.emp-stat-label { font-size: 9px; color: #888; text-transform: uppercase; letter-spacing: .8px; margin-top: 2px; }
+
+/* Botones de selección de área (Diseño, Video, etc.) */
+.emp-areas { display: flex; gap: 6px; padding: 8px; }
+.area-btn {
+    flex: 1;
+    padding: 6px;
+    font-size: 10px; font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: .5px; text-transform: uppercase;
+    background: transparent;
+    border: 1px solid #1e1e1e;
+    border-radius: 6px;
+    color: #bbb; 
+    cursor: pointer;
+    transition: all .15s;
+}
+.area-btn:hover { background: #fff; border-color: #fff; color: #000; }
+
+/* Gráfico de barras inferior */
+.graf-titulo { font-size: 11px; color: #bbb; margin-bottom: 16px; text-transform: uppercase; font-weight: bold; }
+.barras-wrap { display: flex; align-items: flex-end; gap: 16px; height: 72px; }
+.barra-col {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+    height: 100%; justify-content: flex-end;
+}
+.barra-num   { font-size: 12px; font-weight: 600; }
+.barra-fill  { width: 100%; opacity: .85; border-radius: 3px 3px 0 0; }
+.barra-label { font-size: 10px; color: #bbb; text-align: center; font-weight: 600; }
+
+/* Gráfico circular (Donut) y su leyenda */
+.donut-leyenda { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.leyenda-fila { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #eee; }
+.leyenda-punto { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+.leyenda-pct   { margin-left: auto; font-weight: 600; font-size: 13px; color: #fff; }
+
+/* Animación de parpadeo para la alerta roja */
+@keyframes parpadeo { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+/*Scrool horizontal de empresas*/
+.emp-scroll-wrap {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 8px;
+    padding-bottom: 4px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.emp-scroll-wrap::-webkit-scrollbar { display: none; }
+.emp-scroll-wrap .emp-card {
+    min-width: 280px;
+    flex-shrink: 0;
+}
