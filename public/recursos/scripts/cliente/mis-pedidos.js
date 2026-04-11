@@ -176,200 +176,89 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 1000);
   });
 
-  /**
-   * elegirServicio()
-   * Se ejecuta cuando el usuario selecciona un servicio
-   * Mostrar/ocultar campos según el tipo de servicio
-   * Cargar opciones dinámicas (canales y formatos)
-   * Iniciar el wizard en el paso 1
-   */
+  // ── DATOS: Canales y formatos disponibles por servicio ──
+  const CANALES = [
+    "Por correo", "Página web", "Redes sociales",
+    "SIGU o Aula Virtual Estudiantes", "SIGU o Aula Virtual Docentes",
+    "Impresión física de folletos", "Banner físico", "Letreros",
+    "Merch para eventos específicos",
+  ];
+
+  const FORMATOS = {
+    1: [ // Diseño
+      "Emailing (pieza para correo)", "Post de Facebook/Instagram", "Historia Facebook/Instagram",
+      "Historia de Whatsapp", "Post de LinkedIn", "SIGU (comunicado)", "Aula Virtual (Pop up)",
+      "Wallpaper – Computadoras", "Banner Web Portada", "Volante A5", "Afiche A4", "Afiche A3",
+      "Credenciales", "Banner 2x1", "Tarjeta Personal", "Tríptico", "Díptico", "Folder A4",
+      "Brochure", "Cartilla", "Banderola", "Módulos", "SMS", "IVR", "Marcos Selfie",
+      "Boletín", "Guías (trámites, pagos, etc.)", "Imagen JPG - PNG", "Otros",
+    ],
+    2: [ // Audiovisual
+      "Reels de Facebook/Instagram", "Historia Facebook/Instagram", "Reel/Historia TikTok",
+      "Reels de LinkedIn", "Historia de Whatsapp", "Video para Youtube", "SIGU (comunicado)",
+      "Aula Virtual (Pop up)", "Pantallas LED publicitarias", "Spot publicitario para TV",
+      "Videos para proyección de eventos", "Reels para Pauta (publicidad)", "Otros",
+    ],
+    0: [ // Personalizado
+      "Post de Facebook/Instagram", "Historia Facebook/Instagram", "Historia de Whatsapp",
+      "Reels de Facebook/Instagram", "Reel/Historia TikTok", "Video para Youtube",
+      "Afiche A4", "Afiche A3", "Banner Web Portada", "Spot publicitario para TV",
+      "Banner físico", "Emailing (pieza para correo)", "Imagen JPG - PNG", "Otros",
+    ],
+  };
+
+  const ESTILOS_SERVICIO = {
+    1: { label: "Diseño Gráfico", cls: "sd" },
+    2: { label: "AudioVisual", cls: "sav" },
+    0: { label: "Personalizado", cls: "sot" },
+  };
+
+  // Helper: genera checkboxes HTML desde un array de opciones
+  function generarChecks(opciones, name, onchangeFn) {
+    return opciones.map(op => `
+      <label class="check-item">
+        <input type="checkbox" name="${name}" value="${op}" onchange="${onchangeFn}">
+        <span>${op}</span>
+      </label>`).join("");
+  }
+
+  // Se ejecuta cuando el usuario selecciona un servicio
   window.elegirServicio = function (idServicio, nombreServicio) {
     const elModalForm = document.getElementById("modal-formulario-detalle");
     if (!elModalForm) return;
 
-    // Configuración de Estilos según tu CSS original
-    // ID=1: Diseño Gráfico, ID=2: AudioVisual, ID=0: Personalizado
-    const configEstilos = {
-      1: { label: "Diseño Gráfico", cls: "sd" }, // Amarillo
-      2: { label: "AudioVisual", cls: "sav" }, // Azul
-      0: { label: "Personalizado", cls: "sot" }, // Morado
-    };
-    const estilo = configEstilos[idServicio] || configEstilos[0];
+    const estilo = ESTILOS_SERVICIO[idServicio] || ESTILOS_SERVICIO[0];
 
-    // Elementos de la UI que vamos a actualizar
-    const inputId = document.getElementById("form-idservicio"); // Campo hidden para guardar ID
-    const badgeContainer = document.getElementById("wbadge-container"); // Contenedor del badge
-    const txtServicio = document.getElementById("txt-servicio-seleccionado"); // Nombre del servicio seleccionado
-    const tituloForm = document.getElementById("form-titulo-servicio"); // Título dinámico del paso
-
-    // Inyectar el Badge con colores según el servicio
-    if (badgeContainer) {
-      badgeContainer.innerHTML = `<span class="sbadge ${estilo.cls}">${estilo.label}</span>`;
-    }
-
+    // Actualizar badge y nombre del servicio
+    const badge = document.getElementById("wbadge-container");
+    if (badge) badge.innerHTML = `<span class="sbadge ${estilo.cls}">${estilo.label}</span>`;
+    const inputId = document.getElementById("form-idservicio");
     if (inputId) inputId.value = idServicio;
-    if (txtServicio)
-      txtServicio.innerText = nombreServicio || "Servicio Especial";
-    if (tituloForm) {
-      tituloForm.innerText =
-        idServicio === 0 ? "CUÉNTANOS TU IDEA" : "DETALLE DEL REQUERIMIENTO";
-    }
+    const txtServ = document.getElementById("txt-servicio-seleccionado");
+    if (txtServ) txtServ.innerText = nombreServicio || "Servicio Especial";
 
-    // LÓGICA DINÁMICAMENTE: Mostrar/Ocultar campos según tipo de servicio
-    // Si es Personalizado (ID=0): mostrar campo para que defina el nombre del servicio
-    // Si es Estándar (ID=1 o 2): ocultar ese campo y usar lista predefinida
-    const contNombrePers = document.getElementById(
-      "contenedor-nombre-personalizado",
-    );
-    const listaEstandar = document.getElementById(
-      "lista-requerimientos-estandar",
-    );
-    const reqLibre = document.getElementById("requerimiento-libre");
+    // Mostrar/ocultar campo de nombre personalizado
+    const show = (id, visible) => { const el = document.getElementById(id); if (el) el.style.display = visible ? "block" : "none"; };
+    show("contenedor-nombre-personalizado", idServicio === 0);
+    show("requerimiento-libre", idServicio === 0);
+    show("lista-requerimientos-estandar", true);
 
-    if (idServicio === 0) {
-      // SERVICIO PERSONALIZADO: mostrar input para escribir el nombre del servicio
-      if (contNombrePers) contNombrePers.style.display = "block";
-      if (reqLibre) reqLibre.style.display = "block";
-      if (listaEstandar) listaEstandar.style.display = "block";
-    } else {
-      // SERVICIOS ESTÁNDAR (Diseño o Audiovisual): usar campos predefinidos
-      if (contNombrePers) contNombrePers.style.display = "none";
-      if (reqLibre) reqLibre.style.display = "none";
-      if (listaEstandar) listaEstandar.style.display = "block";
-    }
-
-    // CANALES DE DIFUSIÓN: Opciones iguales para todos los servicios
-    const canalesOpciones = [
-      "Por correo",
-      "Página web",
-      "Redes sociales",
-      "SIGU o Aula Virtual Estudiantes",
-      "SIGU o Aula Virtual Docentes",
-      "Impresión física de folletos",
-      "Banner físico",
-      "Letreros",
-      "Merch para eventos específicos",
-    ];
-
-    // FORMATOS POR SERVICIO: Cada servicio tiene sus propios formatos disponibles
-    const formatosPorServicio = {
-      1: [
-        // Diseño
-        "Emailing (pieza para correo)",
-        "Post de Facebook/Instagram",
-        "Historia Facebook/Instagram",
-        "Historia de Whatsapp",
-        "Post de LinkedIn",
-        "SIGU (comunicado)",
-        "Aula Virtual (Pop up)",
-        "Wallpaper – Computadoras",
-        "Banner Web Portada",
-        "Volante A5",
-        "Afiche A4",
-        "Afiche A3",
-        "Credenciales",
-        "Banner 2x1",
-        "Tarjeta Personal",
-        "Tríptico",
-        "Díptico",
-        "Folder A4",
-        "Brochure",
-        "Cartilla",
-        "Banderola",
-        "Módulos",
-        "SMS",
-        "IVR",
-        "Marcos Selfie",
-        "Boletín",
-        "Guías (trámites, pagos, etc.)",
-        "Imagen JPG - PNG",
-        "Otros",
-      ],
-      2: [
-        // Audiovisual
-        "Reels de Facebook/Instagram",
-        "Historia Facebook/Instagram",
-        "Reel/Historia TikTok",
-        "Reels de LinkedIn",
-        "Historia de Whatsapp",
-        "Video para Youtube",
-        "SIGU (comunicado)",
-        "Aula Virtual (Pop up)",
-        "Pantallas LED publicitarias",
-        "Spot publicitario para TV",
-        "Videos para proyección de eventos",
-        "Reels para Pauta (publicidad)",
-        "Otros",
-      ],
-      0: [
-        // Personalizado — combina todos
-        "Post de Facebook/Instagram",
-        "Historia Facebook/Instagram",
-        "Historia de Whatsapp",
-        "Reels de Facebook/Instagram",
-        "Reel/Historia TikTok",
-        "Video para Youtube",
-        "Afiche A4",
-        "Afiche A3",
-        "Banner Web Portada",
-        "Spot publicitario para TV",
-        "Banner físico",
-        "Emailing (pieza para correo)",
-        "Imagen JPG - PNG",
-        "Otros",
-      ],
-    };
-
-    // Generar dinámicamente los checkboxes con límite de 3 selecciones máximo
+    // Generar checkboxes de canales y formatos
     const checkCanales = document.getElementById("canales-checks");
-    if (checkCanales) {
-      checkCanales.innerHTML = canalesOpciones
-        .map(
-          (c) => `
-        <label class="check-item">
-            <input type="checkbox" name="canales[]" value="${c}"
-                onchange="limitarSeleccion(this, 'canales[]', 3)">
-            <span>${c}</span>
-        </label>`,
-        )
-        .join("");
-    }
+    if (checkCanales) checkCanales.innerHTML = generarChecks(CANALES, 'canales[]', "limitarSeleccion(this, 'canales[]', 3)");
 
-    // Busca en el array de formatosPorServicio usando el ID del servicio
     const checkFormatos = document.getElementById("formatos-checks");
-    if (checkFormatos) {
-      // Obtener los formatos para este servicio, o usar personalizado como fallback
-      const formatos =
-        formatosPorServicio[idServicio] ?? formatosPorServicio[0];
-      checkFormatos.innerHTML = formatos
-        .map(
-          (f) => `
-        <label class="check-item">
-            <input type="checkbox" name="formatos[]" value="${f}"
-                onchange="toggleFormatoOtros(this)">
-            <span>${f}</span>
-        </label>`,
-        )
-        .join("");
-    }
+    if (checkFormatos) checkFormatos.innerHTML = generarChecks(FORMATOS[idServicio] ?? FORMATOS[0], 'formatos[]', "toggleFormatoOtros(this)");
 
-    // Cierra el modal de "Selecciona el servicio" y abre el modal del formulario
+    // Cerrar modal de selección → abrir modal del formulario
     const elModalSeleccion = document.getElementById("modal-nuevo-pedido");
-    if (elModalSeleccion) {
-      const instance = bootstrap.Modal.getInstance(elModalSeleccion);
-      if (instance) instance.hide();
-    }
+    if (elModalSeleccion) { const inst = bootstrap.Modal.getInstance(elModalSeleccion); if (inst) inst.hide(); }
 
-    // Iniciar wizard en paso 1 y mostrar modal del formulario
     irAlPaso(1);
-    const modalForm = new bootstrap.Modal(elModalForm);
-    modalForm.show();
+    new bootstrap.Modal(elModalForm).show();
   };
 
-  /**
-   * Valida que no se seleccionen más de N opciones en un grupo de checkboxes.
-   * Se usa para limitar canales a máximo 3.
-   */
+  //Limita la Seleccion de 3 opciones en un grupo de checkboxes
   window.limitarSeleccion = function (checkbox, nombre, maximo) {
     const seleccionados = document.querySelectorAll(
       `input[name="${nombre}"]:checked`,
@@ -385,10 +274,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  /**
-   * Si el usuario marca la opción "Otros" en formatos,
-   * muestra un input adicional para que especifique el formato personalizado.
-   */
+  //Si el usuario marca la opción "Otros" en formatos, muestra un input adicional para que especifique el formato
   window.toggleFormatoOtros = function (checkbox) {
     const contenedor = document.getElementById("contenedor-formato-otros");
     if (!contenedor) return;
@@ -400,13 +286,7 @@ document.addEventListener("DOMContentLoaded", function () {
     contenedor.style.display = otrosChecked ? "block" : "none";
   };
 
-  /**
-   * Navega entre los 3 pasos del wizard.
-   * - Mostrar/ocultar secciones
-   * - Actualizar indicadores de progreso
-   * - Mostrar/ocultar botones (Atrás, Siguiente, Enviar)
-   * - Actualizar título del paso
-   */
+  //Navega entre los 3 pasos del wizard.
   function irAlPaso(numeroPaso) {
     const secciones = document.querySelectorAll(".wizard-section"); // Todos los pasos
     const indicadores = document.querySelectorAll(".step"); // Los números 1, 2, 3
@@ -462,61 +342,47 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  /**
-   * Permite ir al paso anterior.
-   * No permite retroceder antes del paso 1.
-   */
+  //Permite ir al paso anterior.
   window.retrocederPaso = function () {
     if (pasoActual <= 1) return; // No retroceder del paso 1
     irAlPaso(pasoActual - 1); // Ir al paso anterior
   };
 
-  /**
-   * Cuando el usuario selecciona "¿Tienes materiales de referencia?"
-   * Se muestran los campos correspondientes (archivos, link, o ambos)
-   */
+  //Cuando el usuario selecciona "¿Tienes materiales de referencia?"
+  //Se muestran los campos correspondientes (archivos, link, o ambos)
   const selectMateriales = document.getElementById("select-materiales");
 
   document.addEventListener("change", function (e) {
     if (e.target.id !== "select-materiales") return;
 
     const valor = e.target.value;
-    const contArchivos = document.getElementById("contenedor-archivos"); // Área de subida de archivos
-    const contLink = document.getElementById("contenedor-link"); // Campo de URL
+    const contMateriales = document.getElementById("contenedor-materiales"); // Contenedor general de materiales
+    const inputArchivos = document.getElementById("input-archivos");
+    const inputLink = document.querySelector('[name="url_referencia"]');
+    const listaArchivos = document.getElementById("lista-archivos");
 
-    // Primero: ocultarlo todo
-    contArchivos.style.display = "none";
-    contLink.style.display = "none";
-
-    // Luego: mostrar según la opción seleccionada
-    if (valor === "archivos") {
-      // Usuario tiene archivos para adjuntar
-      contArchivos.style.display = "block";
-    } else if (valor === "link") {
-      // Usuario tiene un link de referencia
-      contLink.style.display = "block";
-    } else if (valor === "ambos") {
-      // Usuario tiene archivos y link
-      contArchivos.style.display = "block";
-      contLink.style.display = "block";
+    if (valor === "1") {
+      // Usuario TIENE materiales: mostrar ambos campos
+      contMateriales.style.display = "block";
+    } else if (valor === "0") {
+      // Usuario NO TIENE materiales: ocultar y limpiar
+      contMateriales.style.display = "none";
+      if (inputArchivos) inputArchivos.value = "";
+      if (inputLink) inputLink.value = "";
+      if (listaArchivos) listaArchivos.innerHTML = "";
     }
-    // Si valor === "no": dejar todo oculto
   });
 
   // VARIABLE GLOBAL: Seguimiento del paso actual del wizard
   let pasoActual = 1;
 
   // EVENT LISTENER: Botón "Siguiente Paso"
-  document
-    .getElementById("btn-siguiente")
-    .addEventListener("click", function () {
+  document.getElementById("btn-siguiente").addEventListener("click", function () {
       validarYPasar();
-    });
+  });
 
-  /**
-   * Valida que todos los campos requeridos del paso actual estén completos.
-   * Si pasa validación, avanza al siguiente paso.
-   */
+  //Valida que todos los campos requeridos del paso actual estén completos.
+  //Si pasa validación, avanza al siguiente paso.
   function validarYPasar() {
     const seccionActual = document.getElementById(`section-${pasoActual}`);
     if (!seccionActual) return;
@@ -531,7 +397,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // IMPORTANTE: Check de visibilidad (offsetParent === null = elemento oculto)
       // Esto evita validar campos que están hidden por lógica del wizard
       if (input.offsetParent === null) return;
-      
+
       // Validar que el campo no esté vacío
       if (!input.value.trim()) {
         input.classList.add("is-invalid"); // Marcar como inválido con estilo CSS
@@ -557,7 +423,7 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Selecciona al menos un canal de difusión");
         return;
       }
-      
+
       // Validación 2: Al menos 1 formato seleccionado
       const formatos = document.querySelectorAll(
         'input[name="formatos[]"]:checked',
@@ -570,7 +436,6 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Selecciona al menos un formato");
         return;
       }
-      
       // Si todo pasó validación: generar resumen para paso 3
       generarResumen();
     }
@@ -587,6 +452,194 @@ document.addEventListener("DOMContentLoaded", function () {
     //Redirección dinámica: La Base_url configurada hacia el método 'detalle' del controlador de Requerimientos
     window.location.href = `${base_url}cliente/detalle_requerimiento/${id}`;
   };
+
+  // Mapa de tipos de requerimiento (value del select → texto para la BD)
+  const MAPA_TIPOS = {
+    adaptacion: "Adaptación de Arte",
+    creacion: "Creación de Arte",
+    editorial: "Trabajo editorial",
+    audiovisual: "Creación de Videos",
+  };
+
+  // Helpers para leer valores del formulario
+  const val = (selector) => document.querySelector(selector)?.value?.trim() || "";
+  const valId = (id) => document.getElementById(id)?.value?.trim() || "";
+  const checkedVals = (name) => Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(c => c.value);
+
+  // Arma el FormData con todos los campos del wizard
+  function armarFormData() {
+    const fd = new FormData();
+    const idServicio = valId("form-idservicio") || "0";
+
+    fd.append("idservicio", idServicio);
+    if (idServicio === "0") {
+      const sp = valId("titulo_personalizado");
+      if (sp) fd.append("servicio_personalizado", sp);
+    }
+
+    fd.append("titulo", valId("campo-titulo"));
+    fd.append("objetivo_comunicacion", val('[name="objetivo"]'));
+    fd.append("descripcion", val('[name="descripcion"]'));
+    fd.append("tipo_requerimiento", MAPA_TIPOS[val('[name="tipo_requerimiento"]')] || val('[name="tipo_requerimiento"]'));
+    fd.append("fecharequerida", val('[name="fecha_entrega"]'));
+    fd.append("prioridad", document.querySelector('input[name="prioridad"]:checked')?.value || "Media");
+    fd.append("publico_objetivo", val('[name="publico"]'));
+    fd.append("canales_difusion", JSON.stringify(checkedVals('canales[]')));
+    fd.append("formatos_solicitados", JSON.stringify(checkedVals('formatos[]')));
+    fd.append("tiene_materiales", document.getElementById("select-materiales")?.value || "0");
+
+    const fOtros = val('[name="formato_otros"]');
+    if (fOtros) fd.append("formato_otros", fOtros);
+    const urlRef = val('[name="url_referencia"]');
+    if (urlRef) fd.append("url_subida", urlRef);
+
+    // Archivos adjuntos
+    const archivos = document.getElementById("input-archivos");
+    if (archivos?.files.length > 0) {
+      Array.from(archivos.files).forEach(f => fd.append("documentos[]", f));
+    }
+    return fd;
+  }
+
+  // Envío del formulario
+  document.getElementById("form-nuevo-pedido").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const btnEnviar = document.getElementById("btn-enviar");
+    btnEnviar.disabled = true;
+    btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando...';
+
+    try {
+      const res = await fetch(`${base_url}cliente/requerimiento/guardar`, { method: "POST", body: armarFormData() });
+      const data = await res.json();
+
+      if (data.status === "success") {
+        const modal = bootstrap.Modal.getInstance(document.getElementById("modal-formulario-detalle"));
+        if (modal) modal.hide();
+        mostrarAlerta("success", "¡Requerimiento enviado con éxito!");
+        obtenerPedidos();
+      } else {
+        mostrarAlerta("error", data.msg || "Error al enviar");
+        console.error("Debug:", data);
+      }
+    } catch (err) {
+      console.error(err);
+      mostrarAlerta("error", "Error de conexión.");
+    } finally {
+      btnEnviar.disabled = false;
+      btnEnviar.innerHTML = 'Enviar Requerimiento <i class="bi bi-check-lg"></i>';
+    }
+  });
+
+  // Genera el resumen del Paso 3 leyendo los valores de los pasos 1 y 2
+  function generarResumen() {
+    // Helpers para evitar repetir código
+    const setText = (id, valor) => { const el = document.getElementById(id); if (el) el.textContent = valor || "—"; };
+    const setTags = (checkboxName, targetId) => {
+      const el = document.getElementById(targetId);
+      if (!el) return;
+      const checked = document.querySelectorAll(`input[name="${checkboxName}"]:checked`);
+      el.innerHTML = checked.length
+        ? Array.from(checked).map(c => `<span class="tag-item">${c.value}</span>`).join(" ")
+        : "<span style='color:#555'>Ninguno</span>";
+    };
+    const toggleWrap = (valor, wrapId, contentId) => {
+      const wrap = document.getElementById(wrapId);
+      const content = document.getElementById(contentId);
+      if (!wrap) return;
+      wrap.style.display = valor ? "block" : "none";
+      if (content && valor) content.textContent = valor;
+    };
+
+    // ── SERVICIO (badge + nombre personalizado si aplica)
+    const badge = document.getElementById("wbadge-container");
+    const resServicio = document.getElementById("res-servicio");
+    const idServ = document.getElementById("form-idservicio")?.value;
+    const titPers = document.getElementById("titulo_personalizado")?.value?.trim();
+    if (resServicio && badge) {
+      resServicio.innerHTML = badge.innerHTML + (idServ === "0" && titPers ? ` — ${titPers}` : "");
+    }
+
+    // ── CAMPOS DE TEXTO (Paso 1)
+    setText("res-titulo", document.getElementById("campo-titulo")?.value.trim() || "Sin título");
+    setText("res-objetivo", document.querySelector('[name="objetivo"]')?.value);
+    setText("res-prioridad", document.querySelector('input[name="prioridad"]:checked')?.value || "Media");
+
+    // Tipo de requerimiento (texto del option seleccionado)
+    const tipoReq = document.querySelector('[name="tipo_requerimiento"]');
+    setText("res-tipo", tipoReq?.options[tipoReq.selectedIndex]?.text);
+
+    // Fecha formateada
+    const fechaVal = document.querySelector('[name="fecha_entrega"]')?.value;
+    if (fechaVal) {
+      const d = new Date(fechaVal + "T00:00:00");
+      setText("res-fecha", d.toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" }));
+    }
+
+    // ── CAMPOS DE TEXTO (Paso 2)
+    setText("res-descripcion", document.querySelector('[name="descripcion"]')?.value);
+    setText("res-publico", document.querySelector('[name="publico"]')?.value);
+
+    // ── CHECKBOXES → TAGS
+    setTags('canales[]', "res-canales");
+    setTags('formatos[]', "res-formatos");
+
+    // ── CAMPOS CONDICIONALES (mostrar/ocultar según valor)
+    toggleWrap(document.querySelector('[name="formato_otros"]')?.value.trim(), "res-formato-otros-wrap", "res-formato-otros");
+    toggleWrap(document.querySelector('[name="url_referencia"]')?.value.trim(), "res-link-wrap", "res-link");
+
+    // Materiales
+    const matVal = document.getElementById("select-materiales")?.value;
+    setText("res-materiales", matVal === "1" ? "Sí, tiene materiales" : "No tiene materiales");
+
+    // Archivos adjuntos
+    const archivos = document.getElementById("input-archivos");
+    const resArchivos = document.getElementById("res-archivos");
+    const resArchivosWrap = document.getElementById("res-archivos-wrap");
+    if (archivos?.files.length > 0) {
+      resArchivos.innerHTML = Array.from(archivos.files).map(f =>
+        `<div class="archivo-item">
+          <i class="bi bi-file-earmark"></i> <span>${f.name}</span>
+          <span style="color:#555; font-size:10px;">${(f.size / 1024).toFixed(1)} KB</span>
+        </div>`
+      ).join("");
+      resArchivosWrap.style.display = "block";
+    } else if (resArchivosWrap) {
+      resArchivosWrap.style.display = "none";
+    }
+  }
+
+  // Alerta visual sin alert()
+  function mostrarAlerta(tipo, mensaje) {
+    const colores = {
+      success: {
+        bg: "rgba(34,197,94,0.1)",
+        border: "#22c55e",
+        color: "#22c55e",
+        icono: "bi-check-circle",
+      },
+      error: {
+        bg: "rgba(239,68,68,0.1)",
+        border: "#ef4444",
+        color: "#ef4444",
+        icono: "bi-x-circle",
+      },
+    };
+    const c = colores[tipo] || colores.error;
+
+    const div = document.createElement("div");
+    div.style.cssText = `
+        position:fixed; top:20px; right:20px; z-index:9999;
+        background:${c.bg}; border:1px solid ${c.border};
+        color:${c.color}; border-radius:10px;
+        padding:14px 20px; font-size:13px;
+        display:flex; align-items:center; gap:10px;
+        max-width:350px; animation: fadeIn .3s ease;
+    `;
+    div.innerHTML = `<i class="bi ${c.icono}" style="font-size:18px;"></i><span>${mensaje}</span>`;
+    document.body.appendChild(div);
+
+    setTimeout(() => div.remove(), 4000);
+  }
 
   obtenerPedidos();
 });

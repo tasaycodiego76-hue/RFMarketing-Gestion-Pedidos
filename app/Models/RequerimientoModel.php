@@ -8,7 +8,10 @@ class RequerimientoModel extends Model
 {
     protected $table = 'requerimiento';
     protected $primaryKey = 'id';
-    // Definimos qué columnas se pueden devolver o manipular
+    protected $returnType = 'array';
+    protected $useTimestamps = false;
+    protected $skipValidation = true;
+
     protected $allowedFields = [
         'idempresa',
         'idservicio',
@@ -27,31 +30,25 @@ class RequerimientoModel extends Model
         'prioridad'
     ];
 
-    /**
-     * Obtiene el detalle completo de un requerimiento con sus datos relacionados
-     * @param mixed $RequerimientoID
-     * @return array|null
-     */
     public function getDetalleCompleto($RequerimientoID)
     {
         $sql = "
         SELECT 
             r.*,
             a.estado,
-            a.prioridad AS atn_priority, -- Evitamos conflictos de nombres
+            a.prioridad AS atn_priority,
             a.num_modificaciones,
-            a.respuestatexto,
+            a.url_entrega,
             a.fechainicio,
             a.fechafin,
             s.nombre AS nombre_servicio,
-            u.nombre AS empleado_nombre -- Traemos el nombre del diseñador
+            u.nombre AS empleado_nombre
         FROM requerimiento r
         INNER JOIN atencion a ON a.idrequerimiento = r.id
         LEFT JOIN servicios s ON s.id = r.idservicio
-        LEFT JOIN usuarios u ON u.id = a.idempleado -- Unimos con usuarios para el nombre
+        LEFT JOIN usuarios u ON u.id = a.idempleado
         WHERE r.id = ?
-    ";
-
+        ";
         return $this->db->query($sql, [$RequerimientoID])->getRowArray();
     }
 }

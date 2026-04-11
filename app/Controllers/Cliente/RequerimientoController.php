@@ -17,7 +17,7 @@ class RequerimientoController extends BaseController
      */
     public function vistaDetalle($id)
     {
-        // Obtiene el usuario de la sesióna
+        // Obtiene el usuario de la sesión
         $user = $this->getActiveUser();
 
         // Validación de Seguridad
@@ -54,250 +54,179 @@ class RequerimientoController extends BaseController
     }
 
     /**
-     * Procesa el guardado de un nuevo requerimiento y su respectiva atención
+     * Guarda un nuevo requerimiento con su atención y archivos adjuntos.
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function guardar()
     {
-        // Obtener usuario de la sesión para seguridad
+        // VALIDAR SESIÓN 
         $userSession = $this->getActiveUser();
         $idUsuario = is_array($userSession) ? $userSession['id'] : $userSession;
-        // Validacion
+
         if (!$idUsuario) {
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Sesión no válida.']);
         }
 
-        // Buscamos a qué empresa pertenece este usuario/área
+        // OBTENER EMPRESA DEL USUARIO 
         $usuarioModel = new UsuarioModel();
         $userData = $usuarioModel->getDatosEmpresaUsuario($idUsuario);
-        // Error si el usuario no tiene área o empresa asignada
+
         if (!$userData || empty($userData['idempresa'])) {
-            return $this->response->setJSON(['status' => 'error', 'msg' => 'No se encontró una empresa asociada a tu perfil de usuario.']);
+            return $this->response->setJSON(['status' => 'error', 'msg' => 'No se encontró empresa asociada.']);
         }
 
-        // Obtener la instancia de conexión a la base de datos
-        $db = \Config\Database::connect();
+        // PREPARAR DATOS DEL FORMULARIO 
 
-        // Recoger datos del Requerimiento (Formulario)
+        // Fecha: intenta 'fecharequerida', luego 'fecha_entrega', o usa hoy como fallback
+        $fechaRaw = $this->request->getPost('fecharequerida')
+            ?? $this->request->getPost('fecha_entrega')
+            ?? date('Y-m-d');
+
+        try {
+            $fechaObj = new \DateTime($fechaRaw);
+        } catch (\Exception $e) {
+            $fechaObj = new \DateTime(); // Si la fecha es inválida, usar hoy
+        }
+
+        // Servicio: si es "0" (personalizado), guardar como NULL en la BD
         $idServicio = $this->request->getPost('idservicio');
-        $servPerso = $this->request->getPost('servicio_personalizado');
+        $idServicio = (!empty($idServicio) && $idServicio != '0') ? (int) $idServicio : null;
 
-        /**
-         * Validación para Sevicios DB / Servicio Personalizado
-         */
-        if (empty($idServicio) && empty($servPerso)) {
-            return $this->response->setJSON([
-                'status' => 'error',
-                'msg' => 'Debe seleccionar un servicio o especificar uno personalizado.'
-            ]);
-        }
+        // Armar array con todos los campos del requerimiento
+        $dataReq = [
+            'idempresa'              => (int) $userData['idempresa'],
+            'idservicio'             => $idServicio,                                                    // NULL si es personalizado
+            'servicio_personalizado' => $this->request->getPost('servicio_personalizado') ?: null,      // Solo si ID=0
+            'titulo'                 => $this->request->getPost('titulo') ?: 'Sin título',
+            'objetivo_comunicacion'  => $this->request->getPost('objetivo_comunicacion') ?: '',
+            'descripcion'            => $this->request->getPost('descripcion') ?: '',
+            'tipo_requerimiento'     => $this->request->getPost('tipo_requerimiento') ?: '',
+            'canales_difusion'       => $this->request->getPost('canales_difusion') ?: '[]',            // JSON string
+            'publico_objetivo'       => $this->request->getPost('publico_objetivo') ?: '',
+            'tiene_materiales'       => ($this->request->getPost('tiene_materiales') === '1'),          // Boolean
+            'url_subida'             => $this->request->getPost('url_subida') ?: null,
+            'formatos_solicitados'   => $this->request->getPost('formatos_solicitados') ?: '[]',        // JSON string
+            'formato_otros'          => $this->request->getPost('formato_otros') ?: '',
+            'fecharequerida'         => $fechaObj->format('Y-m-d H:i:s'),
+            'prioridad'              => ucfirst(strtolower($this->request->getPost('prioridad') ?? 'Media')),
+        ];
 
-        /**
-         * VALIDACIÓN: No permitir ambas opciones simultáneamente
-         * El usuario DEBE elegir (No Ambos):
-         *   - Un servicio del catálogo (idServicio), O
-         *   - Especificar un servicio personalizado (servPerso)
-         */
-        if (!empty($idServicio) && !empty($servPerso)) {
-            return $this->response->setJSON([
-                'status' => 'error',
-                'msg' => 'No puede seleccionar un servicio del catálogo y escribir uno personalizado a la vez.'
-            ]);
-        }
-
-        /**
-         * Inicia la Transaccion de BD
-         * Una transacción garantiza que todos los INSERT tengan una ejecucion exitosa, o en caso de error, se revierten todos los cambios (rollback)
-         * Esto es importante porque insertamos en 2 tablas (requerimiento y atención)
-         */
+        // INSERTAR EN LA BD (dentro de una transacción) 
+        $db = \Config\Database::connect();
         $db->transStart();
 
-        // Insertar en tabla 'requerimiento'
-        $reqModel = new RequerimientoModel();
+        try {
+            // Insertar Requerimiento
+            $reqModel = new RequerimientoModel();
+            $idReq = $reqModel->insert($dataReq);
+            $idReq = $this->obtenerIdInsertado($db, $idReq); // Fallback para PostgreSQL IDENTITY
 
-        // Asegurar formato de fecha para PostgreSQL TIMESTAMP
-        $fechaEntregaRaw = $this->request->getPost('fecha_entrega');
-        $fechaObjeto = new \DateTime($fechaEntregaRaw);
-
-        $dataReq = [
-            'idempresa' => (int) $userData['idempresa'],
-            'idservicio' => !empty($idServicio) ? (int) $idServicio : null,
-            'servicio_personalizado' => !empty($servPerso) ? $servPerso : null,
-            'titulo' => $this->request->getPost('titulo'),
-            'objetivo_comunicacion' => $this->request->getPost('objetivo'),
-            'descripcion' => $this->request->getPost('descripcion'),
-            'tipo_requerimiento' => $this->request->getPost('tipo_requerimiento'),
-            'canales_difusion' => $this->request->getPost('canales'),
-            'publico_objetivo' => $this->request->getPost('publico'),
-            'tiene_materiales' => filter_var($this->request->getPost('materiales'), FILTER_VALIDATE_BOOLEAN),
-            'url_subida' => $this->request->getPost('url_referencia'),
-            'formatos_solicitados' => $this->request->getPost('formatos'),
-            'formato_otros' => $this->request->getPost('formato_otros') ?? '',
-            'fecharequerida' => $fechaObjeto->format('Y-m-d H:i:s'),
-            'prioridad' => ucfirst(strtolower($this->request->getPost('prioridad') ?? 'Media'))
-        ];
-
-        // El método insert() ya devuelve el ID generado por defecto
-        $idGenerado = $reqModel->insert($dataReq);
-
-        // Capturamos el valor booleano correctamente
-        $tieneMateriales = filter_var($this->request->getPost('materiales'), FILTER_VALIDATE_BOOLEAN);
-
-        // Obtenemos los archivos
-        $archivos = $this->request->getFiles();
-        $hayArchivos = !empty($archivos['documentos']) && $archivos['documentos'][0]->isValid();
-
-        //Validacion
-        if (!$tieneMateriales && $hayArchivos) {
-            return $this->response->setJSON([
-                'status' => 'error',
-                'msg' => 'No puedes subir archivos si marcaste que no tienes materiales.'
-            ]);
-        }
-
-        //Creacion para Validar Requerimiento Fecha Minima
-        $tiemposPorTipo = [
-            'Adaptación de Arte' => 7,
-            'Creación de Arte' => 10,
-            'Creación de Videos' => 20, // Ajusta al nombre exacto que envías
-            'Trabajo editorial' => 20
-        ];
-        $tipoReq = $this->request->getPost('tipo_requerimiento');
-        $diasNecesarios = $tiemposPorTipo[$tipoReq] ?? 7;
-
-        //Validacion /Fecha Requerida no debe ser pasada
-        $fechaMinima = $this->calcularFechaMinima($diasNecesarios);
-        $fechaEntrega = new \DateTime($fechaEntregaRaw);
-
-        // Validamos si la fecha del cliente es menor a la permitida
-        if ($fechaEntrega < $fechaMinima) {
-            return $this->response->setJSON([
-                'status' => 'error',
-                'msg' => "Para el tipo '$tipoReq', la fecha mínima de entrega es el " . $fechaMinima->format('d/m/Y') . " (requiere $diasNecesarios días hábiles)."
-            ]);
-        }
-
-        // Campos Vacios Oligatorios
-        $requeridos = ['titulo', 'objetivo', 'descripcion', 'tipo_requerimiento', 'fecha_entrega'];
-        foreach ($requeridos as $campo) {
-            if (empty($this->request->getPost($campo))) {
-                return $this->response->setJSON([
-                    'status' => 'error',
-                    'msg' => "El campo '$campo' es obligatorio."
-                ]);
+            if (!$idReq) {
+                throw new \RuntimeException('No se pudo obtener el ID del requerimiento.');
             }
-        }
 
-        //Prioridad Valido
-        $prioridadesValidas = ['Alta', 'Media', 'Baja'];
-        $prioridad = ucfirst(strtolower($this->request->getPost('prioridad') ?? 'Media'));
-        if (!in_array($prioridad, $prioridadesValidas)) {
-            return $this->response->setJSON([
-                'status' => 'error',
-                'msg' => 'Prioridad inválida.'
+            // Insertar Atención vinculada al requerimiento
+            $atencionModel = new AtencionModel();
+            $idAtn = $atencionModel->insert([
+                'idrequerimiento'       => $idReq,
+                'idadmin'               => 1,                                   // Admin por defecto (pendiente de asignar)
+                'idservicio'            => $idServicio,
+                'servicio_personalizado' => $dataReq['servicio_personalizado'],
+                'titulo'                => $dataReq['titulo'],
+                'prioridad'             => $dataReq['prioridad'],
+                'estado'                => 'pendiente_sin_asignar',
+                'fechafin'              => $fechaObj->format('Y-m-d'),
+                'url_entrega'           => null,
             ]);
-        }
+            $idAtn = $this->obtenerIdInsertado($db, $idAtn);
 
-        if (!$idGenerado) {
-            $db->transRollback();
-            return $this->response->setJSON([
-                'status' => 'error',
-                'msg' => 'Fallo al insertar Requerimiento.',
-                'errors' => $reqModel->errors(), // Esto te dirá si hay un error de validación
-                'data_enviada' => $dataReq      // Para comparar con tus allowedFields
-            ]);
-        }
-
-        // Insertar en tabla 'atencion' (Espejo para gestión)
-        $atencionModel = new AtencionModel();
-        $dataAtn = [
-            'idrequerimiento' => $idGenerado,
-            'idadmin' => 1, // Admin asignado por defecto
-            'idservicio' => $dataReq['idservicio'],
-            'servicio_personalizado' => $dataReq['servicio_personalizado'],
-            'titulo' => $dataReq['titulo'],
-            'prioridad' => $dataReq['prioridad'],
-            'estado' => 'pendiente_sin_asignar',
-            'respuestatexto' => '',
-            'fechafin' => $fechaObjeto->format('Y-m-d')
-        ];
-
-        // Inserta el registro de atención y captura el ID directamente del modelo
-        $idAtnGenerado = $atencionModel->insert($dataAtn);
-
-        /**
-         * VERIFICAR ESTADO DE LA TRANSACCIÓN
-         * Si transStatus() devuelve FALSE significa que algo falló en los INSERT anteriores.
-         * En ese caso, ejecutamos transRollback() para deshacer todos los cambios
-         * (tanto del requerimiento como de la atención) y devolver la BD a su estado anterior.
-         */
-        if ($db->transStatus() === false) {
-            // LOG DE ERRORES PARA DEPURAR (Revisa writable/logs/log-xxxx.php)
-            log_message('error', 'Fallo en DB: ' . json_encode($db->error()));
-
-            $db->transRollback();
-            return $this->response->setJSON([
-                'status' => 'error',
-                'msg' => 'Error al crear el requerimiento en BD.',
-                'debug' => $db->error() // Solo para desarrollo, quítalo después
-            ]);
-        }
-
-        /**
-         * Este bloque permite que los clientes suban archivos junto con su requerimiento.
-         * Los archivos se guardan en el servidor y se registran en la BD para referencia futura.
-         */
-        $archivos = $this->request->getFiles();
-
-        // Verificar si el cliente envió archivos en la key 'documentos'
-        if (!empty($archivos['documentos'])) {
-            $archivoModel = new ArchivoModel();
-            // Procesar cada archivo enviado
-            foreach ($archivos['documentos'] as $file) {
-                // Llamar Funcion y Validar archivo
-                $validacion = $this->validarArchivo($file);
-                if (!$validacion['valido']) {
-                    //Revertir Cambios BD (Transaccion Fallida y ERROR)
-                    $db->transRollback();
-                    return $this->response->setJSON(['status' => 'error', 'msg' => $validacion['error']]);
-                }
-                try {
-                    // Definir ruta de destino para guardar archivo, Y crear Carpeta si no Existe
-                    $carpeta = WRITEPATH . 'uploads/requerimientos';
-                    if (!is_dir($carpeta)) {
-                        mkdir($carpeta, 0755, true);
-                    }
-                    //Nombre Aleatorio y Mover Archivo a Carpeta de Destino
-                    $nombreNuevo = $file->getRandomName();
-                    $file->move($carpeta, $nombreNuevo);
-                    // Registrar info del archivo en tabla 'archivos' para rastreo
-                    $archivoModel->insert([
-                        'idrequerimiento' => $idGenerado, //Id del Requerimiento
-                        'idatencion' => $idAtnGenerado, //Id de la Atencion
-                        'nombre' => $file->getClientName(), //Nombre Original del Archivo
-                        'ruta' => 'uploads/requerimientos/' . $nombreNuevo,  //Ruta para Descarga (Futuro)
-                        'tipo' => $file->getClientMimeType(),  //Tipo MIME (PDF, .doc, PNG, etc)
-                        'tamano' => $file->getSize() //Tamaño en BYTES
-                    ]);
-                } catch (\Exception $e) {
-                    $db->transRollback();
-                    return $this->response->setJSON(['status' => 'error', 'msg' => 'Error al guardar archivo: ' . $e->getMessage()]);
-                }
+            if (!$idAtn) {
+                throw new \RuntimeException('No se pudo obtener el ID de la atención.');
             }
+
+            // Guardar archivos adjuntos (si el usuario subió alguno)
+            $this->guardarArchivos($idReq, $idAtn);
+
+        } catch (\Exception $e) {
+            $db->transRollback();
+            log_message('error', 'Error al guardar requerimiento: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status' => 'error',
+                'msg'    => $e->getMessage(),
+            ]);
         }
 
-        /**
-         * Finalizar Transaccion
-         * En CodeIgniter, transComplete() ejecuta automáticamente un COMMIT si todo está bien.
-         */
+        // CONFIRMAR TRANSACCIÓN 
         $db->transComplete();
 
-        //Respuesta de Exito
+        if ($db->transStatus() === false) {
+            return $this->response->setJSON(['status' => 'error', 'msg' => 'Error en transacción.']);
+        }
+
         return $this->response->setJSON([
             'status' => 'success',
-            'msg' => '¡Requerimiento enviado con éxito!',
-            'id_req' => $idGenerado
+            'msg'    => '¡Requerimiento enviado con éxito!',
+            'id_req' => $idReq,
         ]);
+    }
+
+    /**
+     * Fallback para obtener el ID insertado en PostgreSQL
+     * @return int|null  ID insertado o null si falló
+     */
+    private function obtenerIdInsertado($db, $insertId)
+    {
+        if ($insertId === 0 || $insertId === true) {
+            $row = $db->query("SELECT lastval() AS id")->getRowArray();
+            return $row['id'] ?? null;
+        }
+        return $insertId ?: null;
+    }
+
+    /**
+     * Guarda los archivos adjuntos del formulario en disco y en la BD
+     */
+    private function guardarArchivos(int $idReq, int $idAtn): void
+    {
+        $archivos = $this->request->getFiles();
+
+        // Si no hay archivos con el name="documentos[]", salir
+        if (empty($archivos['documentos'])) {
+            return;
+        }
+
+        $archivoModel = new ArchivoModel();
+        $carpeta = WRITEPATH . 'uploads/requerimientos';
+
+        // Crear la carpeta si no existe
+        if (!is_dir($carpeta)) {
+            mkdir($carpeta, 0755, true);
+        }
+
+        foreach ($archivos['documentos'] as $file) {
+            // Saltar archivos inválidos o ya procesados
+            if (!$file->isValid() || $file->hasMoved()) {
+                continue;
+            }
+
+            try {
+                // Generar nombre único y mover el archivo
+                $nombreNuevo = $file->getRandomName();
+                $file->move($carpeta, $nombreNuevo);
+
+                // Registrar en la BD
+                $archivoModel->insert([
+                    'idrequerimiento' => $idReq,
+                    'idatencion'      => $idAtn,
+                    'nombre'          => $file->getClientName(),          // Nombre original
+                    'ruta'            => 'uploads/requerimientos/' . $nombreNuevo,  // Ruta relativa
+                    'tipo'            => $file->getClientMimeType(),      // Ej: image/png, application/pdf
+                    'tamano'          => $file->getSize(),                // Tamaño en bytes
+                ]);
+            } catch (\Exception $e) {
+                log_message('error', 'Error al guardar archivo: ' . $e->getMessage());
+            }
+        }
     }
 
     //Funcion para Falidar la Fecha Minima Segun el Tipo de Requerimiento

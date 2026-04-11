@@ -138,7 +138,10 @@
         <div class="card-dark-main p-3">
             <label class="label-tiny mb-3 d-block">CANALES DE DIFUSIÓN</label>
             <div class="d-flex flex-wrap gap-2">
-                <?php foreach (json_decode($requerimiento['canales_difusion'] ?? '[]') as $canal): ?>
+                <?php
+                $canales = json_decode($requerimiento['canales_difusion'] ?? '[]', true) ?: [];
+                foreach ($canales as $canal):
+                    ?>
                     <span class="tag-outline"><?= esc($canal) ?></span>
                 <?php endforeach; ?>
             </div>
@@ -148,7 +151,10 @@
         <div class="card-dark-main p-3">
             <label class="label-tiny mb-3 d-block">FORMATOS SOLICITADOS</label>
             <div class="d-flex flex-wrap gap-2">
-                <?php foreach (json_decode($requerimiento['formatos_solicitados'] ?? '[]') as $formato): ?>
+                <?php
+                $formatos = json_decode($requerimiento['formatos_solicitados'] ?? '[]', true) ?: [];
+                foreach ($formatos as $formato):
+                    ?>
                     <span class="tag-outline"><?= esc($formato) ?></span>
                 <?php endforeach; ?>
                 <?php if (!empty($requerimiento['formato_otros'])): ?>

@@ -106,7 +106,7 @@
 <div class="modal fade" id="modal-formulario-detalle" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content modal-rf">
-            <form id="form-nuevo-pedido">
+            <form id="form-nuevo-pedido" class="needs-validation" novalidate>
                 <input type="hidden" name="idservicio" id="form-idservicio">
 
                 <div class="modal-header modal-rf-header">
@@ -155,7 +155,30 @@
                                 </span>
                             </div>
                         </div>
+                        <div class="field mb-3">
+                            <label>TÍTULO DEL REQUERIMIENTO</label>
+                            <input type="text" name="titulo" id="campo-titulo" class="field-input"
+                                placeholder="Ej: Banner campaña de matrícula 2026" required>
+                        </div>
 
+                        <!-- Prioridad -->
+                        <div class="field mb-3">
+                            <label>PRIORIDAD</label>
+                            <div class="prioridad-opciones">
+                                <label class="prio-opcion">
+                                    <input type="radio" name="prioridad" value="Baja">
+                                    <span class="prio-badge prio-baja">Baja</span>
+                                </label>
+                                <label class="prio-opcion">
+                                    <input type="radio" name="prioridad" value="Media" checked>
+                                    <span class="prio-badge prio-media">Media</span>
+                                </label>
+                                <label class="prio-opcion">
+                                    <input type="radio" name="prioridad" value="Alta">
+                                    <span class="prio-badge prio-alta">Alta</span>
+                                </label>
+                            </div>
+                        </div>
                         <div id="contenedor-nombre-personalizado" class="field mb-3" style="display:none;">
                             <label>NOMBRE DEL SERVICIO REQUERIDO</label>
                             <input type="text" name="titulo" id="titulo_personalizado" class="field-input"
@@ -196,16 +219,11 @@
                                     <option value="audiovisual">Creación de Video (20 días hábiles)</option>
                                 </select>
                             </div>
-
-                            <!-- <div id="requerimiento-libre" style="display:none;">
-                                <input type="text" name="tipo_requerimiento_libre" id="tipo_req_libre"
-                                    class="field-input" placeholder="Describe el tipo de trabajo">
-                            </div> -->
                         </div>
 
                         <div class="field mb-3">
                             <label>FECHA EN QUE SE NECESITA</label>
-                            <input type="date" name="fecha_entrega" class="field-input" required>
+                            <input type="date" id="fecha_entrega_input" name="fecha_entrega" required>
                         </div>
                     </div>
                     <!-- SECTION 2: Detalles y Formatos  -->
@@ -248,42 +266,138 @@
                         <!-- ¿Tiene materiales? -->
                         <div class="field mb-3">
                             <label>¿CUENTAS CON MATERIALES DE REFERENCIA?</label>
-                            <select name="materiales" id="select-materiales" class="form-select field-select" required>
+                            <select name="tiene_materiales" id="select-materiales" class="form-select field-select"
+                                required>
                                 <option value="" disabled selected>Seleccionar...</option>
-                                <option value="archivos">Sí, tengo archivos para adjuntar</option>
-                                <option value="link">Sí, tengo un link de referencia</option>
-                                <option value="ambos">Sí, tengo archivos y link</option>
-                                <option value="no">No, no tengo materiales</option>
+                                <option value="1">Sí, tengo materiales</option>
+                                <option value="0">No, no tengo materiales</option>
                             </select>
                         </div>
 
-                        <!-- Subida de archivos -->
-                        <div class="field mb-3" id="contenedor-archivos" style="display:none;">
-                            <label>ADJUNTA TUS ARCHIVOS</label>
-                            <p class="campo-sublabel">Máximo 100MB por archivo. PDF, imágenes, videos, documentos.</p>
-                            <div class="upload-area" id="upload-area"
-                                onclick="document.getElementById('input-archivos').click()">
-                                <i class="bi bi-cloud-arrow-up" style="font-size:28px; color:#555;"></i>
-                                <p style="color:#555; font-size:12px; margin:6px 0 0 0;">Haz clic o arrastra tus
-                                    archivos aquí</p>
+                        <!-- Subida de archivos + Link (aparecen juntos cuando selecciona Sí) -->
+                        <div id="contenedor-materiales" style="display:none;">
+                            <!-- Subida de archivos -->
+                            <div class="field mb-3" id="contenedor-archivos">
+                                <label>ADJUNTA TUS ARCHIVOS</label>
+                                <p class="campo-sublabel">Máximo 100MB por archivo. PDF, imágenes, videos, documentos.
+                                </p>
+                                <div class="upload-area" id="upload-area"
+                                    onclick="document.getElementById('input-archivos').click()">
+                                    <i class="bi bi-cloud-arrow-up" style="font-size:28px; color:#555;"></i>
+                                    <p style="color:#555; font-size:12px; margin:6px 0 0 0;">Haz clic o arrastra tus
+                                        archivos aquí</p>
+                                </div>
+                                <input type="file" name="documentos[]" id="input-archivos" multiple
+                                    style="display:none;"
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.zip">
+                                <div id="lista-archivos" style="margin-top:8px;"></div>
                             </div>
-                            <input type="file" name="documentos[]" id="input-archivos" multiple style="display:none;"
-                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.zip">
-                            <div id="lista-archivos" style="margin-top:8px;"></div>
-                        </div>
 
-                        <!-- Link de referencia -->
-                        <div class="field mb-3" id="contenedor-link" style="display:none;">
-                            <label>LINK DE REFERENCIA (Google Drive, WeTransfer, etc.)</label>
-                            <input type="text" name="url_referencia" class="field-input"
-                                placeholder="https://drive.google.com/...">
+                            <!-- Link de referencia -->
+                            <div class="field mb-3" id="contenedor-link">
+                                <label>LINK DE REFERENCIA (Google Drive, WeTransfer, etc.)</label>
+                                <input type="text" name="url_referencia" class="field-input"
+                                    placeholder="https://drive.google.com/...">
+                            </div>
                         </div>
 
                     </div>
-                    <!-- SECTION 3: Archivos y Confirmación -->
+                    <!-- SECTION 3: Confirmar y Enviar -->
+                    <div class="wizard-section d-none" id="section-3">
 
+                        <div class="resumen-header mb-3">
+                            <i class="bi bi-clipboard-check" style="font-size:24px; color:#f5c400;"></i>
+                            <div>
+                                <p class="campo-label mb-0">REVISA TU REQUERIMIENTO</p>
+                                <p style="color:#555; font-size:11px; margin:0;">Verifica que todo esté correcto antes
+                                    de enviar</p>
+                            </div>
+                        </div>
+
+                        <!-- Bloque: Info básica -->
+                        <div class="resumen-bloque mb-3">
+                            <div class="resumen-bloque-titulo">
+                                <span class="step-mini">1</span> INFO BÁSICA
+                            </div>
+                            <div class="resumen-grid">
+                                <div class="resumen-item">
+                                    <span class="info-label">SERVICIO</span>
+                                    <span class="info-valor" id="res-servicio">—</span>
+                                </div>
+                                <div class="resumen-item">
+                                    <span class="info-label">TÍTULO</span>
+                                    <span class="info-valor" id="res-titulo">—</span>
+                                </div>
+                                <div class="resumen-item">
+                                    <span class="info-label">TIPO DE REQUERIMIENTO</span>
+                                    <span class="info-valor" id="res-tipo">—</span>
+                                </div>
+                                <div class="resumen-item">
+                                    <span class="info-label">FECHA REQUERIDA</span>
+                                    <span class="info-valor" id="res-fecha">—</span>
+                                </div>
+                                <div class="resumen-item resumen-full">
+                                    <span class="info-label">OBJETIVO DE COMUNICACIÓN</span>
+                                    <span class="info-valor" id="res-objetivo">—</span>
+                                </div>
+                                <div class="resumen-item">
+                                    <span class="info-label">PRIORIDAD</span>
+                                    <span class="info-valor" id="res-prioridad">—</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bloque: Detalles -->
+                        <div class="resumen-bloque mb-3">
+                            <div class="resumen-bloque-titulo">
+                                <span class="step-mini">2</span> DETALLES Y FORMATOS
+                            </div>
+                            <div class="resumen-grid">
+                                <div class="resumen-item resumen-full">
+                                    <span class="info-label">DESCRIPCIÓN</span>
+                                    <span class="info-valor" id="res-descripcion">—</span>
+                                </div>
+                                <div class="resumen-item resumen-full">
+                                    <span class="info-label">PÚBLICO OBJETIVO</span>
+                                    <span class="info-valor" id="res-publico">—</span>
+                                </div>
+                                <div class="resumen-item resumen-full">
+                                    <span class="info-label">CANALES DE DIFUSIÓN</span>
+                                    <div class="tags-wrap" id="res-canales"></div>
+                                </div>
+                                <div class="resumen-item resumen-full">
+                                    <span class="info-label">FORMATOS SOLICITADOS</span>
+                                    <div class="tags-wrap" id="res-formatos"></div>
+                                </div>
+                                <div class="resumen-item resumen-full" id="res-formato-otros-wrap"
+                                    style="display:none;">
+                                    <span class="info-label">FORMATO PERSONALIZADO</span>
+                                    <span class="info-valor" id="res-formato-otros">—</span>
+                                </div>
+                                <div class="resumen-item">
+                                    <span class="info-label">MATERIALES</span>
+                                    <span class="info-valor" id="res-materiales">—</span>
+                                </div>
+                                <div class="resumen-item resumen-full" id="res-link-wrap" style="display:none;">
+                                    <span class="info-label">LINK DE REFERENCIA</span>
+                                    <span class="info-valor" id="res-link">—</span>
+                                </div>
+                                <div class="resumen-item resumen-full" id="res-archivos-wrap" style="display:none;">
+                                    <span class="info-label">ARCHIVOS ADJUNTOS</span>
+                                    <div id="res-archivos"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Aviso final -->
+                        <div class="aviso-envio">
+                            <i class="bi bi-info-circle"></i>
+                            <span>Una vez enviado, el equipo de RF Marketing revisará tu requerimiento y te notificará
+                                por correo.</span>
+                        </div>
+
+                    </div>
                 </div>
-
                 <div class="modal-footer border-0" style="gap: 10px; justify-content: flex-end;">
                     <button type="button" class="btn btn-outline-light d-none" id="btn-atras"
                         onclick="window.retrocederPaso()">
