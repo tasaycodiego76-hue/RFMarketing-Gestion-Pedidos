@@ -13,7 +13,7 @@ class RequerimientoModel extends Model
     protected $skipValidation = true;
 
     protected $allowedFields = [
-        'idempresa',
+        'idusuarioempresa',
         'idservicio',
         'servicio_personalizado',
         'titulo',
@@ -45,6 +45,9 @@ class RequerimientoModel extends Model
             u.nombre AS empleado_nombre
         FROM requerimiento r
         INNER JOIN atencion a ON a.idrequerimiento = r.id
+        LEFT JOIN usuarios u_sol ON u_sol.id = r.idusuarioempresa  -- quien solicitó
+        LEFT JOIN areas ar ON ar.id = u_sol.idarea
+        LEFT JOIN empresas e ON e.id = ar.idempresa
         LEFT JOIN servicios s ON s.id = r.idservicio
         LEFT JOIN usuarios u ON u.id = a.idempleado
         WHERE r.id = ?

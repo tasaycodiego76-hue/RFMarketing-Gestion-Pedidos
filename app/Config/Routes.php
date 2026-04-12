@@ -45,6 +45,10 @@ $routes->group('cliente', function ($routes) {
     $routes->get('detalle_requerimiento/(:num)', 'Cliente\RequerimientoController::vistaDetalle/$1');
     //Ruta Para Guardar el Requerimiento (Vista + Backend Logica)
     $routes->post('requerimiento/guardar', 'Cliente\RequerimientoController::guardar');
-    // Ruta especial para VER los archivos protegidos
-    $routes->get('requerimiento/archivo/(:any)', 'Cliente\RequerimientoController::verArchivo/$1');
+    // Ruta especial para VER los archivos desde la Vista Detalle
+    $routes->get('archivos/(:segment)', 'Cliente\RequerimientoController::verArchivo/$1');
+    // Ruta para ver notificaciones (General) / Endpoint
+    $routes->get('notificaciones', 'Cliente\TrackingController::notificaciones');
+    // Ruta para Seguimiento de un Requerimiento (Específico) / Endpoint
+    $routes->get('seguimiento/(:num)', 'Cliente\TrackingController::seguimiento/$1');
 });

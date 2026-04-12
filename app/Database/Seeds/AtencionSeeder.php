@@ -62,20 +62,6 @@ class AtencionSeeder extends Seeder
                 'url_entrega' => null,
                 'fechainicio' => date('Y-m-d H:i:s'),
                 'fechafin' => '2026-04-18'
-            ],
-            [
-                'idrequerimiento' => 5,
-                'idadmin' => 1,
-                'idempleado' => null,
-                'idservicio' => null,
-                'servicio_personalizado' => 'Publicidad Online',
-                'titulo' => 'Flyer Taller Autoestima',
-                'prioridad' => 'Media',
-                'estado' => 'pendiente_sin_asignar',
-                'num_modificaciones' => 0,
-                'url_entrega' => null,
-                'fechainicio' => date('Y-m-d H:i:s'),
-                'fechafin' => '2026-04-10'
             ]
         ];
         $this->db->table('atencion')->insertBatch($data);

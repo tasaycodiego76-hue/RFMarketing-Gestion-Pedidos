@@ -177,6 +177,47 @@
             <p class="content-text small m-0">Dirección Académica / Marketing</p>
         </div>
     </div>
+    <?php if (!empty($archivos)): ?>
+        <div class="row g-4 mt-1">
+            <div class="col-12">
+                <div class="card-dark-main p-3">
+                    <label class="label-tiny mb-3 d-block">
+                        <i class="bi bi-paperclip me-1"></i> ARCHIVOS ADJUNTOS
+                    </label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <?php foreach ($archivos as $archivo): ?>
+                            <?php
+                            $icono = 'bi-file-earmark';
+                            $mime = $archivo['tipo'] ?? '';
+                            if (str_contains($mime, 'image'))
+                                $icono = 'bi-file-earmark-image';
+                            elseif (str_contains($mime, 'pdf'))
+                                $icono = 'bi-file-earmark-pdf';
+                            elseif (str_contains($mime, 'video'))
+                                $icono = 'bi-file-earmark-play';
+                            elseif (str_contains($mime, 'word'))
+                                $icono = 'bi-file-earmark-word';
+                            elseif (str_contains($mime, 'sheet') || str_contains($mime, 'excel'))
+                                $icono = 'bi-file-earmark-excel';
+
+                            $kb = number_format(($archivo['tamano'] ?? 0) / 1024, 1);
+                            $nombreArchivo = basename($archivo['ruta'] ?? '');
+                            ?>
+                            <a href="<?= base_url('cliente/archivos/' . $nombreArchivo) ?>" target="_blank"
+                                class="archivo-adjunto-card" title="<?= esc($archivo['nombre']) ?>">
+                                <i class="bi <?= $icono ?>"></i>
+                                <div class="archivo-info">
+                                    <span class="archivo-nombre"><?= esc($archivo['nombre']) ?></span>
+                                    <span class="archivo-peso"><?= $kb ?> KB</span>
+                                </div>
+                                <i class="bi bi-box-arrow-up-right archivo-open"></i>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
 
 <?= $this->endSection() ?>

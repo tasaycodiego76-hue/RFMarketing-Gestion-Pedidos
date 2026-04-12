@@ -67,14 +67,6 @@ class RequerimientoController extends BaseController
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Sesión no válida.']);
         }
 
-        // OBTENER EMPRESA DEL USUARIO 
-        $usuarioModel = new UsuarioModel();
-        $userData = $usuarioModel->getDatosEmpresaUsuario($idUsuario);
-
-        if (!$userData || empty($userData['idempresa'])) {
-            return $this->response->setJSON(['status' => 'error', 'msg' => 'No se encontró empresa asociada.']);
-        }
-
         // PREPARAR DATOS DEL FORMULARIO 
 
         // Fecha: intenta 'fecharequerida', luego 'fecha_entrega', o usa hoy como fallback
@@ -94,21 +86,21 @@ class RequerimientoController extends BaseController
 
         // Armar array con todos los campos del requerimiento
         $dataReq = [
-            'idempresa'              => (int) $userData['idempresa'],
-            'idservicio'             => $idServicio,                                                    // NULL si es personalizado
+            'idusuarioempresa' => (int) $idUsuario,
+            'idservicio' => $idServicio,                                                    // NULL si es personalizado
             'servicio_personalizado' => $this->request->getPost('servicio_personalizado') ?: null,      // Solo si ID=0
-            'titulo'                 => $this->request->getPost('titulo') ?: 'Sin título',
-            'objetivo_comunicacion'  => $this->request->getPost('objetivo_comunicacion') ?: '',
-            'descripcion'            => $this->request->getPost('descripcion') ?: '',
-            'tipo_requerimiento'     => $this->request->getPost('tipo_requerimiento') ?: '',
-            'canales_difusion'       => $this->request->getPost('canales_difusion') ?: '[]',            // JSON string
-            'publico_objetivo'       => $this->request->getPost('publico_objetivo') ?: '',
-            'tiene_materiales'       => ($this->request->getPost('tiene_materiales') === '1'),          // Boolean
-            'url_subida'             => $this->request->getPost('url_subida') ?: null,
-            'formatos_solicitados'   => $this->request->getPost('formatos_solicitados') ?: '[]',        // JSON string
-            'formato_otros'          => $this->request->getPost('formato_otros') ?: '',
-            'fecharequerida'         => $fechaObj->format('Y-m-d H:i:s'),
-            'prioridad'              => ucfirst(strtolower($this->request->getPost('prioridad') ?? 'Media')),
+            'titulo' => $this->request->getPost('titulo') ?: 'Sin título',
+            'objetivo_comunicacion' => $this->request->getPost('objetivo_comunicacion') ?: '',
+            'descripcion' => $this->request->getPost('descripcion') ?: '',
+            'tipo_requerimiento' => $this->request->getPost('tipo_requerimiento') ?: '',
+            'canales_difusion' => $this->request->getPost('canales_difusion') ?: '[]',            // JSON string
+            'publico_objetivo' => $this->request->getPost('publico_objetivo') ?: '',
+            'tiene_materiales' => ($this->request->getPost('tiene_materiales') === '1'),          // Boolean
+            'url_subida' => $this->request->getPost('url_subida') ?: null,
+            'formatos_solicitados' => $this->request->getPost('formatos_solicitados') ?: '[]',        // JSON string
+            'formato_otros' => $this->request->getPost('formato_otros') ?: '',
+            'fecharequerida' => $fechaObj->format('Y-m-d H:i:s'),
+            'prioridad' => ucfirst(strtolower($this->request->getPost('prioridad') ?? 'Media')),
         ];
 
         // INSERTAR EN LA BD (dentro de una transacción) 
@@ -128,15 +120,15 @@ class RequerimientoController extends BaseController
             // Insertar Atención vinculada al requerimiento
             $atencionModel = new AtencionModel();
             $idAtn = $atencionModel->insert([
-                'idrequerimiento'       => $idReq,
-                'idadmin'               => 1,                                   // Admin por defecto (pendiente de asignar)
-                'idservicio'            => $idServicio,
+                'idrequerimiento' => $idReq,
+                'idadmin' => 1,                                   // Admin por defecto (pendiente de asignar)
+                'idservicio' => $idServicio,
                 'servicio_personalizado' => $dataReq['servicio_personalizado'],
-                'titulo'                => $dataReq['titulo'],
-                'prioridad'             => $dataReq['prioridad'],
-                'estado'                => 'pendiente_sin_asignar',
-                'fechafin'              => $fechaObj->format('Y-m-d'),
-                'url_entrega'           => null,
+                'titulo' => $dataReq['titulo'],
+                'prioridad' => $dataReq['prioridad'],
+                'estado' => 'pendiente_sin_asignar',
+                'fechafin' => $fechaObj->format('Y-m-d'),
+                'url_entrega' => null,
             ]);
             $idAtn = $this->obtenerIdInsertado($db, $idAtn);
 
@@ -152,7 +144,7 @@ class RequerimientoController extends BaseController
             log_message('error', 'Error al guardar requerimiento: ' . $e->getMessage());
             return $this->response->setJSON([
                 'status' => 'error',
-                'msg'    => $e->getMessage(),
+                'msg' => $e->getMessage(),
             ]);
         }
 
@@ -165,7 +157,7 @@ class RequerimientoController extends BaseController
 
         return $this->response->setJSON([
             'status' => 'success',
-            'msg'    => '¡Requerimiento enviado con éxito!',
+            'msg' => '¡Requerimiento enviado con éxito!',
             'id_req' => $idReq,
         ]);
     }
@@ -217,11 +209,11 @@ class RequerimientoController extends BaseController
                 // Registrar en la BD
                 $archivoModel->insert([
                     'idrequerimiento' => $idReq,
-                    'idatencion'      => $idAtn,
-                    'nombre'          => $file->getClientName(),          // Nombre original
-                    'ruta'            => 'uploads/requerimientos/' . $nombreNuevo,  // Ruta relativa
-                    'tipo'            => $file->getClientMimeType(),      // Ej: image/png, application/pdf
-                    'tamano'          => $file->getSize(),                // Tamaño en bytes
+                    'idatencion' => $idAtn,
+                    'nombre' => $file->getClientName(),          // Nombre original
+                    'ruta' => 'uploads/requerimientos/' . $nombreNuevo,  // Ruta relativa
+                    'tipo' => $file->getClientMimeType(),      // Ej: image/png, application/pdf
+                    'tamano' => $file->getSize(),                // Tamaño en bytes
                 ]);
             } catch (\Exception $e) {
                 log_message('error', 'Error al guardar archivo: ' . $e->getMessage());

@@ -35,7 +35,7 @@ class MisPedidosController extends BaseController
         $data = [
             'titulo' => 'Mis Pedidos',
             'user' => [
-                'id'        => $userData['id'],
+                'id' => $userData['id'],
                 'nombre' => $userData['nombre'] ?? 'Sin nombre',
                 'apellidos' => $userData['apellidos'] ?? '',
                 'rol' => $userData['rol'] ?? 'cliente',
@@ -53,17 +53,25 @@ class MisPedidosController extends BaseController
      */
     public function listar()
     {
-        // Obtiene los datos del usuario autenticado en sesión
-        $user = $this->getActiveUser();
+        try {
+            // Obtiene los datos del usuario autenticado en sesión
+            $user = $this->getActiveUser();
 
-        // Si $user es un array, extrae el valor de 'id'; si es primitivo, lo usa directo
-        // Esto asegura compatibilidad tanto si getActiveUser() retorna array o ID directo
-        $idUsuario = is_array($user) ? $user['id'] : $user;
+            // Si $user es un array, extrae el valor de 'id'; si es primitivo, lo usa directo
+            // Esto asegura compatibilidad tanto si getActiveUser() retorna array o ID directo
+            $idUsuario = is_array($user) ? $user['id'] : $user;
 
-        $model = new AtencionModel();
-        $data = $model->getPedidosPorCliente($idUsuario);
+            $model = new AtencionModel();
+            $data = $model->getPedidosPorCliente($idUsuario);
 
-        return $this->response->setJSON($data);
+            return $this->response->setJSON($data);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status' => 'ERROR',
+                'detalle' => $e->getMessage()
+            ])->setStatusCode(500);
+        }
+
     }
 
     /**

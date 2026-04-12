@@ -61,6 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Petición al servidor para obtener pedidos del usuario
       const respuesta = await fetch(`${base_url}cliente/pedidos/listar`);
       if (!respuesta.ok) {
+        tablaPedidos.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">Error: No se pudieron cargar los datos (Verifica las migraciones)</td></tr>`;
         return;
       }
       const datos = await respuesta.json();
@@ -68,18 +69,9 @@ document.addEventListener("DOMContentLoaded", function () {
       tablaPedidos.innerHTML = "";
       // Actualizar contadores en las métricas
       document.getElementById("cnt-total").textContent = datos.length;
-      document.getElementById("cnt-por-aprobar").textContent = datos.filter(
-        (pedido) => pedido.estado === "pendiente_sin_asignar",
-      ).length;
-      document.getElementById("cnt-en-proceso").textContent = datos.filter(
-        (pedido) =>
-          ["pendiente_asignado", "en_proceso", "en_revision"].includes(
-            pedido.estado,
-          ),
-      ).length;
-      document.getElementById("cnt-completado").textContent = datos.filter(
-        (pedido) => pedido.estado === "finalizado",
-      ).length;
+      document.getElementById("cnt-por-aprobar").textContent = datos.filter(p => p.estado === "pendiente_sin_asignar").length;
+      document.getElementById("cnt-en-proceso").textContent = datos.filter(p => ["pendiente_asignado", "en_proceso", "en_revision"].includes(p.estado)).length;
+      document.getElementById("cnt-completado").textContent = datos.filter(p => p.estado === "finalizado").length;
 
       // Si no hay pedidos, mostrar mensaje
       if (datos.length === 0) {
@@ -94,7 +86,6 @@ document.addEventListener("DOMContentLoaded", function () {
       datos.forEach((pedido, indice) => {
         // Número correlativo inverso (último pedido es #1)
         const numeroVisual = totalRegistros - indice;
-
         // Nombre del servicio (o personalizado si no hay)
         const nombreServicio = pedido.servicio || pedido.servicio_personalizado;
 
@@ -176,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 1000);
   });
 
-  // ── DATOS: Canales y formatos disponibles por servicio ──
+  // DATOS: Canales y formatos disponibles por servicio
   const CANALES = [
     "Por correo", "Página web", "Redes sociales",
     "SIGU o Aula Virtual Estudiantes", "SIGU o Aula Virtual Docentes",

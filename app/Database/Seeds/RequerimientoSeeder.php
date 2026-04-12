@@ -10,7 +10,7 @@ class RequerimientoSeeder extends Seeder
     {
         $data = [
             [
-                'idempresa' => 1,
+                'idusuarioempresa' => 8,
                 'idservicio' => 2,
                 'servicio_personalizado' => null,
                 'titulo' => 'Video Reel Bienvenida',
@@ -27,7 +27,7 @@ class RequerimientoSeeder extends Seeder
                 'prioridad' => 'Alta'
             ],
             [
-                'idempresa' => 1,
+                'idusuarioempresa' => 8,
                 'idservicio' => 1,
                 'servicio_personalizado' => null,
                 'titulo' => 'Logo Aniversario UAI',
@@ -44,7 +44,7 @@ class RequerimientoSeeder extends Seeder
                 'prioridad' => 'Media'
             ],
             [
-                'idempresa' => 2,
+                'idusuarioempresa' => 8,
                 'idservicio' => null,
                 'servicio_personalizado' => 'Campaña Intriga Verano',
                 'titulo' => 'Lanzamiento Colección 2026',
@@ -61,7 +61,7 @@ class RequerimientoSeeder extends Seeder
                 'prioridad' => 'Alta'
             ],
             [
-                'idempresa' => 1,
+                'idusuarioempresa' => 9,
                 'idservicio' => 1,
                 'servicio_personalizado' => null,
                 'titulo' => 'Banner Laboratorio de Ingeniería',
@@ -75,40 +75,6 @@ class RequerimientoSeeder extends Seeder
                 'formatos_solicitados' => '["Otros"]',
                 'formato_otros' => 'Lona de 2x1 metros',
                 'fecharequerida' => '2026-04-20 00:00:00',
-                'prioridad' => 'Media'
-            ],
-            [
-                'idempresa' => 1,
-                'idservicio' => 1,
-                'servicio_personalizado' => null,
-                'titulo' => 'Banner Laboratorio Sistemas',
-                'objetivo_comunicacion' => 'Identificación de ambiente',
-                'descripcion' => 'Banner de lona para la entrada del lab 302.',
-                'tipo_requerimiento' => 'Adaptación de Arte (si ya se hizo antes en el 2025).',
-                'canales_difusion' => '["Banner físico"]',
-                'publico_objetivo' => 'Alumnos Ingeniería',
-                'tiene_materiales' => true,
-                'url_subida' => null,
-                'formatos_solicitados' => '["Otros"]',
-                'formato_otros' => 'PDF para impresión 1.5x1m',
-                'fecharequerida' => '2026-04-20 00:00:00',
-                'prioridad' => 'Alta'
-            ],
-            [
-                'idempresa' => 1,
-                'idservicio' => null,
-                'servicio_personalizado' => 'Publicidad Online',
-                'titulo' => 'Flyer Taller Autoestima',
-                'objetivo_comunicacion' => 'Atraer alumnos de psicología',
-                'descripcion' => 'Diseño para post de Instagram sobre salud mental.',
-                'tipo_requerimiento' => 'Creación de Arte',
-                'canales_difusion' => '["Redes sociales"]',
-                'publico_objetivo' => 'Estudiantes',
-                'tiene_materiales' => false,
-                'url_subida' => null,
-                'formatos_solicitados' => '["Historia Facebook/Instagram"]',
-                'formato_otros' => '',
-                'fecharequerida' => '2026-04-15 00:00:00',
                 'prioridad' => 'Media'
             ]
         ];

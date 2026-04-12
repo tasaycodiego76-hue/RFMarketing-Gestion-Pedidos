@@ -15,7 +15,7 @@ class CrearTablaRequerimiento extends Migration
                 'type' => 'BIGINT',
                 'auto_increment' => true,
             ],
-            'idempresa' => [
+            'idusuarioempresa' => [
                 'type' => 'BIGINT',
                 'null' => false,
             ],
@@ -89,7 +89,7 @@ class CrearTablaRequerimiento extends Migration
         ]);
 
         $this->forge->addPrimaryKey('id');
-        $this->forge->addForeignKey('idempresa', 'empresas', 'id', 'RESTRICT', 'CASCADE');
+        $this->forge->addForeignKey('idusuarioempresa', 'usuarios', 'id', 'RESTRICT', 'CASCADE');
         $this->forge->addForeignKey('idservicio', 'servicios', 'id', 'RESTRICT', 'CASCADE');
         $this->forge->createTable('requerimiento');
     }

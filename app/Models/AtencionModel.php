@@ -40,21 +40,22 @@ class AtencionModel extends Model
     {
         $sql = "
             SELECT 
-                a.id AS atencion_id, 
+                a.id AS atencion_id,
+                a.idrequerimiento,
                 a.titulo, 
                 a.estado, 
                 a.prioridad, 
                 r.fechacreacion,
-                a.idrequerimiento,
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
                 e.nombreempresa AS empresa
             FROM atencion a
             INNER JOIN requerimiento r ON r.id = a.idrequerimiento
-            INNER JOIN empresas e ON e.id = r.idempresa
             LEFT JOIN servicios s ON s.id = a.idservicio
-            INNER JOIN areas ar ON ar.id = (SELECT idarea FROM usuarios WHERE id = ?)
-            WHERE e.id = ar.idempresa
-            ORDER BY a.idrequerimiento DESC 
+            LEFT JOIN usuarios u ON u.id = r.idusuarioempresa
+            LEFT JOIN areas ar ON ar.id = u.idarea
+            LEFT JOIN empresas e ON e.id = ar.idempresa
+            WHERE r.idusuarioempresa = ?
+            ORDER BY a.idrequerimiento DESC  
         ";
 
         return $this->db->query($sql, [$usuarioId])->getResultArray();
