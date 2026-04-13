@@ -59,7 +59,7 @@ class RequerimientoController extends BaseController
      */
     public function guardar()
     {
-        // VALIDAR SESIÓN 
+        // VALIDAR SESIÓN
         $userSession = $this->getActiveUser();
         $idUsuario = is_array($userSession) ? $userSession['id'] : $userSession;
 
@@ -67,40 +67,151 @@ class RequerimientoController extends BaseController
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Sesión no válida.']);
         }
 
-        // PREPARAR DATOS DEL FORMULARIO 
+        // ========== VALIDACIONES DE CAMPOS ==========
+        $errores = [];
 
-        // Fecha: intenta 'fecharequerida', luego 'fecha_entrega', o usa hoy como fallback
-        $fechaRaw = $this->request->getPost('fecharequerida')
-            ?? $this->request->getPost('fecha_entrega')
-            ?? date('Y-m-d');
-
-        try {
-            $fechaObj = new \DateTime($fechaRaw);
-        } catch (\Exception $e) {
-            $fechaObj = new \DateTime(); // Si la fecha es inválida, usar hoy
-        }
-
-        // Servicio: si es "0" (personalizado), guardar como NULL en la BD
+        // Servicio
         $idServicio = $this->request->getPost('idservicio');
         $idServicio = (!empty($idServicio) && $idServicio != '0') ? (int) $idServicio : null;
+        $servicioPersonalizado = $this->request->getPost('servicio_personalizado');
+
+        // Validar servicio personalizado si es requerido
+        if ($idServicio === null && (empty($servicioPersonalizado) || trim($servicioPersonalizado) === '')) {
+            $errores[] = 'El nombre del servicio personalizado es obligatorio.';
+        }
+
+        // Título
+        $titulo = $this->request->getPost('titulo');
+        if (empty($titulo) || trim($titulo) === '') {
+            $errores[] = 'El título del requerimiento es obligatorio.';
+        }
+
+        // Objetivo de comunicación
+        $objetivo = $this->request->getPost('objetivo_comunicacion');
+        if (empty($objetivo) || trim($objetivo) === '') {
+            $errores[] = 'El objetivo de comunicación es obligatorio.';
+        }
+
+        // Descripción
+        $descripcion = $this->request->getPost('descripcion');
+        if (empty($descripcion) || trim($descripcion) === '') {
+            $errores[] = 'La descripción es obligatoria.';
+        }
+
+        // Tipo de requerimiento
+        $tipoReq = $this->request->getPost('tipo_requerimiento');
+        if (empty($tipoReq) || trim($tipoReq) === '') {
+            $errores[] = 'El tipo de requerimiento es obligatorio.';
+        }
+
+        // Canales de difusión - mínimo 1, máximo 3
+        $canalesRaw = $this->request->getPost('canales_difusion');
+        $canales = [];
+        if (!empty($canalesRaw)) {
+            $canales = json_decode($canalesRaw, true) ?: [];
+        }
+        $cantCanales = count($canales);
+        if ($cantCanales === 0) {
+            $errores[] = 'Debe seleccionar al menos un canal de difusión.';
+        } elseif ($cantCanales > 3) {
+            $errores[] = 'No puede seleccionar más de 3 canales de difusión.';
+        }
+
+        // Público objetivo
+        $publico = $this->request->getPost('publico_objetivo');
+        if (empty($publico) || trim($publico) === '') {
+            $errores[] = 'El público objetivo es obligatorio.';
+        }
+
+        // Materiales
+        $tieneMateriales = ($this->request->getPost('tiene_materiales') === '1');
+        $urlSubida = $this->request->getPost('url_subida');
+        $archivos = $this->request->getFiles();
+        $tieneArchivos = !empty($archivos['documentos']) && $this->hayArchivosValidos($archivos['documentos']);
+
+        if ($tieneMateriales && !$tieneArchivos && (empty($urlSubida) || trim($urlSubida) === '')) {
+            $errores[] = 'Si indica que tiene materiales, debe subir al menos un archivo o proporcionar una URL de referencia.';
+        }
+
+        // Formatos solicitados - mínimo 1
+        $formatosRaw = $this->request->getPost('formatos_solicitados');
+        $formatos = [];
+        if (!empty($formatosRaw)) {
+            $formatos = json_decode($formatosRaw, true) ?: [];
+        }
+        if (count($formatos) === 0) {
+            $errores[] = 'Debe seleccionar al menos un formato solicitado.';
+        }
+
+        // Formato "Otros" - si está seleccionado, el campo formato_otros es obligatorio
+        $formatoOtros = $this->request->getPost('formato_otros');
+        if (in_array('Otros', $formatos) && (empty($formatoOtros) || trim($formatoOtros) === '')) {
+            $errores[] = 'Si selecciona "Otros" en formatos, debe especificar el formato deseado.';
+        }
+
+        // Fecha requerida - validar según tipo de requerimiento
+        $fechaRaw = $this->request->getPost('fecharequerida') ?? $this->request->getPost('fecha_entrega');
+        if (empty($fechaRaw)) {
+            $errores[] = 'La fecha de entrega requerida es obligatoria.';
+        } else {
+            try {
+                $fechaRequerida = new \DateTime($fechaRaw);
+                $fechaRequerida->setTime(0, 0, 0);
+                $hoy = new \DateTime();
+                $hoy->setTime(0, 0, 0);
+
+                // Calcular fecha mínima según tipo de requerimiento
+                $diasHabiles = $this->obtenerDiasHabilesPorTipo($tipoReq);
+                $fechaMinima = $this->calcularFechaMinima($diasHabiles);
+
+                if ($fechaRequerida < $fechaMinima) {
+                    $errores[] = "La fecha de entrega debe ser al menos dentro de {$diasHabiles} días hábiles ({$fechaMinima->format('d/m/Y')}) según el tipo de requerimiento '{$tipoReq}'.";
+                }
+
+                if ($fechaRequerida < $hoy) {
+                    $errores[] = 'La fecha de entrega no puede ser anterior a hoy.';
+                }
+            } catch (\Exception $e) {
+                $errores[] = 'La fecha de entrega no es válida.';
+            }
+        }
+
+        // Prioridad
+        $prioridad = ucfirst(strtolower($this->request->getPost('prioridad') ?? 'Media'));
+        $prioridadesPermitidas = ['Baja', 'Media', 'Alta'];
+        if (!in_array($prioridad, $prioridadesPermitidas)) {
+            $errores[] = 'La prioridad seleccionada no es válida.';
+        }
+
+        // Si hay errores, retornarlos
+        if (!empty($errores)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'msg' => 'Por favor corrija los siguientes errores:',
+                'errores' => $errores
+            ]);
+        }
+
+        // ========== PREPARAR DATOS PARA INSERTAR ==========
+        $fechaObj = new \DateTime($fechaRaw);
 
         // Armar array con todos los campos del requerimiento
         $dataReq = [
             'idusuarioempresa' => (int) $idUsuario,
-            'idservicio' => $idServicio,                                                    // NULL si es personalizado
-            'servicio_personalizado' => $this->request->getPost('servicio_personalizado') ?: null,      // Solo si ID=0
-            'titulo' => $this->request->getPost('titulo') ?: 'Sin título',
-            'objetivo_comunicacion' => $this->request->getPost('objetivo_comunicacion') ?: '',
-            'descripcion' => $this->request->getPost('descripcion') ?: '',
-            'tipo_requerimiento' => $this->request->getPost('tipo_requerimiento') ?: '',
-            'canales_difusion' => $this->request->getPost('canales_difusion') ?: '[]',            // JSON string
-            'publico_objetivo' => $this->request->getPost('publico_objetivo') ?: '',
-            'tiene_materiales' => ($this->request->getPost('tiene_materiales') === '1'),          // Boolean
-            'url_subida' => $this->request->getPost('url_subida') ?: null,
-            'formatos_solicitados' => $this->request->getPost('formatos_solicitados') ?: '[]',        // JSON string
-            'formato_otros' => $this->request->getPost('formato_otros') ?: '',
+            'idservicio' => $idServicio,
+            'servicio_personalizado' => $idServicio === null ? trim($servicioPersonalizado) : null,
+            'titulo' => trim($titulo),
+            'objetivo_comunicacion' => trim($objetivo),
+            'descripcion' => trim($descripcion),
+            'tipo_requerimiento' => $tipoReq,
+            'canales_difusion' => json_encode($canales),
+            'publico_objetivo' => trim($publico),
+            'tiene_materiales' => $tieneMateriales,
+            'url_subida' => !empty($urlSubida) ? trim($urlSubida) : null,
+            'formatos_solicitados' => json_encode($formatos),
+            'formato_otros' => in_array('Otros', $formatos) ? trim($formatoOtros) : '',
             'fecharequerida' => $fechaObj->format('Y-m-d H:i:s'),
-            'prioridad' => ucfirst(strtolower($this->request->getPost('prioridad') ?? 'Media')),
+            'prioridad' => $prioridad,
         ];
 
         // INSERTAR EN LA BD (dentro de una transacción) 
@@ -160,6 +271,41 @@ class RequerimientoController extends BaseController
             'msg' => '¡Requerimiento enviado con éxito!',
             'id_req' => $idReq,
         ]);
+    }
+
+    /**
+     * Obtiene los días hábiles requeridos según el tipo de requerimiento
+     * @param string $tipo Tipo de requerimiento
+     * @return int Días hábiles requeridos
+     */
+    private function obtenerDiasHabilesPorTipo($tipo)
+    {
+        $mapaDias = [
+            'Adaptación de Arte' => 2,
+            'Creación de Arte' => 4,
+            'Creación de Videos' => 7,
+            'Trabajo editorial' => 7,
+        ];
+        return $mapaDias[$tipo] ?? 2; // Default 2 días si no coincide
+    }
+
+    /**
+     * Verifica si hay archivos válidos subidos
+     * @param array $archivos Array de archivos
+     * @return bool
+     */
+    private function hayArchivosValidos($archivos)
+    {
+        if (empty($archivos)) {
+            return false;
+        }
+
+        foreach ($archivos as $file) {
+            if ($file->isValid() && !$file->hasMoved()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
