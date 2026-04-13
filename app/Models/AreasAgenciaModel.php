@@ -10,7 +10,7 @@ class AreasAgenciaModel extends Model
     protected $primaryKey = 'id';
     protected $returnType = 'array';
 
-    protected $allowedFields = ['nombre', 'activo'];
+    protected $allowedFields = ['nombre', 'descripcion', 'activo'];
 
     /**
      * Devuelve todas las áreas activas.
@@ -19,4 +19,17 @@ class AreasAgenciaModel extends Model
     {
         return $this->where('activo', true)->findAll();
     }
+   public function listarConResponsable(): array
+{
+    $sql = "
+        SELECT a.id, a.nombre, a.descripcion, a.activo,
+              CONCAT(u.nombre, ' ', u.apellidos) AS responsable
+        FROM areas_agencia AS a
+        LEFT JOIN usuarios AS u 
+            ON u.idarea_agencia = a.id 
+            AND u.esresponsable = true
+    ";
+
+    return $this->db->query($sql)->getResultArray();
+}
 }

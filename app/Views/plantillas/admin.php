@@ -8,8 +8,7 @@
  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="<?= base_url('recursos/styles/paginas/admin.css') ?>" rel="stylesheet">
-    <link href="<?= base_url('recursos/styles/paginas/admin.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('recursos/styles/admin/paginas/admin.css') ?>" rel="stylesheet">
     <?= $this->renderSection('styles') ?>
 </head>
 <body>
@@ -24,7 +23,7 @@
 
     <nav>
         <p class="nav-seccion">PRINCIPAL</p>
-        <a href="<?= site_url('admin/panel') ?>" class="nav-enlace <?= ($paginaActual == 'dashboard') ? 'activo' : '' ?>">
+        <a href="<?= site_url('admin/dashboard') ?>" class="nav-enlace <?= ($paginaActual == 'dashboard') ? 'activo' : '' ?>">
             <i class="bi bi-grid-1x2"></i> Dashboard
         </a>
 
@@ -37,7 +36,7 @@
                 <i class="bi bi-chevron-down ms-auto arrow-icon"></i>
             </div>
 
-            <div class="nav-sub-menu <?= (strpos($paginaActual, 'empresa') !== false) ? 'show' : '' ?>" id="menu-empresas">
+            <div class="nav-sub-menu <?= ($paginaActual == 'todas_empresas' || $paginaActual == 'kanban') ? 'show' : '' ?>" id="menu-empresas">
                 <a href="<?= site_url('admin/empresas') ?>" class="nav-enlace sub-enlace <?= ($paginaActual == 'todas_empresas') ? 'activo' : '' ?>">
                     <i style="font-size: 10px;"></i> Todas las Empresas
                 </a>
@@ -56,7 +55,11 @@
             <i class="bi bi-people"></i> Usuarios
         </a>
         <a href="<?= site_url('admin/areas') ?>" class="nav-enlace <?= ($paginaActual == 'areas') ? 'activo' : '' ?>">
-            <i class="bi bi-diagram-3"></i> Áreas
+    <i class="bi bi-diagram-3"></i> Áreas
+</a>
+        </a>
+        <a href="<?= site_url('admin/empresas') ?>" class="nav-enlace <?= ($paginaActual == 'empresas') ? 'activo' : '' ?>">
+            <i class="bi bi-building"></i> Empresas
         </a>
     </nav>
 
@@ -111,6 +114,14 @@
     const BASE_URL = '<?= base_url() ?>';
 </script>
 <?= $this->renderSection('scripts') ?>
+
+<script>
+    // Toggle dropdown "Gestionar Empresas"
+    document.getElementById('btn-empresas-toggle').addEventListener('click', function () {
+        document.getElementById('menu-empresas').classList.toggle('show');
+        this.querySelector('.arrow-icon').classList.toggle('rotado');
+    });
+</script>
 
 </body>
 </html>

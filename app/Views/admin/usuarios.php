@@ -1,8 +1,10 @@
 <?= $this->extend('plantillas/admin') ?>
 <!-- ESTILOS -->
 <?= $this->section('styles') ?>
+
 <link href="<?= base_url('recursos/styles/admin/paginas/admin.css') ?>" rel="stylesheet">
 <link href="<?= base_url('recursos/styles/admin/paginas/usuarios.css') ?>" rel="stylesheet">
+
 <?= $this->endSection() ?>
 <!-- SCRIPTS -->
 <?= $this->section('scripts') ?>

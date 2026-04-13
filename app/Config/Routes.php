@@ -14,11 +14,33 @@ $routes->group('admin', function ($routes) {
     $routes->get('usuarios', 'Administrador\UsuarioController::index');
     $routes->get('usuarios/listar', 'Administrador\UsuarioController::listar');
     $routes->get('usuarios/obtener/(:num)', 'Administrador\UsuarioController::obtener/$1'); // editar: cargar datos
-    $routes->get('servicios/listar', 'Administrador\UsuarioController::listarServicios');
-    $routes->post('usuarios/registrar', 'Administrador\UsuarioController::registrar');
-    $routes->put('usuarios/editar/(:num)', 'Administrador\UsuarioController::editar/$1');  // editar: guardar
-    $routes->post('usuarios/toggleEstado', 'Administrador\UsuarioController::toggleEstado'); // habilitar/deshabilitar
-});
+
+    $routes->get('servicios/listar',     'Administrador\UsuarioController::listarServicios');
+    $routes->post('usuarios/registrar',  'Administrador\UsuarioController::registrar');
+    $routes->put('usuarios/editar/(:num)',   'Administrador\UsuarioController::editar/$1');  // editar: guardar
+    $routes->post('usuarios/toggleEstado',   'Administrador\UsuarioController::toggleEstado'); // habilitar/deshabilitar
+
+    $routes->get('areas',             'Administrador\AreasController::index');
+    $routes->get('areas/clientes', 'Administrador\AreasController::clientes');
+    $routes->post('areas/registrar',  'Administrador\AreasController::registrar');
+    $routes->post('areas/clientes/registrar', 'Administrador\AreasController::registrarCliente');
+    $routes->get('areas/clientes/listar/(:num)', 'Administrador\AreasController::listarPorEmpresa/$1');
+    $routes->post('areas/clientes/registrar',    'Administrador\AreasController::registrarCliente');
+
+    $routes->get('empresas',             'Administrador\EmpresasController::index');
+
+    $routes->get('kanban/(:num)/(:num)', 'Administrador\Kanban::index/$1/$2');
+    // Kanban acciones
+$routes->post('kanban/asignar',        'Administrador\Kanban::asignar');
+ $routes->post('kanban/asignarArea',    'Administrador\Kanban::asignarArea'); 
+$routes->post('kanban/cambiarEstado',  'Administrador\Kanban::cambiarEstado');
+$routes->post('kanban/cancelar',       'Administrador\Kanban::cancelar');
+$routes->get('kanban/empleados/(:num)', 'Administrador\Kanban::empleadosPorArea/$1');
+$routes->get('kanban/detalle/(:num)',   'Administrador\Kanban::detalle/$1');
+ $routes->get('kanban/areas', 'Administrador\Kanban::areasAgencia');
+   $routes->get('responsable/kanban', 'Administrador\Kanban::responsable');
+   $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
+    });
 
 //Rutas para el Responsable (Jefe de Área)
 $routes->group('responsable', function ($routes) {
