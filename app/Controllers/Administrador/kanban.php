@@ -9,91 +9,66 @@ use App\Models\AtencionModel;
 
 class Kanban extends Controller
 {
-    public function index($idEmpresa, $idAreaAgencia = null)
-    {
-        $empresaModel      = new EmpresaModel();
-        $areasAgenciaModel = new AreasAgenciaModel();
-        $db                = \Config\Database::connect();
+  public function index($idEmpresa, $idAreaAgencia = null)
+  {
+      $empresaModel      = new EmpresaModel();
+      $areasAgenciaModel = new AreasAgenciaModel();
+      $atencionModel     = new AtencionModel();
 
-        $empresas = $empresaModel->findAll();
+      $empresa = $empresaModel->find($idEmpresa);
+      if (!$empresa) {
+          throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Empresa no
+  encontrada');
+      }
 
-        $empresa = $empresaModel->find($idEmpresa);
-        if (!$empresa) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Empresa no encontrada');
-        }
+      $areasAgencia  = $areasAgenciaModel->listarActivas();
+      $idAreaAgencia = $idAreaAgencia ?? ($areasAgencia[0]['id'] ?? null);
+      $areaActual    = $areasAgenciaModel->find($idAreaAgencia);
 
-        $areasAgencia  = $areasAgenciaModel->listarActivas();
-        $idAreaAgencia = $idAreaAgencia ?? ($areasAgencia[0]['id'] ?? null);
-        $areaActual    = $areasAgenciaModel->find($idAreaAgencia);
+      // Obtener atenciones del área específica (las que ya tienen área asignada)
+      $atenciones = $atencionModel->obtenerParaKanban($idEmpresa, $idAreaAgencia);
 
-        $sql = "
-            SELECT 
-                a.id, a.titulo, a.estado, a.prioridad, a.fechafin,
-                a.fechainicio, a.fechacreacion, a.idempleado, a.idrequerimiento,
-                COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
-                r.idempresa, r.fecharequerida,
-                e.nombreempresa,
-                u.nombre AS empleado_nombre,
-                u.apellidos AS empleado_apellidos,
-                u.idarea_agencia
-            FROM atencion a
-            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
-            INNER JOIN empresas e ON e.id = r.idempresa
-            LEFT JOIN servicios s ON s.id = a.idservicio
-            LEFT JOIN usuarios u ON u.id = a.idempleado
-            WHERE r.idempresa = ?
-              AND a.estado != 'cancelado'
-              AND (
-                  a.estado = 'pendiente_sin_asignar'
-                  OR u.idarea_agencia = ?
-              )
-            ORDER BY a.fechainicio DESC
-        ";
+      // Columnas ORIGINALES (4 nada más)
+      $columnas = [
+          'pendiente_sin_asignar' => ['label' => 'POR APROBAR',  'color' => '#eab308',
+  'items' => []],
+          'en_proceso'            => ['label' => 'EN PROCESO',   'color' => '#a855f7',
+  'items' => []],
+          'en_revision'           => ['label' => 'EN REVISIÓN',  'color' => '#f97316',
+  'items' => []],
+          'finalizado'            => ['label' => 'ENTREGADO',    'color' => '#22c55e',
+  'items' => []],
+      ];
 
-        $atenciones = $db->query($sql, [$idEmpresa, $idAreaAgencia])->getResultArray();
+      foreach ($atenciones as $a) {
+          $estado = $a['estado'];
 
-        $columnas = [
-            'pendiente_sin_asignar' => ['label' => 'POR APROBAR',  'color' => '#eab308', 'items' => []],
-            'en_proceso'            => ['label' => 'EN PROCESO',   'color' => '#a855f7', 'items' => []],
-            'en_revision'           => ['label' => 'EN REVISIÓN',  'color' => '#f97316', 'items' => []],
-            'finalizado'            => ['label' => 'ENTREGADO',    'color' => '#22c55e', 'items' => []],
-        ];
+          // Asignado -> en proceso visualmente
+          if ($estado === 'pendiente_asignado') {
+              $estado = 'en_proceso';
+          }
 
-        foreach ($atenciones as $a) {
-            $estado = $a['estado'];
-            if ($estado === 'pendiente_asignado') {
-                $estado = 'en_proceso';
-            }
-            if (isset($columnas[$estado])) {
-                $columnas[$estado]['items'][] = $a;
-            }
-        }
+          if (isset($columnas[$estado])) {
+              $columnas[$estado]['items'][] = $a;
+          }
+      }
 
-        $totalPorEmpresa = $db->query("
-            SELECT 
-                COUNT(CASE WHEN a.estado IN ('en_proceso', 'en_revision', 'pendiente_asignado') THEN 1 END) AS activos,
-                COUNT(CASE WHEN a.estado = 'pendiente_sin_asignar' THEN 1 END) AS por_aprobar,
-                COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) AS completados
-            FROM atencion a
-            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
-            WHERE r.idempresa = ?
-        ", [$idEmpresa])->getRowArray();
+      $stats = $atencionModel->estadisticasPorEmpresa($idEmpresa);
 
-        return view('admin/kanban', [
-            'titulo'        => 'Kanban - ' . $empresa['nombreempresa'],
-            'tituloPagina'  => 'TABLERO KANBAN',
-            'paginaActual'  => 'kanban',
-            'empresas'      => $empresas,
-            'empresa'       => $empresa,
-            'idEmpresa'     => $idEmpresa,
-            'areasAgencia'  => $areasAgencia,
-            'areaActual'    => $areaActual,
-            'idAreaAgencia' => $idAreaAgencia,
-            'columnas'      => $columnas,
-            'stats'         => $totalPorEmpresa,
-        ]);
-    }
-
+      return view('admin/kanban', [
+          'titulo'        => 'Kanban - ' . $empresa['nombreempresa'],
+          'tituloPagina'  => 'TABLERO KANBAN',
+          'paginaActual'  => 'kanban',
+          'empresas'      => $empresaModel->findAll(),
+          'empresa'       => $empresa,
+          'idEmpresa'     => $idEmpresa,
+          'areasAgencia'  => $areasAgencia,
+          'areaActual'    => $areaActual,
+          'idAreaAgencia' => $idAreaAgencia,
+          'columnas'      => $columnas,
+          'stats'         => $stats,
+      ]);
+  }
     /**
      * Retorna empleados de un área de agencia (para el modal Asignar)
      */
@@ -116,12 +91,16 @@ class Kanban extends Controller
     public function detalle($idAtencion)
     {
         $db = \Config\Database::connect();
+       
         $data = $db->query("
             SELECT 
-                a.*, 
+                a.id, a.titulo, a.estado, CAST(a.prioridad AS TEXT) AS prioridad_admin,
+                a.idempleado, a.idrequerimiento, a.idarea_agencia,
+                a.fechainicio, a.fechafin, a.fechacompletado, a.respuestatexto,
+                a.observacion_revision,
                 r.descripcion, r.objetivo_comunicacion, r.tipo_requerimiento,
                 r.canales_difusion, r.publico_objetivo, r.formatos_solicitados,
-                r.fecharequerida,
+                r.fecharequerida, r.prioridad AS prioridad_cliente,
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
                 e.nombreempresa,
                 u.nombre AS empleado_nombre, u.apellidos AS empleado_apellidos
@@ -147,36 +126,20 @@ class Kanban extends Controller
      * Asignar empleado a una atención
      * Cambia estado: pendiente_sin_asignar → pendiente_asignado
      */
-    public function asignar()
-    {
-        $db   = \Config\Database::connect();
-        $json = $this->request->getJSON(true);
+    public function asignarArea()
+  {
+      $json       = $this->request->getJSON(true);
+      $idAtencion = $json['idatencion'];
+      $idArea     = $json['idareaagencia'];
+      $idAdmin    = $json['idadmin'] ?? 1;
 
-        $idAtencion = $json['idatencion'];
-        $idEmpleado = $json['idempleado'];
-        $idAdmin    = $json['idadmin'] ?? 1;
+      $atencionModel = new AtencionModel();
 
-        // Obtener empleado anterior (si hay)
-        $atencion = $db->query("SELECT idempleado FROM atencion WHERE id = ?", [$idAtencion])->getRowArray();
-        $empleadoAnterior = $atencion['idempleado'] ?? null;
+      // Asigna área y cambia estado
+      $atencionModel->asignarArea($idAtencion, $idArea, $idAdmin);
 
-        // Actualizar atencion
-        $db->query("UPDATE atencion SET idempleado = ?, estado = 'pendiente_asignado' WHERE id = ?", [$idEmpleado, $idAtencion]);
-
-        // Registrar en historial_asignaciones
-        $db->query("
-            INSERT INTO historial_asignaciones (idpedido, idempleado_anterior, idempleado, idadmin)
-            VALUES (?, ?, ?, ?)
-        ", [$idAtencion, $empleadoAnterior, $idEmpleado, $idAdmin]);
-
-        // Registrar tracking
-        $db->query("
-            INSERT INTO tracking (idatencion, idusuario, accion, estado)
-            VALUES (?, ?, 'Empleado asignado', 'pendiente_asignado')
-        ", [$idAtencion, $idAdmin]);
-
-        return $this->response->setJSON(['status' => 'success', 'msg' => 'Empleado asignado correctamente']);
-    }
+      return $this->response->setJSON(['status' => 'success', 'msg' => 'Área asignada']);
+  }
 
     /**
      * Cambiar estado de una atención (Aprobar, Regresar, etc.)
@@ -244,4 +207,70 @@ class Kanban extends Controller
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Pedido cancelado']);
     }
+    
+  /**
+   * Retorna áreas de agencia activas
+   */
+   public function areasAgencia()
+  {
+      $areasAgenciaModel = new \App\Models\AreasAgenciaModel();
+      $areas = $areasAgenciaModel->listarActivas();
+
+      // Debug: verifica que tenga datos
+      if (empty($areas)) {
+          return $this->response->setJSON(['error' => 'No hay áreas activas']);
+      }
+
+      return $this->response->setJSON($areas);
+  }
+ 
+  /**
+   * Kanban del Responsable - Ve solo pedidos de SU área
+   */
+  public function responsable()
+  {
+      // Obtener el usuario logueado (responsable)
+      $session = session();
+      $idResponsable = $session->get('id') ?? 1; // Ajusta según tu sesión
+
+      // Obtener el área del responsable
+      $db = \Config\Database::connect();
+      $responsable = $db->query("
+          SELECT idarea_agencia
+          FROM usuarios
+          WHERE id = ? AND (rol = 'responsable' OR esresponsable = true)
+      ", [$idResponsable])->getRowArray();
+
+      if (!$responsable || !$responsable['idarea_agencia']) {
+          return $this->response->setJSON(['error' => 'No tienes área asignada']);
+      }
+
+      $idAreaAgencia = $responsable['idarea_agencia'];
+
+      // Obtener pedidos de esta área
+      $atencionModel = new AtencionModel();
+      $pedidos = $atencionModel->obtenerParaResponsable($idAreaAgencia);
+
+      return view('responsable/kanban', [
+          'pedidos' => $pedidos,
+          'idArea' => $idAreaAgencia
+      ]);
+  }
+  public function cambiarPrioridad()
+{
+    $db   = \Config\Database::connect();
+    $json = $this->request->getJSON(true);
+
+    $idAtencion = $json['idatencion'];
+    $prioridad  = $json['prioridad'];
+
+    $validas = ['Baja', 'Media', 'Alta'];
+    if (!in_array($prioridad, $validas)) {
+        return $this->response->setJSON(['status' => 'error', 'msg' => 'Prioridad no válida']);
+    }
+
+    $db->query("UPDATE atencion SET prioridad = ? WHERE id = ?", [$prioridad, $idAtencion]);
+
+    return $this->response->setJSON(['status' => 'success', 'msg' => 'Prioridad actualizada']);
+}
 }

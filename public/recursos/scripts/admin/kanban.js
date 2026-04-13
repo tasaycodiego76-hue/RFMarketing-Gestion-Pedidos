@@ -1,124 +1,251 @@
-// ═══ ASIGNAR ═══
-function abrirModalAsignar(idAtencion) {
-    document.getElementById('asignar-idatencion').value = idAtencion;
-    const select = document.getElementById('asignar-empleado');
-    select.innerHTML = '<option value="">Cargando...</option>';
 
-    fetch(BASE_URL + 'admin/kanban/empleados/' + AREA_ACTUAL)
-        .then(r => r.json())
-        .then(data => {
-            if (data.length === 0) {
-                select.innerHTML = '<option value="">No hay empleados en esta área</option>';
-            } else {
-                select.innerHTML = '<option value="">-- Seleccionar --</option>';
-                data.forEach(e => {
-                    select.innerHTML += '<option value="' + e.id + '">' + e.nombre + ' ' + e.apellidos + '</option>';
-                });
-            }
-        });
+  // ═══ ASIGNAR ÁREA ═══
 
-    $('#modalAsignar').modal('show');
-}
+  /**
+   * Abre el modal de asignación y carga las áreas disponibles
+   * @param {number} idAtencion - ID de la atención a asignar
+   */
+  async function abrirModalAsignar(idAtencion) {
+      const inputId = document.getElementById('asignar-idatencion');
+      const select = document.getElementById('asignar-empleado');
 
-function confirmarAsignacion() {
-    const idAtencion = document.getElementById('asignar-idatencion').value;
-    const idEmpleado = document.getElementById('asignar-empleado').value;
+      inputId.value = idAtencion;
+      select.innerHTML = '<option value="">Cargando...</option>';
 
-    if (!idEmpleado) { alert('Selecciona un empleado'); return; }
+      try {
+          const response = await fetch(BASE_URL + 'admin/kanban/areas');
 
-    fetch(BASE_URL + 'admin/kanban/asignar', {
+          if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+
+          if (data.length === 0) {
+              select.innerHTML = '<option value="">No hay áreas disponibles</option>';
+          } else {
+              select.innerHTML = '<option value="">-- Seleccionar área --</option>';
+              data.forEach(area => {
+                  select.innerHTML += `<option value="${area.id}">${area.nombre}</option>`;
+              });
+          }
+      } catch (error) {
+          console.error('Error al cargar áreas:', error);
+          select.innerHTML = '<option value="">Error al cargar áreas</option>';
+      }
+
+      $('#modalAsignar').modal('show');
+  }
+
+  /**
+   * Confirma la asignación de área a una atención
+   */
+  async function confirmarAsignacion() {
+      const idAtencion = document.getElementById('asignar-idatencion').value;
+      const idArea = document.getElementById('asignar-empleado').value;
+
+      if (!idArea) {
+          alert('Selecciona un área');
+          return;
+      }
+
+      try {
+          const response = await fetch(BASE_URL + 'admin/kanban/asignarArea', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  idatencion: idAtencion,
+                  idareaagencia: idArea
+              })
+          });
+
+          if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const res = await response.json();
+
+          if (res.status === 'success') {
+              $('#modalAsignar').modal('hide');
+              location.reload();
+          } else {
+              alert(res.msg || 'Error al asignar el área');
+          }
+      } catch (error) {
+          console.error('Error en asignación:', error);
+          alert('Error al asignar el área. Intenta nuevamente.');
+      }
+  }
+
+  // ═══ CAMBIAR ESTADO ═══
+
+  /**
+   * Cambia el estado de una atención
+   * @param {number} idAtencion - ID de la atención
+   * @param {string} nuevoEstado - Nuevo estado a asignar
+   * @param {string} accion - Nombre de la acción para confirmación
+   */
+  async function cambiarEstado(idAtencion, nuevoEstado, accion) {
+      if (!confirm(`¿Confirmar: ${accion}?`)) {
+          return;
+      }
+
+      try {
+          const response = await fetch(BASE_URL + 'admin/kanban/cambiarEstado', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  idatencion: idAtencion,
+                  estado: nuevoEstado,
+                  accion: accion
+              })
+          });
+
+          if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const res = await response.json();
+
+          if (res.status === 'success') {
+              location.reload();
+          } else {
+              alert(res.msg || 'Error al cambiar el estado');
+          }
+      } catch (error) {
+          console.error('Error al cambiar estado:', error);
+          alert('Error al cambiar el estado. Intenta nuevamente.');
+      }
+  }
+
+  // ═══ CANCELAR ═══
+
+  /**
+   * Cancela una atención solicitando motivo
+   * @param {number} idAtencion - ID de la atención a cancelar
+   */
+  async function cancelarAtencion(idAtencion) {
+      const motivo = prompt('Motivo de cancelación:');
+
+      if (motivo === null || motivo.trim() === '') {
+          return;
+      }
+
+      try {
+          const response = await fetch(BASE_URL + 'admin/kanban/cancelar', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  idatencion: idAtencion,
+                  motivo: motivo.trim()
+              })
+          });
+
+          if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const res = await response.json();
+
+          if (res.status === 'success') {
+              location.reload();
+          } else {
+              alert(res.msg || 'Error al cancelar la atención');
+          }
+      } catch (error) {
+          console.error('Error al cancelar:', error);
+          alert('Error al cancelar la atención. Intenta nuevamente.');
+      }
+  }
+
+  // ═══ VER DETALLE ═══
+
+  /**
+   * Muestra el detalle completo de una atención
+   * @param {number} idAtencion - ID de la atención a consultar
+   */
+  async function verDetalle(idAtencion) {
+      const cuerpo = document.getElementById('detalle-cuerpo');
+      const titulo = document.getElementById('detalle-titulo');
+
+      cuerpo.innerHTML = 'Cargando...';
+      $('#modalDetalle').modal('show');
+
+      try {
+          const response = await fetch(BASE_URL + 'admin/kanban/detalle/' + idAtencion);
+
+          if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const res = await response.json();
+
+          if (res.status !== 'success') {
+              alert(res.msg || 'Error al cargar el detalle');
+              return;
+          }
+
+          const d = res.data;
+          const html = `
+              <div class="kb-detalle-grid">
+                  <div><strong>Título</strong><br>${escapeHtml(d.titulo)}</div>
+                  <div><strong>Servicio</strong><br>${escapeHtml(d.servicio)}</div>
+                  <div><strong>Estado</strong><br>${escapeHtml(d.estado)}</div>
+                  <div><strong>Prioridad del cliente</strong><br>
+    <span>${d.prioridad_cliente}</span>
+</div>
+<div><strong>Prioridad asignada</strong><br>
+    <select id="detalle-prioridad" class="form-control form-control-sm" style="width:auto">
+        <option value="Baja"  ${d.prioridad_admin === 'Baja'  ? 'selected' : ''}>▼ Baja</option>
+        <option value="Media" ${d.prioridad_admin === 'Media' ? 'selected' : ''}>● Media</option>
+        <option value="Alta"  ${d.prioridad_admin === 'Alta'  ? 'selected' : ''}>▲ Alta</option>
+    </select>
+    <button class="btn btn-sm btn-primary mt-1" onclick="cambiarPrioridad(${d.id})">Guardar</button>
+</div>
+                  <div><strong>Empresa</strong><br>${escapeHtml(d.nombreempresa)}</div>
+                  <div><strong>Área Asignada</strong><br>${d.idarea_agencia ? 'Área #' + d.idarea_agencia : 'Sinasignar'}</div>
+                  <div><strong>Fecha requerida</strong><br>${d.fecharequerida || '—'}</div>
+                  <div><strong>Fecha fin</strong><br>${d.fechafin || '—'}</div>
+              </div>
+              <hr class="kb-detalle-hr">
+              <div><strong>Descripción</strong><br>${escapeHtml(d.descripcion) || '—'}</div>
+          `;
+
+          titulo.textContent = d.titulo;
+          cuerpo.innerHTML = html;
+
+      } catch (error) {
+          console.error('Error al cargar detalle:', error);
+          cuerpo.innerHTML = '<div class="alert alert-danger">Error al cargar el detalle. Intenta nuevamente.</div>';
+      }
+
+    }
+    async function cambiarPrioridad(idAtencion) {
+    const prioridad = document.getElementById('detalle-prioridad').value;
+    const res = await fetch(BASE_URL + 'admin/kanban/cambiarPrioridad', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idatencion: idAtencion, idempleado: idEmpleado })
-    })
-    .then(r => r.json())
-    .then(res => {
-        if (res.status === 'success') {
-            $('#modalAsignar').modal('hide');
-            location.reload();
-        } else {
-            alert(res.msg);
-        }
+        body: JSON.stringify({ idatencion: idAtencion, prioridad: prioridad })
     });
+    const data = await res.json();
+    if (data.status === 'success') {
+        $('#modalDetalle').modal('hide');
+        location.reload();
+    } else {
+        alert(data.msg || 'Error al cambiar prioridad');
+    }
+
+}
+/**
+ * Escapa caracteres HTML para prevenir XSS
+ * @param string text  Texto a escapar
+ * @returns string  Texto escapado
+ */
+function escapeHtml(text) {
+    if (!text) return '';
+
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
-// ═══ CAMBIAR ESTADO ═══
-function cambiarEstado(idAtencion, nuevoEstado, accion) {
-    if (!confirm('¿Confirmar acción: ' + accion + '?')) return;
-
-    fetch(BASE_URL + 'admin/kanban/cambiarEstado', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idatencion: idAtencion, estado: nuevoEstado, accion: accion })
-    })
-    .then(r => r.json())
-    .then(res => {
-        if (res.status === 'success') {
-            location.reload();
-        } else {
-            alert(res.msg);
-        }
-    });
-}
-
-// ═══ CANCELAR ═══
-function cancelarAtencion(idAtencion) {
-    const motivo = prompt('Motivo de cancelación:');
-    if (motivo === null) return;
-
-    fetch(BASE_URL + 'admin/kanban/cancelar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idatencion: idAtencion, motivo: motivo })
-    })
-    .then(r => r.json())
-    .then(res => {
-        if (res.status === 'success') {
-            location.reload();
-        } else {
-            alert(res.msg);
-        }
-    });
-}
-
-// ═══ VER DETALLE ═══
-function verDetalle(idAtencion) {
-    document.getElementById('detalle-cuerpo').innerHTML = 'Cargando...';
-
-    fetch(BASE_URL + 'admin/kanban/detalle/' + idAtencion)
-        .then(r => r.json())
-        .then(res => {
-            if (res.status !== 'success') { alert(res.msg); return; }
-            const d = res.data;
-            let html = '<div class="kb-detalle-grid">'
-                + '<div><strong>Título</strong><br>' + d.titulo + '</div>'
-                + '<div><strong>Servicio</strong><br>' + d.servicio + '</div>'
-                + '<div><strong>Estado</strong><br>' + d.estado + '</div>'
-                + '<div><strong>Prioridad</strong><br>' + d.prioridad + '</div>'
-                + '<div><strong>Empresa</strong><br>' + d.nombreempresa + '</div>'
-                + '<div><strong>Empleado</strong><br>' + (d.empleado_nombre ? d.empleado_nombre + ' ' + d.empleado_apellidos : 'Sin asignar') + '</div>'
-                + '<div><strong>Fecha requerida</strong><br>' + (d.fecharequerida || '—') + '</div>'
-                + '<div><strong>Fecha fin</strong><br>' + (d.fechafin || '—') + '</div>'
-                + '</div>'
-                + '<hr class="kb-detalle-hr">'
-                + '<div><strong>Descripción</strong><br>' + (d.descripcion || '—') + '</div>'
-                + '<div class="mt-2"><strong>Objetivo</strong><br>' + (d.objetivo_comunicacion || '—') + '</div>'
-                + '<div class="mt-2"><strong>Canales</strong><br>' + (d.canales_difusion || '—') + '</div>'
-                + '<div class="mt-2"><strong>Público objetivo</strong><br>' + (d.publico_objetivo || '—') + '</div>'
-                + '<div class="mt-2"><strong>Formatos</strong><br>' + (d.formatos_solicitados || '—') + '</div>';
-
-            if (res.archivos && res.archivos.length > 0) {
-                html += '<hr class="kb-detalle-hr"><strong>Archivos adjuntos</strong><ul class="kb-detalle-archivos">';
-                res.archivos.forEach(function(a) {
-                    var nombre = a.ruta.split('/').pop();
-                    html += '<li><a href="' + BASE_URL + 'cliente/requerimiento/archivo/' + nombre + '" target="_blank">' + a.nombre + '</a> (' + (a.tamano / 1024).toFixed(1) + ' KB)</li>';
-                });
-                html += '</ul>';
-            }
-
-            document.getElementById('detalle-titulo').textContent = d.titulo;
-            document.getElementById('detalle-cuerpo').innerHTML = html;
-        });
-
-    $('#modalDetalle').modal('show');
-}

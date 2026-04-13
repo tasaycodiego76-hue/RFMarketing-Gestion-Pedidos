@@ -34,6 +34,10 @@ class CrearTablaAtencion extends Migration
                 'type' => 'BIGINT',
                 'null' => true,
             ],
+            'idarea_agencia' => [
+                  'type' => 'BIGINT',
+                  'null' => true,
+              ],
             'idservicio' => [
                 'type' => 'BIGINT',
                 'null' => true,
@@ -105,6 +109,7 @@ class CrearTablaAtencion extends Migration
         $this->forge->addForeignKey('idadmin', 'usuarios', 'id', 'RESTRICT', 'CASCADE');
         $this->forge->addForeignKey('idempleado', 'usuarios', 'id', 'SET NULL', 'CASCADE');
         $this->forge->addForeignKey('idservicio', 'servicios', 'id', 'RESTRICT', 'CASCADE');
+        $this->forge->addForeignKey('idarea_agencia', 'areas_agencia', 'id', 'SET NULL', 'CASCADE');
         $this->forge->createTable('atencion');
     }
 

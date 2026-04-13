@@ -122,15 +122,15 @@
 <div class="modal fade" id="modalAsignar" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content kb-modal">
-            <div class="modal-header kb-modal-header">
-                <h6 class="modal-title kb-modal-title-asignar">Asignar Empleado</h6>
+             <div class="modal-header kb-modal-header">
+      <h6 class="modal-title kb-modal-title-asignar">Asignar Área de Agencia</h6>
                 <button type="button" class="close kb-modal-close" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="asignar-idatencion">
-                <label class="kb-modal-label">Seleccionar empleado del área:</label>
+                <label class="kb-modal-label">Seleccionar área de agencia:</label>
                 <select id="asignar-empleado" class="form-control kb-modal-select">
                     <option value="">Cargando...</option>
                 </select>
