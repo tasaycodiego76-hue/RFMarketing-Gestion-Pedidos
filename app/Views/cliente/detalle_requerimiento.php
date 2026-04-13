@@ -33,7 +33,17 @@
             </div>
 
             <h1 class="main-project-title"><?= esc($requerimiento['titulo']) ?></h1>
-            <p class="university-subtext">Universidad Autónoma de Ica</p>
+            <p class="university-subtext">
+                <?php if (!empty($user['nombre_area_agencia'])): ?>
+                    <?= esc($user['nombre_area_agencia']) ?> — Agencia
+                <?php elseif (!empty($user['nombre_empresa'])): ?>
+                    <?= esc($user['nombre_empresa']) ?>
+                <?php elseif (!empty($user['nombre_area'])): ?>
+                    <?= esc($user['nombre_area']) ?>
+                <?php else: ?>
+                    Cliente
+                <?php endif; ?>
+            </p>
 
             <div class="divider-dark my-4"></div>
 
@@ -174,7 +184,15 @@
     <div class="col-md-6">
         <div class="card-dark-main p-3">
             <label class="label-tiny mb-2 d-block">ÁREA SOLICITANTE</label>
-            <p class="content-text small m-0">Dirección Académica / Marketing</p>
+            <p class="content-text small m-0">
+                <?php if (!empty($user['nombre_area_agencia'])): ?>
+                    <?= esc($user['nombre_area_agencia']) ?>
+                <?php elseif (!empty($user['nombre_area'])): ?>
+                    <?= esc($user['nombre_area']) ?>
+                <?php else: ?>
+                    No especificado
+                <?php endif; ?>
+            </p>
         </div>
     </div>
     <?php if (!empty($archivos)): ?>
