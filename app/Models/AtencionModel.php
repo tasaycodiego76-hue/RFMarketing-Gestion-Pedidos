@@ -138,7 +138,7 @@
                 AND a.estado != 'cancelado'
                 AND (
                     a.idarea_agencia = ?
-                    OR (a.idarea_agencia IS NULL AND a.estado = 'pendiente_sin_asignar')
+                    OR a.estado = 'pendiente_sin_asignar' 
                 )
               ORDER BY a.fechainicio DESC
           ";

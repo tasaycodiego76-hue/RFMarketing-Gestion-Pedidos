@@ -203,7 +203,7 @@
     <button class="btn btn-sm btn-primary mt-1" onclick="cambiarPrioridad(${d.id})">Guardar</button>
 </div>
                   <div><strong>Empresa</strong><br>${escapeHtml(d.nombreempresa)}</div>
-                  <div><strong>Área Asignada</strong><br>${d.idarea_agencia ? 'Área #' + d.idarea_agencia : 'Sinasignar'}</div>
+                  <div><strong>Área Asignada</strong><br>${escapeHtml(d.area_nombre) || 'Sin asignar'}</div>
                   <div><strong>Fecha requerida</strong><br>${d.fecharequerida || '—'}</div>
                   <div><strong>Fecha fin</strong><br>${d.fechafin || '—'}</div>
               </div>

@@ -17,8 +17,8 @@ $routes->group('admin', function ($routes) {
 
     $routes->get('servicios/listar',     'Administrador\UsuarioController::listarServicios');
     $routes->post('usuarios/registrar',  'Administrador\UsuarioController::registrar');
-    $routes->put('usuarios/editar/(:num)',   'Administrador\UsuarioController::editar/$1');  // editar: guardar
-    $routes->post('usuarios/toggleEstado',   'Administrador\UsuarioController::toggleEstado'); // habilitar/deshabilitar
+    $routes->put('usuarios/editar/(:num)',   'Administrador\UsuarioController::editar/$1');  
+    $routes->post('usuarios/toggleEstado',   'Administrador\UsuarioController::toggleEstado'); 
 
     $routes->get('areas',             'Administrador\AreasController::index');
     $routes->get('areas/clientes', 'Administrador\AreasController::clientes');
