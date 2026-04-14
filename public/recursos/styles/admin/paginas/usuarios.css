@@ -140,3 +140,13 @@
 }
 #btn-guardar:hover { background: #d4a900; }
 #btn-guardar:disabled { background: #333; color: #555; }
+
+
+  .punto-responsable {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #28a745;
+      margin-right: 5px;
+  }

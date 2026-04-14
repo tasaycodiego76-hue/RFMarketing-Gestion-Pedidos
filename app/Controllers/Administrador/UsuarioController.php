@@ -52,10 +52,7 @@ class UsuarioController extends Controller
         return $this->response->setJSON($model->listarActivas());
     }
 
-    /**
-      * Registra un nuevo usuario. Si es cliente, también crea su empresa y lo asigna como responsable.
-     * @return \CodeIgniter\HTTP\ResponseInterface
-     */
+
     /**
    * Registra un nuevo usuario. Si es cliente, también crea su empresa y lo asigna como responsable.
    * @return \CodeIgniter\HTTP\ResponseInterface
@@ -79,6 +76,23 @@ class UsuarioController extends Controller
           return $this->registrarAreaResponsable($datos);
       }
 
+        // Validación: Solo un responsable por área de agencia (solo para empleados)
+  if ($datos['rol'] === 'empleado' && !empty($datos['esresponsable']) && !empty($datos['idarea_agencia'])) {
+      $existeResponsable = $model->where('idarea_agencia', $datos['idarea_agencia'])
+          ->where('esresponsable', true)
+          ->where('estado', true)
+          ->first();
+
+      if ($existeResponsable) {
+          return $this->response->setJSON([
+              'success' => false,
+              'message' => 'Ya existe un responsable para esta área: ' . $existeResponsable['nombre'] . ' ' .
+  $existeResponsable['apellidos']
+          ]);
+      }
+  }
+
+  $id = $model->insert($datos, true);
       $id = $model->insert($datos, true);
 
       if (!$id) {
@@ -124,28 +138,49 @@ class UsuarioController extends Controller
      * @param mixed $id
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
-    public function editar($id)
-    {
-        $model = new UsuarioModel();
-        $datos = $this->request->getJSON(true);
+    /**
+   * Actualiza los datos de un usuario.
+   * @param mixed $id
+   * @return \CodeIgniter\HTTP\ResponseInterface
+   */
+  public function editar($id)
+  {
+      $model = new UsuarioModel();
+      $datos = $this->request->getJSON(true);
 
-        if ($model->where('correo', $datos['correo'])->where('id !=', $id)->first()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'El correo ya está en uso']);
-        }
-        if ($model->where('usuario', $datos['usuario'])->where('id !=', $id)->first()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'El usuario ya está en uso']);
-        }
+      if ($model->where('correo', $datos['correo'])->where('id !=', $id)->first()) {
+          return $this->response->setJSON(['success' => false, 'message' => 'El correo ya está en uso']);
+      }
+      if ($model->where('usuario', $datos['usuario'])->where('id !=', $id)->first()) {
+          return $this->response->setJSON(['success' => false, 'message' => 'El usuario ya está en uso']);
+      }
 
-        if (!empty($datos['clave'])) {
-            $datos['clave'] = password_hash($datos['clave'], PASSWORD_DEFAULT);
-        } else {
-            unset($datos['clave']);
-        }
+      if (!empty($datos['clave'])) {
+          $datos['clave'] = password_hash($datos['clave'], PASSWORD_DEFAULT);
+      } else {
+          unset($datos['clave']);
+      }
 
-        $model->update($id, $datos);
+      // Validación: Solo un responsable por área de agencia
+      if ($datos['rol'] === 'empleado' && !empty($datos['esresponsable']) && !empty($datos['idarea_agencia'])) {
+          $existeResponsable = $model->where('idarea_agencia', $datos['idarea_agencia'])
+              ->where('esresponsable', true)
+              ->where('id !=', $id)
+              ->where('estado', true)
+              ->first();
 
-        return $this->response->setJSON(['success' => true, 'message' => 'Usuario actualizado correctamente']);
-    }
+          if ($existeResponsable) {
+              return $this->response->setJSON([
+                  'success' => false,
+                  'message' => 'Ya existe un responsable para esta área. Desactive al responsable actual primero.'
+              ]);
+          }
+      }
+
+      $model->update($id, $datos);
+
+      return $this->response->setJSON(['success' => true, 'message' => 'Usuario actualizado correctamente']);
+  }
 
     /**
      * Activa o desactiva un usuario según el estado recibido.

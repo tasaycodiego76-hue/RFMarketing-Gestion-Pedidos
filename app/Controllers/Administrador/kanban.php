@@ -7,7 +7,7 @@ use App\Models\EmpresaModel;
 use App\Models\AreasAgenciaModel;
 use App\Models\AtencionModel;
 
-class Kanban extends Controller
+class kanban extends Controller
 {
     public function index($idEmpresa, $idAreaAgencia = null)
     {
