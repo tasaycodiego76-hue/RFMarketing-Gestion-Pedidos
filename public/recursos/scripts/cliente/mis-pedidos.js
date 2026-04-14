@@ -10,24 +10,78 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Canales disponibles para difusión
   const CANALES = [
-    "Por correo", "Página web", "Redes sociales",
-    "SIGU o Aula Virtual Estudiantes", "SIGU o Aula Virtual Docentes",
-    "Impresión física de folletos", "Banner físico", "Letreros",
-    "Merch para eventos específicos"
+    "Por correo",
+    "Página web",
+    "Redes sociales",
+    "SIGU o Aula Virtual Estudiantes",
+    "SIGU o Aula Virtual Docentes",
+    "Impresión física de folletos",
+    "Banner físico",
+    "Letreros",
+    "Merch para eventos específicos",
   ];
   // Formatos según tipo de servicio (1=Diseño, 2=Audiovisual, 0=Personalizado)
   const FORMATOS = {
-    1: ["Emailing", "Post Facebook/IG", "Historia FB/IG", "Historia WhatsApp", "Post LinkedIn",
-      "SIGU", "Aula Virtual", "Wallpaper", "Banner Web", "Volante A5", "Afiche A4/A3",
-      "Credenciales", "Banner 2x1", "Tarjeta Personal", "Tríptico", "Díptico", "Folder",
-      "Brochure", "Cartilla", "Banderola", "Módulos", "SMS", "IVR", "Marcos Selfie",
-      "Boletín", "Guías", "Imagen JPG/PNG", "Otros"],
-    2: ["Reels FB/IG", "Historia FB/IG", "Reel/TikTok", "Reels LinkedIn", "Historia WhatsApp",
-      "Video YouTube", "SIGU", "Aula Virtual", "Pantallas LED", "Spot TV", "Videos eventos",
-      "Reels Pauta", "Otros"],
-     0: ["Post FB/IG", "Historia FB/IG", "Historia WhatsApp", "Reels FB/IG", "Reel/TikTok",
-      "Video YouTube", "Afiche A4/A3", "Banner Web", "Spot TV", "Banner físico",
-      "Emailing", "Imagen JPG/PNG", "Otros"]
+    1: [
+      "Emailing",
+      "Post Facebook/IG",
+      "Historia FB/IG",
+      "Historia WhatsApp",
+      "Post LinkedIn",
+      "SIGU",
+      "Aula Virtual",
+      "Wallpaper",
+      "Banner Web",
+      "Volante A5",
+      "Afiche A4/A3",
+      "Credenciales",
+      "Banner 2x1",
+      "Tarjeta Personal",
+      "Tríptico",
+      "Díptico",
+      "Folder",
+      "Brochure",
+      "Cartilla",
+      "Banderola",
+      "Módulos",
+      "SMS",
+      "IVR",
+      "Marcos Selfie",
+      "Boletín",
+      "Guías",
+      "Imagen JPG/PNG",
+      "Otros",
+    ],
+    2: [
+      "Reels FB/IG",
+      "Historia FB/IG",
+      "Reel/TikTok",
+      "Reels LinkedIn",
+      "Historia WhatsApp",
+      "Video YouTube",
+      "SIGU",
+      "Aula Virtual",
+      "Pantallas LED",
+      "Spot TV",
+      "Videos eventos",
+      "Reels Pauta",
+      "Otros",
+    ],
+    0: [
+      "Post FB/IG",
+      "Historia FB/IG",
+      "Historia WhatsApp",
+      "Reels FB/IG",
+      "Reel/TikTok",
+      "Video YouTube",
+      "Afiche A4/A3",
+      "Banner Web",
+      "Spot TV",
+      "Banner físico",
+      "Emailing",
+      "Imagen JPG/PNG",
+      "Otros",
+    ],
   };
   // Estilos visuales para cada tipo de servicio
   const ESTILOS_SERVICIO = {
@@ -44,10 +98,10 @@ document.addEventListener("DOMContentLoaded", function () {
   };
   // Días hábiles mínimos según tipo de requerimiento
   const DIAS_HABILES_POR_TIPO = {
-    adaptacion: 2,
-    creacion: 4,
-    editorial: 7,
-    audiovisual: 7,
+    adaptacion: 7,
+    creacion: 10,
+    editorial: 20,
+    audiovisual: 20,
   };
   // Configuración visual de estados
   const MAPA_ESTADOS = {
@@ -456,6 +510,66 @@ document.addEventListener("DOMContentLoaded", function () {
         : "none";
   };
 
+  // Info de tipos de requerimiento
+  const INFO_TIPOS = {
+    adaptacion: {
+      titulo: "Adaptación de Arte",
+      desc: "Tienes un diseño existente y necesitas adaptarlo a otros formatos o hacer ajustes menores. Ideal para redimensionar banners o ajustar textos.",
+      dias: "7",
+      equipo: "Diseñador Gráfico",
+    },
+    creacion: {
+      titulo: "Creación de Arte",
+      desc: "Creación de piezas visuales desde cero siguiendo tu marca y objetivos. Incluye diseño original de banners, posts, afiches y materiales promocionales.",
+      dias: "10",
+      equipo: "Diseñador + Director de Arte",
+    },
+    editorial: {
+      titulo: "Trabajo Editorial",
+      desc: "Publicaciones extensas como brochures, trípticos, cartillas o documentos de múltiples páginas que requieren maquetación profesional.",
+      dias: "20",
+      equipo: "Equipo Editorial",
+    },
+    audiovisual: {
+      titulo: "Creación de Video",
+      desc: "Producción audiovisual completa: guion, filmación, edición y post-producción. Para spots, reels, videos institucionales o tutoriales.",
+      dias: "20",
+      equipo: "Productor + Editor de Video",
+    },
+  };
+
+  // Mostrar info del tipo seleccionado
+  window.mostrarInfoTipo = (tipo) => {
+    const container = document.getElementById("info-tipo-container");
+    if (!container || !tipo) {
+      if (container) container.style.display = "none";
+      return;
+    }
+
+    const info = INFO_TIPOS[tipo];
+    if (!info) return;
+
+    document.getElementById("info-tipo-titulo").textContent = info.titulo;
+    document.getElementById("info-tipo-desc").textContent = info.desc;
+    document.getElementById("info-tipo-dias").textContent = info.dias;
+    document.getElementById("info-tipo-equipo").textContent = info.equipo;
+
+    container.style.display = "block";
+  };
+
+  // Fecha input - actualizar badge cuando se selecciona
+  const fechaInput = document.getElementById("fecha_entrega_input");
+  if (fechaInput) {
+    fechaInput.addEventListener("change", (e) => {
+      const badge = document.getElementById("fecha-badge");
+      if (e.target.value) {
+        badge.style.display = "flex";
+      } else {
+        badge.style.display = "none";
+      }
+    });
+  }
+
   // Navega a un paso específico del wizard
   function irAlPaso(numeroPaso) {
     pasoActual = numeroPaso;
@@ -495,6 +609,7 @@ document.addEventListener("DOMContentLoaded", function () {
   window.retrocederPaso = () => {
     if (pasoActual > 1) irAlPaso(pasoActual - 1);
   };
+
   document
     .getElementById("btn-siguiente")
     ?.addEventListener("click", validarYPasar);
@@ -507,7 +622,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Valida campos required visibles
     let valido = true;
-    seccion.querySelectorAll("input[required], select[required], textarea[required]").forEach((input) => {
+    seccion
+      .querySelectorAll("input[required], select[required], textarea[required]")
+      .forEach((input) => {
         if (input.offsetParent === null) return;
         if (!input.value.trim()) {
           input.classList.add("is-invalid");
@@ -585,8 +702,33 @@ document.addEventListener("DOMContentLoaded", function () {
       if (inputArchivos) inputArchivos.value = "";
       if (inputL) inputL.value = "";
       if (listaArchivos) listaArchivos.innerHTML = "";
+      archivosSeleccionados = [];
     }
   });
+
+  // Preview de archivos
+  function mostrarPreviewArchivos(files) {
+      if (!listaArchivos) return;
+      archivosSeleccionados = files;
+
+      if (files.length === 0) {
+          listaArchivos.innerHTML = "";
+          return;
+      }
+
+      listaArchivos.innerHTML = files.map((file, index) => `
+          <div class="archivo-item-simple">
+              <i class="bi ${getIconoArchivo(file.type, file.name)}"></i>
+              <div class="archivo-info">
+                  <div class="archivo-nombre" title="${file.name}">${file.name}</div>
+                  <div class="archivo-size">${formatearTamano(file.size)}</div>
+              </div>
+              <button type="button" class="btn-eliminar" onclick="eliminarArchivo(${index})">
+                  <i class="bi bi-trash"></i>
+              </button>
+          </div>
+      `).join("");
+  }
 
   // Envio del Formulario
   function armarFormData() {
@@ -636,7 +778,9 @@ document.addEventListener("DOMContentLoaded", function () {
     return fd;
   }
 
-  document.getElementById("form-nuevo-pedido")?.addEventListener("submit", async (e) => {
+  document
+    .getElementById("form-nuevo-pedido")
+    ?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btnEnviar = document.getElementById("btn-enviar");
       btnEnviar.disabled = true;
@@ -690,42 +834,29 @@ document.addEventListener("DOMContentLoaded", function () {
       const el = document.getElementById(id);
       if (el) el.textContent = val || "—";
     };
-    const setTags = (name, tid) => {
-      const el = document.getElementById(tid),
-        ch = qsAll(`input[name="${name}"]:checked`);
-      if (el)
-        el.innerHTML = ch.length
-          ? Array.from(ch)
-              .map((c) => `<span class="tag-item">${c.value}</span>`)
-              .join(" ")
-          : "<span style='color:#555'>Ninguno</span>";
-    };
-    const toggleWrap = (val, wid, cid) => {
-      const w = document.getElementById(wid),
-        c = document.getElementById(cid);
-      if (w) {
-        w.style.display = val ? "block" : "none";
-        if (c && val) c.textContent = val;
-      }
-    };
 
+    // Servicio con badge
     const badge = document.getElementById("wbadge-container"),
       idServ = getIdVal("form-idservicio"),
       titPers = getIdVal("titulo_personalizado");
-    if (document.getElementById("res-servicio") && badge)
-      document.getElementById("res-servicio").innerHTML =
-        badge.innerHTML + (idServ === "0" && titPers ? ` — ${titPers}` : "");
 
-    setText("res-titulo", getIdVal("campo-titulo") || "Sin título");
-    setText("res-objetivo", getVal('[name="objetivo"]'));
-    setText(
-      "res-prioridad",
-      qs('input[name="prioridad"]:checked')?.value || "Media",
-    );
-    const tipoReq = qs('[name="tipo_requerimiento"]');
-    setText("res-tipo", tipoReq?.options[tipoReq.selectedIndex]?.text);
+    const resServicio = document.getElementById("res-servicio");
+    if (resServicio && badge) {
+      const estilo = ESTILOS_SERVICIO[idServ] || ESTILOS_SERVICIO[0];
+      const nombreServicio =
+        idServ === "0" && titPers
+          ? titPers
+          : idServ === "0"
+            ? "Servicio Especial"
+            : estilo.label;
+      resServicio.innerHTML = `<span class="sbadge-resumen ${estilo.cls}">${nombreServicio}</span>`;
+    }
+
+    // Info básica
+    setText("res-titulo", getIdVal("campo-titulo"));
+
     const fv = getVal('[name="fecha_entrega"]');
-    if (fv)
+    if (fv) {
       setText(
         "res-fecha",
         new Date(fv + "T00:00:00").toLocaleDateString("es-PE", {
@@ -734,37 +865,72 @@ document.addEventListener("DOMContentLoaded", function () {
           year: "numeric",
         }),
       );
-    setText("res-descripcion", getVal('[name="descripcion"]'));
-    setText("res-publico", getVal('[name="publico"]'));
-    setTags("canales[]", "res-canales");
-    setTags("formatos[]", "res-formatos");
-    toggleWrap(
-      getVal('[name="formato_otros"]'),
-      "res-formato-otros-wrap",
-      "res-formato-otros",
-    );
-    toggleWrap(getVal('[name="url_referencia"]'), "res-link-wrap", "res-link");
-    setText(
-      "res-materiales",
-      document.getElementById("select-materiales")?.value === "1"
-        ? "Sí, tiene materiales"
-        : "No tiene materiales",
-    );
+    }
 
-    const resArch = document.getElementById("res-archivos"),
-      resWrap = document.getElementById("res-archivos-wrap");
+    // Prioridad con badge de color
+    const prioVal = qs('input[name="prioridad"]:checked')?.value || "Media";
+    const prioEl = document.getElementById("res-prioridad");
+    if (prioEl) {
+      const prioClass =
+        prioVal === "Baja"
+          ? "prio-baja"
+          : prioVal === "Alta"
+            ? "prio-alta"
+            : "prio-media";
+      prioEl.className = `resumen-badge ${prioClass}`;
+      prioEl.textContent = prioVal;
+    }
+
+    // Detalles - Público objetivo
+    setText("res-publico", getVal('[name="publico"]'));
+
+    // Materiales
+    const tieneMat =
+      document.getElementById("select-materiales")?.value === "1";
+    const matEl = document.getElementById("res-materiales");
+    if (matEl) {
+      matEl.innerHTML = tieneMat
+        ? '<span style="color:#22c55e;"><i class="bi bi-check-circle-fill"></i> Sí, tiene materiales</span>'
+        : '<span style="color:#888;">No tiene materiales</span>';
+    }
+
+    // Link de referencia (solo si existe)
+    const linkVal = getVal('[name="url_referencia"]');
+    const linkWrap = document.getElementById("res-link-wrap");
+    const linkEl = document.getElementById("res-link");
+    if (linkWrap && linkEl) {
+      if (tieneMat && linkVal) {
+        linkWrap.classList.remove("d-none");
+        linkEl.textContent = linkVal;
+      } else {
+        linkWrap.classList.add("d-none");
+      }
+    }
+
+    // Archivos adjuntos (solo si existen)
+    const resArch = document.getElementById("res-archivos");
+    const resWrap = document.getElementById("res-archivos-wrap");
     const archivosPrev = archivosSeleccionados.length
       ? archivosSeleccionados
       : Array.from(inputArchivos?.files || []);
-    if (resArch && archivosPrev.length) {
-      resArch.innerHTML = archivosPrev
-        .map(
-          (f) =>
-            `<div class="archivo-item" style="display:flex;align-items:center;gap:8px;margin:4px 0;"><i class="bi ${getIconoArchivo(f.type, f.name)}" style="color:#f5c400;"></i><span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.name}</span><span style="color:#888;font-size:11px;">${formatearTamano(f.size)}</span></div>`,
-        )
-        .join("");
-      if (resWrap) resWrap.style.display = "block";
-    } else if (resWrap) resWrap.style.display = "none";
+
+    if (resArch && resWrap) {
+      if (tieneMat && archivosPrev.length) {
+        resArch.innerHTML = archivosPrev
+          .map(
+            (f) => `
+                      <div class="resumen-archivo-item">
+                          <i class="bi ${getIconoArchivo(f.type, f.name)}"></i>
+                          <span>${f.name}</span>
+                      </div>
+                  `,
+          )
+          .join("");
+        resWrap.classList.remove("d-none");
+      } else {
+        resWrap.classList.add("d-none");
+      }
+    }
   }
 
   // Otras Vistas dentro de la Tabla (Detalle y Seguimiento)

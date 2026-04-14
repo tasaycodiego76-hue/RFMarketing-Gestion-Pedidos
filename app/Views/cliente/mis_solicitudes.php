@@ -106,7 +106,7 @@
 <div class="modal fade" id="modal-formulario-detalle" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content modal-rf">
-            <form id="form-nuevo-pedido" class="needs-validation" novalidate>
+            <form id="form-nuevo-pedido" class="needs-validation" novalidate autocomplete="off">
                 <input type="hidden" name="idservicio" id="form-idservicio">
 
                 <div class="modal-header modal-rf-header">
@@ -206,24 +206,34 @@
                                 placeholder="¿Cuál es el objetivo? ¿A quién va dirigido?" required></textarea>
                         </div>
 
+                        <!-- TIPO DE REQUERIMIENTO CON INFO -->
                         <div class="field mb-3">
-                            <label>¿QUÉ TIPO DE REQUERIMIENTO ES?</label>
+                            <label>TIPO DE REQUERIMIENTO</label>
+                            <p class="campo-sublabel">Selecciona según la complejidad de tu proyecto</p>
 
-                            <div id="lista-requerimientos-estandar">
-                                <select name="tipo_requerimiento" class="form-select" id="tipo_req"
-                                    style="background:#0a0a0a; border:1px solid #1e1e1e; color:#c0c0c0; font-size:11px;">
-                                    <option value="" selected disabled>Seleccionar...</option>
-                                    <option value="adaptacion">Adaptación de Arte (7 días hábiles)</option>
-                                    <option value="creacion">Creación de Arte (10 días hábiles)</option>
-                                    <option value="editorial">Trabajo Editorial (20 días hábiles)</option>
-                                    <option value="audiovisual">Creación de Video (20 días hábiles)</option>
-                                </select>
+                            <select name="tipo_requerimiento" class="form-select select-estilizado" id="tipo_req"
+                                required onchange="mostrarInfoTipo(this.value)">
+                                <option value="" selected disabled>Seleccionar...</option>
+                                <option value="adaptacion">Adaptación de Arte — 7 días hábiles</option>
+                                <option value="creacion">Creación de Arte — 10 días hábiles</option>
+                                <option value="editorial">Trabajo Editorial — 20 días hábiles</option>
+                                <option value="audiovisual">Creación de Video — 20 días hábiles</option>
+                            </select>
+
+                            <!-- Info dinámica del tipo seleccionado -->
+                            <div id="info-tipo-container" class="info-tipo-box" style="display:none;">
+                                <div class="info-tipo-header">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                    <span id="info-tipo-titulo">Título</span>
+                                </div>
+                                <p id="info-tipo-desc" class="info-tipo-desc">Descripción</p>
+                                <div class="info-tipo-meta">
+                                    <span><i class="bi bi-clock"></i> <span id="info-tipo-dias">0</span> días
+                                        hábiles</span>
+                                    <span><i class="bi bi-people"></i> <span
+                                            id="info-tipo-equipo">Diseñador</span></span>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="field mb-3">
-                            <label>FECHA EN QUE SE NECESITA</label>
-                            <input type="date" id="fecha_entrega_input" name="fecha_entrega" required>
                         </div>
                     </div>
                     <!-- SECTION 2: Detalles y Formatos  -->
@@ -243,17 +253,24 @@
                                 placeholder="¿A quién va dirigido? Tono del mensaje..." required></textarea>
                         </div>
 
-                        <!-- Canales de difusión -->
+                        <!-- SEPARADOR CANALES -->
                         <div class="field mb-3">
-                            <label>¿EN DÓNDE SE VA A DIFUNDIR?</label>
-                            <p class="campo-sublabel">Selecciona como máximo 3 opciones.</p>
-                            <div class="checks-grid" id="canales-checks"></div>
+                            <label class="section-title">
+                                <i class="bi bi-broadcast"></i> Canales de Difusión
+                            </label>
+                            <p class="campo-sublabel">Selecciona máximo 3 opciones</p>
+                            <div class="checks-grid compact" id="canales-checks"></div>
                         </div>
 
-                        <!-- Formatos solicitados -->
+                        <!-- Línea divisoria -->
+                        <hr class="section-divider">
+
+                        <!-- SEPARADOR FORMATOS -->
                         <div class="field mb-3">
-                            <label>¿EN QUÉ FORMATO QUIERES TU REQUERIMIENTO?</label>
-                            <div class="checks-grid" id="formatos-checks"></div>
+                            <label class="section-title">
+                                <i class="bi bi-file-earmark-image"></i> Formatos Solicitados
+                            </label>
+                            <div class="checks-grid compact" id="formatos-checks"></div>
                         </div>
 
                         <!-- Formato otros -->
@@ -274,128 +291,107 @@
                             </select>
                         </div>
 
-                        <!-- Subida de archivos + Link (aparecen juntos cuando selecciona Sí) -->
+                        <!-- Contenedor de archivos (se muestra al seleccionar "Sí") -->
                         <div id="contenedor-materiales" style="display:none;">
-                            <!-- Subida de archivos -->
-                            <div class="field mb-3" id="contenedor-archivos">
+
+                            <!-- Nueva zona de carga simple -->
+                            <div class="field mb-3">
                                 <label>ADJUNTA TUS ARCHIVOS</label>
                                 <p class="campo-sublabel">Máximo 100MB por archivo. PDF, imágenes, videos, documentos.
                                 </p>
-                                <div class="upload-area" id="upload-area"
+
+                                <div class="upload-area-simple"
                                     onclick="document.getElementById('input-archivos').click()">
-                                    <i class="bi bi-cloud-arrow-up" style="font-size:28px; color:#555;"></i>
-                                    <p style="color:#555; font-size:12px; margin:6px 0 0 0;">Haz clic o arrastra tus
-                                        archivos aquí</p>
+                                    <i class="bi bi-plus-lg"></i>
+                                    <span>Agregar archivos</span>
                                 </div>
+
                                 <input type="file" name="documentos[]" id="input-archivos" multiple
                                     style="display:none;"
                                     accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.zip">
-                                <div id="lista-archivos" style="margin-top:8px;"></div>
+
+                                <div id="lista-archivos"></div>
                             </div>
 
                             <!-- Link de referencia -->
-                            <div class="field mb-3" id="contenedor-link">
+                            <div class="field mb-3">
                                 <label>LINK DE REFERENCIA (Google Drive, WeTransfer, etc.)</label>
                                 <input type="text" name="url_referencia" class="field-input"
                                     placeholder="https://drive.google.com/...">
                             </div>
                         </div>
-
                     </div>
                     <!-- SECTION 3: Confirmar y Enviar -->
                     <div class="wizard-section d-none" id="section-3">
-
-                        <div class="resumen-header mb-3">
-                            <i class="bi bi-clipboard-check" style="font-size:24px; color:#f5c400;"></i>
+                        <div class="resumen-header mb-4">
+                            <div class="resumen-icon">
+                                <i class="bi bi-clipboard-check-fill"></i>
+                            </div>
                             <div>
-                                <p class="campo-label mb-0">REVISA TU REQUERIMIENTO</p>
-                                <p style="color:#555; font-size:11px; margin:0;">Verifica que todo esté correcto antes
-                                    de enviar</p>
+                                <h5 class="resumen-titulo">Revisa tu requerimiento</h5>
+                                <p class="resumen-sub">Verifica que la información clave esté correcta</p>
                             </div>
                         </div>
 
-                        <!-- Bloque: Info básica -->
-                        <div class="resumen-bloque mb-3">
-                            <div class="resumen-bloque-titulo">
-                                <span class="step-mini">1</span> INFO BÁSICA
+                        <!-- Bloque 1: Info Básica -->
+                        <div class="resumen-card mb-3">
+                            <div class="resumen-card-header">
+                                <span class="resumen-numero">1</span>
+                                <span class="resumen-card-titulo">Información Principal</span>
                             </div>
-                            <div class="resumen-grid">
-                                <div class="resumen-item">
-                                    <span class="info-label">SERVICIO</span>
-                                    <span class="info-valor" id="res-servicio">—</span>
+                            <div class="resumen-card-body">
+                                <div class="resumen-fila">
+                                    <span class="resumen-label">Servicio</span>
+                                    <span class="resumen-valor" id="res-servicio">—</span>
                                 </div>
-                                <div class="resumen-item">
-                                    <span class="info-label">TÍTULO</span>
-                                    <span class="info-valor" id="res-titulo">—</span>
+                                <div class="resumen-fila">
+                                    <span class="resumen-label">Título</span>
+                                    <span class="resumen-valor" id="res-titulo">—</span>
                                 </div>
-                                <div class="resumen-item">
-                                    <span class="info-label">TIPO DE REQUERIMIENTO</span>
-                                    <span class="info-valor" id="res-tipo">—</span>
+                                <div class="resumen-fila">
+                                    <span class="resumen-label">Fecha Requerida</span>
+                                    <span class="resumen-valor" id="res-fecha">—</span>
                                 </div>
-                                <div class="resumen-item">
-                                    <span class="info-label">FECHA REQUERIDA</span>
-                                    <span class="info-valor" id="res-fecha">—</span>
-                                </div>
-                                <div class="resumen-item resumen-full">
-                                    <span class="info-label">OBJETIVO DE COMUNICACIÓN</span>
-                                    <span class="info-valor" id="res-objetivo">—</span>
-                                </div>
-                                <div class="resumen-item">
-                                    <span class="info-label">PRIORIDAD</span>
-                                    <span class="info-valor" id="res-prioridad">—</span>
+                                <div class="resumen-fila">
+                                    <span class="resumen-label">Prioridad</span>
+                                    <span class="resumen-valor"><span class="resumen-badge"
+                                            id="res-prioridad">—</span></span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Bloque: Detalles -->
-                        <div class="resumen-bloque mb-3">
-                            <div class="resumen-bloque-titulo">
-                                <span class="step-mini">2</span> DETALLES Y FORMATOS
+                        <!-- Bloque 2: Detalles -->
+                        <div class="resumen-card mb-3">
+                            <div class="resumen-card-header">
+                                <span class="resumen-numero">2</span>
+                                <span class="resumen-card-titulo">Detalles del Proyecto</span>
                             </div>
-                            <div class="resumen-grid">
-                                <div class="resumen-item resumen-full">
-                                    <span class="info-label">DESCRIPCIÓN</span>
-                                    <span class="info-valor" id="res-descripcion">—</span>
+                            <div class="resumen-card-body">
+                                <div class="resumen-fila vertical">
+                                    <span class="resumen-label">Público Objetivo</span>
+                                    <span class="resumen-valor descripcion" id="res-publico">—</span>
                                 </div>
-                                <div class="resumen-item resumen-full">
-                                    <span class="info-label">PÚBLICO OBJETIVO</span>
-                                    <span class="info-valor" id="res-publico">—</span>
+                                <div class="resumen-fila">
+                                    <span class="resumen-label">Materiales de Referencia</span>
+                                    <span class="resumen-valor" id="res-materiales">—</span>
                                 </div>
-                                <div class="resumen-item resumen-full">
-                                    <span class="info-label">CANALES DE DIFUSIÓN</span>
-                                    <div class="tags-wrap" id="res-canales"></div>
+                                <div class="resumen-fila d-none" id="res-link-wrap">
+                                    <span class="resumen-label">Link de Referencia</span>
+                                    <span class="resumen-valor link" id="res-link">—</span>
                                 </div>
-                                <div class="resumen-item resumen-full">
-                                    <span class="info-label">FORMATOS SOLICITADOS</span>
-                                    <div class="tags-wrap" id="res-formatos"></div>
-                                </div>
-                                <div class="resumen-item resumen-full" id="res-formato-otros-wrap"
-                                    style="display:none;">
-                                    <span class="info-label">FORMATO PERSONALIZADO</span>
-                                    <span class="info-valor" id="res-formato-otros">—</span>
-                                </div>
-                                <div class="resumen-item">
-                                    <span class="info-label">MATERIALES</span>
-                                    <span class="info-valor" id="res-materiales">—</span>
-                                </div>
-                                <div class="resumen-item resumen-full" id="res-link-wrap" style="display:none;">
-                                    <span class="info-label">LINK DE REFERENCIA</span>
-                                    <span class="info-valor" id="res-link">—</span>
-                                </div>
-                                <div class="resumen-item resumen-full" id="res-archivos-wrap" style="display:none;">
-                                    <span class="info-label">ARCHIVOS ADJUNTOS</span>
-                                    <div id="res-archivos"></div>
+                                <div class="resumen-fila vertical d-none" id="res-archivos-wrap">
+                                    <span class="resumen-label">Archivos Adjuntos</span>
+                                    <div class="resumen-archivos" id="res-archivos"></div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Aviso final -->
-                        <div class="aviso-envio">
-                            <i class="bi bi-info-circle"></i>
+                        <div class="resumen-aviso">
+                            <i class="bi bi-info-circle-fill"></i>
                             <span>Una vez enviado, el equipo de RF Marketing revisará tu requerimiento y te notificará
                                 por correo.</span>
                         </div>
-
                     </div>
                 </div>
                 <div class="modal-footer border-0" style="gap: 10px; justify-content: flex-end;">
