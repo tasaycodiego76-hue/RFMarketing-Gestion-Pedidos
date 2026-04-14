@@ -1,77 +1,80 @@
 <?php
 
-namespace App\Controllers\Administrador;
+  namespace App\Controllers\Administrador;
 
-use CodeIgniter\Controller;
-use App\Models\AreasAgenciaModel;
-use App\Models\AreasModel;
-use App\Models\EmpresaModel;
+  use CodeIgniter\Controller;
+  use App\Models\AreasAgenciaModel;
 
-class AreasController extends Controller
-{
-    // GET admin/areas  →  tab Agencia
-    public function index(): string
-{
-    $areasAgenciaModel = new AreasAgenciaModel();
-    $empresaModel      = new EmpresaModel();
+  class AreasController extends Controller
+  {
+      public function index(): string
+      {
+          return view('admin/areas', [
+              'titulo'       => 'Áreas',
+              'tituloPagina' => 'ÁREAS',
+              'paginaActual' => 'areas',
+          ]);
+      }
 
-    return view('admin/areas', [
-        'titulo'       => 'Areas',
-        'tituloPagina' => 'AREAS',
-        'paginaActual' => 'areas',
-        'tabActivo'    => 'agencia',
-        'areas'        => $areasAgenciaModel->listarConResponsable(),
-        'empresas'     => $empresaModel->findAll(),
-    ]);
-}
+      public function listar(): \CodeIgniter\HTTP\ResponseInterface
+      {
+          $model = new AreasAgenciaModel();
+          $areas = $model->listarConResponsable();
 
+          foreach ($areas as &$a) {
+              $a['activo'] = ($a['activo'] === true || $a['activo'] === 't' || $a['activo'] == 1) ? 1 : 0;
+          }
 
-    // GET admin/areas/clientes  →  tab Clientes
-    public function clientes(): string
-    {
-        $empresaModel = new EmpresaModel();
+          return $this->response->setJSON($areas);
+      }
 
-        return view('admin/areas', [
-            'titulo'       => 'Areas',
-            'tituloPagina' => 'AREAS',
-            'paginaActual' => 'areas',
-            'tabActivo'    => 'clientes',
-            'empresas'     => $empresaModel->findAll(),    
-            'areas'        => [],
-        ]);
-    }
-    public function registrar(): \CodeIgniter\HTTP\ResponseInterface
-{
-    $json   = $this->request->getJSON(true);
-    $model  = new AreasAgenciaModel();
+      public function registrar(): \CodeIgniter\HTTP\ResponseInterface
+      {
+          $json   = $this->request->getJSON(true);
+          $model  = new AreasAgenciaModel();
 
-    $model->insert([
-        'nombre'      => $json['nombre'],
-        'descripcion' => $json['descripcion'] ?? null,
-        'activo'      => true,
-    ]);
+          $model->insert([
+              'nombre'      => $json['nombre'],
+              'descripcion' => $json['descripcion'] ?? null,
+              'activo'      => true,
+          ]);
 
-    return $this->response->setJSON(['success' => true]);
-}
+          return $this->response->setJSON(['success' => true, 'message' => 'Área registrada']);
+      }
 
-public function registrarCliente(): \CodeIgniter\HTTP\ResponseInterface
-{
-    $json  = $this->request->getJSON(true);
-    $model = new AreasModel();
+      public function obtener($id): \CodeIgniter\HTTP\ResponseInterface
+      {
+          $model = new AreasAgenciaModel();
+          $area = $model->find($id);
 
-    $model->insert([
-        'idempresa'   => $json['idempresa'],
-        'nombre'      => $json['nombre'],
-        'descripcion' => $json['descripcion'] ?? null,
-        'activo'      => true,
-    ]);
+          if (!$area) {
+              return $this->response->setJSON(['success' => false, 'message' => 'Área no encontrada']);
+          }
 
-    return $this->response->setJSON(['success' => true]);
-}
-public function listarPorEmpresa(int $idEmpresa): \CodeIgniter\HTTP\ResponseInterface
-{
-    $model = new AreasModel();
-    $areas = $model->where('idempresa', $idEmpresa)->findAll();
-    return $this->response->setJSON($areas);
-}
-}
+          return $this->response->setJSON($area);
+      }
+
+      public function editar($id): \CodeIgniter\HTTP\ResponseInterface
+      {
+          $json  = $this->request->getJSON(true);
+          $model = new AreasAgenciaModel();
+
+          $model->update($id, [
+              'nombre'      => $json['nombre'],
+              'descripcion' => $json['cripcion'] ?? null,
+          ]);
+
+          return $this->response->setJSON(['success' => true, 'message' => 'Área actualizada']);
+      }
+
+      public function toggleEstado(): \CodeIgniter\HTTP\ResponseInterface
+      {
+          $json  = $this->request->getJSON(true);
+          $model = new AreasAgenciaModel();
+
+          $model->update($json['id'], ['activo' => (bool) $json['estado']]);
+
+          $msg = $json['estado'] ? 'habilitada' : 'deshabilitada';
+          return $this->response->setJSON(['success' => true, 'message' => "Área $msg"]);
+      }
+  }

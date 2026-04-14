@@ -35,17 +35,48 @@ class UsuarioModel extends Model
      * Devuelve todos los usuarios con el nombre de su área resuelta
      * (area_agencia tiene prioridad sobre area).
      */
-    public function listarConArea(): array
-    {
-        return $this->db->table('usuarios u')
-            ->select('u.*')
-            ->select("COALESCE(aa.nombre, ae.nombre, '-') as area_nombre")
-            ->join('areas_agencia aa', 'aa.id = u.idarea_agencia', 'left')
-            ->join('areas ae', 'ae.id = u.idarea', 'left')
-            ->orderBy('u.rol', 'ASC')
-            ->orderBy('u.nombre', 'ASC')
-            ->get()->getResultArray();
-    }
+   
+  /**
+   * Devuelve todos los usuarios con el nombre de su área resuelta
+   * y la empresa para responsables de áreas de clientes.
+   */
+  public function listarConArea(): array
+  {
+      $result = $this->db->table('usuarios u')
+          ->select('u.*')
+          ->select("COALESCE(aa.nombre, ae.nombre, '-') as area_nombre")
+          ->select("emp.nombreempresa as empresa_nombre")
+          ->join('areas_agencia aa', 'aa.id = u.idarea_agencia', 'left')
+          ->join('areas ae', 'ae.id = u.idarea', 'left')
+          ->join('empresas emp', 'emp.id = ae.idempresa', 'left')
+          ->orderBy('u.rol', 'ASC')
+          ->orderBy('u.nombre', 'ASC')
+          ->get()->getResultArray();
+
+     
+      foreach ($result as &$u) {
+          if ($u['rol'] === 'cliente' && !empty($u['idarea'])) {
+              $u['rol_visual'] = 'Responsable';
+          } else {
+              $u['rol_visual'] = ucfirst($u['rol']);
+          }
+
+          // Formatear área/empresa para mostrar
+          if (!empty($u['area_nombre']) && $u['area_nombre'] !== '-') {
+              if (!empty($u['empresa_nombre'])) {
+                  // Es área de cliente - mostrar: Área (Empresa)
+                  $u['area_completa'] = $u['area_nombre'] . ' (' . $u['empresa_nombre'] . ')';
+              } else {
+                  // Es área de agencia
+                  $u['area_completa'] = $u['area_nombre'];
+              }
+          } else {
+              $u['area_completa'] = '-';
+          }
+      }
+
+      return $result;
+  }
 
     /**
      * Devuelve un usuario por ID junto con el nombre de su área de agencia.

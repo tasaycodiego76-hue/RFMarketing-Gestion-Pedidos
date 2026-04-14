@@ -21,11 +21,11 @@ $routes->group('admin', function ($routes) {
     $routes->post('usuarios/toggleEstado',   'Administrador\UsuarioController::toggleEstado'); 
 
     $routes->get('areas',             'Administrador\AreasController::index');
-    $routes->get('areas/clientes', 'Administrador\AreasController::clientes');
+    $routes->get('areas/listar', 'Administrador\AreasController::listar');
     $routes->post('areas/registrar',  'Administrador\AreasController::registrar');
-    $routes->post('areas/clientes/registrar', 'Administrador\AreasController::registrarCliente');
-    $routes->get('areas/clientes/listar/(:num)', 'Administrador\AreasController::listarPorEmpresa/$1');
-    $routes->post('areas/clientes/registrar',    'Administrador\AreasController::registrarCliente');
+    $routes->get('areas/obtener/(:num)', 'Administrador\AreasController::obtener/$1');
+    $routes->put('areas/editar/(:num)', 'Administrador\AreasController::editar/$1');
+    $routes->post('areas/toggleEstado', 'Administrador\AreasController::toggleEstado');
 
     $routes->get('empresas',             'Administrador\EmpresasController::index');
 
@@ -40,6 +40,15 @@ $routes->get('kanban/detalle/(:num)',   'Administrador\Kanban::detalle/$1');
  $routes->get('kanban/areas', 'Administrador\Kanban::areasAgencia');
    $routes->get('responsable/kanban', 'Administrador\Kanban::responsable');
    $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
+
+   //EMPRESAS 
+   
+      $routes->get('empresas', 'Administrador\EmpresasController::index');
+      $routes->get('empresas/listar', 'Administrador\EmpresasController::listar');
+      $routes->get('empresas/obtener/(:num)', 'Administrador\EmpresasController::obtener/$1');
+      $routes->post('empresas/registrar', 'Administrador\EmpresasController::registrar');
+      $routes->put('empresas/editar/(:num)', 'Administrador\EmpresasController::editar/$1');
+      $routes->post('empresas/toggleEstado', 'Administrador\EmpresasController::toggleEstado');
     });
 
 //Rutas para el Responsable (Jefe de Área)

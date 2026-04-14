@@ -1,201 +1,260 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    const tabla      = document.querySelector('#tabla-usuarios');
-    const formulario = document.querySelector('#form-usuario');
-    const selectRol  = document.querySelector('#rol');
-    const btnGuardar = document.querySelector('#btn-guardar');
+      const tabla      = document.querySelector('#tabla-usuarios');
+      const formulario = document.querySelector('#form-usuario');
+      const btnGuardar = document.querySelector('#btn-guardar');
+      const inputTipoRegistro = document.querySelector('#tipo_registro');
 
-    // ─── NOTIFICACIÓN ──────────────────────────────────────
-    function notificar(mensaje) {
-        alert(mensaje);
-    }
+      // ─── NOTIFICACIÓN ──────────────────────────────────────
+      function notificar(mensaje) {
+          alert(mensaje);
+      }
 
-    // ─── LISTAR USUARIOS ───────────────────────────────────
-    async function obtenerUsuarios() {
-        const response = await fetch(BASE_URL + 'admin/usuarios/listar');
-        const data     = await response.json();
+      // ─── LISTAR USUARIOS ───────────────────────────────────
+      async function obtenerUsuarios() {
+      const response = await fetch(BASE_URL + 'admin/usuarios/listar');
+      const data     = await response.json();
 
-        tabla.innerHTML = '';
-        data.forEach(u => {
-            const badge     = u.estado ? `<span class="badge-activo">Activo</span>` : `<span class="badge-inactivo">Inactivo</span>`;
-            const btnToggle = u.estado
-                ? `<button class="btn btn-sm btn-warning"  onclick="toggleEstado(${u.id}, true)">Deshabilitar</button>`
-                : `<button class="btn btn-sm btn-success"  onclick="toggleEstado(${u.id}, false)">Habilitar</button>`;
+      tabla.innerHTML = '';
+      data.forEach(u => {
+          const badge     = u.estado ? `<span class="badge-activo">Activo</span>` : `<span
+  class="badge-inactivo">Inactivo</span>`;
+          const btnToggle = u.estado
+              ? `<button class="btn btn-sm btn-warning"  onclick="toggleEstado(${u.id}, true)">Deshabilitar</button>`
+              : `<button class="btn btn-sm btn-success"  onclick="toggleEstado(${u.id}, false)">Habilitar</button>`;
 
-            tabla.innerHTML += `
-                <tr>
-                    <td>${u.nombre} ${u.apellidos}</td>
-                    <td>${u.usuario ?? '-'}</td>
-                    <td>${u.correo}</td>
-                    <td>${u.rol}</td>
-                    <td>${u.area_nombre ?? '-'}</td>
-                    <td>${badge}</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary" onclick="editarUsuario(${u.id})">Editar</button>
-                        ${btnToggle}
-                    </td>
-                </tr>`;
-        });
-    }
+          // Usar rol_visual si existe, sino el rol normal
+          const rolMostrar = u.rol_visual || u.rol;
 
-    // ─── CAMBIO DE ROL ─────────────────────────────────────
-    selectRol.addEventListener('change', function () {
-        const rol     = this.value; 
-        const tipodoc = document.querySelector('#tipodoc');
-        const rs      = document.querySelector('#razonsocial');
-        const aa      = document.querySelector('#idarea_agencia');
+          // Usar area_completa si existe
+          const areaMostrar = u.area_completa || u.area_nombre || '-';
 
-        document.querySelectorAll('.campo-todos, .campo-cliente, .campo-empleado')
-            .forEach(el => el.style.display = 'none');
-        [rs, aa].forEach(el => { if (el) el.disabled = true; });
+          tabla.innerHTML += `
+              <tr>
+                  <td>${u.nombre} ${u.apellidos}</td>
+                  <td>${u.usuario ?? '-'}</td>
+                  <td>${u.correo}</td>
+                  <td>${rolMostrar}</td>
+                  <td>${areaMostrar}</td>
+                  <td>${badge}</td>
+                  <td>
+                      <button class="btn btn-sm btn-primary" onclick="editarUsuario(${u.id})">Editar</button>
+                      ${btnToggle}
+                  </td>
+              </tr>`;
+      });
+  }
 
-        btnGuardar.disabled = !rol;
-        if (!rol) return;
+      // ─── CONFIGURAR FORMULARIO SEGÚN TIPO ─────────────────
+      function configurarFormulario(tipo) {
+          inputTipoRegistro.value = tipo;
 
-        const config = {
-            empleado: { docs: 'DNI/CE', label: 'Nombre',                 show: '.campo-empleado', field: aa },
-            cliente:  { docs: 'RUC',    label: 'Nombre del Responsable',  show: '.campo-cliente',  field: rs }
-        };
+          const grupoEmpresa = document.querySelector('#grupo-empresa');
+          const grupoNombreArea = document.querySelector('#grupo-nombre-area');
+          const grupoDescArea = document.querySelector('#grupo-descripcion-area');
+          const grupoRazonSocial = document.querySelector('#grupo-razonsocial');
+          const camposEmpleado = document.querySelector('#campos-empleado');
+          const tipodoc = document.querySelector('#tipodoc');
+          const labelNombre = document.querySelector('#label-nombre');
+          const modalTitulo = document.querySelector('#modal-titulo');
 
-        const c = config[rol];
-        document.querySelector('.campo-todos').style.display    = 'block';
-        document.querySelector('#label-nombre').textContent     = c.label;
-        tipodoc.innerHTML = c.docs === 'RUC'
-            ? '<option value="RUC">RUC</option>'
-            : '<option value="DNI">DNI</option><option value="CE">CE</option>';
+          // Ocultar todo primero
+          [grupoEmpresa, grupoNombreArea, grupoDescArea, grupoRazonSocial, camposEmpleado].forEach(el => {
+              if (el) el.style.display = 'none';
+          });
 
-        document.querySelectorAll(c.show).forEach(el => el.style.display = 'block');
-        if (c.field) c.field.disabled = false;
+          // Deshabilitar required de campos condicionales
+          document.querySelector('#idempresa').required = false;
+          document.querySelector('#nombre_area').required = false;
+          document.querySelector('#razonsocial').required = false;
+          document.querySelector('#idarea_agencia').required = false;
 
-        actualizarDoc(tipodoc.value);
-        tipodoc.onchange = () => actualizarDoc(tipodoc.value);
-    });
+          if (tipo === 'empleado') {
+              modalTitulo.textContent = 'Crear Empleado';
+              camposEmpleado.style.display = 'block';
+              labelNombre.textContent = 'Nombre';
+              tipodoc.innerHTML = '<option value="DNI">DNI</option><option value="CE">CE</option>';
 
-    function actualizarDoc(tipo) {
-    const nd = document.querySelector('#numerodoc');
-    const limites = {
-        DNI: { max: '8',  min: '8',  ph: '8 dígitos' },
-        RUC: { max: '11', min: '11', ph: '11 dígitos' },
-        CE:  { max: '12', min: '9',  ph: '9-12 caracteres' }
-    };
-    const l = limites[tipo];
-    if (!l) return;
-    nd.setAttribute('maxlength', l.max);
-    nd.setAttribute('minlength', l.min);
-    nd.placeholder = l.ph;
-}
+          } else if (tipo === 'responsable_area') {
+              modalTitulo.textContent = 'Crear Área con Responsable';
+              grupoEmpresa.style.display = 'block';
+              grupoNombreArea.style.display = 'block';
+              grupoDescArea.style.display = 'block';
 
-    // ─── GUARDAR (REGISTRAR O EDITAR) ──────────────────────
-    formulario.addEventListener('submit', async function (e) {
-        e.preventDefault();
+              // Hacer requeridos
+              document.querySelector('#idempresa').required = true;
+              document.querySelector('#nombre_area').required = true;
 
-        const editId = formulario.dataset.editId;
-        const rol    = selectRol.value;
+              labelNombre.textContent = 'Nombre del Responsable';
+              tipodoc.innerHTML = '<option value="DNI">DNI</option><option value="CE">CE</option>';
 
-        const datos = {
-            rol,
-            nombre:    document.querySelector('#nombre').value,
-            apellidos: document.querySelector('#apellidos').value,
-            correo:    document.querySelector('#correo').value,
-            telefono:  document.querySelector('#telefono').value,
-            tipodoc:   document.querySelector('#tipodoc').value,
-            numerodoc: document.querySelector('#numerodoc').value,
-            usuario:   document.querySelector('#usuario').value,
-        };
+          } else if (tipo === 'cliente') {
+              modalTitulo.textContent = 'Crear Cliente';
+              grupoRazonSocial.style.display = 'block';
+              document.querySelector('#razonsocial').required = true;
+              labelNombre.textContent = 'Nombre del Responsable';
+              tipodoc.innerHTML = '<option value="RUC">RUC</option>';
+          }
 
-        const clave = document.querySelector('#clave').value;
-        if (clave) datos.clave = clave;
+          actualizarDoc(tipodoc.value);
+      }
 
-        if (rol === 'cliente')  { datos.razonsocial = document.querySelector('#razonsocial').value; }
-        if (rol === 'empleado') {
-            datos.idarea_agencia = document.querySelector('#idarea_agencia').value || null;
-            datos.esresponsable  = document.querySelector('#esresponsable').checked;
-        }
+      function actualizarDoc(tipo) {
+          const nd = document.querySelector('#numerodoc');
+          const limites = {
+              DNI: { max: '8',  min: '8',  ph: '8 dígitos' },
+              RUC: { max: '11', min: '11', ph: '11 dígitos' },
+              CE:  { max: '12', min: '9',  ph: '9-12 caracteres' }
+          };
+          const l = limites[tipo];
+          if (!l) return;
+          nd.setAttribute('maxlength', l.max);
+          nd.setAttribute('minlength', l.min);
+          nd.placeholder = l.ph;
+      }
 
-        const url    = editId ? BASE_URL + 'admin/usuarios/editar/' + editId : BASE_URL + 'admin/usuarios/registrar';
-        const method = editId ? 'PUT' : 'POST';
+      document.querySelector('#tipodoc').addEventListener('change', () =>
+  actualizarDoc(document.querySelector('#tipodoc').value));
 
-        const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos) });
-        const data     = await response.json();
+      // ─── EVENTOS DE OPCIONES ────────────────────────────────
+      document.querySelector('#opcion-empleado').addEventListener('click', (e) => {
+          e.preventDefault();
+          formulario.reset();
+          delete formulario.dataset.editId;
+          configurarFormulario('empleado');
+          $('#modal-usuario').modal('show');
+      });
 
-        notificar(data.message);
-        if (!data.success) return;
+      document.querySelector('#opcion-area').addEventListener('click', (e) => {
+          e.preventDefault();
+          formulario.reset();
+          delete formulario.dataset.editId;
+          configurarFormulario('responsable_area');
+          $('#modal-usuario').modal('show');
+      });
 
-        $('#modal-usuario').modal('hide');
-        formulario.reset();
-        delete formulario.dataset.editId;
-        selectRol.value = '';
-        selectRol.dispatchEvent(new Event('change'));
-        obtenerUsuarios();
-    });
+      // ─── GUARDAR (REGISTRAR O EDITAR) ──────────────────────
+      formulario.addEventListener('submit', async function (e) {
+          e.preventDefault();
 
-    // ─── EDITAR USUARIO ────────────────────────────────────
-    window.editarUsuario = async function (id) {
-        const response = await fetch(BASE_URL + 'admin/usuarios/obtener/' + id);
-        const u        = await response.json();
+          const editId = formulario.dataset.editId;
+          const tipo = inputTipoRegistro.value;
 
-        formulario.reset();
-        formulario.dataset.editId = id;
+          const datos = {
+              nombre:    document.querySelector('#nombre').value,
+              apellidos: document.querySelector('#apellidos').value,
+              correo:    document.querySelector('#correo').value,
+              telefono:  document.querySelector('#telefono').value,
+              tipodoc:   document.querySelector('#tipodoc').value,
+              numerodoc: document.querySelector('#numerodoc').value,
+              usuario:   document.querySelector('#usuario').value,
+          };
 
-        const inputClave = document.querySelector('#clave');
-        inputClave.removeAttribute('required');
-        inputClave.placeholder = 'Dejar en blanco para no cambiar';
+          const clave = document.querySelector('#clave').value;
+          if (clave) datos.clave = clave;
 
-        selectRol.value = u.rol;
-        selectRol.dispatchEvent(new Event('change'));
+          if (editId) {
+              // Modo edición - mantener rol original
+              datos.rol = formulario.dataset.rolOriginal;
+          } else {
+              // Modo creación según tipo
+              if (tipo === 'empleado') {
+                  datos.rol = 'empleado';
+                  datos.idarea_agencia = document.querySelector('#idarea_agencia').value || null;
+                  datos.esresponsable = document.querySelector('#esresponsable').checked;
+              } else if (tipo === 'responsable_area') {
+                  datos.rol = 'responsable_area';
+                  datos.idempresa = document.querySelector('#idempresa').value;
+                  datos.nombre_area = document.querySelector('#nombre_area').value;
+                  datos.descripcion_area = document.querySelector('#descripcion_area').value;
+              } else if (tipo === 'cliente') {
+                  datos.rol = 'cliente';
+                  datos.razonsocial = document.querySelector('#razonsocial').value;
+              }
+          }
 
-        setTimeout(() => {
-            document.querySelector('#nombre').value    = u.nombre    ?? '';
-            document.querySelector('#apellidos').value = u.apellidos ?? '';
-            document.querySelector('#correo').value    = u.correo    ?? '';
-            document.querySelector('#telefono').value  = u.telefono  ?? '';
-            document.querySelector('#tipodoc').value   = u.tipodoc   ?? '';
-            document.querySelector('#numerodoc').value = u.numerodoc ?? '';
-            document.querySelector('#usuario').value   = u.usuario   ?? '';
+          const url    = editId ? BASE_URL + 'admin/usuarios/editar/' + editId : BASE_URL + 'admin/usuarios/registrar';
+          const method = editId ? 'PUT' : 'POST';
 
-            if (u.rol === 'cliente')  document.querySelector('#razonsocial').value   = u.razonsocial    ?? '';
-            if (u.rol === 'empleado') {
-                document.querySelector('#idarea_agencia').value = u.idarea_agencia ?? '';
-                document.querySelector('#esresponsable').checked = !!u.esresponsable;
-            }
+          const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body:
+  JSON.stringify(datos) });
+          const data     = await response.json();
 
-            actualizarDoc(document.querySelector('#tipodoc').value);
-        }, 50);
+          notificar(data.message);
+          if (!data.success) return;
 
-        document.querySelector('#modal-usuario .modal-title').textContent = 'Editar Usuario';
-        $('#modal-usuario').modal('show');
-    };
+          $('#modal-usuario').modal('hide');
+          formulario.reset();
+          delete formulario.dataset.editId;
+          delete formulario.dataset.rolOriginal;
+          obtenerUsuarios();
+      });
 
-    // ─── TOGGLE ESTADO ─────────────────────────────────────
-    window.toggleEstado = async function (id, estadoActual) {
-        const mensaje = estadoActual
-            ? '¿Seguro que deseas deshabilitar este usuario?'
-            : '¿Deseas volver a habilitar este usuario?';
+      // ─── EDITAR USUARIO ────────────────────────────────────
+      window.editarUsuario = async function (id) {
+          const response = await fetch(BASE_URL + 'admin/usuarios/obtener/' + id);
+          const u        = await response.json();
 
-        if (!confirm(mensaje)) return;
+          formulario.reset();
+          formulario.dataset.editId = id;
+          formulario.dataset.rolOriginal = u.rol;
 
-        const response = await fetch(BASE_URL + 'admin/usuarios/toggleEstado', {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ id, estado: !estadoActual })
-        });
-        const data = await response.json();
+          const inputClave = document.querySelector('#clave');
+          inputClave.removeAttribute('required');
+          inputClave.placeholder = 'Dejar en blanco para no cambiar';
 
-        notificar(data.message);
-        if (data.success) obtenerUsuarios();
-    };
+          // Configurar según el rol existente
+          if (u.rol === 'empleado') {
+              configurarFormulario('empleado');
+              setTimeout(() => {
+                  document.querySelector('#idarea_agencia').value = u.idarea_agencia ?? '';
+                  document.querySelector('#esresponsable').checked = !!u.esresponsable;
+              }, 50);
+          } else if (u.rol === 'cliente') {
+              if (u.idarea) {
+                  // Es un responsable de área
+                  configurarFormulario('responsable_area');
+              } else {
+                  configurarFormulario('cliente');
+                  setTimeout(() => {
+                      document.querySelector('#razonsocial').value = u.razonsocial ?? '';
+                  }, 50);
+              }
+          }
 
-    // ─── NUEVO USUARIO ─────────────────────────────────────
-document.querySelector('#btn-nuevo').addEventListener('click', () => {
-    formulario.reset();
-    delete formulario.dataset.editId;
+          setTimeout(() => {
+              document.querySelector('#nombre').value    = u.nombre    ?? '';
+              document.querySelector('#apellidos').value = u.apellidos ?? '';
+              document.querySelector('#correo').value    = u.correo    ?? '';
+              document.querySelector('#telefono').value  = u.telefono  ?? '';
+              document.querySelector('#tipodoc').value   = u.tipodoc   ?? '';
+              document.querySelector('#numerodoc').value = u.numerodoc ?? '';
+              document.querySelector('#usuario').value   = u.usuario   ?? '';
+              actualizarDoc(u.tipodoc);
+          }, 50);
 
-    document.querySelector('#modal-usuario .modal-title').textContent = 'Nuevo Usuario';
-    selectRol.value = '';
-    selectRol.dispatchEvent(new Event('change'));
-    $('#modal-usuario').modal('show');
-});
+          $('#modal-usuario').modal('show');
+      };
 
-    // ─── INICIO ────────────────────────────────────────────
-    obtenerUsuarios();
-});
+      // ─── TOGGLE ESTADO ─────────────────────────────────────
+      window.toggleEstado = async function (id, estadoActual) {
+          const mensaje = estadoActual
+              ? '¿Seguro que deseas deshabilitar este usuario?'
+              : '¿Deseas volver a habilitar este usuario?';
+
+          if (!confirm(mensaje)) return;
+
+          const response = await fetch(BASE_URL + 'admin/usuarios/toggleEstado', {
+              method:  'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body:    JSON.stringify({ id, estado: !estadoActual })
+          });
+          const data = await response.json();
+
+          notificar(data.message);
+          if (data.success) obtenerUsuarios();
+      };
+
+      // ─── INICIO ────────────────────────────────────────────
+      obtenerUsuarios();
+  });
