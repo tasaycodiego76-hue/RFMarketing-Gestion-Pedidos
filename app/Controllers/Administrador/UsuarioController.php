@@ -71,28 +71,35 @@ class UsuarioController extends Controller
 
       $datos['clave'] = password_hash($datos['clave'], PASSWORD_DEFAULT);
 
-      // Si es área con responsable, usamos el flujo especial
       if ($datos['rol'] === 'responsable_area') {
           return $this->registrarAreaResponsable($datos);
       }
 
-        // Validación: Solo un responsable por área de agencia (solo para empleados)
-  if ($datos['rol'] === 'empleado' && !empty($datos['esresponsable']) && !empty($datos['idarea_agencia'])) {
-      $existeResponsable = $model->where('idarea_agencia', $datos['idarea_agencia'])
-          ->where('esresponsable', true)
-          ->where('estado', true)
-          ->first();
+      // Validación: Solo un responsable por área (solo si es explícitamente true)
+      $esResponsable = isset($datos['esresponsable']) && ($datos['esresponsable'] === true || $datos['esresponsable']
+  === 't' || $datos['esresponsable'] === 1);
 
-      if ($existeResponsable) {
-          return $this->response->setJSON([
-              'success' => false,
-              'message' => 'Ya existe un responsable para esta área: ' . $existeResponsable['nombre'] . ' ' .
+      if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agencia'])) {
+          $existeResponsable = $model->where('idarea_agencia', $datos['idarea_agencia'])
+              ->where('esresponsable', true)
+              ->where('estado', true)
+              ->first();
+
+          if ($existeResponsable) {
+              return $this->response->setJSON([
+                  'success' => false,
+                  'message' => 'Ya existe un responsable para esta área: ' . $existeResponsable['nombre'] . ' ' .
   $existeResponsable['apellidos']
-          ]);
-      }
-  }
+              ]);
+          }
 
-  $id = $model->insert($datos, true);
+          // Asegurar que se guarde como booleano
+          $datos['esresponsable'] = true;
+      } else {
+          // Asegurar false cuando no es responsable
+          $datos['esresponsable'] = false;
+      }
+
       $id = $model->insert($datos, true);
 
       if (!$id) {
