@@ -95,23 +95,37 @@ document.addEventListener('DOMContentLoaded', function () {
           $('#modal-empresa').modal('show');
       };
 
-      window.toggleEstado = async function (id, estadoActual) {
-          const mensaje = estadoActual
-              ? '¿Seguro que deseas deshabilitar esta empresa?'
-              : '¿Deseas volver a habilitar esta empresa?';
+    window.toggleEstado = async function (id, estadoActual) {
+    // estadoActual viene como boolean de la base de datos (Postgres)
+    const mensaje = estadoActual 
+        ? '¿Seguro que deseas deshabilitar esta empresa?' 
+        : '¿Deseas volver a habilitar esta empresa?';
 
-          if (!confirm(mensaje)) return;
+    if (!confirm(mensaje)) return;
 
-          const response = await fetch(BASE_URL + 'admin/empresas/toggleEstado', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ id, estado: !estadoActual })
-          });
-          const data = await response.json();
+    // Enviamos el opuesto booleano
+    const nuevoEstado = !estadoActual; 
 
-          notificar(data.message);
-          if (data.success) obtenerEmpresas();
-      };
+    const response = await fetch(BASE_URL + 'admin/empresas/toggleEstado', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, estado: nuevoEstado }) 
+    });
+    
+    const data = await response.json();
+
+    if (data.success) {
+        notificar(data.message);
+        
+        // Actualizar Sidebar inmediatamente
+        const itemSidebar = document.getElementById(`sidebar-item-${id}`);
+        if (itemSidebar) {
+            nuevoEstado ? itemSidebar.classList.remove('d-none') : itemSidebar.classList.add('d-none');
+        }
+
+        obtenerEmpresas(); // Refrescar tabla
+    }
+};
 
       document.querySelector('#btn-nueva-empresa').addEventListener('click', () => {
           formulario.reset();

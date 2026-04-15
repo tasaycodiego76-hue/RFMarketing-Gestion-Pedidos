@@ -49,7 +49,7 @@ class kanban extends Controller
             'titulo'        => 'Kanban - ' . $empresa['nombreempresa'],
             'tituloPagina'  => 'TABLERO KANBAN',
             'paginaActual'  => 'kanban',
-            'empresas'      => $empresaModel->findAll(),
+            'empresas'      => $empresaModel->listarActivas(),
             'empresa'       => $empresa,
             'idEmpresa'     => $idEmpresa,
             'areasAgencia'  => $areasAgencia,

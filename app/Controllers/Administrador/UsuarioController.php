@@ -19,8 +19,8 @@ class UsuarioController extends Controller
         'titulo'       => 'Usuarios',
         'tituloPagina' => 'USUARIOS',
         'paginaActual' => 'usuarios',
-        'areasAgencia' => $areasAgenciaModel->findAll(),
-        'empresas'     => $empresaModel->findAll(),
+        'areasAgencia' => $areasAgenciaModel->listarActivas(),
+        'empresas'     => $empresaModel->listarActivas(),
     ]);
 }
 

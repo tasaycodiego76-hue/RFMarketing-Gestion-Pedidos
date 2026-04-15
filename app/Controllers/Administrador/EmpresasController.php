@@ -15,7 +15,7 @@
               'titulo'       => 'Empresas',
               'tituloPagina' => 'EMPRESAS',
               'paginaActual' => 'empresas',
-              'empresas'     => $empresaModel->findAll(),
+              'empresas' => $empresaModel->where('estado', true)->findAll(),
           ]);
       }
 
@@ -95,14 +95,17 @@
           return $this->response->setJSON(['success' => true, 'message' => 'Actualizada']);
       }
 
-      public function toggleEstado()
-      {
-          $model = new EmpresaModel();
-          $datos = $this->request->getJSON(true);
+  public function toggleEstado()
+{
+    $model = new EmpresaModel();
+    $datos = $this->request->getJSON(true);
 
-          $model->update($datos['id'], ['estado' => (bool) $datos['estado']]);
+    // Forzamos que el valor sea booleano (true o false)
+    $nuevoEstado = filter_var($datos['estado'], FILTER_VALIDATE_BOOLEAN);
 
-          $msg = $datos['estado'] ? 'habilitada' : 'deshabilitada';
-          return $this->response->setJSON(['success' => true, 'message' => "Empresa $msg"]);
-      }
+    $model->update($datos['id'], ['estado' => $nuevoEstado]);
+
+    $msg = $nuevoEstado ? 'habilitada' : 'deshabilitada';
+    return $this->response->setJSON(['success' => true, 'message' => "Empresa $msg"]);
+}
   }
