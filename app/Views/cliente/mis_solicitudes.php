@@ -235,6 +235,10 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="field mb-3">
+                            <label>FECHA EN QUE SE NECESITA</label>
+                            <input type="date" id="fecha_entrega_input" name="fecha_entrega" required>
+ </div>
                     </div>
                     <!-- SECTION 2: Detalles y Formatos  -->
                     <div class="wizard-section d-none" id="section-2">
