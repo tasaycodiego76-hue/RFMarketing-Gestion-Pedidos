@@ -539,7 +539,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fechaIng.setHours(0, 0, 0, 0);
         if (fechaIng < fechaMin)
           errores.push(
-            `La fecha debe ser al menos dentro de ${dias} días hábiles para "${MAPA_TIPOS[tipoReq]}"`,
+            `La fecha debe ser al menos dentro de ${dias} días hábiles (sin contar sábados ni domingos) para "${MAPA_TIPOS[tipoReq]}"`,
           );
         if (fechaIng < new Date().setHours(0, 0, 0, 0)) {
           errores.push("La fecha no puede ser anterior a hoy");

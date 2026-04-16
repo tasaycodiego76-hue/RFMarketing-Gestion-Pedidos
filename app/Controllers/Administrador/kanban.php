@@ -195,7 +195,7 @@ class kanban extends Controller
      */
     public function areasAgencia()
     {
-        $areasAgenciaModel = new \App\Models\AreasAgenciaModel();
+        $areasAgenciaModel = new AreasAgenciaModel();
         $areas = $areasAgenciaModel->listarActivas();
 
         if (empty($areas)) {

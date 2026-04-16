@@ -66,4 +66,12 @@ Con el servidor activo, puedes acceder a las siguientes rutas para validar el fu
 
 ---
 
+# Modelo Relaciona DB
+
+Aqui nuestro Modelo Relacional el cual es la Estructura de nuestra DB:
+
+- **MODELO RELACIONAL DB:** https://drawsql.app/teams/sandro-10/diagrams/modelo-relacional-bd-rf-agencia-marketing
+
+---
+
 **Nota:** Asegúrate de tener las extensiones `intl` y `mbstring` habilitadas en tu PHP local.
