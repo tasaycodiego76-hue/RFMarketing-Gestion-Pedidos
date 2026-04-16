@@ -27,8 +27,9 @@
         </div>
     </div>
     <div class="kb-head-stats">
-        <div class="kb-stat"><span class="st-amarillo"><?= $stats['activos'] ?? 0 ?></span><small>ACTIVOS</small></div>
         <div class="kb-stat"><span class="st-morado"><?= $stats['por_aprobar'] ?? 0 ?></span><small>POR APROBAR</small></div>
+        <div class="kb-stat"><span class="st-amarillo"><?= $stats['activos'] ?? 0 ?></span><small>ACTIVOS</small></div>
+        <div class="kb-stat"><span class="st-blanco"><?= $stats['en_revision'] ?? 0 ?></span><small>EN REVISIÓN</small></div>
         <div class="kb-stat"><span class="st-verde"><?= $stats['completados'] ?? 0 ?></span><small>COMPLETADOS</small></div>
     </div>
 </div>

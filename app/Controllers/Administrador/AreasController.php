@@ -7,6 +7,10 @@
 
   class AreasController extends Controller
   {
+      /**
+       * Muestra la vista principal de áreas de la agencia
+       * @return string
+       */
       public function index(): string
       {
           return view('admin/areas', [
@@ -16,6 +20,10 @@
           ]);
       }
 
+      /**
+       * Retorna todas las áreas con su responsable en formato JSON
+       * @return \CodeIgniter\HTTP\ResponseInterface
+       */
       public function listar(): \CodeIgniter\HTTP\ResponseInterface
       {
           $model = new AreasAgenciaModel();
@@ -28,6 +36,10 @@
           return $this->response->setJSON($areas);
       }
 
+      /**
+       * Registra una nueva área desde JSON
+       * @return \CodeIgniter\HTTP\ResponseInterface
+       */
       public function registrar(): \CodeIgniter\HTTP\ResponseInterface
       {
           $json   = $this->request->getJSON(true);
@@ -42,6 +54,11 @@
           return $this->response->setJSON(['success' => true, 'message' => 'Área registrada']);
       }
 
+      /**
+       * Retorna los datos de un área por su ID
+       * @param mixed $id ID del área
+       * @return \CodeIgniter\HTTP\ResponseInterface
+       */
       public function obtener($id): \CodeIgniter\HTTP\ResponseInterface
       {
           $model = new AreasAgenciaModel();
@@ -54,6 +71,11 @@
           return $this->response->setJSON($area);
       }
 
+      /**
+       * Actualiza los datos de un área existente
+       * @param mixed $id ID del área a editar
+       * @return \CodeIgniter\HTTP\ResponseInterface
+       */
       public function editar($id): \CodeIgniter\HTTP\ResponseInterface
       {
           $json  = $this->request->getJSON(true);
@@ -61,12 +83,16 @@
 
           $model->update($id, [
               'nombre'      => $json['nombre'],
-              'descripcion' => $json['cripcion'] ?? null,
+              'descripcion' => $json['descripcion'] ?? null,
           ]);
 
           return $this->response->setJSON(['success' => true, 'message' => 'Área actualizada']);
       }
 
+      /**
+       * Habilita o deshabilita un área según el estado recibido
+       * @return \CodeIgniter\HTTP\ResponseInterface
+       */
       public function toggleEstado(): \CodeIgniter\HTTP\ResponseInterface
       {
           $json  = $this->request->getJSON(true);

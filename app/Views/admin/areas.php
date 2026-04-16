@@ -14,11 +14,10 @@
   <?= $this->section('contenido') ?>
 
   <div class="areas-wrapper">
-      <div class="areas-card">
-          <div class="areas-card-header">
-              <h2 class="areas-card-title">Áreas de la Agencia</h2>
-              <button class="btn-nueva-area" id="btnNuevaArea">+ Nueva Área</button>
-          </div>
+
+        <div class="d-flex justify-content-start">
+            <button class="btn-nuevo" id="btnNuevaArea">+ Nueva Área</button>
+        </div>
 
           <div class="areas-table-wrap">
               <table class="areas-table">
@@ -76,24 +75,31 @@
   </div>
 
   <!-- MODAL AGENCIA (Nueva/Editar) -->
-  <div class="modal-overlay" id="modalAgencia" style="display:none;">
-      <div class="modal-box">
-          <div class="modal-header">
-              <span id="modal-titulo">NUEVA ÁREA</span>
-              <button class="modal-cerrar" data-modal="modalAgencia">&times;</button>
-          </div>
-          <div class="modal-body">
-              <input type="hidden" id="areaId">
-              <label class="modal-label">NOMBRE DEL ÁREA *</label>
-              <input type="text" id="agenciaNombre" class="modal-input" placeholder="Ej: Marketing, Finanzas...">
-              <label class="modal-label">DESCRIPCIÓN</label>
-              <textarea id="agenciaDescripcion" class="modal-input modal-textarea" placeholder="Opcional"></textarea>
-          </div>
-          <div class="modal-footer">
-              <button class="btn-cancelar modal-cerrar" data-modal="modalAgencia">Cancelar</button>
-              <button class="btn-guardar" id="btnGuardarAgencia">Guardar</button>
-          </div>
-      </div>
-  </div>
-
+  <div class="modal fade" id="modal-area" data-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-titulo">Nueva Área</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-area" autocomplete="off">
+                    <input type="hidden" id="areaId">
+                    <div class="form-group">
+                        <label>Nombre del Área <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="agenciaNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea class="form-control" id="agenciaDescripcion" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" form="form-area" class="btn btn-primary" id="btnGuardarAgencia">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
   <?= $this->endSection() ?>

@@ -1,159 +1,134 @@
 document.addEventListener('DOMContentLoaded', function () {
-      const tabla = document.querySelector('#tabla-areas-body');
-      const modalAgencia = document.querySelector('#modalAgencia');
-      const btnNuevaArea = document.querySelector('#btnNuevaArea');
-      const btnGuardarAgencia = document.querySelector('#btnGuardarAgencia');
-      const modalTitulo = document.querySelector('#modal-titulo');
-      const inputId = document.querySelector('#areaId');
+    const tabla = document.querySelector('#tabla-areas-body');
+    const formulario = document.querySelector('#form-area');
+    const inputId = document.querySelector('#areaId');
+    const modalTitulo = document.querySelector('#modal-titulo');
 
-      function notificar(mensaje) {
-          alert(mensaje);
-      }
+    function notificar(mensaje) {
+        alert(mensaje);
+    }
 
-      // ─── LISTAR ÁREAS ──────────────────────────────────────
-      async function obtenerAreas() {
-          const response = await fetch(BASE_URL + 'admin/areas/listar');
-          const data = await response.json();
+    // 1. LISTAR ÁREAS
+    async function obtenerAreas() {
+        const response = await fetch(BASE_URL + 'admin/areas/listar');
+        const data = await response.json();
 
-          tabla.innerHTML = '';
+        tabla.innerHTML = '';
 
-          if (!data || data.length === 0) {
-              tabla.innerHTML = '<tr><td colspan="5" class="areas-empty">No hay áreas registradas.</td></tr>';
-              return;
-          }
+        if (!data || data.length === 0) {
+            tabla.innerHTML = '<tr><td colspan="5" class="text-center">No hay áreas registradas.</td></tr>';
+            return;
+        }
 
-          data.forEach(area => {
-              const activo = area.activo === true || area.activo === 't' || area.activo == 1;
-              const badge = activo
-                  ? '<span class="badge badge-activo">Activo</span>'
-                  : '<span class="badge badge-inactivo">Inactivo</span>';
+        data.forEach(area => {
+            // Manejo de booleano para Postgres
+            const activo = area.activo === true || area.activo === 't' || area.activo == 1;
+            
+            const badge = activo
+                ? '<span class="badge-activo">Activo</span>'
+                : '<span class="badge-inactivo">Inactivo</span>';
 
-              const btnToggle = activo
-                  ? `<button class="btn btn-sm btn-warning" onclick="toggleEstado(${area.id},
-  true)">Deshabilitar</button>`
-                  : `<button class="btn btn-sm btn-success" onclick="toggleEstado(${area.id},
-  false)">Habilitar</button>`;
+            const btnToggle = activo
+                ? `<button class="btn btn-sm btn-warning" onclick="toggleEstado(${area.id}, true)">Deshabilitar</button>`
+                : `<button class="btn btn-sm btn-success" onclick="toggleEstado(${area.id}, false)">Habilitar</button>`;
 
-              const rowClass = activo ? '' : 'row-inactivo';
+            tabla.innerHTML += `
+                <tr>
+                    <td>${area.nombre}</td>
+                    <td>${area.descripcion || '-'}</td>
+                    <td>${area.responsable || '<span class="text-muted">Sin responsable</span>'}</td>
+                    <td>${badge}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="editarArea(${area.id})">Editar</button>
+                        ${btnToggle}
+                    </td>
+                </tr>
+            `;
+        });
+    }
 
-              tabla.innerHTML += `
-                  <tr data-id="${area.id}" class="${rowClass}">
-                      <td class="area-nombre">${area.nombre}</td>
-                      <td class="area-desc">${area.descripcion || ''}</td>
-                      <td class="area-responsable">${area.responsable || '<span class="sin-responsable">Sinresponsable</span>'}</td>
-                      <td class="area-estado">${badge}</td>
-                      <td class="area-acciones">
-                          <button class="btn btn-sm btn-primary" onclick="editarArea(${area.id})">Editar</button>
-                          ${btnToggle}
-                      </td>
-                  </tr>
-              `;
-          });
-      }
+    // 2. BOTÓN NUEVA ÁREA (Abre modal)
+    document.querySelector('#btnNuevaArea').addEventListener('click', () => {
+        formulario.reset();
+        inputId.value = '';
+        modalTitulo.textContent = 'NUEVA ÁREA';
+        $('#modal-area').modal('show'); // Función de Bootstrap
+    });
 
-      // ─── NUEVA ÁREA ────────────────────────────────────────
-      btnNuevaArea.addEventListener('click', () => {
-          inputId.value = '';
-          document.querySelector('#agenciaNombre').value = '';
-          document.querySelector('#agenciaDescripcion').value = '';
-          modalTitulo.textContent = 'NUEVA ÁREA';
-          modalAgencia.style.display = 'flex';
-      });
+    // 3. GUARDAR (Create / Update)
+    formulario.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        
+        const id = inputId.value;
+        const datos = {
+            nombre: document.querySelector('#agenciaNombre').value.trim(),
+            descripcion: document.querySelector('#agenciaDescripcion').value.trim()
+        };
 
-      // ─── CERRAR MODAL ─────────────────────────────────────
-      document.querySelectorAll('.modal-cerrar').forEach(btn => {
-          btn.addEventListener('click', () => {
-              const modalId = btn.dataset.modal;
-              document.querySelector('#' + modalId).style.display = 'none';
-          });
-      });
+        const url = id 
+            ? BASE_URL + 'admin/areas/editar/' + id 
+            : BASE_URL + 'admin/areas/registrar';
+        const method = id ? 'PUT' : 'POST';
 
-      // ─── GUARDAR ───────────────────────────────────────────
-      btnGuardarAgencia.addEventListener('click', async () => {
-          const id = inputId.value;
-          const nombre = document.querySelector('#agenciaNombre').value.trim();
-          const descripcion = document.querySelector('#agenciaDescripcion').value.trim();
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+            const data = await response.json();
 
-          if (!nombre) {
-              alert('El nombre del área es obligatorio');
-              return;
-          }
+            if (data.success) {
+                notificar(data.message);
+                $('#modal-area').modal('hide'); // Cierra modal
+                obtenerAreas();
+            } else {
+                alert(data.message || 'Error al guardar');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
 
-          const url = id
-              ? BASE_URL + 'admin/areas/editar/' + id
-              : BASE_URL + 'admin/areas/registrar';
-          const method = id ? 'PUT' : 'POST';
+    // 4. EDITAR (Carga datos en modal)
+    window.editarArea = async function (id) {
+        const response = await fetch(BASE_URL + 'admin/areas/obtener/' + id);
+        const data = await response.json();
 
-          try {
-              const response = await fetch(url, {
-                  method: method,
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ nombre, descripcion })
-              });
+        if (!data || data.success === false) {
+            notificar('Área no encontrada');
+            return;
+        }
 
-              const data = await response.json();
+        inputId.value = data.id;
+        document.querySelector('#agenciaNombre').value = data.nombre || '';
+        document.querySelector('#agenciaDescripcion').value = data.descripcion || '';
+        
+        modalTitulo.textContent = 'EDITAR ÁREA';
+        $('#modal-area').modal('show');
+    };
 
-              if (data.success) {
-                  notificar(data.message);
-                  modalAgencia.style.display = 'none';
-                  obtenerAreas(); // Recargar lista
-              } else {
-                  alert(data.message || 'Error al guardar');
-              }
-          } catch (error) {
-              console.error('Error:', error);
-              alert('Error al procesar');
-          }
-      });
+    // 5. TOGGLE ESTADO
+    window.toggleEstado = async function (id, estadoActual) {
+        const mensaje = estadoActual 
+            ? '¿Seguro que deseas deshabilitar esta área?' 
+            : '¿Deseas volver a habilitar esta área?';
 
-      // ─── EDITAR ────────────────────────────────────────────
-      window.editarArea = async function(id) {
-          try {
-              const response = await fetch(BASE_URL + 'admin/areas/obtener/' + id);
-              const data = await response.json();
+        if (!confirm(mensaje)) return;
 
-              if (!data || data.success === false) {
-                  alert('Área no encontrada');
-                  return;
-              }
+        const response = await fetch(BASE_URL + 'admin/areas/toggleEstado', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, estado: !estadoActual })
+        });
+        const data = await response.json();
 
-              inputId.value = data.id;
-              document.querySelector('#agenciaNombre').value = data.nombre || '';
-              document.querySelector('#agenciaDescripcion').value = data.descripcion || '';
-              modalTitulo.textContent = 'EDITAR ÁREA';
-              modalAgencia.style.display = 'flex';
-          } catch (error) {
-              console.error('Error:', error);
-              alert('Error al cargar');
-          }
-      };
+        if (data.success) {
+            notificar(data.message);
+            obtenerAreas();
+        }
+    };
 
-      // ─── TOGGLE ESTADO (igual que usuarios) ─────────────────
-      window.toggleEstado = async function (id, estadoActual) {
-          const mensaje = estadoActual
-              ? '¿Seguro que deseas deshabilitar esta área?'
-              : '¿Deseas volver a habilitar esta área?';
-
-          if (!confirm(mensaje)) return;
-
-          const response = await fetch(BASE_URL + 'admin/areas/toggleEstado', {
-              method:  'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body:    JSON.stringify({ id, estado: !estadoActual })
-          });
-          const data = await response.json();
-
-          notificar(data.message);
-          if (data.success) obtenerAreas(); // Recargar lista igual que usuarios
-      };
-
-      // Cerrar al hacer clic fuera
-      modalAgencia.addEventListener('click', (e) => {
-          if (e.target === modalAgencia) {
-              modalAgencia.style.display = 'none';
-          }
-      });
-
-      // ─── INICIO ────────────────────────────────────────────
-      obtenerAreas();
-  });
+    // Inicio
+    obtenerAreas();
+});

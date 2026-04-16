@@ -58,6 +58,7 @@ public function obtenerConStatsActivas(): array
   $empresa['id']);
           $empresa['activos'] =
   $atencionModel->contarActivosEmpresa($empresa['id']);
+   $empresa['en_revision'] = $atencionModel->contarPorEstadoEmpresa('en_revision', $empresa['id']);
           $empresa['completados'] =
   $atencionModel->contarPorEstadoEmpresa('finalizado', $empresa['id']);
       }
