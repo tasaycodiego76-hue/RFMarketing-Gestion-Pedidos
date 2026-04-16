@@ -155,13 +155,22 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="field mb-3">
-                            <label>TÍTULO DEL REQUERIMIENTO</label>
-                            <input type="text" name="titulo" id="campo-titulo" class="field-input"
-                                placeholder="Ej: Banner campaña de matrícula 2026" required>
+
+                        <div id="contenedor-nombre-personalizado" class="field mb-3" style="display:none;">
+                            <label>NOMBRE DEL SERVICIO REQUERIDO</label>
+                            <input type="text" name="titulo" id="titulo_personalizado" class="field-input"
+                                placeholder="Ej: Gestion de Redes Sociales (Social Media)">
                         </div>
 
-                        <!-- Prioridad -->
+                        <div class="field mb-3">
+                            <label>SERVICIO SELECCIONADO</label>
+                            <div class="d-flex align-items-center"
+                                style="background:#111; padding:8px 12px; border-radius:6px; border:1px solid #1e1e1e;">
+                                <span id="wbadge-container"></span> <span id="txt-servicio-seleccionado"
+                                    class="ms-2 fw-bold text-white" style="font-size:11px;"></span>
+                            </div>
+                        </div>
+
                         <div class="field mb-3">
                             <label>PRIORIDAD</label>
                             <div class="prioridad-opciones">
@@ -179,25 +188,11 @@
                                 </label>
                             </div>
                         </div>
-                        <div id="contenedor-nombre-personalizado" class="field mb-3" style="display:none;">
-                            <label>NOMBRE DEL SERVICIO REQUERIDO</label>
-                            <input type="text" name="titulo" id="titulo_personalizado" class="field-input"
-                                placeholder="Ej: Gestion de Redes Sociales (Social Media)">
-                        </div>
 
                         <div class="field mb-3">
-                            <label>SERVICIO SELECCIONADO</label>
-                            <div class="d-flex align-items-center"
-                                style="background:#111; padding:8px 12px; border-radius:6px; border:1px solid #1e1e1e;">
-                                <span id="wbadge-container"></span> <span id="txt-servicio-seleccionado"
-                                    class="ms-2 fw-bold text-white" style="font-size:11px;">---</span>
-                            </div>
-                        </div>
-
-                        <div class="field mb-3" id="contenedor-titulo-standar" style="display:none;">
                             <label>TÍTULO DEL REQUERIMIENTO</label>
-                            <input type="text" name="titulo" id="titulo_standar" class="field-input"
-                                placeholder="Ej: Banner para campaña de primavera">
+                            <input type="text" name="titulo" id="campo-titulo" class="field-input"
+                                placeholder="Ej: Banner campaña de matrícula 2026" required>
                         </div>
 
                         <div class="field mb-3">
@@ -235,11 +230,15 @@
                                 </div>
                             </div>
                         </div>
-
+                        
                         <!-- FECHAR REQUERIDA - REQUERIMIENTO -->
                         <div class="field mb-3">
-                            <label>FECHA EN QUE SE NECESITA</label>
-                            <input type="date" id="fecha_entrega_input" name="fecha_entrega" required>
+                            <label class="text-uppercase fw-bold" style="font-size: 12px; color: #bbb;">FECHA EN QUE SE NECESITA</label>
+                            <div class="date-input-container">
+                                <input type="date" id="fecha_entrega_input" name="fecha_entrega"
+                                    class="custom-date-field" required>
+                                <i class="bi bi-calendar2-week"></i>
+                            </div>
                         </div>
                     </div>
                     <!-- SECTION 2: Detalles y Formatos  -->

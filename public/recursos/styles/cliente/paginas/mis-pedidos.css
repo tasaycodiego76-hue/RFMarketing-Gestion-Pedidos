@@ -427,14 +427,14 @@
   background: #0a0a0a;
   color: #eee;
 }
-/* Select estilizado compacto (para tipo requerimiento) */
+
 .select-estilizado {
   background: #111 !important;
   border: 1px solid #1e1e1e;
   color: #c0c0c0;
   font-size: 11px;
-  height: 36px;
-  padding: 0 10px;
+  height: 50px;
+  padding: 0 20px;
   border-radius: 6px;
 }
 .select-estilizado:focus {
@@ -990,4 +990,60 @@ textarea.form-control:focus {
   100% {
     background-position: -200% 0;
   }
+}
+
+/* Contenedor principal */
+.date-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* El campo de fecha */
+.custom-date-field {
+    width: 100%;
+    background-color: #121212 !important; /* Fondo oscuro */
+    border: 1px solid #333 !important;
+    border-radius: 8px;
+    padding: 12px 15px !important;
+    color: white !important;
+    font-family: 'Segoe UI', sans-serif;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.custom-date-field:focus {
+    border-color: #f39c12 !important; /* Color de realce */
+}
+
+/* Ocultar el icono nativo feo pero mantener la funcionalidad */
+.custom-date-field::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+    z-index: 2;
+}
+
+/* Nuestro propio icono decorativo */
+.date-input-container i {
+    position: absolute;
+    right: 15px;
+    color: #f39c12; /* Color naranja como tus etiquetas */
+    font-size: 1.2rem;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Para que se pueda escribir bien (quitar flechas internas en algunos navegadores) */
+.custom-date-field::-webkit-inner-spin-button,
+.custom-date-field::-webkit-clear-button {
+    display: none;
+    -webkit-appearance: none;
 }
