@@ -13,48 +13,48 @@ class CrearTablaUsuarios extends Migration
 
         $this->forge->addField([
             'id' => [
-                'type'           => 'BIGINT',
+                'type' => 'BIGINT',
                 'auto_increment' => true,
             ],
             'nombre' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 50,
-                'null'       => false,
+                'null' => false,
             ],
             'apellidos' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 50,
-                'null'       => false,
+                'null' => false,
             ],
             'correo' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 100,
-                'null'       => false,
+                'null' => false,
             ],
             'telefono' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 20,
-                'null'       => false,
-                'default'    => '',
+                'null' => false,
+                'default' => '',
             ],
             'tipodoc' => [
                 'type' => 'tipodoc_enum',
                 'null' => true,
             ],
             'numerodoc' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 20,
-                'null'       => true,
+                'null' => true,
             ],
             'usuario' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 50,
-                'null'       => false,
+                'null' => false,
             ],
             'clave' => [
-                'type'       => 'VARCHAR',
+                'type' => 'VARCHAR',
                 'constraint' => 255,
-                'null'       => false,
+                'null' => false,
             ],
             'rol' => [
                 'type' => 'rol_enum',
@@ -62,25 +62,25 @@ class CrearTablaUsuarios extends Migration
             ],
             'idarea_agencia' => [
                 'type' => 'BIGINT',
-                'null' => true,  
+                'null' => true,
             ],
             'idarea' => [
-            'type' => 'BIGINT',
-            'null' => true,
+                'type' => 'BIGINT',
+                'null' => true,
             ],
             'esresponsable' => [
-                'type'    => 'BOOLEAN',
-                'null'    => false,
+                'type' => 'BOOLEAN',
+                'null' => false,
                 'default' => false,
             ],
             'estado' => [
-                'type'    => 'BOOLEAN',
-                'null'    => false,
+                'type' => 'BOOLEAN',
+                'null' => false,
                 'default' => true,
             ],
             'fechacreacion' => [
-                'type'    => 'TIMESTAMP',
-                'null'    => true,
+                'type' => 'TIMESTAMP',
+                'null' => true,
                 'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP'),
             ],
         ]);

@@ -66,8 +66,9 @@ class UsuarioModel extends Model
      */
     public function getDetalleUsuario($idUsuario)
     {
-        return $this->select('usuarios.*, areas.nombre as nombre_area, empresas.nombreempresa as nombre_empresa')
+        return $this->select('usuarios.*, areas.nombre as nombre_area, areas_agencia.nombre as nombre_areaagencia, empresas.nombreempresa as nombre_empresa')
             ->join('areas', 'areas.id = usuarios.idarea', 'left')
+            ->join('areas_agencia', 'areas_agencia.id = usuarios.idarea_agencia', 'left')
             ->join('empresas', 'empresas.id = areas.idempresa', 'left')
             ->where('usuarios.id', $idUsuario)
             ->first(); // Retorna una sola fila como array

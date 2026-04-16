@@ -1,86 +1,31 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Referencias Doom
-  const tablaPedidos = document.getElementById("content-pedidos");
-  const inputBuscador = document.getElementById("buscador");
-  const listaServicios = document.getElementById("lista-servicios");
-  const modalNuevoPedido = document.getElementById("modal-nuevo-pedido");
-  const selectMateriales = document.getElementById("select-materiales");
-  const inputArchivos = document.getElementById("input-archivos");
-  const listaArchivos = document.getElementById("lista-archivos");
+  const tablaPedidos = document.getElementById("content-pedidos");        // Cuerpo de la tabla
+  const inputBuscador = document.getElementById("buscador");              // Campo de búsqueda
+  const listaServicios = document.getElementById("lista-servicios");      // Lista de servicios modal
+  const modalNuevoPedido = document.getElementById("modal-nuevo-pedido"); // Modal principal
+  const selectMateriales = document.getElementById("select-materiales");  // Select Sí/No materiales
+  const inputArchivos = document.getElementById("input-archivos");        // Input file oculto
+  const listaArchivos = document.getElementById("lista-archivos");        // Donde se muestran archivos
 
   // Canales disponibles para difusión
   const CANALES = [
-    "Por correo",
-    "Página web",
-    "Redes sociales",
-    "SIGU o Aula Virtual Estudiantes",
-    "SIGU o Aula Virtual Docentes",
-    "Impresión física de folletos",
-    "Banner físico",
-    "Letreros",
-    "Merch para eventos específicos",
+    "Por correo", "Página web", "Redes sociales", "SIGU o Aula Virtual Estudiantes", "SIGU o Aula Virtual Docentes", 
+    "Impresión física de folletos","Banner físico", "Letreros","Merch para eventos específicos",
   ];
   // Formatos según tipo de servicio (1=Diseño, 2=Audiovisual, 0=Personalizado)
   const FORMATOS = {
     1: [
-      "Emailing",
-      "Post Facebook/IG",
-      "Historia FB/IG",
-      "Historia WhatsApp",
-      "Post LinkedIn",
-      "SIGU",
-      "Aula Virtual",
-      "Wallpaper",
-      "Banner Web",
-      "Volante A5",
-      "Afiche A4/A3",
-      "Credenciales",
-      "Banner 2x1",
-      "Tarjeta Personal",
-      "Tríptico",
-      "Díptico",
-      "Folder",
-      "Brochure",
-      "Cartilla",
-      "Banderola",
-      "Módulos",
-      "SMS",
-      "IVR",
-      "Marcos Selfie",
-      "Boletín",
-      "Guías",
-      "Imagen JPG/PNG",
-      "Otros",
+      "Emailing","Post Facebook/IG","Historia FB/IG","Historia WhatsApp","Post LinkedIn","SIGU","Aula Virtual","Wallpaper","Banner Web","Volante A5",
+      "Afiche A4/A3","Credenciales","Banner 2x1","Tarjeta Personal","Tríptico","Díptico","Folder","Brochure","Cartilla","Banderola",
+      "Módulos","SMS","IVR","Marcos Selfie","Boletín","Guías","Imagen JPG/PNG","Otros",
     ],
     2: [
-      "Reels FB/IG",
-      "Historia FB/IG",
-      "Reel/TikTok",
-      "Reels LinkedIn",
-      "Historia WhatsApp",
-      "Video YouTube",
-      "SIGU",
-      "Aula Virtual",
-      "Pantallas LED",
-      "Spot TV",
-      "Videos eventos",
-      "Reels Pauta",
-      "Otros",
+      "Reels FB/IG","Historia FB/IG","Reel/TikTok","Reels LinkedIn","Historia WhatsApp","Video YouTube",
+      "SIGU","Aula Virtual","Pantallas LED","Spot TV","Videos eventos","Reels Pauta","Otros",
     ],
     0: [
-      "Post FB/IG",
-      "Historia FB/IG",
-      "Historia WhatsApp",
-      "Reels FB/IG",
-      "Reel/TikTok",
-      "Video YouTube",
-      "Afiche A4/A3",
-      "Banner Web",
-      "Spot TV",
-      "Banner físico",
-      "Emailing",
-      "Imagen JPG/PNG",
-      "Otros",
+      "Post FB/IG","Historia FB/IG","Historia WhatsApp","Reels FB/IG","Reel/TikTok","Video YouTube","Afiche A4/A3","Banner Web","Spot TV",
+      "Banner físico","Emailing","Imagen JPG/PNG","Otros",
     ],
   };
   // Estilos visuales para cada tipo de servicio
@@ -91,28 +36,45 @@ document.addEventListener("DOMContentLoaded", function () {
   };
   // Mapeo de tipos de requerimiento para la BD
   const MAPA_TIPOS = {
-    adaptacion: "Adaptación de Arte",
-    creacion: "Creación de Arte",
-    editorial: "Trabajo editorial",
-    audiovisual: "Creación de Videos",
+    adaptacion: "Adaptación de Arte", creacion: "Creación de Arte",
+    editorial: "Trabajo editorial", audiovisual: "Creación de Videos",
   };
   // Días hábiles mínimos según tipo de requerimiento
   const DIAS_HABILES_POR_TIPO = {
-    adaptacion: 7,
-    creacion: 10,
-    editorial: 20,
-    audiovisual: 20,
+    adaptacion: 7, creacion: 10,
+    editorial: 20, audiovisual: 20,
+  };
+  // Info de tipos de requerimiento
+  const INFO_TIPOS = {
+    adaptacion: {
+      titulo: "Adaptación de Arte",
+      desc: "Tienes un diseño existente y necesitas adaptarlo a otros formatos o hacer ajustes menores. Ideal para redimensionar banners o ajustar textos.",
+      dias: "7",
+      equipo: "Diseñador Gráfico",
+    },
+    creacion: {
+      titulo: "Creación de Arte",
+      desc: "Creación de piezas visuales desde cero siguiendo tu marca y objetivos. Incluye diseño original de banners, posts, afiches y materiales promocionales.",
+      dias: "10",
+      equipo: "Diseñador + Director de Arte",
+    },
+    editorial: {
+      titulo: "Trabajo Editorial",
+      desc: "Publicaciones extensas como brochures, trípticos, cartillas o documentos de múltiples páginas que requieren maquetación profesional.",
+      dias: "20",
+      equipo: "Equipo Editorial",
+    },
+    audiovisual: {
+      titulo: "Creación de Video",
+      desc: "Producción audiovisual completa: guion, filmación, edición y post-producción. Para spots, reels, videos institucionales o tutoriales.",
+      dias: "20",
+      equipo: "Productor + Editor de Video",
+    },
   };
   // Configuración visual de estados
   const MAPA_ESTADOS = {
-    pendiente_sin_asignar: {
-      texto: "Por Aprobar",
-      clase: "estado-por_aprobar",
-    },
-    pendiente_asignado: {
-      texto: "Asignado",
-      clase: "estado-pendiente_asignado",
-    },
+    pendiente_sin_asignar: { texto: "Por Aprobar", clase: "estado-por_aprobar" },
+    pendiente_asignado: { texto: "Asignado", clase: "estado-pendiente_asignado" },
     en_proceso: { texto: "En Proceso", clase: "estado-en_proceso" },
     en_revision: { texto: "En Revisión", clase: "estado-en_revision" },
     finalizado: { texto: "Finalizado", clase: "estado-completado" },
@@ -126,26 +88,23 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // Variables Globales
-  let pasoActual = 1;
-  let archivosSeleccionados = [];
-  let temporizadorBusqueda;
+  let pasoActual = 1;                 // Controla en qué paso del wizard está
+  let archivosSeleccionados = [];     // Array para guardar archivos antes de enviar
+  let temporizadorBusqueda;           // Para el debounce del buscador (Temporizador)
 
-  // HELPERS (funciones utilitarias)
-  const qs = (selector) => document.querySelector(selector);
-  const qsAll = (selector) => document.querySelectorAll(selector);
-  const getVal = (selector) => qs(selector)?.value?.trim() || "";
-  const getIdVal = (id) => document.getElementById(id)?.value?.trim() || "";
-  const checkedVals = (name) =>
-    Array.from(qsAll(`input[name="${name}"]:checked`)).map((c) => c.value);
+  // HELPERS (funciones de ayuda/reutilizables)
+  const qs = (selector) => document.querySelector(selector);          // Función: buscar el primer elemento que coincida con el selector
+  const qsAll = (selector) => document.querySelectorAll(selector);    // Similar al anterior pero devuelve todos los elementos que coincidan
+  const getVal = (selector) => qs(selector)?.value?.trim() || "";     // Obtiene valor limpio de un input, o vacío si no existe
+  const getIdVal = (id) => document.getElementById(id)?.value?.trim() || "";    // Similar a línea 81 pero busca por ID
+  const checkedVals = (name) => Array.from(qsAll(`input[name="${name}"]:checked`)).map((c) => c.value);   // Devuelve array con los valores de todos los checkboxes
 
   // Convierte bytes a formato legible (KB, MB, GB)
   const formatearTamano = (bytes) => {
     if (!bytes) return "0 Bytes";
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
     return (
-      parseFloat((bytes / Math.pow(1024, i)).toFixed(1)) +
-      " " +
-      ["Bytes", "KB", "MB", "GB"][i]
+      parseFloat((bytes / Math.pow(1024, i)).toFixed(1)) + " " + ["Bytes", "KB", "MB", "GB"][i]
     );
   };
 
@@ -155,29 +114,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (mimeType?.startsWith("video/")) return "bi-file-earmark-play";
     if (mimeType?.startsWith("audio/")) return "bi-file-earmark-music";
     if (mimeType?.includes("pdf")) return "bi-file-earmark-pdf";
-    if (
-      mimeType?.includes("word") ||
-      fileName?.endsWith(".doc") ||
-      fileName?.endsWith(".docx")
-    )
+    if ( mimeType?.includes("word") || fileName?.endsWith(".doc") || fileName?.endsWith(".docx") )
       return "bi-file-earmark-word";
-    if (
-      mimeType?.includes("excel") ||
-      fileName?.endsWith(".xls") ||
-      fileName?.endsWith(".xlsx")
-    )
+    if ( mimeType?.includes("excel") || fileName?.endsWith(".xls") || fileName?.endsWith(".xlsx") )
       return "bi-file-earmark-excel";
-    if (
-      mimeType?.includes("powerpoint") ||
-      fileName?.endsWith(".ppt") ||
-      fileName?.endsWith(".pptx")
-    )
+    if (mimeType?.includes("powerpoint") || fileName?.endsWith(".ppt") || fileName?.endsWith(".pptx") )
       return "bi-file-earmark-ppt";
-    if (
-      mimeType?.includes("zip") ||
-      fileName?.endsWith(".zip") ||
-      fileName?.endsWith(".rar")
-    )
+    if (mimeType?.includes("zip") || fileName?.endsWith(".zip") || fileName?.endsWith(".rar"))
       return "bi-file-earmark-zip";
     return "bi-file-earmark";
   };
@@ -217,23 +160,20 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // Vista Previa (Archivos)
-
   // Renderiza la lista de archivos seleccionados con preview
   function mostrarPreviewArchivos(files) {
-    if (!listaArchivos) return;
+    if (!listaArchivos){ return; }
     archivosSeleccionados = files;
 
     listaArchivos.innerHTML = `
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:15px;max-height:300px;overflow-y:auto;">
-        ${files
-          .map((file, index) => {
+        ${files.map((file, index) => {
             // Si es imagen, muestra thumbnail; si no, muestra icono
             const iconoPreview = file.type.startsWith("image/")
               ? `<img src="${URL.createObjectURL(file)}" style="width:50px;height:50px;object-fit:cover;border-radius:6px;"/>`
               : `<div style="width:50px;height:50px;background:#1e1e1e;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#f5c400;">
                 <i class="bi ${getIconoArchivo(file.type, file.name)}"></i>
                </div>`;
-
             return `
             <div style="display:flex;align-items:center;gap:12px;background:#111;border:1px solid #333;border-radius:8px;padding:10px;">
               ${iconoPreview}
@@ -245,37 +185,12 @@ document.addEventListener("DOMContentLoaded", function () {
                   ${formatearTamano(file.size)} • ${file.type || "Desconocido"}
                 </div>
               </div>
-              <button type="button" onclick="eliminarArchivo(${index})"
-                      style="background:transparent;border:none;color:#ef4444;cursor:pointer;padding:8px;border-radius:4px;"
-                      onmouseover="this.style.background='rgba(239,68,68,0.1)'"
-                      onmouseout="this.style.background='transparent'">
-                <i class="bi bi-trash"></i>
-              </button>
             </div>
           `;
-          })
-          .join("")}
+          }).join("")}
       </div>
     `;
   }
-
-  // Elimina un archivo del array y actualiza la vista
-  window.eliminarArchivo = (index) => {
-    archivosSeleccionados.splice(index, 1);
-
-    // Actualiza el input file con los archivos restantes
-    const dt = new DataTransfer();
-    archivosSeleccionados.forEach((f) => dt.items.add(f));
-    inputArchivos.files = dt.files;
-
-    if (archivosSeleccionados.length === 0) {
-      listaArchivos.innerHTML = "";
-      mostrarAlerta("info", "Todos los archivos eliminados");
-    } else {
-      mostrarPreviewArchivos(archivosSeleccionados);
-      mostrarAlerta("success", "Archivo eliminado");
-    }
-  };
 
   // Evento: cuando el usuario selecciona archivos
   if (inputArchivos) {
@@ -508,34 +423,6 @@ document.addEventListener("DOMContentLoaded", function () {
       cont.style.display = qs('input[name="formatos[]"][value="Otros"]:checked')
         ? "block"
         : "none";
-  };
-
-  // Info de tipos de requerimiento
-  const INFO_TIPOS = {
-    adaptacion: {
-      titulo: "Adaptación de Arte",
-      desc: "Tienes un diseño existente y necesitas adaptarlo a otros formatos o hacer ajustes menores. Ideal para redimensionar banners o ajustar textos.",
-      dias: "7",
-      equipo: "Diseñador Gráfico",
-    },
-    creacion: {
-      titulo: "Creación de Arte",
-      desc: "Creación de piezas visuales desde cero siguiendo tu marca y objetivos. Incluye diseño original de banners, posts, afiches y materiales promocionales.",
-      dias: "10",
-      equipo: "Diseñador + Director de Arte",
-    },
-    editorial: {
-      titulo: "Trabajo Editorial",
-      desc: "Publicaciones extensas como brochures, trípticos, cartillas o documentos de múltiples páginas que requieren maquetación profesional.",
-      dias: "20",
-      equipo: "Equipo Editorial",
-    },
-    audiovisual: {
-      titulo: "Creación de Video",
-      desc: "Producción audiovisual completa: guion, filmación, edición y post-producción. Para spots, reels, videos institucionales o tutoriales.",
-      dias: "20",
-      equipo: "Productor + Editor de Video",
-    },
   };
 
   // Mostrar info del tipo seleccionado

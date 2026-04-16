@@ -3,13 +3,14 @@
 namespace App\Controllers\Responsable;
 
 use App\Controllers\BaseController;
+use App\Models\UsuarioModel;
 
 class PedidosAreaController extends BaseController
 {
+
     /**
-     * Endpoint principal: dashboard del responsable de área.
-     * Por Ahora Prueba, Para Redirigir por ID y Rol
-     * @return \CodeIgniter\HTTP\ResponseInterface
+     * Renderiza el dashboard principal del Responsable x Area (Empleado)
+     * @return string|\CodeIgniter\HTTP\ResponseInterface
      */
     public function index()
     {
@@ -25,22 +26,25 @@ class PedidosAreaController extends BaseController
             ]);
         }
 
-        return $this->response->setJSON([
-            'status' => 'SUCCESS',
-            'actor' => 'RESPONSABLE DE ÁREA',
-            'detalles' => [
-                'id' => $user['id'],
-                'nombre' => $user['nombre'],
-                'apellidos' => $user['apellidos'],
-                'correo' => $user['correo'],
-                'telefono' => $user['telefono'],
-                'documento' => $user['numerodoc'],
-                'rol' => $user['rol'],
-                'idarea' => $user['idarea'],
-                'es_responsable' => true,
-                'creado_el' => $user['fechacreacion'],
-                'permisos' => 'Gestión de pedidos y personal del área asignada'
+        //Usar el Modelo para traer la información completa
+        $usuarioModel = new UsuarioModel();
+        $userData = $usuarioModel->getDetalleUsuario($user['id']);
+
+        $data = [
+            'titulo' => 'Mis Pedidos - Area',
+            'user' => [
+                'id' => $userData['id'],
+                'nombre' => $userData['nombre'],
+                'apellidos' => $userData['apellidos'],
+                'correo' => $userData['correo'],
+                'telefono' => $userData['telefono'],
+                'documento' => $userData['numerodoc'],
+                'rol' => $userData['rol'],
+                'nombre_area' => $userData['nombre_areaagencia'] ?? 'Área no asignada',
+                'es_responsable' => true
             ]
-        ]);
+        ];
+
+        return view('Responsable/dashboard', $data);
     }
 }

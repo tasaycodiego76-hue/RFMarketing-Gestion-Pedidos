@@ -19,7 +19,7 @@
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap"
         rel="stylesheet">
     <!-- CSS Plantilla -->
-    <link rel="stylesheet" href="<?= base_url('recursos/styles/plantillas/cliente.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('recursos/styles/cliente/plantilla/cliente.css') ?>">
     <!-- Agregar CSS -->
     <?= $this->renderSection('estilos') ?>
 </head>

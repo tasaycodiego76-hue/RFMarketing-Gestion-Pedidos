@@ -40,11 +40,12 @@ $routes->get('kanban/detalle/(:num)',   'Administrador\Kanban::detalle/$1');
  $routes->get('kanban/areas', 'Administrador\Kanban::areasAgencia');
    $routes->get('responsable/kanban', 'Administrador\Kanban::responsable');
    $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
-    });
+});
 
 //Rutas para el Responsable (Jefe de Área)
 $routes->group('responsable', function ($routes) {
-    $routes->get('pedidos_area', 'Responsable\PedidosAreaController::index');
+    //Dashboar de Metricas - Plantilla (Prueba)
+    $routes->get('dashboard', 'Responsable\PedidosAreaController::index');
 });
 
 //Rutas para el Empleado
