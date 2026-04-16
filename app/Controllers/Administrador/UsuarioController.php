@@ -19,8 +19,8 @@ class UsuarioController extends Controller
         'titulo'       => 'Usuarios',
         'tituloPagina' => 'USUARIOS',
         'paginaActual' => 'usuarios',
-        'areasAgencia' => $areasAgenciaModel->findAll(),
-        'empresas'     => $empresaModel->findAll(),
+        'areasAgencia' => $areasAgenciaModel->listarActivas(),
+        'empresas'     => $empresaModel->listarActivas(),
     ]);
 }
 
@@ -52,45 +52,76 @@ class UsuarioController extends Controller
         return $this->response->setJSON($model->listarActivas());
     }
 
+
     /**
-      * Registra un nuevo usuario. Si es cliente, también crea su empresa y lo asigna como responsable.
-     * @return \CodeIgniter\HTTP\ResponseInterface
-     */
-    public function registrar()
-    {
-        $model = new UsuarioModel();
-        $datos = $this->request->getJSON(true);
+   * Registra un nuevo usuario. Si es cliente, también crea su empresa y lo asigna como responsable.
+   * @return \CodeIgniter\HTTP\ResponseInterface
+   */
+  public function registrar()
+  {
+      $model = new UsuarioModel();
+      $datos = $this->request->getJSON(true);
 
-        if ($model->where('correo', $datos['correo'])->first()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'El correo ya está registrado']);
-        }
-        if ($model->where('usuario', $datos['usuario'])->first()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'El usuario ya está en uso']);
-        }
+      if ($model->where('correo', $datos['correo'])->first()) {
+          return $this->response->setJSON(['success' => false, 'message' => 'El correo ya está registrado']);
+      }
+      if ($model->where('usuario', $datos['usuario'])->first()) {
+          return $this->response->setJSON(['success' => false, 'message' => 'El usuario ya está en uso']);
+      }
 
-        $datos['clave'] = password_hash($datos['clave'], PASSWORD_DEFAULT);
-        $id = $model->insert($datos, true);
+      $datos['clave'] = password_hash($datos['clave'], PASSWORD_DEFAULT);
 
-        if (!$id) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Error al registrar']);
-        }
+      if ($datos['rol'] === 'responsable_area') {
+          return $this->registrarAreaResponsable($datos);
+      }
 
-        if ($datos['rol'] === 'cliente') {
-            $empresaModel      = new EmpresaModel();
-            $responsablesModel = new ResponsablesEmpresaModel();
+      // Validación: Solo un responsable por área (solo si es explícitamente true)
+      $esResponsable = isset($datos['esresponsable']) && ($datos['esresponsable'] === true || $datos['esresponsable']
+  === 't' || $datos['esresponsable'] === 1);
 
-            $idEmpresa = $empresaModel->insert([
-                'nombreempresa' => $datos['razonsocial'],
-                'ruc' => $datos['numerodoc'] ?? '',
-                'correo' => $datos['correo'],
-                'telefono' => $datos['telefono'] ?? '',
-            ], true);
+      if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agencia'])) {
+          $existeResponsable = $model->where('idarea_agencia', $datos['idarea_agencia'])
+              ->where('esresponsable', true)
+              ->where('estado', true)
+              ->first();
 
-            $responsablesModel->asignarResponsable($id, $idEmpresa);
-        }
+          if ($existeResponsable) {
+              return $this->response->setJSON([
+                  'success' => false,
+                  'message' => 'Ya existe un responsable para esta área: ' . $existeResponsable['nombre'] . ' ' .
+  $existeResponsable['apellidos']
+              ]);
+          }
 
-        return $this->response->setJSON(['success' => true, 'message' => 'Usuario registrado correctamente']);
-    }
+          // Asegurar que se guarde como booleano
+          $datos['esresponsable'] = true;
+      } else {
+          // Asegurar false cuando no es responsable
+          $datos['esresponsable'] = false;
+      }
+
+      $id = $model->insert($datos, true);
+
+      if (!$id) {
+          return $this->response->setJSON(['success' => false, 'message' => 'Error al registrar']);
+      }
+
+      if ($datos['rol'] === 'cliente') {
+          $empresaModel      = new EmpresaModel();
+          $responsablesModel = new ResponsablesEmpresaModel();
+
+          $idEmpresa = $empresaModel->insert([
+              'nombreempresa' => $datos['razonsocial'],
+              'ruc' => $datos['numerodoc'] ?? '',
+              'correo' => $datos['correo'],
+              'telefono' => $datos['telefono'] ?? '',
+          ], true);
+
+          $responsablesModel->asignarResponsable($id, $idEmpresa);
+      }
+
+      return $this->response->setJSON(['success' => true, 'message' => 'Usuario registrado correctamente']);
+  }
 
     /**
      * * Retorna los datos de un usuario por ID para el modal de edición.
@@ -114,28 +145,49 @@ class UsuarioController extends Controller
      * @param mixed $id
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
-    public function editar($id)
-    {
-        $model = new UsuarioModel();
-        $datos = $this->request->getJSON(true);
+    /**
+   * Actualiza los datos de un usuario.
+   * @param mixed $id
+   * @return \CodeIgniter\HTTP\ResponseInterface
+   */
+  public function editar($id)
+  {
+      $model = new UsuarioModel();
+      $datos = $this->request->getJSON(true);
 
-        if ($model->where('correo', $datos['correo'])->where('id !=', $id)->first()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'El correo ya está en uso']);
-        }
-        if ($model->where('usuario', $datos['usuario'])->where('id !=', $id)->first()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'El usuario ya está en uso']);
-        }
+      if ($model->where('correo', $datos['correo'])->where('id !=', $id)->first()) {
+          return $this->response->setJSON(['success' => false, 'message' => 'El correo ya está en uso']);
+      }
+      if ($model->where('usuario', $datos['usuario'])->where('id !=', $id)->first()) {
+          return $this->response->setJSON(['success' => false, 'message' => 'El usuario ya está en uso']);
+      }
 
-        if (!empty($datos['clave'])) {
-            $datos['clave'] = password_hash($datos['clave'], PASSWORD_DEFAULT);
-        } else {
-            unset($datos['clave']);
-        }
+      if (!empty($datos['clave'])) {
+          $datos['clave'] = password_hash($datos['clave'], PASSWORD_DEFAULT);
+      } else {
+          unset($datos['clave']);
+      }
 
-        $model->update($id, $datos);
+      // Validación: Solo un responsable por área de agencia
+      if ($datos['rol'] === 'empleado' && !empty($datos['esresponsable']) && !empty($datos['idarea_agencia'])) {
+          $existeResponsable = $model->where('idarea_agencia', $datos['idarea_agencia'])
+              ->where('esresponsable', true)
+              ->where('id !=', $id)
+              ->where('estado', true)
+              ->first();
 
-        return $this->response->setJSON(['success' => true, 'message' => 'Usuario actualizado correctamente']);
-    }
+          if ($existeResponsable) {
+              return $this->response->setJSON([
+                  'success' => false,
+                  'message' => 'Ya existe un responsable para esta área. Desactive al responsable actual primero.'
+              ]);
+          }
+      }
+
+      $model->update($id, $datos);
+
+      return $this->response->setJSON(['success' => true, 'message' => 'Usuario actualizado correctamente']);
+  }
 
     /**
      * Activa o desactiva un usuario según el estado recibido.
@@ -151,4 +203,78 @@ class UsuarioController extends Controller
         $msg = $datos['estado'] ? 'habilitado' : 'deshabilitado';
         return $this->response->setJSON(['success' => true, 'message' => "Usuario $msg correctamente"]);
     }
+    
+  /**
+   * Registra un área nueva con su responsable (flujo especial).
+   * @param array $datos Datos del usuario y área
+   * @return \CodeIgniter\HTTP\ResponseInterface
+   */
+  private function registrarAreaResponsable(array $datos)
+  {
+      $db = \Config\Database::connect();
+      $db->transBegin();
+
+      try {
+          // 1. Crear el usuario como cliente
+          $usuarioModel = new UsuarioModel();
+          $datosUsuario = [
+              'nombre'      => $datos['nombre'],
+              'apellidos'   => $datos['apellidos'],
+              'correo'      => $datos['correo'],
+              'telefono'    => $datos['telefono'],
+              'tipodoc'     => $datos['tipodoc'],
+              'numerodoc'   => $datos['numerodoc'],
+              'usuario'     => $datos['usuario'],
+              'clave'       => $datos['clave'],
+              'rol'         => 'cliente',
+              'idarea'      => null,
+              'idarea_agencia' => null,
+              'esresponsable' => true,
+              'estado'      => true,
+          ];
+
+          $idUsuario = $usuarioModel->insert($datosUsuario, true);
+
+          if (!$idUsuario) {
+              throw new \Exception('Error al crear el usuario');
+          }
+
+          // 2. Crear el área para la empresa seleccionada
+          $areasModel = new \App\Models\AreasModel();
+          $datosArea = [
+              'idempresa'   => $datos['idempresa'],
+              'nombre'      => $datos['nombre_area'],
+              'descripcion' => $datos['descripcion_area'] ?? 'Área creada desde registro de responsable',
+              'activo'      => true,
+          ];
+
+          $idArea = $areasModel->insert($datosArea, true);
+
+          if (!$idArea) {
+              throw new \Exception('Error al crear el área');
+          }
+
+          // 3. Actualizar el usuario con el idarea asignado
+          $usuarioModel->update($idUsuario, ['idarea' => $idArea]);
+
+          // 4. Asignar como responsable de la empresa
+          $responsablesModel = new ResponsablesEmpresaModel();
+          $responsablesModel->asignarResponsable($idUsuario, $datos['idempresa']);
+
+          $db->transCommit();
+
+          return $this->response->setJSON([
+              'success' => true,
+              'message' => 'Área y responsable registrados correctamente'
+          ]);
+
+      } catch (\Exception $e) {
+          $db->transRollback();
+          return $this->response->setJSON([
+              'success' => false,
+              'message' => $e->getMessage()
+          ]);
+      }
+  }
+
 }

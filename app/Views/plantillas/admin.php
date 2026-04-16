@@ -40,13 +40,17 @@
                 <a href="<?= site_url('admin/empresas') ?>" class="nav-enlace sub-enlace <?= ($paginaActual == 'todas_empresas') ? 'activo' : '' ?>">
                     <i style="font-size: 10px;"></i> Todas las Empresas
                 </a>
-
-                <?php foreach ($empresas ?? [] as $emp): ?>
-                    <a href="<?= site_url('admin/kanban/'.$emp['id'].'/1') ?>" class="nav-enlace sub-enlace">
-                        <i class="bi bi-circle-fill nav-punto"></i>
-                        <span class="text-truncate"><?= $emp['nombreempresa'] ?></span>
-                    </a>
-                <?php endforeach; ?>
+           <?php foreach ($empresas ?? [] as $emp): ?>
+    <?php 
+        $estaActiva = ($emp['estado'] === true || $emp['estado'] === 't');
+    ?>
+    <a href="<?= site_url('admin/kanban/'.$emp['id'].'/1') ?>" 
+       id="sidebar-item-<?= $emp['id'] ?>" 
+       class="nav-enlace sub-enlace <?= (!$estaActiva) ? 'd-none' : '' ?>">
+        <i class="bi bi-circle-fill nav-punto"></i>
+        <span class="text-truncate"><?= esc($emp['nombreempresa']) ?></span>
+    </a>
+<?php endforeach; ?>
             </div>
         </div>
 

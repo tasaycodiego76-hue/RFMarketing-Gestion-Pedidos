@@ -7,7 +7,7 @@ use App\Models\EmpresaModel;
 use App\Models\AreasAgenciaModel;
 use App\Models\AtencionModel;
 
-class Kanban extends Controller
+class kanban extends Controller
 {
     public function index($idEmpresa, $idAreaAgencia = null)
     {
@@ -49,7 +49,7 @@ class Kanban extends Controller
             'titulo'        => 'Kanban - ' . $empresa['nombreempresa'],
             'tituloPagina'  => 'TABLERO KANBAN',
             'paginaActual'  => 'kanban',
-            'empresas'      => $empresaModel->findAll(),
+            'empresas'      => $empresaModel->listarActivas(),
             'empresa'       => $empresa,
             'idEmpresa'     => $idEmpresa,
             'areasAgencia'  => $areasAgencia,

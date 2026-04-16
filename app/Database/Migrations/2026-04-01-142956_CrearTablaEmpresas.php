@@ -33,6 +33,11 @@ class CrearTablaEmpresas extends Migration
                 'constraint' => 20,
                 'null'       => true,
             ],
+              'estado' => [
+                'type'       => 'BOOLEAN',
+                'default'    => true,
+                'null'       => false,
+            ],
         ]);
 
         $this->forge->addPrimaryKey('id');

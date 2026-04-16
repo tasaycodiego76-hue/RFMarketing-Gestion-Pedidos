@@ -15,7 +15,12 @@ class EmpresaModel extends Model
         'ruc',
         'correo',
         'telefono',
+        'estado',
     ];
+    public function listarActivas(): array
+  {
+      return $this->where('estado', true)->findAll();
+  }
 
     private array $colores = [
     '#FF6B6B', '#FFD93D', '#6BCB77',
@@ -38,4 +43,26 @@ public function obtenerConStats(): array
 
     return $empresas;
 }
+public function obtenerConStatsActivas(): array
+  {
+      $empresas     = $this->where('estado', true)->findAll();
+      $atencionModel = new \App\Models\AtencionModel();
+
+      foreach ($empresas as $i => &$empresa) {
+          $color = $this->colores[$i % count($this->colores)];
+          $empresa['color']       = $color;
+          $empresa['inicial']     =
+  strtoupper(substr($empresa['nombreempresa'], 0, 1));
+          $empresa['por_aprobar'] =
+  $atencionModel->contarPorEstadoEmpresa('pendiente_sin_asignar',
+  $empresa['id']);
+          $empresa['activos'] =
+  $atencionModel->contarActivosEmpresa($empresa['id']);
+   $empresa['en_revision'] = $atencionModel->contarPorEstadoEmpresa('en_revision', $empresa['id']);
+          $empresa['completados'] =
+  $atencionModel->contarPorEstadoEmpresa('finalizado', $empresa['id']);
+      }
+
+      return $empresas;
+  }
 }

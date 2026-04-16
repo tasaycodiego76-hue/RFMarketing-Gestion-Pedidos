@@ -86,6 +86,10 @@
                             <div class="emp-stat-label">Activos</div>
                         </div>
                         <div class="emp-stat">
+                            <div class="emp-stat-num naranja"><?= $empresa['en_revision'] ?></div>
+                            <div class="emp-stat-label">En Revisión</div>
+                        </div>
+                        <div class="emp-stat">
                             <div class="emp-stat-num verde"><?= $empresa['completados'] ?></div>
                             <div class="emp-stat-label">Completados</div>
                         </div>

@@ -28,7 +28,7 @@ class DashboardController extends BaseController
             'activos'        => $activos,
             'enRevision'     => $atencionModel->contarPorEstado('en_revision'),
             'completados'    => $completados,
-            'empresas'       => $empresaModel->obtenerConStats(),
+            'empresas'       => $empresaModel->obtenerConStatsActivas(),
             'areas' => $areaModel->listarActivas(),
             'totalPedidos'   => $total,
             'pctActivos'     => round($activos     / $total * 100),

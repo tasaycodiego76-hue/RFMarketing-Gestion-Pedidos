@@ -34,6 +34,7 @@
 .morado   { color: #c084fc; }
 .verde    { color: #22c55e; }
 .rojo     { color: #ef4444; }
+.naranja  { color: #ffffff; }
 
 /* Tarjetas de las empresas */
 .emp-card {
@@ -86,17 +87,35 @@
 /* Estadísticas numéricas dentro de la empresa */
 .emp-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     border-bottom: 1px solid #1e1e1e;
 }
+
 .emp-stat {
-    padding: 10px;
+    padding: 8px 4px; 
     text-align: center;
     border-right: 1px solid #1e1e1e;
 }
+
+.emp-stat-num { 
+    font-family: 'Bebas Neue', sans-serif; 
+    font-size: 30px; 
+    line-height: 1; 
+}
+
+.emp-stat-label { 
+    font-size: 9px;
+    color: #888; 
+    text-transform: uppercase; 
+    letter-spacing: .5px; 
+    margin-top: 2px; 
+}
+
+.emp-scroll-wrap .emp-card {
+    min-width: 320px; 
+    flex-shrink: 0;
+}
 .emp-stat:last-child { border-right: none; }
-.emp-stat-num   { font-family: 'Bebas Neue', sans-serif; font-size: 26px; line-height: 1; }
-.emp-stat-label { font-size: 9px; color: #888; text-transform: uppercase; letter-spacing: .8px; margin-top: 2px; }
 
 /* Botones de selección de área (Diseño, Video, etc.) */
 .emp-areas { display: flex; gap: 6px; padding: 8px; }
