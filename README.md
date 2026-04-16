@@ -66,7 +66,7 @@ Con el servidor activo, puedes acceder a las siguientes rutas para validar el fu
 
 ---
 
-# Modelo Relaciona DB
+# Modelo Relacional DB
 
 Aqui nuestro Modelo Relacional el cual es la Estructura de nuestra DB:
 
