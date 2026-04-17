@@ -1,31 +1,85 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const tablaPedidos = document.getElementById("content-pedidos");        // Cuerpo de la tabla
-  const inputBuscador = document.getElementById("buscador");              // Campo de búsqueda
-  const listaServicios = document.getElementById("lista-servicios");      // Lista de servicios modal
+  const tablaPedidos = document.getElementById("content-pedidos"); // Cuerpo de la tabla
+  const inputBuscador = document.getElementById("buscador"); // Campo de búsqueda
+  const listaServicios = document.getElementById("lista-servicios"); // Lista de servicios modal
   const modalNuevoPedido = document.getElementById("modal-nuevo-pedido"); // Modal principal
-  const selectMateriales = document.getElementById("select-materiales");  // Select Sí/No materiales
-  const inputArchivos = document.getElementById("input-archivos");        // Input file oculto
-  const listaArchivos = document.getElementById("lista-archivos");        // Donde se muestran archivos
+  const selectMateriales = document.getElementById("select-materiales"); // Select Sí/No materiales
+  const inputArchivos = document.getElementById("input-archivos"); // Input file oculto
+  const listaArchivos = document.getElementById("lista-archivos"); // Donde se muestran archivos
 
   // Canales disponibles para difusión
   const CANALES = [
-    "Por correo", "Página web", "Redes sociales", "SIGU o Aula Virtual Estudiantes", "SIGU o Aula Virtual Docentes", 
-    "Impresión física de folletos","Banner físico", "Letreros","Merch para eventos específicos",
+    "Por correo",
+    "Página web",
+    "Redes sociales",
+    "SIGU o Aula Virtual Estudiantes",
+    "SIGU o Aula Virtual Docentes",
+    "Impresión física de folletos",
+    "Banner físico",
+    "Letreros",
+    "Merch para eventos específicos",
   ];
   // Formatos según tipo de servicio (1=Diseño, 2=Audiovisual, 0=Personalizado)
   const FORMATOS = {
     1: [
-      "Emailing","Post Facebook/IG","Historia FB/IG","Historia WhatsApp","Post LinkedIn","SIGU","Aula Virtual","Wallpaper","Banner Web","Volante A5",
-      "Afiche A4/A3","Credenciales","Banner 2x1","Tarjeta Personal","Tríptico","Díptico","Folder","Brochure","Cartilla","Banderola",
-      "Módulos","SMS","IVR","Marcos Selfie","Boletín","Guías","Imagen JPG/PNG","Otros",
+      "Emailing",
+      "Post Facebook/IG",
+      "Historia FB/IG",
+      "Historia WhatsApp",
+      "Post LinkedIn",
+      "SIGU",
+      "Aula Virtual",
+      "Wallpaper",
+      "Banner Web",
+      "Volante A5",
+      "Afiche A4/A3",
+      "Credenciales",
+      "Banner 2x1",
+      "Tarjeta Personal",
+      "Tríptico",
+      "Díptico",
+      "Folder",
+      "Brochure",
+      "Cartilla",
+      "Banderola",
+      "Módulos",
+      "SMS",
+      "IVR",
+      "Marcos Selfie",
+      "Boletín",
+      "Guías",
+      "Imagen JPG/PNG",
+      "Otros",
     ],
     2: [
-      "Reels FB/IG","Historia FB/IG","Reel/TikTok","Reels LinkedIn","Historia WhatsApp","Video YouTube",
-      "SIGU","Aula Virtual","Pantallas LED","Spot TV","Videos eventos","Reels Pauta","Otros",
+      "Reels FB/IG",
+      "Historia FB/IG",
+      "Reel/TikTok",
+      "Reels LinkedIn",
+      "Historia WhatsApp",
+      "Video YouTube",
+      "SIGU",
+      "Aula Virtual",
+      "Pantallas LED",
+      "Spot TV",
+      "Videos eventos",
+      "Reels Pauta",
+      "Otros",
     ],
     0: [
-      "Post FB/IG","Historia FB/IG","Historia WhatsApp","Reels FB/IG","Reel/TikTok","Video YouTube","Afiche A4/A3","Banner Web","Spot TV",
-      "Banner físico","Emailing","Imagen JPG/PNG","Otros",
+      "Post FB/IG",
+      "Historia FB/IG",
+      "Historia WhatsApp",
+      "Reels FB/IG",
+      "Reel/TikTok",
+      "Video YouTube",
+      "Afiche A4/A3",
+      "Banner Web",
+      "Spot TV",
+      "Banner físico",
+      "Emailing",
+      "Imagen JPG/PNG",
+      "Otros",
     ],
   };
   // Estilos visuales para cada tipo de servicio
@@ -36,13 +90,17 @@ document.addEventListener("DOMContentLoaded", function () {
   };
   // Mapeo de tipos de requerimiento para la BD
   const MAPA_TIPOS = {
-    adaptacion: "Adaptación de Arte", creacion: "Creación de Arte",
-    editorial: "Trabajo editorial", audiovisual: "Creación de Videos",
+    adaptacion: "Adaptación de Arte",
+    creacion: "Creación de Arte",
+    editorial: "Trabajo editorial",
+    audiovisual: "Creación de Videos",
   };
   // Días hábiles mínimos según tipo de requerimiento
   const DIAS_HABILES_POR_TIPO = {
-    adaptacion: 7, creacion: 10,
-    editorial: 20, audiovisual: 20,
+    adaptacion: 7,
+    creacion: 10,
+    editorial: 20,
+    audiovisual: 20,
   };
   // Info de tipos de requerimiento
   const INFO_TIPOS = {
@@ -73,8 +131,14 @@ document.addEventListener("DOMContentLoaded", function () {
   };
   // Configuración visual de estados
   const MAPA_ESTADOS = {
-    pendiente_sin_asignar: { texto: "Por Aprobar", clase: "estado-por_aprobar" },
-    pendiente_asignado: { texto: "Asignado", clase: "estado-pendiente_asignado" },
+    pendiente_sin_asignar: {
+      texto: "Por Aprobar",
+      clase: "estado-por_aprobar",
+    },
+    pendiente_asignado: {
+      texto: "Asignado",
+      clase: "estado-pendiente_asignado",
+    },
     en_proceso: { texto: "En Proceso", clase: "estado-en_proceso" },
     en_revision: { texto: "En Revisión", clase: "estado-en_revision" },
     finalizado: { texto: "Finalizado", clase: "estado-completado" },
@@ -88,23 +152,26 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // Variables Globales
-  let pasoActual = 1;                 // Controla en qué paso del wizard está
-  let archivosSeleccionados = [];     // Array para guardar archivos antes de enviar
-  let temporizadorBusqueda;           // Para el debounce del buscador (Temporizador)
+  let pasoActual = 1; // Controla en qué paso del wizard está
+  let archivosSeleccionados = []; // Array para guardar archivos antes de enviar
+  let temporizadorBusqueda; // Para el debounce del buscador (Temporizador)
 
   // HELPERS (funciones de ayuda/reutilizables)
-  const qs = (selector) => document.querySelector(selector);          // Función: buscar el primer elemento que coincida con el selector
-  const qsAll = (selector) => document.querySelectorAll(selector);    // Similar al anterior pero devuelve todos los elementos que coincidan
-  const getVal = (selector) => qs(selector)?.value?.trim() || "";     // Obtiene valor limpio de un input, o vacío si no existe
-  const getIdVal = (id) => document.getElementById(id)?.value?.trim() || "";    // Similar a línea 81 pero busca por ID
-  const checkedVals = (name) => Array.from(qsAll(`input[name="${name}"]:checked`)).map((c) => c.value);   // Devuelve array con los valores de todos los checkboxes
+  const qs = (selector) => document.querySelector(selector); // Función: buscar el primer elemento que coincida con el selector
+  const qsAll = (selector) => document.querySelectorAll(selector); // Similar al anterior pero devuelve todos los elementos que coincidan
+  const getVal = (selector) => qs(selector)?.value?.trim() || ""; // Obtiene valor limpio de un input, o vacío si no existe
+  const getIdVal = (id) => document.getElementById(id)?.value?.trim() || ""; // Similar a línea 81 pero busca por ID
+  const checkedVals = (name) =>
+    Array.from(qsAll(`input[name="${name}"]:checked`)).map((c) => c.value); // Devuelve array con los valores de todos los checkboxes
 
   // Convierte bytes a formato legible (KB, MB, GB)
   const formatearTamano = (bytes) => {
     if (!bytes) return "0 Bytes";
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
     return (
-      parseFloat((bytes / Math.pow(1024, i)).toFixed(1)) + " " + ["Bytes", "KB", "MB", "GB"][i]
+      parseFloat((bytes / Math.pow(1024, i)).toFixed(1)) +
+      " " +
+      ["Bytes", "KB", "MB", "GB"][i]
     );
   };
 
@@ -114,13 +181,29 @@ document.addEventListener("DOMContentLoaded", function () {
     if (mimeType?.startsWith("video/")) return "bi-file-earmark-play";
     if (mimeType?.startsWith("audio/")) return "bi-file-earmark-music";
     if (mimeType?.includes("pdf")) return "bi-file-earmark-pdf";
-    if ( mimeType?.includes("word") || fileName?.endsWith(".doc") || fileName?.endsWith(".docx") )
+    if (
+      mimeType?.includes("word") ||
+      fileName?.endsWith(".doc") ||
+      fileName?.endsWith(".docx")
+    )
       return "bi-file-earmark-word";
-    if ( mimeType?.includes("excel") || fileName?.endsWith(".xls") || fileName?.endsWith(".xlsx") )
+    if (
+      mimeType?.includes("excel") ||
+      fileName?.endsWith(".xls") ||
+      fileName?.endsWith(".xlsx")
+    )
       return "bi-file-earmark-excel";
-    if (mimeType?.includes("powerpoint") || fileName?.endsWith(".ppt") || fileName?.endsWith(".pptx") )
+    if (
+      mimeType?.includes("powerpoint") ||
+      fileName?.endsWith(".ppt") ||
+      fileName?.endsWith(".pptx")
+    )
       return "bi-file-earmark-ppt";
-    if (mimeType?.includes("zip") || fileName?.endsWith(".zip") || fileName?.endsWith(".rar"))
+    if (
+      mimeType?.includes("zip") ||
+      fileName?.endsWith(".zip") ||
+      fileName?.endsWith(".rar")
+    )
       return "bi-file-earmark-zip";
     return "bi-file-earmark";
   };
@@ -162,12 +245,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // Vista Previa (Archivos)
   // Renderiza la lista de archivos seleccionados con preview
   function mostrarPreviewArchivos(files) {
-    if (!listaArchivos){ return; }
+    if (!listaArchivos) {
+      return;
+    }
     archivosSeleccionados = files;
 
     listaArchivos.innerHTML = `
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:15px;max-height:300px;overflow-y:auto;">
-        ${files.map((file, index) => {
+        ${files
+          .map((file, index) => {
             // Si es imagen, muestra thumbnail; si no, muestra icono
             const iconoPreview = file.type.startsWith("image/")
               ? `<img src="${URL.createObjectURL(file)}" style="width:50px;height:50px;object-fit:cover;border-radius:6px;"/>`
@@ -187,7 +273,8 @@ document.addEventListener("DOMContentLoaded", function () {
               </div>
             </div>
           `;
-          }).join("")}
+          })
+          .join("")}
       </div>
     `;
   }
@@ -291,7 +378,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <td>${servicio}</td>
             <td><span class="badge-estado ${cfgEstado.clase}">${cfgEstado.texto.toUpperCase()}</span></td>
             <td>${pedido.prioridad ? `<span class="badge-prio ${cfgPrioridad.clase}">${cfgPrioridad.etiqueta}</span>` : "—"}</td>
-            <td style="color:#777;font-size:11px;">${pedido.fechacreacion?.substring(0, 10)}</td>
+            <td style="color:#777;font-size:11px;">${pedido.fechacreacion.substring(0, 10)}</td>
             <td>
               <button onclick="verDetalle(${pedido.idrequerimiento})" class="btn-ver" style="border:none;background:none;cursor:pointer;">
                 <i class="bi bi-eye" style="color:#007bff;"></i>
@@ -340,7 +427,8 @@ document.addEventListener("DOMContentLoaded", function () {
     opciones
       .map(
         (op) =>
-          `<label class="check-item"><input type="checkbox" name="${name}" value="${op}" onchange="${onchange}"><span>${op}</span></label>`,
+          `<label class="check-item" style="display:block;margin-bottom:8px;"><input type="checkbox" name="${name}" value="${op}"
+          onchange="${onchange}"><span>${op}</span></label>`,
       )
       .join("");
 
@@ -439,6 +527,17 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("info-tipo-equipo").textContent = info.equipo;
 
     container.style.display = "block";
+
+    // Auto-llenar fecha mínima según tipo seleccionado
+    const fechaMin = calcularFechaMinima(parseInt(info.dias));
+    const fechaInput = document.querySelector('input[name="fecha_entrega"]');
+    if (fechaInput) {
+      const yyyy = fechaMin.getFullYear();
+      const mm = String(fechaMin.getMonth() + 1).padStart(2, "0");
+      const dd = String(fechaMin.getDate()).padStart(2, "0");
+      fechaInput.value = `${yyyy}-${mm}-${dd}`;
+      fechaInput.dispatchEvent(new Event("change")); // activa el badge
+    }
   };
 
   // Fecha input - actualizar badge cuando se selecciona
@@ -562,10 +661,18 @@ document.addEventListener("DOMContentLoaded", function () {
         errores.push("Debe especificar el formato deseado");
       if (
         document.getElementById("select-materiales")?.value === "1" &&
-        !inputArchivos?.files?.length &&
-        !getVal('[name="url_referencia"]')
-      )
-        errores.push("Debe subir un archivo o proporcionar URL de referencia");
+        !inputArchivos?.files?.length
+      ) {
+        const urlVal = getVal('[name="url_referencia"]');
+        if (!urlVal) {
+          errores.push(
+            "Debe subir un archivo o proporcionar URL de referencia",
+          );
+        } else if (!urlVal.match(/^https?:\/\/.+/)) {
+          errores.push("La URL debe comenzar con http:// o https://");
+          qs('[name="url_referencia"]')?.classList.add("is-invalid");
+        }
+      }
       if (!errores.length) generarResumen();
     }
 
@@ -592,23 +699,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Preview de archivos
   function mostrarPreviewArchivos(files) {
-      if (!listaArchivos) return;
-      archivosSeleccionados = files;
+    if (!listaArchivos) return;
+    archivosSeleccionados = files;
 
-      if (files.length === 0) {
-          listaArchivos.innerHTML = "";
-          return;
-      }
+    if (files.length === 0) {
+      listaArchivos.innerHTML = "";
+      return;
+    }
 
-      listaArchivos.innerHTML = files.map((file, index) => `
+    listaArchivos.innerHTML = files
+      .map(
+        (file, index) => `
           <div class="archivo-item-simple">
               <i class="bi ${getIconoArchivo(file.type, file.name)}"></i>
               <div class="archivo-info">
                   <div class="archivo-nombre" title="${file.name}">${file.name}</div>
                   <div class="archivo-size">${formatearTamano(file.size)}</div>
               </div>
-          </div>
-      `).join("");
+            </div>
+      `,
+      )
+      .join("");
   }
 
   // Envio del Formulario

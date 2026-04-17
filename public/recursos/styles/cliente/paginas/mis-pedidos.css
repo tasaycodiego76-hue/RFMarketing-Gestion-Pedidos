@@ -492,6 +492,14 @@ textarea.form-control:focus {
 .check-item input:checked + span {
   color: #f5c400;
 }
+.checks-grid.compact {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .checks-grid.compact {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
 .checks-grid.compact .check-item {
   padding: 8px 6px;
   font-size: 10px;
