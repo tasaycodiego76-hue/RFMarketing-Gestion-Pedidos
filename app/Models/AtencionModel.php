@@ -42,7 +42,7 @@
                   a.titulo,
                   a.estado,
                   a.prioridad,
-                  r.fechacreacion,
+                  a.fechacreacion,
                   COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
                   e.nombreempresa AS empresa
               FROM atencion a

@@ -36,11 +36,13 @@ class RequerimientoModel extends Model
         SELECT 
             r.*,
             a.estado,
-            a.prioridad AS atn_priority,
+            COALESCE(a.prioridad, r.prioridad) AS prioridad,
             a.num_modificaciones,
             a.url_entrega,
             a.fechainicio,
             a.fechafin,
+            a.fechacreacion,
+            a.fechacompletado,
             s.nombre AS nombre_servicio,
             u.nombre AS empleado_nombre
         FROM requerimiento r

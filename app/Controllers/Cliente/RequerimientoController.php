@@ -334,7 +334,7 @@ class RequerimientoController extends BaseController
         }
 
         $archivoModel = new ArchivoModel();
-        $carpeta = WRITEPATH . 'uploads/requerimientos';
+        $carpeta = FCPATH . 'uploads/materiales-referencia';
 
         // Crear la carpeta si no existe
         if (!is_dir($carpeta)) {
@@ -357,7 +357,7 @@ class RequerimientoController extends BaseController
                     'idrequerimiento' => $idReq,
                     'idatencion' => $idAtn,
                     'nombre' => $file->getClientName(),          // Nombre original
-                    'ruta' => 'uploads/requerimientos/' . $nombreNuevo,  // Ruta relativa
+                    'ruta' => 'uploads/materiales-referencia/' . $nombreNuevo,  // Ruta relativa
                     'tipo' => $file->getClientMimeType(),      // Ej: image/png, application/pdf
                     'tamano' => $file->getSize(),                // Tamaño en bytes
                 ]);
@@ -451,8 +451,7 @@ class RequerimientoController extends BaseController
         $nombreArchivo = basename($nombreArchivo);
 
         // Construir la ruta completa del archivo en el servidor
-        // WRITEPATH es la carpeta writable de CodeIgniter (fuera del directorio público)
-        $rutaCompleta = WRITEPATH . 'uploads/requerimientos/' . $nombreArchivo;
+        $rutaCompleta = FCPATH . 'uploads/materiales-referencia/' . $nombreArchivo;
 
         // Validar que el archivo existe y es un archivo (no una carpeta)
         if (!is_file($rutaCompleta)) {

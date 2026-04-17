@@ -291,7 +291,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <td>${servicio}</td>
             <td><span class="badge-estado ${cfgEstado.clase}">${cfgEstado.texto.toUpperCase()}</span></td>
             <td>${pedido.prioridad ? `<span class="badge-prio ${cfgPrioridad.clase}">${cfgPrioridad.etiqueta}</span>` : "—"}</td>
-            <td style="color:#777;font-size:11px;">${pedido.fechacreacion?.substring(0, 10)}</td>
+            <td style="color:#777;font-size:11px;">${pedido.fechacreacion.substring(0, 10)}</td>
             <td>
               <button onclick="verDetalle(${pedido.idrequerimiento})" class="btn-ver" style="border:none;background:none;cursor:pointer;">
                 <i class="bi bi-eye" style="color:#007bff;"></i>

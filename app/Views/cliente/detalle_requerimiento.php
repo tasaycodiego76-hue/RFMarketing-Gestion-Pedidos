@@ -23,9 +23,8 @@
     <div class="col-lg-8">
         <div class="card-dark-main p-4 h-100">
             <div class="badges-row mb-4">
-                <span class="badge-type"><?= strtoupper(esc($requerimiento['nombre_servicio'] ?? 'DISEÑO')) ?></span>
-                <span class="badge-status status-<?= strtolower($requerimiento['estado']) ?>">
-                    <?= strtoupper(str_replace('_', ' ', $requerimiento['estado'])) ?>
+                <span class="badge-type">
+                    <?= mb_strtoupper(esc($requerimiento['nombre_servicio'] ?? $requerimiento['servicio_personalizado']), 'UTF-8') ?>
                 </span>
                 <span class="badge-priority prio-<?= strtolower($requerimiento['prioridad']) ?>">
                     <?= esc($requerimiento['prioridad']) ?>
@@ -122,6 +121,17 @@
                     </div>
                 </div>
             <?php endif; ?>
+
+            <div
+                class="timeline-item <?= ($requerimiento['estado'] == 'finalizado') ? 'active-step-success' : 'pending-step' ?>">
+                <i class="bi bi-check-circle-fill"></i>
+                <div>
+                    <span class="t-label">REQUERIMIENTO FINALIZADO</span>
+                    <span class="t-value">
+                        <?= !empty($requerimiento['fechacompletado']) ? date('d/m/Y', strtotime($requerimiento['fechacompletado'])) : '<span class="text-muted">-- / -- / --</span>' ?>
+                    </span>
+                </div>
+            </div>
 
             <div class="timeline-item <?= ($requerimiento['estado'] == 'completado') ? 'active-step' : '' ?>">
                 <i class="bi bi-check-circle"></i>

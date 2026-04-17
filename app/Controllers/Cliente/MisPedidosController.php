@@ -63,7 +63,6 @@ class MisPedidosController extends BaseController
 
             $model = new AtencionModel();
             $data = $model->getPedidosPorCliente($idUsuario);
-
             return $this->response->setJSON($data);
         } catch (\Exception $e) {
             return $this->response->setJSON([
