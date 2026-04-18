@@ -372,9 +372,6 @@ document.addEventListener("DOMContentLoaded", function () {
       (el("wbadge-container").innerHTML =
         `<span class="sbadge ${estilo.cls}">${estilo.label}</span>`);
     el("form-idservicio") && (el("form-idservicio").value = idServicio);
-    el("txt-servicio-seleccionado") &&
-      (el("txt-servicio-seleccionado").innerText =
-        nombreServicio || "Servicio Especial");
 
     // Muestra/oculta campos según si es personalizado
     show("contenedor-nombre-personalizado", idServicio === 0);
@@ -610,9 +607,6 @@ document.addEventListener("DOMContentLoaded", function () {
                   <div class="archivo-nombre" title="${file.name}">${file.name}</div>
                   <div class="archivo-size">${formatearTamano(file.size)}</div>
               </div>
-              <button type="button" class="btn-eliminar" onclick="eliminarArchivo(${index})">
-                  <i class="bi bi-trash"></i>
-              </button>
           </div>
       `).join("");
   }

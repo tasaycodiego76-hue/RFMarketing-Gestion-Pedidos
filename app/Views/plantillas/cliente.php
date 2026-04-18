@@ -178,7 +178,7 @@
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- JS Plantilla -->
-    <script src="<?= base_url('recursos/scripts/plantillas/cliente.js') ?>"></script>
+    <script src="<?= base_url('recursos/scripts/cliente/plantilla/cliente.js') ?>"></script>
     <!-- Agregar Scrips -->
     <?= $this->renderSection('scripts') ?>
 </body>

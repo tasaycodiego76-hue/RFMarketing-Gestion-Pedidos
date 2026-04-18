@@ -59,7 +59,7 @@
             </div>
 
             <div class="mb-4">
-                <label class="label-tiny">DESCRIPCIÓN / BRIEF</label>
+                <label class="label-tiny">DESCRIPCIÓN</label>
                 <div class="brief-container mt-2">
                     <?= nl2br(esc($requerimiento['descripcion'])) ?>
                 </div>
