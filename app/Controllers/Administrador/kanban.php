@@ -144,13 +144,21 @@ class kanban extends Controller
         $nuevoEstado = $json['estado'];
         $idAdmin     = $json['idadmin'] ?? 1;
         $accion      = $json['accion'] ?? 'Cambio de estado';
+        $idAreaAgencia = $json['idareaagencia'] ?? null;
 
         $estadosValidos = ['pendiente_sin_asignar', 'pendiente_asignado', 'en_proceso', 'en_revision', 'finalizado', 'cancelado'];
         if (!in_array($nuevoEstado, $estadosValidos)) {
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Estado no válido']);
         }
 
-        if ($nuevoEstado === 'finalizado') {
+        // Si cambia a 'en_proceso' desde 'pendiente_sin_asignar', asignar el área también
+        if ($nuevoEstado === 'en_proceso' && $idAreaAgencia) {
+            $db->query("
+                UPDATE atencion
+                SET estado = ?, idarea_agencia = ?
+                WHERE id = ?
+            ", [$nuevoEstado, $idAreaAgencia, $idAtencion]);
+        } elseif ($nuevoEstado === 'finalizado') {
             $db->query("UPDATE atencion SET estado = ?, fechacompletado = NOW() WHERE id = ?", [$nuevoEstado, $idAtencion]);
         } else {
             $db->query("UPDATE atencion SET estado = ? WHERE id = ?", [$nuevoEstado, $idAtencion]);

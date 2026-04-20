@@ -502,6 +502,77 @@
 }
 
 /* ══════════════════════════════════════
+   DRAG & DROP INTERACTIVO
+══════════════════════════════════════ */
+
+/* Tarjeta arrastrable */
+.kb-card[draggable="true"] {
+    cursor: grab;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.kb-card[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+/* Efecto al arrastrar */
+.kb-card.dragging {
+    opacity: 0.6;
+    transform: scale(0.98);
+}
+
+/* Columna lista para recibir */
+.kb-col-body.drop-ready {
+    background: rgba(168, 85, 247, 0.08);
+    box-shadow: inset 0 0 20px rgba(168, 85, 247, 0.1);
+}
+
+/* Los botones deben seguir funcionando */
+.kb-card .kb-btn {
+    cursor: pointer;
+}
+
+/* Efecto visual al arrastrar */
+.kb-card.dragging {
+    opacity: 0.9;
+    transform: rotate(2deg) scale(1.02);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+}
+
+/* Marcador de posición al arrastrar */
+.kb-card-placeholder {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%);
+    border: 2px dashed #a855f7;
+    border-radius: 10px;
+    height: 100px;
+    margin-bottom: 10px;
+    animation: placeholder-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes placeholder-pulse {
+    0%, 100% {
+        border-color: #a855f7;
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%);
+    }
+    50% {
+        border-color: #c084fc;
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(168, 85, 247, 0.1) 100%);
+    }
+}
+
+/* Área válida para soltar - columna En Proceso */
+.kb-col-body[data-estado="en_proceso"].drag-target {
+    background: rgba(168, 85, 247, 0.05);
+    border-radius: 12px;
+}
+
+/* Posición relativa para el ::before */
+.kb-col {
+    position: relative;
+}
+
+/* ══════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════ */
 @media (max-width: 1200px) {

@@ -249,3 +249,110 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// ═══ DRAG & DROP INTERACTIVO ═══
+
+document.addEventListener('DOMContentLoaded', function() {
+    let draggedCardId = null;
+
+    // Hacer arrastrables las cards de "Por Aprobar"
+    document.querySelectorAll('.kb-card').forEach(card => {
+        const colEstado = card.closest('.kb-col-body')?.dataset?.estado;
+
+        if (colEstado === 'pendiente_sin_asignar') {
+            card.draggable = true;
+
+            card.ondragstart = function(e) {
+                // No arrastrar si se hizo clic en un botón
+                if (e.target.closest('.kb-btn')) {
+                    e.preventDefault();
+                    return;
+                }
+
+                draggedCardId = this.dataset.id;
+                e.dataTransfer.setData('text/plain', draggedCardId);
+                e.dataTransfer.effectAllowed = 'move';
+
+                // Efecto visual sutil
+                this.classList.add('dragging');
+            };
+
+            card.ondragend = function() {
+                this.classList.remove('dragging');
+                draggedCardId = null;
+
+                // Limpiar efectos de columna
+                document.querySelectorAll('.kb-col-body').forEach(col => {
+                    col.classList.remove('drop-ready');
+                });
+            };
+        }
+    });
+
+    // Columnas como áreas de drop
+    document.querySelectorAll('.kb-col-body').forEach(col => {
+        if (col.dataset.estado !== 'en_proceso') return;
+
+        col.ondragenter = function(e) {
+            e.preventDefault();
+            this.classList.add('drop-ready');
+        };
+
+        col.ondragover = function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        };
+
+        col.ondragleave = function(e) {
+            // Solo quitar si salimos de la columna completa
+            if (!this.contains(e.relatedTarget)) {
+                this.classList.remove('drop-ready');
+            }
+        };
+
+        col.ondrop = function(e) {
+            e.preventDefault();
+            this.classList.remove('drop-ready');
+
+            if (!draggedCardId) return;
+
+            cambiarEstadoConArea(draggedCardId, 'en_proceso', 'Mover a En Proceso');
+        };
+    });
+});
+
+/**
+ * Cambia el estado de una atención asignando el área actual
+ * @param {number} idAtencion - ID de la atención
+ * @param {string} nuevoEstado - Nuevo estado a asignar
+ * @param {string} accion - Nombre de la acción
+ */
+async function cambiarEstadoConArea(idAtencion, nuevoEstado, accion) {
+    try {
+        const response = await fetch(BASE_URL + 'admin/kanban/cambiarEstado', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                idatencion: idAtencion,
+                estado: nuevoEstado,
+                accion: accion,
+                idareaagencia: AREA_ACTUAL
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const res = await response.json();
+
+        if (res.status === 'success') {
+            location.reload();
+        } else {
+            alert(res.msg || 'Error al cambiar el estado');
+        }
+    } catch (error) {
+        console.error('Error al cambiar estado:', error);
+        alert('Error al cambiar el estado. Intenta nuevamente.');
+    }
+}
+

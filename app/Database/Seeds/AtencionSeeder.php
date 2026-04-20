@@ -42,7 +42,7 @@ class AtencionSeeder extends Seeder
         'idadmin' => 1,
         'idempleado' => null,
         'idservicio' => 1,
-        'idarea_agencia' => null,       
+        'idarea_agencia' => 1,
         'servicio_personalizado' => null,
         'titulo' => 'Banner Laboratorio de Ingeniería',
         'prioridad' => 'Media',

@@ -53,7 +53,7 @@
             <span class="kb-col-count"><?= count($col['items']) ?></span>
         </div>
 
-        <div class="kb-col-body">
+        <div class="kb-col-body" data-estado="<?= $estado ?>">
             <?php if (empty($col['items'])): ?>
                 <div class="kb-empty">Sin requerimientos</div>
             <?php else: ?>
@@ -98,7 +98,6 @@
 
                     <div class="kb-card-actions">
                         <?php if ($estado === 'pendiente_sin_asignar'): ?>
-                            <button class="kb-btn kb-btn-asignar" onclick="abrirModalAsignar(<?= $p['id'] ?>)">Asignar</button>
                             <button class="kb-btn kb-btn-ver" onclick="verDetalle(<?= $p['id'] ?>)">Ver</button>
                             <button class="kb-btn kb-btn-cancel" onclick="cancelarAtencion(<?= $p['id'] ?>)">✕</button>
                         <?php elseif ($estado === 'en_proceso'): ?>
