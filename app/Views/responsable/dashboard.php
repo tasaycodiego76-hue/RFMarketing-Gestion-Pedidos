@@ -1,6 +1,16 @@
 <?= $this->extend('plantillas/responsable') ?>
 
 <?= $this->section('estilos') ?>
+<style>
+.estado-pendiente_especificacion {
+    background: #f59e0b;
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('contenido') ?>

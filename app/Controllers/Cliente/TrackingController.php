@@ -4,6 +4,8 @@ namespace App\Controllers\Cliente;
 
 use App\Controllers\BaseController;
 use App\Models\TrackingModel;
+use App\Models\RequerimientoModel;
+use App\Models\UsuarioModel;
 
 class TrackingController extends BaseController
 {
@@ -48,6 +50,51 @@ class TrackingController extends BaseController
         return $this->response->setJSON([
             'status' => 'success',
             'data' => $data
+        ]);
+    }
+
+    /**
+     * Renderiza la vista de seguimiento de un requerimiento
+     * @param mixed $idRequerimiento
+     * @return string|\CodeIgniter\HTTP\RedirectResponse
+     */
+    public function vistaSeguimiento($idRequerimiento = null)
+    {
+        $user = $this->getActiveUser();
+
+        if (!is_array($user) || $user['rol'] !== 'cliente') {
+            return redirect()->to(base_url('/'))->with('error', 'Acceso denegado.');
+        }
+
+        if (!$idRequerimiento) {
+            return redirect()->to(base_url('cliente/mis_solicitudes'))->with('error', 'ID no válido.');
+        }
+
+        // Traer datos del usuario para el Sidebar/TopBar
+        $usuarioModel = new UsuarioModel();
+        $userData = $usuarioModel->getDetalleUsuario($user['id']);
+
+        // Obtener datos del requerimiento
+        $reqModel = new RequerimientoModel();
+        $requerimiento = $reqModel->getDetalleCompleto($idRequerimiento);
+
+        if (!$requerimiento) {
+            return redirect()->to(base_url('cliente/mis_solicitudes'))->with('error', 'Requerimiento no encontrado.');
+        }
+
+        // Verificar que el requerimiento pertenezca al usuario
+        if ($requerimiento['idusuarioempresa'] != $user['id']) {
+            return redirect()->to(base_url('cliente/mis_solicitudes'))->with('error', 'No tiene permiso para ver este seguimiento.');
+        }
+
+        // Obtener el historial de tracking por idatencion
+        $trackingModel = new TrackingModel();
+        $historial = $trackingModel->getHistorialCompleto($requerimiento['idatencion'] ?? $requerimiento['id']);
+
+        return view('cliente/seguimiento_requerimiento', [
+            'requerimiento' => $requerimiento,
+            'historial' => $historial,
+            'user' => $userData
         ]);
     }
 

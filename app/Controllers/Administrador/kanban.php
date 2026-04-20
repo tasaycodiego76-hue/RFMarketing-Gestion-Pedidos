@@ -38,6 +38,7 @@ class kanban extends Controller
             if ($estado === 'pendiente_asignado') {
                 $estado = 'en_proceso';
             }
+
             if (isset($columnas[$estado])) {
                 $columnas[$estado]['items'][] = $a;
             }
@@ -166,13 +167,13 @@ class kanban extends Controller
      */
     public function cambiarEstado()
     {
-        $db = \Config\Database::connect();
+        $db   = \Config\Database::connect();
         $json = $this->request->getJSON(true);
 
-        $idAtencion = $json['idatencion'];
+        $idAtencion  = $json['idatencion'];
         $nuevoEstado = $json['estado'];
-        $idAdmin = $json['idadmin'] ?? 1;
-        $accion = $json['accion'] ?? 'Cambio de estado';
+        $idAdmin     = $json['idadmin'] ?? 1;
+        $accion      = $json['accion'] ?? 'Cambio de estado';
 
         $estadosValidos = ['pendiente_sin_asignar', 'pendiente_asignado', 'en_proceso', 'en_revision', 'finalizado', 'cancelado'];
         if (!in_array($nuevoEstado, $estadosValidos)) {

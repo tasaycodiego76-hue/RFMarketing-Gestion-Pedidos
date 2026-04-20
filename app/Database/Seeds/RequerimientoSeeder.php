@@ -10,7 +10,7 @@ class RequerimientoSeeder extends Seeder
     {
         $data = [
             [
-                'idusuarioempresa' => 8,
+                'idusuarioempresa' => 13,
                 'idservicio' => 1,
                 'servicio_personalizado' => null,
                 'titulo' => 'Logo Aniversario UAI',
@@ -27,7 +27,7 @@ class RequerimientoSeeder extends Seeder
                 'prioridad' => 'Media'
             ],
             [
-                'idusuarioempresa' => 9,
+                'idusuarioempresa' => 14,
                 'idservicio' => 1,
                 'servicio_personalizado' => null,
                 'titulo' => 'Banner Laboratorio de Ingeniería',
@@ -44,7 +44,7 @@ class RequerimientoSeeder extends Seeder
                 'prioridad' => 'Media'
             ],
             [
-                'idusuarioempresa' => 8,
+                'idusuarioempresa' => 13,
                 'idservicio' => 2,
                 'servicio_personalizado' => null,
                 'titulo' => 'Video Reel Bienvenida',
@@ -61,7 +61,7 @@ class RequerimientoSeeder extends Seeder
                 'prioridad' => 'Alta'
             ],
             [
-                'idusuarioempresa' => 8,
+                'idusuarioempresa' => 13,
                 'idservicio' => null,
                 'servicio_personalizado' => 'Campaña Intriga Verano',
                 'titulo' => 'Lanzamiento Colección 2026',

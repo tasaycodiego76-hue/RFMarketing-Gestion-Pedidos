@@ -20,14 +20,15 @@ class AtencionSeeder extends Seeder
                 'prioridad' => 'Media',
                 'estado' => 'finalizado',
                 'num_modificaciones' => 1,
+                'observacion_revision' => 'Ajustar tono dorado',
                 'url_entrega' => 'https://dropbox.com/s/logo_uai_final.png',
                 'fechacreacion' => '2026-02-25 10:00:00',
-                'fechainicio' => '2026-03-02 09:00:00', 
+                'fechainicio' => '2026-03-02 09:00:00',
                 'fechafin' => '2026-03-13 18:00:00',
                 'fechacompletado' => '2026-03-13 18:30:00'
             ],
             [
-                'idrequerimiento' => 2, // Banner Laboratorio de Ingeniería
+                'idrequerimiento' => 2,
                 'idadmin' => 1,
                 'idempleado' => 4,
                 'idservicio' => 1,
@@ -37,6 +38,7 @@ class AtencionSeeder extends Seeder
                 'prioridad' => 'Media',
                 'estado' => 'finalizado',
                 'num_modificaciones' => 0,
+                'observacion_revision' => null,
                 'url_entrega' => 'https://dropbox.com/s/banner_ing_final.pdf',
                 'fechacreacion' => '2026-03-04 15:20:00',
                 'fechainicio' => '2026-03-09 14:00:00',
@@ -54,14 +56,15 @@ class AtencionSeeder extends Seeder
                 'prioridad' => 'Alta',
                 'estado' => 'en_revision',
                 'num_modificaciones' => 2,
-                'url_entrega' => null,
+                'observacion_revision' => 'Corregir música de fondo',
+                'url_entrega' => 'https://dropbox.com/s/video_bienvenida_v2.mp4',
                 'fechacreacion' => '2026-03-10 09:00:00',
                 'fechainicio' => '2026-03-16 08:30:00',
-                'fechafin' => null, 
-                'fechacompletado' => null 
+                'fechafin' => '2026-04-05 18:00:00',
+                'fechacompletado' => null
             ],
             [
-                'idrequerimiento' => 4, // Lanzamiento Colección 2026
+                'idrequerimiento' => 4,
                 'idadmin' => 1,
                 'idempleado' => 3,
                 'idservicio' => null,
@@ -71,10 +74,11 @@ class AtencionSeeder extends Seeder
                 'prioridad' => 'Alta',
                 'estado' => 'en_proceso',
                 'num_modificaciones' => 0,
+                'observacion_revision' => null,
                 'url_entrega' => null,
                 'fechacreacion' => '2026-04-08 10:00:00',
                 'fechainicio' => '2026-04-10 09:00:00',
-                'fechafin' => null,
+                'fechafin' => '2026-04-25 18:00:00',
                 'fechacompletado' => null
             ]
         ];

@@ -99,7 +99,7 @@
             SELECT
                 COUNT(CASE WHEN a.estado IN ('en_proceso', 'pendiente_asignado') THEN 1 END) AS activos,
                 COUNT(CASE WHEN a.estado = 'en_revision' THEN 1 END) AS en_revision,
-                COUNT(CASE WHEN a.estado = 'pendiente_sin_asignar' THEN 1 END) AS por_aprobar,
+                COUNT(CASE WHEN a.estado IN ('pendiente_sin_asignar') THEN 1 END) AS por_aprobar,
                 COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) AS completados
             FROM atencion a
             INNER JOIN requerimiento r ON r.id = a.idrequerimiento

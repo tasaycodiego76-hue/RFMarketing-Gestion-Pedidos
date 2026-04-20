@@ -7,6 +7,7 @@ use App\Models\ArchivoModel;
 use App\Models\RequerimientoModel;
 use App\Models\AtencionModel;
 use App\Models\UsuarioModel;
+use \App\Models\TrackingModel;
 
 class RequerimientoController extends BaseController
 {
@@ -19,7 +20,6 @@ class RequerimientoController extends BaseController
     {
         // Obtiene el usuario de la sesión
         $user = $this->getActiveUser();
-
         // Validación de Seguridad
         if (!is_array($user) || $user['rol'] !== 'cliente') {
             // Si no es cliente, lo mandamos al login o inicio con un flashdata
@@ -54,7 +54,7 @@ class RequerimientoController extends BaseController
     }
 
     /**
-     * Guarda un nuevo requerimiento con su atención y archivos adjuntos.
+     * Guarda un nuevo requerimiento con su atención y archivos adjuntos, ademas de Crear el Primer Tracking (Seguimiento).
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function guardar()
@@ -67,7 +67,7 @@ class RequerimientoController extends BaseController
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Sesión no válida.']);
         }
 
-        // ========== VALIDACIONES DE CAMPOS ==========
+        // Validaciones (Error)
         $errores = [];
 
         // Servicio
@@ -80,94 +80,89 @@ class RequerimientoController extends BaseController
             $errores[] = 'El nombre del servicio personalizado es obligatorio.';
         }
 
-        // Título
+        // Título (siempre obligatorio)
         $titulo = $this->request->getPost('titulo');
         if (empty($titulo) || trim($titulo) === '') {
             $errores[] = 'El título del requerimiento es obligatorio.';
         }
 
-        // Objetivo de comunicación
-        $objetivo = $this->request->getPost('objetivo_comunicacion');
-        if (empty($objetivo) || trim($objetivo) === '') {
-            $errores[] = 'El objetivo de comunicación es obligatorio.';
-        }
+            // Objetivo de comunicación
+            $objetivo = $this->request->getPost('objetivo_comunicacion');
+            if (empty($objetivo) || trim($objetivo) === '') {
+                $errores[] = 'El objetivo de comunicación es obligatorio.';
+            }
+            // Descripción
+            $descripcion = $this->request->getPost('descripcion');
+            if (empty($descripcion) || trim($descripcion) === '') {
+                $errores[] = 'La descripción es obligatoria.';
+            }
+            // Tipo de requerimiento
+            $tipoReq = $this->request->getPost('tipo_requerimiento');
+            if (empty($tipoReq) || trim($tipoReq) === '') {
+                $errores[] = 'El tipo de requerimiento es obligatorio.';
+            }
+            // Canales de difusión - mínimo 1, máximo 3
+            $canalesRaw = $this->request->getPost('canales_difusion');
+            if (!empty($canalesRaw)) {
+                $canales = json_decode($canalesRaw, true) ?: [];
+            }
+            $cantCanales = count($canales);
+            if ($cantCanales === 0) {
+                $errores[] = 'Debe seleccionar al menos un canal de difusión.';
+            } elseif ($cantCanales > 3) {
+                $errores[] = 'No puede seleccionar más de 3 canales de difusión.';
+            }
+            // Público objetivo
+            $publico = $this->request->getPost('publico_objetivo');
+            if (empty($publico) || trim($publico) === '') {
+                $errores[] = 'El público objetivo es obligatorio.';
+            }
+            // Materiales
+            $tieneMateriales = ($this->request->getPost('tiene_materiales') === '1');
+            $urlSubida = $this->request->getPost('url_subida');
+            $archivos = $this->request->getFiles();
+            $tieneArchivos = !empty($archivos['documentos']) && $this->hayArchivosValidos($archivos['documentos']);
+            //Validacion
+            if ($tieneMateriales && !$tieneArchivos && (empty($urlSubida) || trim($urlSubida) === '')) {
+                $errores[] = 'Si indica que tiene materiales, debe subir al menos un archivo o proporcionar una URL de referencia.';
+            }
+            // Formatos solicitados - mínimo 1
+            $formatosRaw = $this->request->getPost('formatos_solicitados');
+            if (!empty($formatosRaw)) {
+                $formatos = json_decode($formatosRaw, true) ?: [];
+            }
+            if (count($formatos) === 0) {
+                $errores[] = 'Debe seleccionar al menos un formato solicitado.';
+            }
+            // Formato "Otros" - si está seleccionado, el campo formato_otros es obligatorio
+            $formatoOtros = $this->request->getPost('formato_otros');
+            if (in_array('Otros', $formatos) && (empty($formatoOtros) || trim($formatoOtros) === '')) {
+                $errores[] = 'Si selecciona "Otros" en formatos, debe especificar el formato deseado.';
+            }
 
-        // Descripción
-        $descripcion = $this->request->getPost('descripcion');
-        if (empty($descripcion) || trim($descripcion) === '') {
-            $errores[] = 'La descripción es obligatoria.';
-        }
-
-        // Tipo de requerimiento
-        $tipoReq = $this->request->getPost('tipo_requerimiento');
-        if (empty($tipoReq) || trim($tipoReq) === '') {
-            $errores[] = 'El tipo de requerimiento es obligatorio.';
-        }
-
-        // Canales de difusión - mínimo 1, máximo 3
-        $canalesRaw = $this->request->getPost('canales_difusion');
-        $canales = [];
-        if (!empty($canalesRaw)) {
-            $canales = json_decode($canalesRaw, true) ?: [];
-        }
-        $cantCanales = count($canales);
-        if ($cantCanales === 0) {
-            $errores[] = 'Debe seleccionar al menos un canal de difusión.';
-        } elseif ($cantCanales > 3) {
-            $errores[] = 'No puede seleccionar más de 3 canales de difusión.';
-        }
-
-        // Público objetivo
-        $publico = $this->request->getPost('publico_objetivo');
-        if (empty($publico) || trim($publico) === '') {
-            $errores[] = 'El público objetivo es obligatorio.';
-        }
-
-        // Materiales
-        $tieneMateriales = ($this->request->getPost('tiene_materiales') === '1');
-        $urlSubida = $this->request->getPost('url_subida');
-        $archivos = $this->request->getFiles();
-        $tieneArchivos = !empty($archivos['documentos']) && $this->hayArchivosValidos($archivos['documentos']);
-
-        if ($tieneMateriales && !$tieneArchivos && (empty($urlSubida) || trim($urlSubida) === '')) {
-            $errores[] = 'Si indica que tiene materiales, debe subir al menos un archivo o proporcionar una URL de referencia.';
-        }
-
-        // Formatos solicitados - mínimo 1
-        $formatosRaw = $this->request->getPost('formatos_solicitados');
-        $formatos = [];
-        if (!empty($formatosRaw)) {
-            $formatos = json_decode($formatosRaw, true) ?: [];
-        }
-        if (count($formatos) === 0) {
-            $errores[] = 'Debe seleccionar al menos un formato solicitado.';
-        }
-
-        // Formato "Otros" - si está seleccionado, el campo formato_otros es obligatorio
-        $formatoOtros = $this->request->getPost('formato_otros');
-        if (in_array('Otros', $formatos) && (empty($formatoOtros) || trim($formatoOtros) === '')) {
-            $errores[] = 'Si selecciona "Otros" en formatos, debe especificar el formato deseado.';
-        }
-
-        // Fecha requerida - validar según tipo de requerimiento
-        $fechaRaw = $this->request->getPost('fecharequerida') ?? $this->request->getPost('fecha_entrega');
+        // Fecha requerida - SIEMPRE obligatoria para todos los servicios
+        $fechaRaw = $this->request->getPost('fecharequerida');
         if (empty($fechaRaw)) {
             $errores[] = 'La fecha de entrega requerida es obligatoria.';
         } else {
             try {
-                $fechaRequerida = new \DateTime($fechaRaw);
-                $fechaRequerida->setTime(0, 0, 0);
-                $hoy = new \DateTime();
-                $hoy->setTime(0, 0, 0);
+                $fechaRequerida = new \DateTime($fechaRaw, new \DateTimeZone('America/Lima'));
+                $fechaRequerida->setTime(0, 0, 0); //Limpiar la Hora (Dia Completos)
+                $hoy = new \DateTime('now', new \DateTimeZone('America/Lima'));
+                $hoy->setTime(0, 0, 0); //Limpiar la Hora (Dia Completos)
 
-                // Calcular fecha mínima según tipo de requerimiento
-                $diasHabiles = $this->obtenerDiasHabilesPorTipo($tipoReq);
+                // Para Creación de Contenido, usar 2 días hábiles como mínimo por defecto
+                // o calcular según tipo si existe
+                if (empty($tipoReq)) {
+                    $diasHabiles = 2;
+                } else {
+                    $diasHabiles = $this->obtenerDiasHabilesPorTipo($tipoReq ?? '');
+                }
                 $fechaMinima = $this->calcularFechaMinima($diasHabiles);
 
                 if ($fechaRequerida < $fechaMinima) {
-                    $errores[] = "La fecha de entrega debe ser al menos dentro de {$diasHabiles} días hábiles ({$fechaMinima->format('d/m/Y')}) según el tipo de requerimiento '{$tipoReq}'.";
+                    $errores[] = "La fecha de entrega debe ser al menos dentro de {$diasHabiles} días hábiles ({$fechaMinima->format('d/m/Y')}).";
                 }
-
                 if ($fechaRequerida < $hoy) {
                     $errores[] = 'La fecha de entrega no puede ser anterior a hoy.';
                 }
@@ -192,10 +187,10 @@ class RequerimientoController extends BaseController
             ]);
         }
 
-        // ========== PREPARAR DATOS PARA INSERTAR ==========
-        $fechaObj = new \DateTime($fechaRaw);
+        // Preparar Datos a Insertar
+        $fechaObj = new \DateTime($fechaRaw, new \DateTimeZone('America/Lima'));
 
-        // Armar array con todos los campos del requerimiento
+        // Array con datos del Requerimiento
         $dataReq = [
             'idusuarioempresa' => (int) $idUsuario,
             'idservicio' => $idServicio,
@@ -206,10 +201,10 @@ class RequerimientoController extends BaseController
             'tipo_requerimiento' => $tipoReq,
             'canales_difusion' => json_encode($canales),
             'publico_objetivo' => trim($publico),
-            'tiene_materiales' => $tieneMateriales,
+            'tiene_materiales' => $tieneMateriales ?? false,
             'url_subida' => !empty($urlSubida) ? trim($urlSubida) : null,
             'formatos_solicitados' => json_encode($formatos),
-            'formato_otros' => in_array('Otros', $formatos) ? trim($formatoOtros) : '',
+            'formato_otros' => (isset($formatos) && in_array('Otros', $formatos)) ? trim($formatoOtros) : '',
             'fecharequerida' => $fechaObj->format('Y-m-d H:i:s'),
             'prioridad' => $prioridad,
         ];
@@ -222,8 +217,8 @@ class RequerimientoController extends BaseController
             // Insertar Requerimiento
             $reqModel = new RequerimientoModel();
             $idReq = $reqModel->insert($dataReq);
-            $idReq = $this->obtenerIdInsertado($db, $idReq); // Fallback para PostgreSQL IDENTITY
-
+            $idReq = $this->obtenerIdInsertado($db, $idReq);
+            // Validacion
             if (!$idReq) {
                 throw new \RuntimeException('No se pudo obtener el ID del requerimiento.');
             }
@@ -232,7 +227,7 @@ class RequerimientoController extends BaseController
             $atencionModel = new AtencionModel();
             $idAtn = $atencionModel->insert([
                 'idrequerimiento' => $idReq,
-                'idadmin' => 1,                                   // Admin por defecto (pendiente de asignar)
+                'idadmin' => 1,
                 'idservicio' => $idServicio,
                 'servicio_personalizado' => $dataReq['servicio_personalizado'],
                 'titulo' => $dataReq['titulo'],
@@ -242,10 +237,20 @@ class RequerimientoController extends BaseController
                 'url_entrega' => null,
             ]);
             $idAtn = $this->obtenerIdInsertado($db, $idAtn);
-
+            // Validacion
             if (!$idAtn) {
                 throw new \RuntimeException('No se pudo obtener el ID de la atención.');
             }
+
+            // Creacion del Primer Tracking (Notificacion)
+            $trackingModel = new TrackingModel();
+            $trackingModel->insert([
+                'idatencion' => $idAtn,
+                'idusuario' => $idUsuario,
+                'accion' => 'Nuevo requerimiento registrado. Pendiente de asignación',
+                'estado' => 'pendiente_sin_asignar',
+                'fecha_registro' => date('Y-m-d H:i:s'),
+            ]);
 
             // Guardar archivos adjuntos (si el usuario subió alguno)
             $this->guardarArchivos($idReq, $idAtn);
@@ -261,7 +266,7 @@ class RequerimientoController extends BaseController
 
         // CONFIRMAR TRANSACCIÓN 
         $db->transComplete();
-
+        //Validar Error en Transaccion
         if ($db->transStatus() === false) {
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Error en transacción.']);
         }
@@ -275,42 +280,40 @@ class RequerimientoController extends BaseController
 
     /**
      * Obtiene los días hábiles requeridos según el tipo de requerimiento
-     * @param string $tipo Tipo de requerimiento
-     * @return int Días hábiles requeridos
+     * @param mixed $tipo
+     * @return int
      */
     private function obtenerDiasHabilesPorTipo($tipo)
     {
         $mapaDias = [
             'Adaptación de Arte' => 2,
             'Creación de Arte' => 4,
+            'Creación de editorial' => 7,
+            'Adaptación de editorial' => 7,
             'Creación de Videos' => 7,
             'Trabajo editorial' => 7,
         ];
-        return $mapaDias[$tipo] ?? 2; // Default 2 días si no coincide
+        return $mapaDias[$tipo] ?? 2;
     }
 
     /**
      * Verifica si hay archivos válidos subidos
-     * @param array $archivos Array de archivos
+     * @param mixed $archivos
      * @return bool
      */
     private function hayArchivosValidos($archivos)
     {
-        if (empty($archivos)) {
-            return false;
-        }
-
+        if (empty($archivos)) { return false; }
         foreach ($archivos as $file) {
-            if ($file->isValid() && !$file->hasMoved()) {
-                return true;
-            }
+            if ($file->isValid()) { return true; }
         }
         return false;
     }
 
     /**
      * Fallback para obtener el ID insertado en PostgreSQL
-     * @return int|null  ID insertado o null si falló
+     * @param mixed $db
+     * @param mixed $insertId
      */
     private function obtenerIdInsertado($db, $insertId)
     {
@@ -323,30 +326,28 @@ class RequerimientoController extends BaseController
 
     /**
      * Guarda los archivos adjuntos del formulario en disco y en la BD
+     * @param int $idReq
+     * @param int $idAtn
+     * @return void
      */
     private function guardarArchivos(int $idReq, int $idAtn): void
     {
         $archivos = $this->request->getFiles();
 
         // Si no hay archivos con el name="documentos[]", salir
-        if (empty($archivos['documentos'])) {
-            return;
-        }
+        if (empty($archivos['documentos'])) { return; }
 
         $archivoModel = new ArchivoModel();
         $carpeta = FCPATH . 'uploads/materiales-referencia';
 
         // Crear la carpeta si no existe
-        if (!is_dir($carpeta)) {
-            mkdir($carpeta, 0755, true);
-        }
+        if (!is_dir($carpeta)) { mkdir($carpeta, 0755, true); }
 
         foreach ($archivos['documentos'] as $file) {
             // Saltar archivos inválidos o ya procesados
             if (!$file->isValid() || $file->hasMoved()) {
                 continue;
             }
-
             try {
                 // Generar nombre único y mover el archivo
                 $nombreNuevo = $file->getRandomName();
@@ -367,10 +368,16 @@ class RequerimientoController extends BaseController
         }
     }
 
-    //Funcion para Falidar la Fecha Minima Segun el Tipo de Requerimiento
+    /**
+     * Funcion para Falidar la Fecha Minima Segun el Tipo de Requerimiento
+     * @param mixed $diasHabiles
+     * @return \DateTime
+     */
     private function calcularFechaMinima($diasHabiles)
     {
-        $fecha = new \DateTime();
+        // Usar zona horaria de Peru (Coincidencia Fronted)
+        $fecha = new \DateTime('now', new \DateTimeZone('America/Lima'));
+        $fecha->setTime(0, 0, 0); //Limpiar la Hora (Dia Completos)
         $cont = 0;
 
         while ($cont < $diasHabiles) {
@@ -380,28 +387,9 @@ class RequerimientoController extends BaseController
                 $cont++;
             }
         }
+        // +1 día adicional (No cuenta el Dia de la Solicitud)
+        $fecha->modify('+1 day');
         return $fecha;
-    }
-
-    /**
-     * Valida un archivo individual
-     * @param $file Archivo a validar
-     * @return array ['valido' => bool, 'error' => string|null]
-     */
-    private function validarArchivo($file)
-    {
-        // Tamaño máximo: 500MB
-        $tamanoMaximo = 100 * 1024 * 1024;
-
-        if (!$file->isValid() || $file->hasMoved()) {
-            return ['valido' => false, 'error' => 'Archivo inválido o ya procesado'];
-        }
-
-        if ($file->getSize() > $tamanoMaximo) {
-            return ['valido' => false, 'error' => 'Archivo excede 500MB'];
-        }
-
-        return ['valido' => true, 'error' => null];
     }
 
     /**
@@ -446,18 +434,14 @@ class RequerimientoController extends BaseController
      */
     public function verArchivo($nombreArchivo)
     {
-        // Limpieza de seguridad
-        // basename() elimina cualquier ruta (ej: "uploads/archivo.pdf" → "archivo.pdf")
+        // LIMPIEZA: se elimina cualquier ruta (ej: "uploads/archivo.pdf" → "archivo.pdf")
         $nombreArchivo = basename($nombreArchivo);
-
         // Construir la ruta completa del archivo en el servidor
         $rutaCompleta = FCPATH . 'uploads/materiales-referencia/' . $nombreArchivo;
 
         // Validar que el archivo existe y es un archivo (no una carpeta)
         if (!is_file($rutaCompleta)) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound(
-                "El archivo no existe o no puede ser accedido."
-            );
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound( "El archivo no existe o no puede ser accedido." );
         }
 
         // Obtener información del archivo

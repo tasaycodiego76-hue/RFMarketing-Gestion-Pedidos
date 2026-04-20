@@ -37,21 +37,64 @@
       }
 
       /**
-       * Registra una nueva área desde JSON
+       * Registra una nueva área desde JSON.
+       * Si crearEnServicios es true, también crea el registro en la tabla servicios usando transacciones.
        * @return \CodeIgniter\HTTP\ResponseInterface
        */
       public function registrar(): \CodeIgniter\HTTP\ResponseInterface
       {
           $json   = $this->request->getJSON(true);
+          $db     = \Config\Database::connect();
           $model  = new AreasAgenciaModel();
 
-          $model->insert([
-              'nombre'      => $json['nombre'],
-              'descripcion' => $json['descripcion'] ?? null,
-              'activo'      => true,
-          ]);
+          $crearEnServicios = $json['crearEnServicios'] ?? false;
 
-          return $this->response->setJSON(['success' => true, 'message' => 'Área registrada']);
+          // Iniciar transacción para garantizar integridad de datos
+          $db->transStart();
+
+          try {
+              // 1. Insertar en areas_agencia
+              $model->insert([
+                  'nombre'      => $json['nombre'],
+                  'descripcion' => $json['descripcion'] ?? null,
+                  'activo'      => true,
+              ]);
+
+              // 2. Si está marcado, también insertar en servicios
+              if ($crearEnServicios) {
+                  $servicioModel = new \App\Models\ServicioModel();
+                  $servicioModel->insert([
+                      'nombre'      => $json['nombre'],
+                      'descripcion' => $json['descripcion'] ?? null,
+                      'activo'      => true,
+                  ]);
+              }
+
+              // Confirmar transacción
+              $db->transComplete();
+
+              if ($db->transStatus() === false) {
+                  return $this->response->setJSON([
+                      'success' => false,
+                      'message' => 'Error al registrar el área. La transacción falló.'
+                  ]);
+              }
+
+              $mensaje = $crearEnServicios
+                  ? 'Área registrada y también creada en Servicios'
+                  : 'Área registrada';
+
+              return $this->response->setJSON(['success' => true, 'message' => $mensaje]);
+
+          } catch (\Exception $e) {
+              // Revertir transacción en caso de error
+              $db->transRollback();
+
+              return $this->response->setJSON([
+                  'success' => false,
+                  'message' => 'Error al registrar: ' . $e->getMessage()
+              ]);
+          }
       }
 
       /**

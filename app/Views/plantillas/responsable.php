@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?= csrf_token() ?>">
-    <title>RF Marketing —  <?= esc($titulo ?? 'Responsable de Área') ?>
+    <title>RF Marketing — <?= esc($titulo ?? 'Responsable de Área') ?>
     </title>
 
     <!-- Google Fonts -->
@@ -182,7 +182,7 @@
                 <span>Cerrar Sesión</span>
             </a>
             <div class="version-info">
-                <span>RF Marketing v2.0</span>
+                <span>RF Marketing v1.0</span>
                 <span class="rol-tag">RESPONSABLE</span>
             </div>
         </div>
@@ -214,25 +214,6 @@
             </div>
 
             <div class="topbar-right">
-                <!-- Indicador de carga del área -->
-                <div class="area-stats d-none d-md-flex">
-                    <div class="stat-item">
-                        <i class="bi bi-briefcase-fill"></i>
-                        <span>
-                            <?= $en_proceso ?? 0 ?> activos
-                        </span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="bi bi-person-check-fill"></i>
-                        <span>
-                            <?= $miembros_activos ?? 0 ?> en línea
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Separador -->
-                <div class="topbar-divider"></div>
-
                 <!-- Perfil rápido -->
                 <div class="topbar-user">
                     <div class="user-info d-none d-md-block">
@@ -260,14 +241,6 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>
-        // URL base para usar en JS externos
-        const BASE_URL = '<?= base_url() ?>';
-        const USER_ROL = 'responsable';
-        const USER_AREA = '<?= esc($user['idarea'] ?? '') ?>';
-    </script>
-
     <!-- JS de la plantilla -->
     <script src="<?= base_url('recursos/scripts/responsable/plantilla/responsable.js') ?>"></script>
 
