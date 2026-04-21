@@ -502,6 +502,77 @@
 }
 
 /* ══════════════════════════════════════
+   DRAG & DROP INTERACTIVO
+══════════════════════════════════════ */
+
+/* Tarjeta arrastrable */
+.kb-card[draggable="true"] {
+    cursor: grab;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.kb-card[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+/* Efecto al arrastrar */
+.kb-card.dragging {
+    opacity: 0.6;
+    transform: scale(0.98);
+}
+
+/* Columna lista para recibir */
+.kb-col-body.drop-ready {
+    background: rgba(168, 85, 247, 0.08);
+    box-shadow: inset 0 0 20px rgba(168, 85, 247, 0.1);
+}
+
+/* Los botones deben seguir funcionando */
+.kb-card .kb-btn {
+    cursor: pointer;
+}
+
+/* Efecto visual al arrastrar */
+.kb-card.dragging {
+    opacity: 0.9;
+    transform: rotate(2deg) scale(1.02);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+}
+
+/* Marcador de posición al arrastrar */
+.kb-card-placeholder {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%);
+    border: 2px dashed #a855f7;
+    border-radius: 10px;
+    height: 100px;
+    margin-bottom: 10px;
+    animation: placeholder-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes placeholder-pulse {
+    0%, 100% {
+        border-color: #a855f7;
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%);
+    }
+    50% {
+        border-color: #c084fc;
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(168, 85, 247, 0.1) 100%);
+    }
+}
+
+/* Área válida para soltar - columna En Proceso */
+.kb-col-body[data-estado="en_proceso"].drag-target {
+    background: rgba(168, 85, 247, 0.05);
+    border-radius: 12px;
+}
+
+/* Posición relativa para el ::before */
+.kb-col {
+    position: relative;
+}
+
+/* ══════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════ */
 @media (max-width: 1200px) {
@@ -520,4 +591,57 @@
         gap: 15px;
         align-items: flex-start;
     }
+}
+
+/* ═══ ENHANCED DETAIL MODAL ═══ */
+.det-sec-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    color: #eab308;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.det-panel {
+    background: #0d0d0d;
+    border: 1px solid #1e1e1e;
+    border-radius: 8px;
+    padding: 12px 15px;
+}
+
+.det-panel small {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    color: #555;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.det-panel p {
+    margin: 0;
+    font-size: 13px;
+    color: #eee;
+    font-weight: 500;
+}
+
+.det-select {
+    background: #000 !important;
+    border: 1px solid #333 !important;
+    color: #fff !important;
+    font-size: 11px !important;
+    height: 30px !important;
+}
+
+.kb-btn-assign-emp {
+    border-color: #eab308;
+    color: #eab308;
+    background: rgba(234, 179, 8, 0.05);
+}
+
+.kb-btn-assign-emp:hover {
+    background: rgba(234, 179, 8, 0.15);
+    color: #fff;
+    border-color: #fff;
 }

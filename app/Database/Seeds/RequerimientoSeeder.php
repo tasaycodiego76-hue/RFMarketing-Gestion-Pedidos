@@ -8,6 +8,7 @@ class RequerimientoSeeder extends Seeder
 {
     public function run()
     {
+        $this->db->query("TRUNCATE TABLE requerimiento RESTART IDENTITY CASCADE");
         $data = [
             [
                 'idusuarioempresa' => 13,
@@ -76,6 +77,57 @@ class RequerimientoSeeder extends Seeder
                 'formato_otros' => 'Puzzle de 3 piezas 1080x1080px',
                 'fecharequerida' => '2026-04-25 00:00:00',
                 'prioridad' => 'Alta'
+            ],
+            [
+                'idusuarioempresa' => 14,
+                'idservicio' => 4,
+                'servicio_personalizado' => null,
+                'titulo' => 'Sesión de Fotos Corporativas',
+                'objetivo_comunicacion' => 'Renovar bio de directivos',
+                'descripcion' => 'Sesión de fotos en interiores para 5 directivos.',
+                'tipo_requerimiento' => 'Sesión Fotográfica',
+                'canales_difusion' => '["Web Institucional", "LinkedIn"]',
+                'publico_objetivo' => 'Inversionistas',
+                'tiene_materiales' => false,
+                'url_subida' => null,
+                'formatos_solicitados' => '["Otros"]',
+                'formato_otros' => 'Fotos en alta resolución',
+                'fecharequerida' => '2026-05-10 00:00:00',
+                'prioridad' => 'Media'
+            ],
+            [
+                'idusuarioempresa' => 13,
+                'idservicio' => 2,
+                'servicio_personalizado' => null,
+                'titulo' => 'Video Tutorial Campus',
+                'objetivo_comunicacion' => 'Guiar a alumnos nuevos',
+                'descripcion' => 'Video de 2 minutos explicando el uso de los laboratorios.',
+                'tipo_requerimiento' => 'Creación de Vídeos',
+                'canales_difusion' => '["Web", "YouTube"]',
+                'publico_objetivo' => 'Nuevos ingresantes',
+                'tiene_materiales' => true,
+                'url_subida' => null,
+                'formatos_solicitados' => '["Otros"]',
+                'formato_otros' => 'Full HD 1920x1080',
+                'fecharequerida' => '2026-05-15 00:00:00',
+                'prioridad' => 'Media'
+            ],
+            [
+                'idusuarioempresa' => 14,
+                'idservicio' => 1,
+                'servicio_personalizado' => null,
+                'titulo' => 'Infografía Académica',
+                'objetivo_comunicacion' => 'Explicar proceso de matrícula',
+                'descripcion' => 'Diseño limpio y claro del paso a paso de matrícula.',
+                'tipo_requerimiento' => 'Creación de Arte',
+                'canales_difusion' => '["Redes sociales", "Email"]',
+                'publico_objetivo' => 'Estudiantes',
+                'tiene_materiales' => true,
+                'url_subida' => null,
+                'formatos_solicitados' => '["Otros"]',
+                'formato_otros' => 'JPEG 1200x1200px',
+                'fecharequerida' => '2026-04-30 00:00:00',
+                'prioridad' => 'Media'
             ]
         ];
 

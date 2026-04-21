@@ -8,6 +8,8 @@ use App\Models\RequerimientoModel;
 use App\Models\AtencionModel;
 use App\Models\UsuarioModel;
 use \App\Models\TrackingModel;
+use App\Models\ServicioModel;
+
 
 class RequerimientoController extends BaseController
 {
@@ -229,6 +231,10 @@ class RequerimientoController extends BaseController
                 throw new \RuntimeException('No se pudo obtener el ID del requerimiento.');
             }
 
+            // Obtener el area_agencia según el servicio seleccionado
+            $servicioModel = new ServicioModel();
+            $idAreaAgencia = $servicioModel->getAreaAgenciaByServicio((int)$idServicio);
+
             // Insertar Atención vinculada al requerimiento
             $atencionModel = new AtencionModel();
             $idAtn = $atencionModel->insert([
@@ -241,6 +247,7 @@ class RequerimientoController extends BaseController
                 'estado' => 'pendiente_sin_asignar',
                 'fechafin' => $fechaObj->format('Y-m-d'),
                 'url_entrega' => null,
+                'idarea_agencia' => $idAreaAgencia,
             ]);
             $idAtn = $this->obtenerIdInsertado($db, $idAtn);
             // Validacion

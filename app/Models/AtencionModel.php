@@ -27,35 +27,34 @@ class AtencionModel extends Model
         'fechacreacion',
         'cancelacionmotivo',
         'fechacancelacion',
-        'url_entrega'
+        'url_entrega',
+        'idarea_agencia'
     ];
 
     /**
      * Obtiene todos los pedidos de atención asociados a un cliente específico
-     * @param mixed $usuarioId
-     * @return array
      */
     public function getPedidosPorCliente($usuarioId)
     {
         $sql = "
-              SELECT
-                  a.id AS atencion_id,
-                  a.idrequerimiento,
-                  a.titulo,
-                  a.estado,
-                  a.prioridad,
-                  a.fechacreacion,
-                  COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
-                  e.nombreempresa AS empresa
-              FROM atencion a
-              INNER JOIN requerimiento r ON r.id = a.idrequerimiento
-              LEFT JOIN servicios s ON s.id = a.idservicio
-              LEFT JOIN usuarios u ON u.id = r.idusuarioempresa
-              LEFT JOIN areas ar ON ar.id = u.idarea
-              LEFT JOIN empresas e ON e.id = ar.idempresa
-              WHERE r.idusuarioempresa = ?
-              ORDER BY a.idrequerimiento DESC
-          ";
+            SELECT
+                a.id AS atencion_id,
+                a.idrequerimiento,
+                a.titulo,
+                a.estado,
+                a.prioridad,
+                r.fechacreacion,
+                COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
+                e.nombreempresa AS empresa
+            FROM atencion a
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
+            LEFT JOIN servicios s ON s.id = a.idservicio
+            LEFT JOIN usuarios u ON u.id = r.idusuarioempresa
+            LEFT JOIN areas ar ON ar.id = u.idarea
+            LEFT JOIN empresas e ON e.id = ar.idempresa
+            WHERE r.idusuarioempresa = ?
+            ORDER BY a.idrequerimiento DESC
+        ";
 
         return $this->db->query($sql, [$usuarioId])->getResultArray();
     }
@@ -93,9 +92,12 @@ class AtencionModel extends Model
     }
 
     /**
+
      * Estadísticas para el kanban por Empresa
      * @param int $idEmpresa
      * @return array|array{activos: int, completados: int, en_revision: int, por_aprobar: int|null}
+     * Estadísticas para el kanban
+
      */
     public function estadisticasPorEmpresa(int $idEmpresa): array
     {
@@ -116,39 +118,39 @@ class AtencionModel extends Model
     }
 
     /**
+
      * Obtener Requerimiento y su Atencion para mostrar en el kanban
      * @param int $idEmpresa
      * @param int $idAreaAgencia
      * @return array
+     * Obtener atenciones para el kanban
      */
     public function obtenerParaKanban(int $idEmpresa, int $idAreaAgencia): array
     {
         $sql = "
-              SELECT
-                  a.id, a.titulo, a.estado, a.prioridad, a.fechafin,
-                  a.fechainicio, a.fechacreacion, a.idempleado, a.idrequerimiento,
-                  a.idarea_agencia,
-                  COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
-                  r.fecharequerida,
-                  r.prioridad AS prioridad_cliente,
-                  e.nombreempresa,
-                  u.nombre AS empleado_nombre,
-                  u.apellidos AS empleado_apellidos
-              FROM atencion a
-              INNER JOIN requerimiento r ON r.id = a.idrequerimiento
-              INNER JOIN usuarios u_sol ON u_sol.id = r.idusuarioempresa
-              INNER JOIN areas ar ON ar.id = u_sol.idarea
-              INNER JOIN empresas e ON e.id = ar.idempresa
-              LEFT JOIN servicios s ON s.id = a.idservicio
-              LEFT JOIN usuarios u ON u.id = a.idempleado
-              WHERE ar.idempresa = ?
-                AND a.estado != 'cancelado'
-                AND (
-                    a.idarea_agencia = ?
-                    OR a.estado = 'pendiente_sin_asignar' 
-                )
-              ORDER BY a.fechainicio DESC
-          ";
+            SELECT
+                a.id, a.titulo, a.estado, a.prioridad, a.fechafin,
+                a.fechainicio, a.fechacreacion, a.idempleado, a.idrequerimiento,
+                a.idarea_agencia,
+                COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
+                r.fecharequerida,
+                r.prioridad AS prioridad_cliente,
+                e.nombreempresa,
+                u.nombre AS empleado_nombre,
+                u.apellidos AS empleado_apellidos
+            FROM atencion a
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
+            INNER JOIN usuarios u_sol ON u_sol.id = r.idusuarioempresa
+            INNER JOIN areas ar ON ar.id = u_sol.idarea
+            INNER JOIN empresas e ON e.id = ar.idempresa
+            LEFT JOIN servicios s ON s.id = a.idservicio
+            LEFT JOIN usuarios u ON u.id = a.idempleado
+            WHERE ar.idempresa = ?
+              AND a.estado != 'cancelado'
+              AND a.idarea_agencia = ?
+            ORDER BY a.fechainicio DESC
+        ";
+
 
         return $this->db->query($sql, [$idEmpresa, $idAreaAgencia])->getResultArray();
     }
@@ -159,19 +161,23 @@ class AtencionModel extends Model
      * @param int $idAreaAgencia
      * @param int $idAdmin
      * @return bool
+
+     * Asignar área a una atención
      */
     public function asignarArea(int $idAtencion, int $idAreaAgencia, int $idAdmin): bool
     {
         $this->db->query("
-              UPDATE atencion
-              SET idarea_agencia = ?, estado = 'pendiente_asignado'
-              WHERE id = ?
-          ", [$idAreaAgencia, $idAtencion]);
+
+
+            UPDATE atencion
+            SET idarea_agencia = ?, estado = 'pendiente_asignado'
+            WHERE id = ?
+        ", [$idAreaAgencia, $idAtencion]);
 
         $this->db->query("
-              INSERT INTO tracking (idatencion, idusuario, accion, estado)
-              VALUES (?, ?, 'Área asignada', 'pendiente_asignado')
-          ", [$idAtencion, $idAdmin]);
+            INSERT INTO tracking (idatencion, idusuario, accion, estado)
+            VALUES (?, ?, 'Área asignada', 'pendiente_asignado')
+        ", [$idAtencion, $idAdmin]);
 
         return true;
     }
@@ -184,31 +190,32 @@ class AtencionModel extends Model
     public function obtenerParaResponsable(int $idAreaAgencia): array
     {
         $sql = "
-              SELECT
-                  a.id, a.titulo, a.estado, a.prioridad, a.fechafin,
-                  a.fechainicio, a.fechacreacion, a.idempleado, a.idrequerimiento,
-                  COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
-                  r.fecharequerida,
-                  e.nombreempresa,
-                  u.nombre AS empleado_nombre,
-                  u.apellidos AS empleado_apellidos
-              FROM atencion a
-              INNER JOIN requerimiento r ON r.id = a.idrequerimiento
-              INNER JOIN usuarios u_sol ON u_sol.id = r.idusuarioempresa
-              INNER JOIN areas ar ON ar.id = u_sol.idarea
-              INNER JOIN empresas e ON e.id = ar.idempresa
-              LEFT JOIN servicios s ON s.id = a.idservicio
-              LEFT JOIN usuarios u ON u.id = a.idempleado
-              WHERE a.idarea_agencia = ?
-                AND a.estado != 'cancelado'
-                AND a.estado != 'finalizado'
-              ORDER BY a.prioridad DESC, a.fechacreacion ASC
-          ";
+            SELECT
+                a.id, a.titulo, a.estado, a.prioridad, a.fechafin,
+                a.fechainicio, a.fechacreacion, a.idempleado, a.idrequerimiento,
+                COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
+                r.fecharequerida,
+                e.nombreempresa,
+                u.nombre AS empleado_nombre,
+                u.apellidos AS empleado_apellidos
+            FROM atencion a
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
+            INNER JOIN usuarios u_sol ON u_sol.id = r.idusuarioempresa
+            INNER JOIN areas ar ON ar.id = u_sol.idarea
+            INNER JOIN empresas e ON e.id = ar.idempresa
+            LEFT JOIN servicios s ON s.id = a.idservicio
+            LEFT JOIN usuarios u ON u.id = a.idempleado
+            WHERE a.idarea_agencia = ?
+              AND a.estado != 'cancelado'
+              AND a.estado != 'finalizado'
+            ORDER BY a.prioridad DESC, a.fechacreacion ASC
+        ";
 
         return $this->db->query($sql, [$idAreaAgencia])->getResultArray();
     }
 
     /**
+
      * Obtiene los pedidos asignados a su área y que aun este sin asignar (Empleado)
      * @param int $idAreaAgencia
      * @return array
@@ -265,4 +272,29 @@ class AtencionModel extends Model
         // Retornamos true si encontró al menos una fila, false si no
         return $query->getNumRows() > 0;
     }
+    /*
+         * Obtener pedidos detallados para un empleado específico
+         */
+        public function obtenerDetalladoPorEmpleado(int $idEmpleado, array $estados = []): array
+        {
+            $builder = $this->db->table('atencion a')
+                ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, 
+                          e.nombreempresa as empresa_nombre, 
+                          COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre')
+                ->join('requerimiento r', 'r.id = a.idrequerimiento')
+                ->join('usuarios u_cliente', 'u_cliente.id = r.idusuarioempresa')
+                ->join('areas ar_cliente', 'ar_cliente.id = u_cliente.idarea')
+                ->join('empresas e', 'e.id = ar_cliente.idempresa')
+                ->join('servicios s', 's.id = a.idservicio', 'left')
+                ->where('a.idempleado', $idEmpleado);
+    
+            if (!empty($estados)) {
+                $builder->whereIn('a.estado', $estados);
+            }
+    
+            return $builder->orderBy('a.prioridad', 'DESC')
+                           ->orderBy('a.fechacreacion', 'DESC')
+                           ->get()->getResultArray();
+        }
 }
+

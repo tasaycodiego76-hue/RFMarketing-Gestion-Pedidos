@@ -31,15 +31,18 @@ $routes->group('admin', function ($routes) {
 
     $routes->get('kanban/(:num)/(:num)', 'Administrador\Kanban::index/$1/$2');
     // Kanban acciones
-    $routes->post('kanban/asignar', 'Administrador\Kanban::asignar');
-    $routes->post('kanban/asignarArea', 'Administrador\Kanban::asignarArea');
-    $routes->post('kanban/cambiarEstado', 'Administrador\Kanban::cambiarEstado');
-    $routes->post('kanban/cancelar', 'Administrador\Kanban::cancelar');
-    $routes->get('kanban/empleados/(:num)', 'Administrador\Kanban::empleadosPorArea/$1');
-    $routes->get('kanban/detalle/(:num)', 'Administrador\Kanban::detalle/$1');
-    $routes->get('kanban/areas', 'Administrador\Kanban::areasAgencia');
-    $routes->get('responsable/kanban', 'Administrador\Kanban::responsable');
-    $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
+$routes->post('kanban/asignar',        'Administrador\Kanban::asignar');
+ $routes->post('kanban/asignarArea',    'Administrador\Kanban::asignarArea'); 
+$routes->post('kanban/cambiarEstado',  'Administrador\Kanban::cambiarEstado');
+$routes->post('kanban/cancelar',       'Administrador\Kanban::cancelar');
+$routes->get('kanban/empleados/(:num)', 'Administrador\Kanban::empleadosPorArea/$1');
+$routes->get('kanban/detalle/(:num)',   'Administrador\Kanban::detalle/$1');
+ $routes->get('kanban/areas', 'Administrador\Kanban::areasAgencia');
+   $routes->get('responsable/kanban', 'Administrador\Kanban::responsable');
+   $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
+   $routes->post('kanban/asignarEmpleado',  'Administrador\Kanban::asignarEmpleado');
+    $routes->post('kanban/iniciarTrabajo', 'Administrador\kanban::iniciarTrabajo');
+
 
 
     //EMPRESAS 
@@ -69,7 +72,12 @@ $routes->group('responsable', function ($routes) {
 
 //Rutas para el Empleado
 $routes->group('empleado', function ($routes) {
+    $routes->get('dashboard', 'Empleado\MisPedidosController::dashboard');
     $routes->get('mis_pedidos', 'Empleado\MisPedidosController::index');
+    $routes->get('historial', 'Empleado\MisPedidosController::historial');
+    $routes->post('pedido-iniciar/(:num)', 'Empleado\MisPedidosController::iniciarPedido/$1');
+    $routes->post('pedido-entregar/(:num)', 'Empleado\MisPedidosController::entregarPedido/$1');
+    $routes->get('pedido-detalle/(:num)', 'Empleado\MisPedidosController::detalle/$1');
 });
 
 //Rutas para el Cliente
