@@ -132,11 +132,11 @@ class UsuarioModel extends Model
     {
         // Definimos la consulta con placeholders para mayor seguridad
         $sql = "
-        SELECT id, nombre, apellidos, esresponsable, rol, estado, idarea_agencia
+            SELECT id, nombre, apellidos, esresponsable, rol, estado, idarea_agencia
             FROM usuarios
             WHERE idarea_agencia = ?
-              AND rol = 'empleado'
-              AND estado = true
+                AND rol = 'empleado'
+                AND (estado = true OR estado = 't' OR estado = '1') 
             ORDER BY esresponsable DESC, nombre ASC";
         // Ejecutamos la consulta pasando el ID del área
         $query = $this->db->query($sql, [$idAreaAgencia]);
@@ -156,11 +156,10 @@ class UsuarioModel extends Model
             SELECT id, nombre, apellidos 
             FROM usuarios 
             WHERE id = ? 
-              AND rol = 'empleado' 
-              AND estado = true 
-              AND idarea_agencia = ? 
+                AND rol = 'empleado' 
+                AND (estado = true OR estado = 't' OR estado = '1') 
+                AND idarea_agencia = ? 
             LIMIT 1";
-
         $query = $this->db->query($sql, [$idUsuario, $idAreaAgencia]);
         return $query->getRowArray();
     }

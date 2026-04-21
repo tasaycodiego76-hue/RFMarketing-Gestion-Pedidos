@@ -1,0 +1,382 @@
+/* ESTILOS BANDEJA DE ENTRADA - RESPONSABLE */
+
+/* Tabla */
+.tabla-header-responsable {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: #0f0f0f;
+}
+
+.buscador-wrap-responsable {
+    position: relative;
+    flex: 1;
+    max-width: 300px;
+}
+
+.buscador-wrap-responsable i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.input-buscar-responsable {
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 12px 10px 36px;
+    color: var(--text-primary);
+    font-size: 13px;
+    transition: var(--transition);
+}
+
+.input-buscar-responsable:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.input-buscar-responsable::placeholder {
+    color: var(--text-muted);
+}
+
+/* Tabla */
+.tabla-rf-responsable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.tabla-rf-responsable thead {
+    background: #0f0f0f;
+}
+
+.tabla-rf-responsable th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.tabla-rf-responsable td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+.tabla-rf-responsable tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.tabla-rf-responsable tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Badges de estado */
+.badge-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Estados de requerimiento */
+.estado-por-asignar {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.estado-pendiente {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Prioridades */
+.prioridad-alta {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.prioridad-media {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.prioridad-baja {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Botón asignar */
+.btn-asignar {
+    background: rgba(245, 196, 0, 0.1);
+    border: 1px solid var(--accent-primary);
+    color: var(--accent-primary);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-asignar:hover {
+    background: var(--accent-primary);
+    color: #000;
+}
+
+/* Estado vacío */
+.estado-vacio {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+
+.estado-vacio i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+    opacity: 0.5;
+}
+
+.estado-vacio p {
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Modal styles */
+.modal-rf {
+    background: #161616;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.modal-rf-header {
+    background: #0f0f0f;
+    border-bottom: 1px solid var(--border-color);
+    padding: 20px;
+}
+
+.modal-rf-header .campo-label {
+    font-size: 10px;
+    color: var(--accent-primary);
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+.modal-rf-header .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.modal-rf-body {
+    background: #161616;
+}
+
+.modal-footer {
+    background: #0f0f0f;
+    border-top: 1px solid var(--border-color);
+    padding: 16px 20px;
+}
+
+/* Info requerimiento en modal */
+.info-requerimiento {
+    background: #0f0f0f;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.info-req-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-req-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.info-req-item:first-child {
+    padding-top: 0;
+}
+
+.info-req-label {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.info-req-valor {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Lista de empleados */
+.lista-empleados {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.empleado-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #0f0f0f;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.empleado-item:last-child {
+    margin-bottom: 0;
+}
+
+.empleado-item:hover {
+    border-color: var(--accent-primary);
+    background: rgba(245, 196, 0, 0.05);
+}
+
+.empleado-item.seleccionado {
+    border-color: var(--accent-primary);
+    background: rgba(245, 196, 0, 0.1);
+}
+
+.empleado-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #000;
+}
+
+.empleado-avatar.responsable {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #fff;
+}
+
+.empleado-info {
+    flex: 1;
+}
+
+.empleado-nombre {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.empleado-rol {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.empleado-check {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.empleado-item.seleccionado .empleado-check {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #000;
+}
+
+/* Skeleton loading */
+.skeleton {
+    background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tabla-rf-responsable {
+        font-size: 12px;
+    }
+
+    .tabla-rf-responsable th,
+    .tabla-rf-responsable td {
+        padding: 12px 8px;
+    }
+
+    .btn-asignar {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+
+    .tabla-header-responsable {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+
+    .buscador-wrap-responsable {
+        max-width: none;
+    }
+}

@@ -57,6 +57,11 @@ $routes->group('responsable', function ($routes) {
     //Dashboar de Metricas - Plantilla (Prueba)
     $routes->get('dashboard', 'Responsable\PedidosAreaController::index');
 
+    // Vistas
+    $routes->get('bandeja', 'Responsable\PedidosAreaController::vistaBandeja');
+    $routes->get('equipo', 'Responsable\PedidosAreaController::vistaEquipo');
+
+    // Endpoints JSON
     $routes->get('pedidos/bandeja-json', 'Responsable\PedidosAreaController::bandeja');
     $routes->get('empleados/mi-area-json', 'Responsable\PedidosAreaController::empleadosMiAreaJson');
     $routes->post('pedidos/asignar', 'Responsable\PedidosAreaController::asignarPedido');

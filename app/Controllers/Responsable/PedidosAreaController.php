@@ -39,9 +39,29 @@ class PedidosAreaController extends BaseController
         //Usar el Modelo para traer la información completa
         $usuarioModel = new UsuarioModel();
         $userData = $usuarioModel->getDetalleUsuario($user['id']);
+        $atencionModel = new AtencionModel();
+
+        $idAreaAgencia = (int) $user['idarea_agencia'];
+
+        // Obtener métricas para el dashboard
+        $bandeja = $atencionModel->obtenerBandejaResponsable($idAreaAgencia);
+        $porAsignar = count($bandeja);
+
+        // Obtener métricas usando el modelo
+        $enProceso = $atencionModel->where('idarea_agencia', $idAreaAgencia)
+            ->where('estado', 'en_proceso')
+            ->countAllResults();
+
+        $completados = $atencionModel->where('idarea_agencia', $idAreaAgencia)
+            ->where('estado', 'finalizado')
+            ->countAllResults();
+
+        // Contar miembros del equipo
+        $totalMiembros = count($usuarioModel->obtenerAsignablesPorAreaAgencia($idAreaAgencia));
 
         $data = [
             'titulo' => 'Mis Pedidos - Area',
+            'tituloPagina' => 'Dashboard',
             'user' => [
                 'id' => $userData['id'],
                 'nombre' => $userData['nombre'],
@@ -52,10 +72,121 @@ class PedidosAreaController extends BaseController
                 'rol' => $userData['rol'],
                 'nombre_area' => $userData['nombre_areaagencia'] ?? 'Área no asignada',
                 'es_responsable' => true
-            ]
+            ],
+            'porAsignar' => $porAsignar,
+            'enProceso' => $enProceso,
+            'completados' => $completados,
+            'totalMiembros' => $totalMiembros,
+            'pendientes_asignar' => $porAsignar // Para el badge del sidebar
         ];
 
         return view('Responsable/dashboard', $data);
+    }
+
+    /**
+     * Renderiza la vista de Bandeja de Entrada
+     * @return string|\CodeIgniter\HTTP\ResponseInterface
+     */
+    public function vistaBandeja()
+    {
+        $user = $this->getActiveUser();
+
+        if (!$user) {
+            return redirect()->to('login')->with('error', 'Sesión no válida');
+        }
+
+        $es_responsable = ($user['esresponsable'] === 't' || $user['esresponsable'] === true);
+
+        if ($user['rol'] !== 'empleado' || !$es_responsable) {
+            return redirect()->to('responsable/dashboard')->with('error', 'Acceso denegado');
+        }
+
+        $usuarioModel = new UsuarioModel();
+        $atencionModel = new AtencionModel();
+        $userData = $usuarioModel->getDetalleUsuario($user['id']);
+
+        $idAreaAgencia = (int) $user['idarea_agencia'];
+
+        // Métricas para el sidebar
+        $porAsignar = count($atencionModel->obtenerBandejaResponsable($idAreaAgencia));
+        $enProceso = $atencionModel->where('idarea_agencia', $idAreaAgencia)
+            ->where('estado', 'en_proceso')
+            ->countAllResults();
+        $totalMiembros = count($usuarioModel->obtenerAsignablesPorAreaAgencia($idAreaAgencia));
+
+        $data = [
+            'titulo' => 'Bandeja de Entrada',
+            'tituloPagina' => 'Bandeja de Entrada',
+            'user' => [
+                'id' => $userData['id'],
+                'nombre' => $userData['nombre'],
+                'apellidos' => $userData['apellidos'],
+                'correo' => $userData['correo'],
+                'telefono' => $userData['telefono'],
+                'documento' => $userData['numerodoc'],
+                'rol' => $userData['rol'],
+                'nombre_area' => $userData['nombre_areaagencia'] ?? 'Área no asignada',
+                'es_responsable' => true
+            ],
+            'pendientes_asignar' => $porAsignar,
+            'en_proceso' => $enProceso,
+            'totalMiembros' => $totalMiembros
+        ];
+
+        return view('Responsable/bandeja', $data);
+    }
+
+    /**
+     * Renderiza la vista de Mi Equipo
+     * @return string|\CodeIgniter\HTTP\ResponseInterface
+     */
+    public function vistaEquipo()
+    {
+        $user = $this->getActiveUser();
+
+        if (!$user) {
+            return redirect()->to('login')->with('error', 'Sesión no válida');
+        }
+
+        $es_responsable = ($user['esresponsable'] === 't' || $user['esresponsable'] === true);
+
+        if ($user['rol'] !== 'empleado' || !$es_responsable) {
+            return redirect()->to('responsable/dashboard')->with('error', 'Acceso denegado');
+        }
+
+        $usuarioModel = new UsuarioModel();
+        $atencionModel = new AtencionModel();
+        $userData = $usuarioModel->getDetalleUsuario($user['id']);
+
+        $idAreaAgencia = (int) $user['idarea_agencia'];
+
+        // Métricas para el sidebar
+        $porAsignar = count($atencionModel->obtenerBandejaResponsable($idAreaAgencia));
+        $enProceso = $atencionModel->where('idarea_agencia', $idAreaAgencia)
+            ->where('estado', 'en_proceso')
+            ->countAllResults();
+        $totalMiembros = count($usuarioModel->obtenerAsignablesPorAreaAgencia($idAreaAgencia));
+
+        $data = [
+            'titulo' => 'Mi Equipo',
+            'tituloPagina' => 'Mi Equipo',
+            'user' => [
+                'id' => $userData['id'],
+                'nombre' => $userData['nombre'],
+                'apellidos' => $userData['apellidos'],
+                'correo' => $userData['correo'],
+                'telefono' => $userData['telefono'],
+                'documento' => $userData['numerodoc'],
+                'rol' => $userData['rol'],
+                'nombre_area' => $userData['nombre_areaagencia'] ?? 'Área no asignada',
+                'es_responsable' => true
+            ],
+            'pendientes_asignar' => $porAsignar,
+            'en_proceso' => $enProceso,
+            'totalMiembros' => $totalMiembros
+        ];
+
+        return view('Responsable/equipo', $data);
     }
 
     /**
@@ -173,7 +304,7 @@ class PedidosAreaController extends BaseController
     private function ValidarSesion_DatosUser(): array
     {
         $user = $this->getActiveUser();
-        $esResponsable = isset($user['esresponsable']) && ($user['esresponsable'] === 't' || $user['esresponsable'] === true);
+        $esResponsable = isset($user['esresponsable']) && ($user['esresponsable'] === 't' || $user['esresponsable'] === true || $user['esresponsable'] === 1);
         if (!$user || $user['rol'] !== 'empleado' || !$esResponsable) {
             return ['ok' => false, 'message' => 'Acceso denegado.'];
         }
