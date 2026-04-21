@@ -192,4 +192,29 @@ class AtencionModel extends Model
 
         return $this->db->query($sql, [$idAreaAgencia])->getResultArray();
     }
+
+    /**
+     * Obtener pedidos detallados para un empleado específico
+     */
+    public function obtenerDetalladoPorEmpleado(int $idEmpleado, array $estados = []): array
+    {
+        $builder = $this->db->table('atencion a')
+            ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, 
+                      e.nombreempresa as empresa_nombre, 
+                      COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre')
+            ->join('requerimiento r', 'r.id = a.idrequerimiento')
+            ->join('usuarios u_cliente', 'u_cliente.id = r.idusuarioempresa')
+            ->join('areas ar_cliente', 'ar_cliente.id = u_cliente.idarea')
+            ->join('empresas e', 'e.id = ar_cliente.idempresa')
+            ->join('servicios s', 's.id = a.idservicio', 'left')
+            ->where('a.idempleado', $idEmpleado);
+
+        if (!empty($estados)) {
+            $builder->whereIn('a.estado', $estados);
+        }
+
+        return $builder->orderBy('a.prioridad', 'DESC')
+                       ->orderBy('a.fechacreacion', 'DESC')
+                       ->get()->getResultArray();
+    }
 }

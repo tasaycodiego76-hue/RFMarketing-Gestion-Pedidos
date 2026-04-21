@@ -40,6 +40,7 @@ $routes->get('kanban/detalle/(:num)',   'Administrador\Kanban::detalle/$1');
  $routes->get('kanban/areas', 'Administrador\Kanban::areasAgencia');
    $routes->get('responsable/kanban', 'Administrador\Kanban::responsable');
    $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
+   $routes->post('kanban/asignarEmpleado',  'Administrador\Kanban::asignarEmpleado');
 
 
    //EMPRESAS 
@@ -60,7 +61,12 @@ $routes->group('responsable', function ($routes) {
 
 //Rutas para el Empleado
 $routes->group('empleado', function ($routes) {
+    $routes->get('dashboard', 'Empleado\MisPedidosController::dashboard');
     $routes->get('mis_pedidos', 'Empleado\MisPedidosController::index');
+    $routes->get('historial', 'Empleado\MisPedidosController::historial');
+    $routes->post('pedido-iniciar/(:num)', 'Empleado\MisPedidosController::iniciarPedido/$1');
+    $routes->post('pedido-entregar/(:num)', 'Empleado\MisPedidosController::entregarPedido/$1');
+    $routes->get('pedido-detalle/(:num)', 'Empleado\MisPedidosController::detalle/$1');
 });
 
 //Rutas para el Cliente
