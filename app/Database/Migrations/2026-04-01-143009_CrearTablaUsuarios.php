@@ -86,7 +86,6 @@ class CrearTablaUsuarios extends Migration
         ]);
 
         $this->forge->addPrimaryKey('id');
-        $this->forge->addUniqueKey('correo');
         $this->forge->addUniqueKey('usuario');
         $this->forge->addForeignKey('idarea_agencia', 'areas_agencia', 'id', 'SET NULL', 'CASCADE');
         $this->forge->addForeignKey('idarea', 'areas', 'id', 'SET NULL', 'CASCADE');

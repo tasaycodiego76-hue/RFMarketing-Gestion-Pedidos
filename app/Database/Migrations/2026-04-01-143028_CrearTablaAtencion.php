@@ -35,9 +35,9 @@ class CrearTablaAtencion extends Migration
                 'null' => true,
             ],
             'idarea_agencia' => [
-                  'type' => 'BIGINT',
-                  'null' => true,
-              ],
+                'type' => 'BIGINT',
+                'null' => true,
+            ],
             'idservicio' => [
                 'type' => 'BIGINT',
                 'null' => true,
@@ -78,16 +78,16 @@ class CrearTablaAtencion extends Migration
             ],
             'fechainicio' => [
                 'type' => 'TIMESTAMP',
-                'null' => false,
-                'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP'),
+                'null' => true,
             ],
             'fechafin' => [
-                'type' => 'DATE',
-                'null' => false,
+                'type' => 'TIMESTAMP',
+                'null' => true,
             ],
             'fechacreacion' => [
                 'type' => 'TIMESTAMP',
                 'null' => true,
+                'default' => new \CodeIgniter\Database\RawSql('CURRENT_TIMESTAMP'),
             ],
             'fechacompletado' => [
                 'type' => 'TIMESTAMP',

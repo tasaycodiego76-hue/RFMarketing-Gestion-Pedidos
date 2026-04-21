@@ -1,0 +1,255 @@
+/* ESTILOS MI EQUIPO - RESPONSABLE */
+
+/* Cards de miembros */
+.miembro-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    transition: var(--transition);
+    height: 100%;
+}
+
+.miembro-card:hover {
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+}
+
+.miembro-card.responsable {
+    border-color: var(--accent-primary);
+    background: linear-gradient(135deg, rgba(245, 196, 0, 0.05), rgba(245, 196, 0, 0.02));
+}
+
+/* Header de card */
+.miembro-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.miembro-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 20px;
+    color: #000;
+    flex-shrink: 0;
+}
+
+.miembro-avatar.responsable {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #fff;
+}
+
+.miembro-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.miembro-nombre {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.miembro-rol {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.badge-jefe {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.badge-miembro {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* Stats del miembro */
+.miembro-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.stat-box {
+    text-align: center;
+}
+
+.stat-valor {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 24px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.stat-valor.pendiente {
+    color: var(--warning);
+}
+
+.stat-valor.proceso {
+    color: var(--accent-primary);
+}
+
+.stat-valor.completado {
+    color: var(--success);
+}
+
+.stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Badge de estado */
+.badge-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Estado vacío */
+.estado-vacio {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-muted);
+}
+
+.estado-vacio i {
+    font-size: 64px;
+    margin-bottom: 20px;
+    display: block;
+    opacity: 0.3;
+}
+
+.estado-vacio p {
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Icono info */
+.info-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(59, 130, 246, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.info-icon i {
+    font-size: 24px;
+    color: #60a5fa;
+}
+
+/* Skeleton loading */
+.skeleton-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    height: 100%;
+}
+
+.skeleton-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.skeleton-line {
+    height: 14px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    margin-bottom: 8px;
+}
+
+.skeleton-line.short {
+    width: 60%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .miembro-stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .stat-valor {
+        font-size: 20px;
+    }
+
+    .miembro-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 576px) {
+    .miembro-card {
+        padding: 16px;
+    }
+
+    .miembro-header {
+        gap: 12px;
+    }
+
+    .miembro-nombre {
+        font-size: 14px;
+    }
+
+    .miembro-stats {
+        gap: 8px;
+    }
+
+    .stat-label {
+        font-size: 9px;
+    }
+}

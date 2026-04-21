@@ -1,0 +1,322 @@
+/* Fuente Bebas para títulos */
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
+.bebas {
+  font-family: "Bebas Neue", sans-serif;
+  letter-spacing: 1px;
+}
+/* Variables CSS */
+:root {
+  --bg-body: #0a0a0a;
+  --card-bg: #111111;
+  --border-color: #222222;
+  --text-main: #ffffff;
+  --text-muted: #666666;
+  --accent-yellow: #f5c400;
+  --text-secondary: #888888;
+}
+
+/* CARDS PRINCIPALES */
+.card-dark-main {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+/* TIPOGRAFÍA */
+.header-detalle {
+  margin-bottom: 1.5rem;
+}
+.breadcrumb-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.nombre-cliente-titulo {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 10px 0 5px 0;
+}
+.cliente-rol-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.label-tiny {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+.content-text {
+  color: #ccc;
+  font-size: 14px;
+  margin-top: 5px;
+  line-height: 1.6;
+}
+
+/* BADGES */
+.badge-type {
+  background: #222;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  margin-right: 8px;
+  text-transform: uppercase;
+}
+.badge-priority {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+}
+.prio-alta {
+  background: #4d0000;
+  color: #ff4d4d;
+}
+.prio-media {
+  background: #4d3300;
+  color: #ffaa00;
+}
+.prio-baja {
+  background: #1a4d1a;
+  color: #4dff4d;
+}
+
+/* Badges de Estado */
+.estado-pendiente {
+  background: #6c757d;
+  color: #fff;
+}
+.estado-proceso {
+  background: #0d6efd;
+  color: #fff;
+}
+.estado-revision {
+  background: #17a2b8;
+  color: #fff;
+}
+.estado-finalizado {
+  background: #198754;
+  color: #fff;
+}
+.estado-cancelado {
+  background: #dc3545;
+  color: #fff;
+}
+
+/* TIMELINE DE SEGUIMIENTO */
+.timeline-seguimiento {
+  position: relative;
+  padding-left: 30px;
+}
+.timeline-seguimiento::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent-yellow), #333);
+}
+.timeline-item-seg {
+  position: relative;
+  margin-bottom: 25px;
+  padding: 20px;
+  background: #1a1a1a;
+  border-radius: 10px;
+  border-left: 3px solid var(--accent-yellow);
+  transition: all 0.3s ease;
+}
+.timeline-item-seg:hover {
+  background: #222;
+  transform: translateX(5px);
+}
+.timeline-item-seg::before {
+  content: "";
+  position: absolute;
+  left: -26px;
+  top: 25px;
+  width: 14px;
+  height: 14px;
+  background: var(--accent-yellow);
+  border-radius: 50%;
+  border: 3px solid var(--card-bg);
+  box-shadow: 0 0 0 2px var(--accent-yellow);
+}
+.timeline-estado {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.timeline-fecha {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.timeline-fecha i {
+  color: var(--accent-yellow);
+}
+.timeline-descripcion {
+  margin: 12px 0;
+  color: #e0e0e0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.timeline-responsable {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.timeline-responsable i {
+  color: #555;
+}
+/* Estados del timeline con colores diferentes */
+.timeline-item-seg[data-estado="pendiente_sin_asignar"] {
+  border-left-color: #6c757d;
+}
+.timeline-item-seg[data-estado="pendiente_sin_asignar"]::before {
+  background: #6c757d;
+  box-shadow: 0 0 0 2px #6c757d;
+}
+.timeline-item-seg[data-estado="en_proceso"] {
+  border-left-color: #0d6efd;
+}
+.timeline-item-seg[data-estado="en_proceso"]::before {
+  background: #0d6efd;
+  box-shadow: 0 0 0 2px #0d6efd;
+}
+.timeline-item-seg[data-estado="finalizado"] {
+  border-left-color: #198754;
+}
+.timeline-item-seg[data-estado="finalizado"]::before {
+  background: #198754;
+  box-shadow: 0 0 0 2px #198754;
+}
+
+/* TIMELINE LATERAL (Sidebar) */
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+.timeline-item i {
+  color: #444;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+.timeline-item.active-step i {
+  color: var(--accent-yellow);
+}
+.t-label {
+  display: block;
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.t-value {
+  display: block;
+  font-size: 13px;
+  color: #fff;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+/* BOTONES */
+.btn-volver-custom {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #222;
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  border: 1px solid #333;
+}
+.btn-volver-custom:hover {
+  background: #333;
+  color: var(--accent-yellow);
+  border-color: var(--accent-yellow);
+}
+.btn-outline-light {
+  border: 1px solid #444;
+  color: #ccc;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 13px;
+  transition: 0.3s;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-outline-light:hover {
+  background: #222;
+  color: #fff;
+  border-color: #666;
+}
+
+/* ESTADOS VACÍOS / MENSAJES */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+.empty-state i {
+  font-size: 64px;
+  color: #333;
+  margin-bottom: 20px;
+}
+.empty-state p {
+  color: var(--text-muted);
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.empty-state small {
+  color: #444;
+  font-size: 13px;
+}
+
+/* DIVISORES*/
+.divider-dark {
+  height: 1px;
+  background: var(--border-color);
+  margin: 25px 0;
+}
+
+/*  RESPONSIVE */
+@media (max-width: 768px) {
+  .nombre-cliente-titulo {
+    font-size: 1.5rem;
+  }
+  .timeline-seguimiento {
+    padding-left: 20px;
+  }
+  .timeline-item-seg::before {
+    left: -21px;
+    width: 10px;
+    height: 10px;
+  }
+  .timeline-item-seg {
+    padding: 15px;
+  }
+}

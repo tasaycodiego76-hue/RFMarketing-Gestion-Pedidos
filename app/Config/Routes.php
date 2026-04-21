@@ -15,47 +15,56 @@ $routes->group('admin', function ($routes) {
     $routes->get('usuarios/listar', 'Administrador\UsuarioController::listar');
     $routes->get('usuarios/obtener/(:num)', 'Administrador\UsuarioController::obtener/$1'); // editar: cargar datos
 
-    $routes->get('servicios/listar',     'Administrador\UsuarioController::listarServicios');
-    $routes->post('usuarios/registrar',  'Administrador\UsuarioController::registrar');
-    $routes->put('usuarios/editar/(:num)',   'Administrador\UsuarioController::editar/$1');  
-    $routes->post('usuarios/toggleEstado',   'Administrador\UsuarioController::toggleEstado'); 
+    $routes->get('servicios/listar', 'Administrador\UsuarioController::listarServicios');
+    $routes->post('usuarios/registrar', 'Administrador\UsuarioController::registrar');
+    $routes->put('usuarios/editar/(:num)', 'Administrador\UsuarioController::editar/$1');
+    $routes->post('usuarios/toggleEstado', 'Administrador\UsuarioController::toggleEstado');
 
-    $routes->get('areas',             'Administrador\AreasController::index');
+    $routes->get('areas', 'Administrador\AreasController::index');
     $routes->get('areas/listar', 'Administrador\AreasController::listar');
-    $routes->post('areas/registrar',  'Administrador\AreasController::registrar');
+    $routes->post('areas/registrar', 'Administrador\AreasController::registrar');
     $routes->get('areas/obtener/(:num)', 'Administrador\AreasController::obtener/$1');
     $routes->put('areas/editar/(:num)', 'Administrador\AreasController::editar/$1');
     $routes->post('areas/toggleEstado', 'Administrador\AreasController::toggleEstado');
 
-    $routes->get('empresas',             'Administrador\EmpresasController::index');
+    $routes->get('empresas', 'Administrador\EmpresasController::index');
 
     $routes->get('kanban/(:num)/(:num)', 'Administrador\Kanban::index/$1/$2');
     // Kanban acciones
-$routes->post('kanban/asignar',        'Administrador\Kanban::asignar');
- $routes->post('kanban/asignarArea',    'Administrador\Kanban::asignarArea'); 
-$routes->post('kanban/cambiarEstado',  'Administrador\Kanban::cambiarEstado');
-$routes->post('kanban/cancelar',       'Administrador\Kanban::cancelar');
-$routes->get('kanban/empleados/(:num)', 'Administrador\Kanban::empleadosPorArea/$1');
-$routes->get('kanban/detalle/(:num)',   'Administrador\Kanban::detalle/$1');
- $routes->get('kanban/areas', 'Administrador\Kanban::areasAgencia');
-   $routes->get('responsable/kanban', 'Administrador\Kanban::responsable');
-   $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
+    $routes->post('kanban/asignar', 'Administrador\Kanban::asignar');
+    $routes->post('kanban/asignarArea', 'Administrador\Kanban::asignarArea');
+    $routes->post('kanban/cambiarEstado', 'Administrador\Kanban::cambiarEstado');
+    $routes->post('kanban/cancelar', 'Administrador\Kanban::cancelar');
+    $routes->get('kanban/empleados/(:num)', 'Administrador\Kanban::empleadosPorArea/$1');
+    $routes->get('kanban/detalle/(:num)', 'Administrador\Kanban::detalle/$1');
+    $routes->get('kanban/areas', 'Administrador\Kanban::areasAgencia');
+    $routes->get('responsable/kanban', 'Administrador\Kanban::responsable');
+    $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
 
 
-   //EMPRESAS 
-   
-      $routes->get('empresas', 'Administrador\EmpresasController::index');
-      $routes->get('empresas/listar', 'Administrador\EmpresasController::listar');
-      $routes->get('empresas/obtener/(:num)', 'Administrador\EmpresasController::obtener/$1');
-      $routes->post('empresas/registrar', 'Administrador\EmpresasController::registrar');
-      $routes->put('empresas/editar/(:num)', 'Administrador\EmpresasController::editar/$1');
-      $routes->post('empresas/toggleEstado', 'Administrador\EmpresasController::toggleEstado');
-    });
+    //EMPRESAS 
+
+    $routes->get('empresas', 'Administrador\EmpresasController::index');
+    $routes->get('empresas/listar', 'Administrador\EmpresasController::listar');
+    $routes->get('empresas/obtener/(:num)', 'Administrador\EmpresasController::obtener/$1');
+    $routes->post('empresas/registrar', 'Administrador\EmpresasController::registrar');
+    $routes->put('empresas/editar/(:num)', 'Administrador\EmpresasController::editar/$1');
+    $routes->post('empresas/toggleEstado', 'Administrador\EmpresasController::toggleEstado');
+});
 
 //Rutas para el Responsable (Jefe de Área)
 $routes->group('responsable', function ($routes) {
     //Dashboar de Metricas - Plantilla (Prueba)
     $routes->get('dashboard', 'Responsable\PedidosAreaController::index');
+
+    // Vistas
+    $routes->get('bandeja', 'Responsable\PedidosAreaController::vistaBandeja');
+    $routes->get('equipo', 'Responsable\PedidosAreaController::vistaEquipo');
+
+    // Endpoints JSON
+    $routes->get('pedidos/bandeja-json', 'Responsable\PedidosAreaController::bandeja');
+    $routes->get('empleados/mi-area-json', 'Responsable\PedidosAreaController::empleadosMiAreaJson');
+    $routes->post('pedidos/asignar', 'Responsable\PedidosAreaController::asignarPedido');
 });
 
 //Rutas para el Empleado
@@ -83,5 +92,7 @@ $routes->group('cliente', function ($routes) {
     // Ruta para ver notificaciones (General) / Endpoint
     $routes->get('notificaciones', 'Cliente\TrackingController::notificaciones');
     // Ruta para Seguimiento de un Requerimiento (Específico) / Endpoint
-    $routes->get('seguimiento/(:num)', 'Cliente\TrackingController::seguimiento/$1');
+    $routes->get('requerimiento/seguimiento/(:num)', 'Cliente\TrackingController::seguimiento/$1');
+    //Vista para el Seguimiento del Requerimiento
+    $routes->get('seguimiento/(:num)', 'Cliente\TrackingController::vistaSeguimiento/$1');
 });

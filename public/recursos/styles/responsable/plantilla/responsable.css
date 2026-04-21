@@ -27,7 +27,7 @@
   --border-radius: 12px;
 
   /* Sidebar */
-  --sidebar-width: 280px;
+  --sidebar-width: 220px;
   --sidebar-collapsed: 80px;
 
   /* Transiciones */
@@ -56,7 +56,7 @@ body {
   left: 0;
   width: var(--sidebar-width);
   height: 100vh;
-  background: var(--bg-secondary);
+  background: #111;
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
@@ -66,7 +66,7 @@ body {
 
 /* Logo */
 .sidebar-brand {
-  padding: 24px 20px;
+  padding: 20px 18px;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
@@ -81,17 +81,18 @@ body {
 
 .brand-rf {
   font-family: "Bebas Neue", sans-serif;
-  font-size: 32px;
+  font-size: 30px;
   color: var(--accent-primary);
-  letter-spacing: 2px;
+  letter-spacing: 6px;
 }
 
 .brand-marketing {
   font-family: "Inter", sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  letter-spacing: 1px;
+  font-size: 9px;
+  font-weight: 500;
+  color: #444;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 /* Botón cerrar en móvil */
@@ -106,7 +107,7 @@ body {
 
 /* Perfil del Responsable */
 .sidebar-profile {
-  padding: 24px 20px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
@@ -114,9 +115,9 @@ body {
 }
 
 .profile-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
   background: linear-gradient(
     135deg,
     var(--accent-primary),
@@ -126,7 +127,7 @@ body {
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 12px;
   color: #000;
   position: relative;
 }
@@ -152,7 +153,7 @@ body {
 
 .profile-name {
   font-weight: 600;
-  font-size: 15px;
+  font-size: 12px;
   color: var(--text-primary);
   margin-bottom: 4px;
   white-space: nowrap;
@@ -162,31 +163,32 @@ body {
 
 .profile-rol {
   display: block;
-  font-size: 12px;
-  color: var(--accent-primary);
-  margin-bottom: 2px;
+  font-size: 10px;
+  color: #666;
+  margin-bottom: 0;
 }
 
 .profile-area {
   display: block;
-  font-size: 12px;
+  font-size: 10px;
   color: var(--text-secondary);
 }
 
 /* Navegación */
 .sidebar-nav {
   flex: 1;
-  padding: 16px 12px;
+  padding: 10px 0;
   overflow-y: auto;
 }
 
 .nav-section-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 700;
+  color: #444;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  margin: 16px 8px 12px;
+  letter-spacing: 3px;
+  padding: 16px 18px 4px;
+  margin: 0;
 }
 
 .nav-section-label:first-child {
@@ -200,69 +202,72 @@ body {
 .nav-link-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: 8px;
+  padding: 8px 18px;
   color: var(--text-secondary);
   text-decoration: none;
-  border-radius: 10px;
+  border-radius: 0;
   transition: var(--transition);
-  margin-bottom: 4px;
+  margin-bottom: 0;
   position: relative;
+  border-left: 2px solid transparent;
 }
 
 .nav-link-item:hover {
-  background: var(--bg-hover);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-primary);
 }
 
 .nav-link-item.active {
-  background: var(--accent-primary);
-  color: #000;
+  background: rgba(245, 196, 0, 0.07);
+  color: var(--accent-primary);
   font-weight: 600;
+  border-left-color: var(--accent-primary);
 }
 
 .nav-icon {
-  font-size: 18px;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
+  width: 16px;
 }
 
 .nav-text {
   flex: 1;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 /* Badges de notificación */
 .nav-badge {
-  background: var(--danger);
-  color: white;
-  font-size: 11px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  font-size: 10px;
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 20px;
+  border-radius: 10px;
   min-width: 20px;
   text-align: center;
 }
 
 .nav-badge.accent {
-  background: var(--accent-primary);
-  color: #000;
+  background: rgba(245, 196, 0, 0.15);
+  color: var(--accent-primary);
 }
 
 .nav-badge.warning {
-  background: var(--warning);
-  color: #000;
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
 }
 
 .nav-badge.notif {
-  background: var(--info);
+  background: rgba(59, 130, 246, 0.18);
+  color: #60a5fa;
 }
 
 /* Footer del Sidebar */
 .sidebar-footer {
-  padding: 16px;
+  padding: 12px 18px;
   border-top: 1px solid var(--border-color);
 }
 
@@ -270,16 +275,16 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
+  padding: 8px 0;
   color: var(--text-secondary);
   text-decoration: none;
-  border-radius: 10px;
+  border-radius: 0;
   transition: var(--transition);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .logout-link:hover {
-  background: rgba(239, 68, 68, 0.1);
+  background: transparent;
   color: var(--danger);
 }
 
@@ -287,16 +292,16 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
-  padding: 0 8px;
+  padding: 0;
 }
 
 .rol-tag {
   background: var(--accent-primary);
   color: #000;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: 3px;
   font-weight: 600;
 }
 
@@ -311,13 +316,13 @@ body {
 .topbar {
   position: sticky;
   top: 0;
-  height: 70px;
-  background: var(--bg-secondary);
+  height: 50px;
+  background: #111;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 22px;
   z-index: 100;
 }
 
@@ -357,15 +362,15 @@ body {
 
 .page-title {
   font-family: "Bebas Neue", sans-serif;
-  font-size: 24px;
+  font-size: 16px;
   color: var(--text-primary);
   margin: 0;
-  letter-spacing: 1px;
+  letter-spacing: 4px;
 }
 
 .page-subtitle {
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: 10px;
+  color: #555;
 }
 
 /* Lado derecho del topbar */
@@ -412,20 +417,20 @@ body {
 .user-name {
   display: block;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 12px;
   color: var(--text-primary);
 }
 
 .user-role {
   display: block;
-  font-size: 12px;
+  font-size: 10px;
   color: var(--text-muted);
 }
 
 .user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   background: linear-gradient(
     135deg,
     var(--accent-primary),
@@ -435,14 +440,14 @@ body {
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 11px;
   color: #000;
 }
 
 /* CONTENIDO PRINCIPAL */
 .page-content {
-  padding: 24px;
-  min-height: calc(100vh - 70px);
+  padding: 22px 24px;
+  min-height: calc(100vh - 50px);
 }
 
 /* OVERLAY PARA MÓVIL */

@@ -103,12 +103,13 @@
 </div>
 
 <!-- Modal Para la Estructura del Formulario (Wizard) -->
-<div class="modal fade" id="modal-formulario-detalle" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modal-formulario-detalle" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content modal-rf">
             <form id="form-nuevo-pedido" class="needs-validation" novalidate autocomplete="off">
                 <input type="hidden" name="idservicio" id="form-idservicio">
-
+                <!-- Pasos Formulario Wizard -->
                 <div class="modal-header modal-rf-header">
                     <div style="width:100%">
                         <h5 id="form-titulo-servicio" style="margin-bottom:20px; font-size:18px;">Paso 1: Info básica
@@ -132,7 +133,7 @@
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-
+                <!-- Cuerpo Modal -->
                 <div class="modal-body modal-rf-body p-4">
                     <!-- SECTION 1: Datos Iniciales -->
                     <div class="wizard-section" id="section-1">
@@ -155,13 +156,11 @@
                                 </span>
                             </div>
                         </div>
-
                         <div id="contenedor-nombre-personalizado" class="field mb-3" style="display:none;">
                             <label>NOMBRE DEL SERVICIO REQUERIDO</label>
                             <input type="text" name="titulo" id="titulo_personalizado" class="field-input"
                                 placeholder="Ej: Gestion de Redes Sociales (Social Media)">
                         </div>
-
                         <div class="field mb-3">
                             <label>SERVICIO SELECCIONADO</label>
                             <div class="d-flex align-items-center"
@@ -170,7 +169,6 @@
                                     class="ms-2 fw-bold text-white" style="font-size:11px;"></span>
                             </div>
                         </div>
-
                         <div class="field mb-3">
                             <label>PRIORIDAD</label>
                             <div class="prioridad-opciones">
@@ -188,34 +186,24 @@
                                 </label>
                             </div>
                         </div>
-
                         <div class="field mb-3">
                             <label>TÍTULO DEL REQUERIMIENTO</label>
                             <input type="text" name="titulo" id="campo-titulo" class="field-input"
                                 placeholder="Ej: Banner campaña de matrícula 2026" required>
                         </div>
-
                         <div class="field mb-3">
                             <label>OBJETIVO DE COMUNICACIÓN</label>
                             <textarea name="objetivo" class="field-input" style="height:60px;"
                                 placeholder="¿Cuál es el objetivo? ¿A quién va dirigido?" required></textarea>
                         </div>
-
-                        <!-- TIPO DE REQUERIMIENTO CON INFO -->
                         <div class="field mb-3">
                             <label>TIPO DE REQUERIMIENTO</label>
                             <p class="campo-sublabel">Selecciona según la complejidad de tu proyecto</p>
 
                             <select name="tipo_requerimiento" class="form-select select-estilizado" id="tipo_req"
                                 required onchange="mostrarInfoTipo(this.value)">
-                                <option value="" selected disabled>Seleccionar...</option>
-                                <option value="adaptacion">Adaptación de Arte — 7 días hábiles</option>
-                                <option value="creacion">Creación de Arte — 10 días hábiles</option>
-                                <option value="editorial">Trabajo Editorial — 20 días hábiles</option>
-                                <option value="audiovisual">Creación de Video — 20 días hábiles</option>
+                                <option value="" selected disabled>Selecciona un servicio primero...</option>
                             </select>
-
-                            <!-- Info dinámica del tipo seleccionado -->
                             <div id="info-tipo-container" class="info-tipo-box" style="display:none;">
                                 <div class="info-tipo-header">
                                     <i class="bi bi-info-circle-fill"></i>
@@ -230,10 +218,9 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- FECHAR REQUERIDA - REQUERIMIENTO -->
                         <div class="field mb-3">
-                            <label class="text-uppercase fw-bold" style="font-size: 12px; color: #bbb;">FECHA EN QUE SE NECESITA</label>
+                            <label class="text-uppercase fw-bold" style="font-size: 12px; color: #bbb;">FECHA EN QUE SE
+                                NECESITA</label>
                             <div class="date-input-container">
                                 <input type="date" id="fecha_entrega_input" name="fecha_entrega"
                                     class="custom-date-field" required>
@@ -243,22 +230,24 @@
                     </div>
                     <!-- SECTION 2: Detalles y Formatos  -->
                     <div class="wizard-section d-none" id="section-2">
+                        <!-- Mensaje informativo para Creación de Contenido -->
+                        <div id="info-creacion-contenido" class="alert alert-info mb-3" style="display:none; background:#1a3a4a; border:1px solid #2d5a6b; color:#b0d4e3;">
+                            <i class="bi bi-info-circle-fill"></i>
+                            <strong>Modo Flexible Activado</strong><br>
+                            Para <em>Creación de Contenido</em>, estos campos son <strong>opcionales</strong>.
+                            Puedes enviar solo tu idea básica y nuestro equipo creativo te ayudará a completar los detalles.
+                        </div>
 
-                        <!-- Descripción -->
                         <div class="field mb-3">
                             <label>DESCRIPCIÓN DETALLADA</label>
                             <textarea name="descripcion" class="field-input" style="height:80px;"
                                 placeholder="Describe con detalle lo que necesitas..." required></textarea>
                         </div>
-
-                        <!-- Público objetivo -->
                         <div class="field mb-3">
                             <label>PÚBLICO OBJETIVO</label>
                             <textarea name="publico" class="field-input" style="height:50px;"
                                 placeholder="¿A quién va dirigido? Tono del mensaje..." required></textarea>
                         </div>
-
-                        <!-- SEPARADOR CANALES -->
                         <div class="field mb-3">
                             <label class="section-title">
                                 <i class="bi bi-broadcast"></i> Canales de Difusión
@@ -266,26 +255,18 @@
                             <p class="campo-sublabel">Selecciona máximo 3 opciones</p>
                             <div class="checks-grid compact" id="canales-checks"></div>
                         </div>
-
-                        <!-- Línea divisoria -->
                         <hr class="section-divider">
-
-                        <!-- SEPARADOR FORMATOS -->
                         <div class="field mb-3">
                             <label class="section-title">
                                 <i class="bi bi-file-earmark-image"></i> Formatos Solicitados
                             </label>
                             <div class="checks-grid compact" id="formatos-checks"></div>
                         </div>
-
-                        <!-- Formato otros -->
                         <div class="field mb-2" id="contenedor-formato-otros" style="display:none;">
                             <label>SOLO SI MENCIONASTE OTROS — MENCIONA EL FORMATO Y MEDIDAS</label>
                             <input type="text" name="formato_otros" class="field-input"
                                 placeholder="Ej: Banner 3x2 metros, formato PNG">
                         </div>
-
-                        <!-- ¿Tiene materiales? -->
                         <div class="field mb-3">
                             <label>¿CUENTAS CON MATERIALES DE REFERENCIA?</label>
                             <select name="tiene_materiales" id="select-materiales" class="form-select field-select"
@@ -295,30 +276,23 @@
                                 <option value="0">No, no tengo materiales</option>
                             </select>
                         </div>
-
                         <!-- Contenedor de archivos (se muestra al seleccionar "Sí") -->
                         <div id="contenedor-materiales" style="display:none;">
-
-                            <!-- Nueva zona de carga simple -->
                             <div class="field mb-3">
                                 <label>ADJUNTA TUS ARCHIVOS</label>
                                 <p class="campo-sublabel">Máximo 100MB por archivo. PDF, imágenes, videos, documentos.
                                 </p>
-
                                 <div class="upload-area-simple"
                                     onclick="document.getElementById('input-archivos').click()">
                                     <i class="bi bi-plus-lg"></i>
                                     <span>Agregar archivos</span>
                                 </div>
-
                                 <input type="file" name="documentos[]" id="input-archivos" multiple
                                     style="display:none;"
                                     accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.zip">
 
                                 <div id="lista-archivos"></div>
                             </div>
-
-                            <!-- Link de referencia -->
                             <div class="field mb-3">
                                 <label>LINK DE REFERENCIA (Google Drive, WeTransfer, etc.)</label>
                                 <input type="text" name="url_referencia" class="field-input"
@@ -337,8 +311,6 @@
                                 <p class="resumen-sub">Verifica que la información clave esté correcta</p>
                             </div>
                         </div>
-
-                        <!-- Bloque 1: Info Básica -->
                         <div class="resumen-card mb-3">
                             <div class="resumen-card-header">
                                 <span class="resumen-numero">1</span>
@@ -364,8 +336,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Bloque 2: Detalles -->
                         <div class="resumen-card mb-3">
                             <div class="resumen-card-header">
                                 <span class="resumen-numero">2</span>
@@ -390,8 +360,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Aviso final -->
                         <div class="resumen-aviso">
                             <i class="bi bi-info-circle-fill"></i>
                             <span>Una vez enviado, el equipo de RF Marketing revisará tu requerimiento y te notificará
@@ -399,6 +367,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- Modal Footer -->
                 <div class="modal-footer border-0" style="gap: 10px; justify-content: flex-end;">
                     <button type="button" class="btn btn-outline-light d-none" id="btn-atras"
                         onclick="window.retrocederPaso()">
