@@ -57,10 +57,9 @@ $routes->group('responsable', function ($routes) {
     //Dashboar de Metricas - Plantilla (Prueba)
     $routes->get('dashboard', 'Responsable\PedidosAreaController::index');
 
-    // Nuevas rutas para flujo de Creación de Contenido
-    $routes->get('pedidos/pendientes-especificacion', 'Responsable\PedidosAreaController::obtenerPendientesEspecificacion');
-    $routes->post('pedidos/actualizar-requerimiento', 'Responsable\PedidosAreaController::actualizarRequerimiento');
-    $routes->post('pedidos/subir-documento-especificacion', 'Responsable\PedidosAreaController::subirDocumentoEspecificacion');
+    $routes->get('pedidos/bandeja-json', 'Responsable\PedidosAreaController::bandeja');
+    $routes->get('empleados/mi-area-json', 'Responsable\PedidosAreaController::empleadosMiAreaJson');
+    $routes->post('pedidos/asignar', 'Responsable\PedidosAreaController::asignarPedido');
 });
 
 //Rutas para el Empleado

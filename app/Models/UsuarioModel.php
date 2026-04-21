@@ -31,52 +31,53 @@ class UsuarioModel extends Model
     protected $createdField = 'fechacreacion';
     protected $updatedField = '';
 
+    /**
+     * Devuelve todos los usuarios con el nombre de su área resuelta
+     * y la empresa para responsables de áreas de clientes
+     * @return array
+     */
+    public function listarConArea(): array
+    {
+        $result = $this->db->table('usuarios u')
+            ->select('u.*')
+            ->select("COALESCE(aa.nombre, ae.nombre, '-') as area_nombre")
+            ->select("emp.nombreempresa as empresa_nombre")
+            ->join('areas_agencia aa', 'aa.id = u.idarea_agencia', 'left')
+            ->join('areas ae', 'ae.id = u.idarea', 'left')
+            ->join('empresas emp', 'emp.id = ae.idempresa', 'left')
+            ->orderBy('u.rol', 'ASC')
+            ->orderBy('u.nombre', 'ASC')
+            ->get()->getResultArray();
 
-   
-  /**
-   * Devuelve todos los usuarios con el nombre de su área resuelta
-   * y la empresa para responsables de áreas de clientes.
-   */
-  public function listarConArea(): array
-  {
-      $result = $this->db->table('usuarios u')
-          ->select('u.*')
-          ->select("COALESCE(aa.nombre, ae.nombre, '-') as area_nombre")
-          ->select("emp.nombreempresa as empresa_nombre")
-          ->join('areas_agencia aa', 'aa.id = u.idarea_agencia', 'left')
-          ->join('areas ae', 'ae.id = u.idarea', 'left')
-          ->join('empresas emp', 'emp.id = ae.idempresa', 'left')
-          ->orderBy('u.rol', 'ASC')
-          ->orderBy('u.nombre', 'ASC')
-          ->get()->getResultArray();
 
-     
-      foreach ($result as &$u) {
-          if ($u['rol'] === 'cliente' && !empty($u['idarea'])) {
-              $u['rol_visual'] = 'Responsable';
-          } else {
-              $u['rol_visual'] = ucfirst($u['rol']);
-          }
+        foreach ($result as &$u) {
+            if ($u['rol'] === 'cliente' && !empty($u['idarea'])) {
+                $u['rol_visual'] = 'Responsable';
+            } else {
+                $u['rol_visual'] = ucfirst($u['rol']);
+            }
 
-          // Formatear área/empresa para mostrar
-          if (!empty($u['area_nombre']) && $u['area_nombre'] !== '-') {
-              if (!empty($u['empresa_nombre'])) {
-                  // Es área de cliente - mostrar: Área (Empresa)
-                  $u['area_completa'] = $u['area_nombre'] . ' (' . $u['empresa_nombre'] . ')';
-              } else {
-                  // Es área de agencia
-                  $u['area_completa'] = $u['area_nombre'];
-              }
-          } else {
-              $u['area_completa'] = '-';
-          }
-      }
+            // Formatear área/empresa para mostrar
+            if (!empty($u['area_nombre']) && $u['area_nombre'] !== '-') {
+                if (!empty($u['empresa_nombre'])) {
+                    // Es área de cliente - mostrar: Área (Empresa)
+                    $u['area_completa'] = $u['area_nombre'] . ' (' . $u['empresa_nombre'] . ')';
+                } else {
+                    // Es área de agencia
+                    $u['area_completa'] = $u['area_nombre'];
+                }
+            } else {
+                $u['area_completa'] = '-';
+            }
+        }
 
-      return $result;
-  }
+        return $result;
+    }
 
     /**
-     * Devuelve un usuario por ID junto con el nombre de su área de agencia.
+     * Devuelve un usuario por ID junto con el nombre de su área de agencia
+     * @param int $id
+     * @return array|null
      */
     public function obtenerConArea(int $id): ?array
     {
@@ -120,5 +121,47 @@ class UsuarioModel extends Model
         ";
 
         return $this->db->query($sql, [$usuarioId])->getRowArray();
+    }
+
+    /**
+     * Devuelve usuarios asignables del área (empleados activos)
+     * @param int $idAreaAgencia
+     * @return array
+     */
+    public function obtenerAsignablesPorAreaAgencia(int $idAreaAgencia): array
+    {
+        // Definimos la consulta con placeholders para mayor seguridad
+        $sql = "
+        SELECT id, nombre, apellidos, esresponsable, rol, estado, idarea_agencia
+            FROM usuarios
+            WHERE idarea_agencia = ?
+              AND rol = 'empleado'
+              AND estado = true
+            ORDER BY esresponsable DESC, nombre ASC";
+        // Ejecutamos la consulta pasando el ID del área
+        $query = $this->db->query($sql, [$idAreaAgencia]);
+        // Retornamos el array con los resultados
+        return $query->getResultArray();
+    }
+
+    /**
+     * Busca un empleado específico activo que pertenezca a un área determinada
+     * @param int $idUsuario
+     * @param int $idAreaAgencia
+     * @return array|null
+     */
+    public function obtenerEmpleadoAsignable(int $idUsuario, int $idAreaAgencia): ?array
+    {
+        $sql = "
+            SELECT id, nombre, apellidos 
+            FROM usuarios 
+            WHERE id = ? 
+              AND rol = 'empleado' 
+              AND estado = true 
+              AND idarea_agencia = ? 
+            LIMIT 1";
+
+        $query = $this->db->query($sql, [$idUsuario, $idAreaAgencia]);
+        return $query->getRowArray();
     }
 }
