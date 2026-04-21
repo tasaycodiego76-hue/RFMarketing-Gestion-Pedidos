@@ -41,6 +41,7 @@ $routes->get('kanban/detalle/(:num)',   'Administrador\Kanban::detalle/$1');
    $routes->get('responsable/kanban', 'Administrador\Kanban::responsable');
    $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
    $routes->post('kanban/asignarEmpleado',  'Administrador\Kanban::asignarEmpleado');
+    $routes->post('kanban/iniciarTrabajo', 'Administrador\kanban::iniciarTrabajo');
 
 
    //EMPRESAS 

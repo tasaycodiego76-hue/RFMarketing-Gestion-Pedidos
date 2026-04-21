@@ -8,15 +8,27 @@ class ServiciosSeeder extends Seeder
 {
     public function run()
     {
+        $this->db->query("TRUNCATE TABLE servicios RESTART IDENTITY CASCADE");
+
         $servicios = [
             [
                 'nombre' => 'Diseño Gráfico',
-                'descripcion' => 'Logos y flyers',
+                'descripcion' => 'Creación de artes, logos, flyers e identidad visual',
                 'activo' => true,
             ],
             [
                 'nombre' => 'Audiovisual',
-                'descripcion' => 'Producción audiovisual y cortes',
+                'descripcion' => 'Producción y edición de video, reels y animaciones',
+                'activo' => true,
+            ],
+            [
+                'nombre' => 'Gestión de Contenido',
+                'descripcion' => 'Planificación, redacción y gestión de redes sociales',
+                'activo' => true,
+            ],
+            [
+                'nombre' => 'Fotografía',
+                'descripcion' => 'Sesiones fotográficas, cobertura de eventos y retoque digital',
                 'activo' => true,
             ],
         ];

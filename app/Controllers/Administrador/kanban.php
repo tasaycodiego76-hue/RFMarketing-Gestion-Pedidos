@@ -86,16 +86,19 @@ class kanban extends Controller
 
         $data = $db->query("
             SELECT
-                a.id, a.titulo, a.estado,
+                a.id, a.titulo, a.estado, a.num_modificaciones,
                 CAST(a.prioridad AS TEXT) AS prioridad_admin,
                 a.idempleado, a.idrequerimiento, a.idarea_agencia,
                 a.fechainicio, a.fechafin, a.fechacompletado,
                 a.observacion_revision, a.url_entrega,
                 r.descripcion, r.objetivo_comunicacion, r.tipo_requerimiento,
                 r.canales_difusion, r.publico_objetivo, r.formatos_solicitados,
-                r.fecharequerida, r.prioridad AS prioridad_cliente,
+                r.fecharequerida, r.fechacreacion AS r_fechacreacion, r.prioridad AS prioridad_cliente,
+                r.url_subida,
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
                 e.nombreempresa,
+                u_sol.nombre AS cliente_nombre,
+                ar.nombre AS area_solicitante_nombre,
                 aa.nombre AS area_nombre,
                 u.nombre    AS empleado_nombre,
                 u.apellidos AS empleado_apellidos
@@ -145,28 +148,53 @@ class kanban extends Controller
      * Asignar empleado a una atención (Flujo Responsable)
      */
     public function asignarEmpleado()
-    {
-        $json       = $this->request->getJSON(true);
-        $idAtencion = $json['idatencion'];
-        $idEmpleado = $json['idempleado'];
-        $idUsuario  = session()->get('id') ?? 1;
+{
+    $json       = $this->request->getJSON(true);
+    $idAtencion = $json['idatencion'];
+    $idEmpleado = $json['idempleado'];
+    $idUsuario  = session()->get('id') ?? 1;
+ 
+    $db = \Config\Database::connect();
+ 
+    // Solo asigna el empleado. El estado queda como está (pendiente_asignado).
+    // NO se toca fechainicio ni se cambia a en_proceso todavía.
+    $db->query("
+        UPDATE atencion
+        SET idempleado = ?
+        WHERE id = ?
+    ", [$idEmpleado, $idAtencion]);
+ 
+    $db->query("
+        INSERT INTO tracking (idatencion, idusuario, accion, estado)
+        SELECT ?, ?, 'Empleado asignado por responsable de área', estado
+        FROM atencion WHERE id = ?
+    ", [$idAtencion, $idUsuario, $idAtencion]);
+ 
+    return $this->response->setJSON(['status' => 'success', 'msg' => 'Empleado asignado correctamente']);
+}
 
-        $db = \Config\Database::connect();
-        
-        $db->query("
-            UPDATE atencion 
-            SET idempleado = ?, estado = 'en_proceso'
-            WHERE id = ?
-        ", [$idEmpleado, $idAtencion]);
-
-        $db->query("
-            INSERT INTO tracking (idatencion, idusuario, accion, estado)
-            VALUES (?, ?, 'Empleado asignado al proyecto', 'en_proceso')
-        ", [$idAtencion, $idUsuario]);
-
-        return $this->response->setJSON(['status' => 'success', 'msg' => 'Empleado asignado correctamente']);
-    }
-
+public function iniciarTrabajo()
+{
+    $json       = $this->request->getJSON(true);
+    $idAtencion = $json['idatencion'];
+    $idUsuario  = session()->get('id') ?? 1;
+ 
+    $db = \Config\Database::connect();
+ 
+    $db->query("
+        UPDATE atencion
+        SET estado = 'en_proceso', fechainicio = NOW()
+        WHERE id = ?
+    ", [$idAtencion]);
+ 
+    $db->query("
+        INSERT INTO tracking (idatencion, idusuario, accion, estado)
+        VALUES (?, ?, 'Trabajo iniciado por responsable/empleado', 'en_proceso')
+    ", [$idAtencion, $idUsuario]);
+ 
+    return $this->response->setJSON(['status' => 'success', 'msg' => 'Trabajo iniciado correctamente']);
+}
+ 
     /**
      * Cambiar estado de una atención
      */
@@ -186,10 +214,21 @@ class kanban extends Controller
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Estado no válido']);
         }
 
-        if ($nuevoEstado === 'en_proceso' && $idAreaAgencia) {
+        $actual = $db->query("SELECT estado FROM atencion WHERE id = ?", [$idAtencion])->getRowArray();
+        $estadoActual = $actual['estado'] ?? null;
+
+        // Regla de flujo:
+        // - Admin aprueba (desde pendiente_sin_asignar) y lo envía al área -> pendiente_asignado
+        // - "En proceso" real solo ocurre cuando el responsable/empleado inicia trabajo.
+        if ($estadoActual === 'pendiente_sin_asignar' && $nuevoEstado === 'en_proceso' && $idAreaAgencia) {
+            $nuevoEstado = 'pendiente_asignado';
+        }
+
+        if ($nuevoEstado === 'pendiente_asignado' && $idAreaAgencia) {
+            // Al enviar al área, NO se asigna empleado ni se marca inicio de trabajo.
             $db->query("
                 UPDATE atencion
-                SET estado = ?, idarea_agencia = ?
+                SET estado = ?, idarea_agencia = ?, idempleado = NULL
                 WHERE id = ?
             ", [$nuevoEstado, $idAreaAgencia, $idAtencion]);
         } elseif ($nuevoEstado === 'finalizado') {
