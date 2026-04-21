@@ -49,7 +49,7 @@ class MisPedidosController extends BaseController
 
     /**
      * Endpoint API: Retorna todos los pedidos del cliente autenticado como JSON
-     * @return \CodeIgniter\HTTP\ResponseInterface Respuesta JSON con array de pedidos o array vacío si no hay pedidos
+     * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function listar()
     {

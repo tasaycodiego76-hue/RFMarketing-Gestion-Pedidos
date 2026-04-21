@@ -38,6 +38,7 @@ class kanban extends Controller
             if ($estado === 'pendiente_asignado') {
                 $estado = 'en_proceso';
             }
+
             if (isset($columnas[$estado])) {
                 $columnas[$estado]['items'][] = $a;
             }

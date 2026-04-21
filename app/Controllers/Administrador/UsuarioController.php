@@ -7,6 +7,7 @@ use App\Models\UsuarioModel;
 use App\Models\EmpresaModel;
 use App\Models\AreasAgenciaModel;
 use App\Models\ResponsablesEmpresaModel;
+use App\Models\ServicioModel;
 
 class UsuarioController extends Controller
 {
@@ -120,6 +121,11 @@ class UsuarioController extends Controller
           $responsablesModel->asignarResponsable($id, $idEmpresa);
       }
 
+      // Regla nueva: crear servicio por área al registrar empleado
+      if ($datos['rol'] === 'empleado' && !empty($datos['idarea_agencia'])) {
+          $this->sincronizarServicioPorAreaAgencia((int) $datos['idarea_agencia']);
+      }
+
       return $this->response->setJSON(['success' => true, 'message' => 'Usuario registrado correctamente']);
   }
 
@@ -185,6 +191,11 @@ class UsuarioController extends Controller
       }
 
       $model->update($id, $datos);
+
+      // Si el usuario es empleado y tiene área de agencia, garantizar servicio asociado
+      if (($datos['rol'] ?? null) === 'empleado' && !empty($datos['idarea_agencia'])) {
+          $this->sincronizarServicioPorAreaAgencia((int) $datos['idarea_agencia']);
+      }
 
       return $this->response->setJSON(['success' => true, 'message' => 'Usuario actualizado correctamente']);
   }
@@ -275,6 +286,68 @@ class UsuarioController extends Controller
               'message' => $e->getMessage()
           ]);
       }
+  }
+
+  /**
+   * Garantiza que exista un servicio para el área de agencia seleccionada.
+   * Equivalencias especiales:
+   * - "Diseño" => "Diseño Gráfico"
+   * - "Edición y Video" => "AudioVisual"
+   * @param int $idAreaAgencia
+   * @return void
+   */
+  private function sincronizarServicioPorAreaAgencia(int $idAreaAgencia): void
+  {
+      $areasAgenciaModel = new AreasAgenciaModel();
+      $servicioModel = new ServicioModel();
+
+      $area = $areasAgenciaModel->find($idAreaAgencia);
+      if (!$area || empty($area['nombre'])) {
+          return;
+      }
+
+      $nombreArea = trim((string) $area['nombre']);
+      $descripcionArea = trim((string) ($area['descripcion'] ?? ''));
+      $clave = $this->normalizarTexto($nombreArea);
+
+      $equivalencias = [
+          'diseno' => 'Diseño Gráfico',
+          'diseño' => 'Diseño Gráfico',
+          'edicion y video' => 'AudioVisual',
+          'edición y video' => 'AudioVisual',
+          'audiovisual' => 'AudioVisual',
+      ];
+
+      $nombreServicio = $equivalencias[$clave] ?? $nombreArea;
+
+      $existente = $servicioModel
+          ->where('LOWER(nombre)', mb_strtolower($nombreServicio))
+          ->first();
+
+      if ($existente) {
+          return;
+      }
+
+      $servicioModel->insert([
+          'nombre' => $nombreServicio,
+          'descripcion' => $descripcionArea !== '' ? $descripcionArea : 'Servicio creado automáticamente desde Área de Agencia',
+          'activo' => true,
+      ]);
+  }
+
+  /**
+   * Normaliza texto para comparaciones internas.
+   * @param string $texto
+   * @return string
+   */
+  private function normalizarTexto(string $texto): string
+  {
+      $texto = trim(mb_strtolower($texto));
+      $texto = strtr($texto, [
+          'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u',
+          'Á' => 'a', 'É' => 'e', 'Í' => 'i', 'Ó' => 'o', 'Ú' => 'u',
+      ]);
+      return $texto;
   }
 
 }

@@ -246,6 +246,27 @@
             </div>
         </div>
     <?php endif; ?>
+    <?php if (!empty($requerimiento['url_subida'])): ?>
+        <div class="col-12 mt-3">
+            <div class="card-dark-main p-3">
+                <label class="label-tiny mb-3 d-block">
+                    <i class="bi bi-link-45deg me-1"></i> ENLACE DE REFERENCIA
+                </label>
+                <a href="<?= esc($requerimiento['url_subida']) ?>" target="_blank" class="archivo-adjunto-card"
+                    style="max-width: 100%;">
+                    <i class="bi bi-globe"></i>
+                    <div class="archivo-info" style="flex: 1;">
+                        <span class="archivo-nombre"
+                            style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <?= esc($requerimiento['url_subida']) ?>
+                        </span>
+                        <span class="archivo-peso">Haz clic para abrir</span>
+                    </div>
+                    <i class="bi bi-box-arrow-up-right archivo-open"></i>
+                </a>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
 
 <?= $this->endSection() ?>

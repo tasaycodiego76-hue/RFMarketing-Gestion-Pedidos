@@ -52,21 +52,24 @@ document.addEventListener('DOMContentLoaded', function () {
         formulario.reset();
         inputId.value = '';
         modalTitulo.textContent = 'NUEVA ÁREA';
+        // Lógica desacoplada: servicios ya no se crean desde Áreas
+        document.querySelector('#crearEnServicios').closest('.form-check').style.display = 'none';
+        document.querySelector('#crearEnServicios').checked = false;
         $('#modal-area').modal('show'); // Función de Bootstrap
     });
 
     // 3. GUARDAR (Create / Update)
     formulario.addEventListener('submit', async function (e) {
         e.preventDefault();
-        
+
         const id = inputId.value;
         const datos = {
             nombre: document.querySelector('#agenciaNombre').value.trim(),
             descripcion: document.querySelector('#agenciaDescripcion').value.trim()
         };
 
-        const url = id 
-            ? BASE_URL + 'admin/areas/editar/' + id 
+        const url = id
+            ? BASE_URL + 'admin/areas/editar/' + id
             : BASE_URL + 'admin/areas/registrar';
         const method = id ? 'PUT' : 'POST';
 
@@ -103,7 +106,10 @@ document.addEventListener('DOMContentLoaded', function () {
         inputId.value = data.id;
         document.querySelector('#agenciaNombre').value = data.nombre || '';
         document.querySelector('#agenciaDescripcion').value = data.descripcion || '';
-        
+
+        // Ocultar opción de crear en servicios al editar (no aplica)
+        document.querySelector('#crearEnServicios').closest('.form-check').style.display = 'none';
+
         modalTitulo.textContent = 'EDITAR ÁREA';
         $('#modal-area').modal('show');
     };

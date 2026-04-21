@@ -31,32 +31,32 @@ class CrearTablaRequerimiento extends Migration
             'titulo' => [
                 'type' => 'VARCHAR',
                 'constraint' => 100,
-                'null' => false,
+                'null' => true,
             ],
             'objetivo_comunicacion' => [
                 'type' => 'TEXT',
-                'null' => false,
+                'null' => true,
             ],
             'descripcion' => [
                 'type' => 'TEXT',
-                'null' => false,
+                'null' => true,
             ],
             'tipo_requerimiento' => [
                 'type' => 'VARCHAR',
                 'constraint' => 200,
-                'null' => false,
+                'null' => true,
             ],
             'canales_difusion' => [
                 'type' => 'TEXT',
-                'null' => false,
+                'null' => true,
             ],
             'publico_objetivo' => [
                 'type' => 'TEXT',
-                'null' => false,
+                'null' => true,
             ],
             'tiene_materiales' => [
                 'type' => 'BOOLEAN',
-                'null' => false,
+                'null' => true,
             ],
             'url_subida' => [
                 'type' => 'TEXT',
@@ -64,12 +64,12 @@ class CrearTablaRequerimiento extends Migration
             ],
             'formatos_solicitados' => [
                 'type' => 'TEXT',
-                'null' => false,
+                'null' => true,
             ],
             'formato_otros' => [
                 'type' => 'VARCHAR',
                 'constraint' => 200,
-                'null' => false,
+                'null' => true,
                 'default' => '',
             ],
             'fecharequerida' => [
