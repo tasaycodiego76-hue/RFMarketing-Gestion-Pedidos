@@ -66,7 +66,8 @@ class MisPedidosController extends BaseController
             'paginaActual' => 'dashboard',
             'user' => $userData,
             'stats' => $stats,
-            'pedidos_recientes' => $this->obtenerPedidosRecientes($user['id'])
+            'pedidos_recientes' => $this->obtenerPedidosRecientes($user['id']),
+            'pedidos_revision' => $this->obtenerPedidosRevision($user['id'])
         ]);
     }
 
@@ -114,9 +115,9 @@ class MisPedidosController extends BaseController
                 a.id, a.titulo, a.estado, a.prioridad,
                 a.fechainicio, a.fechafin, a.fechacompletado,
                 a.url_entrega, a.observacion_revision,
-                r.descripcion, r.objetivo_comunicacion, r.tipo_requerimiento,
+                r.id as id_requerimiento, r.descripcion, r.objetivo_comunicacion, r.tipo_requerimiento,
                 r.canales_difusion, r.publico_objetivo, r.formatos_solicitados,
-                r.fecharequerida, r.prioridad AS prioridad_cliente,
+                r.fecharequerida, r.prioridad AS prioridad_cliente, r.url_subida,
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
                 e.nombreempresa
             FROM atencion a
@@ -132,14 +133,26 @@ class MisPedidosController extends BaseController
             return $this->response->setJSON(['status' => 'error', 'message' => 'No se encontró el detalle']);
         }
 
-        // Obtener archivos adjuntos del requerimiento
+        // Obtener archivos adjuntos del requerimiento (tanto del cliente como del empleado)
         $archivoModel = new ArchivoModel();
-        $archivos = $archivoModel->where('idatencion', $id)->findAll();
+        
+        // Obtener archivos del cliente (idrequerimiento sin idatencion)
+        $archivosCliente = $archivoModel->where('idrequerimiento', $data['id_requerimiento'])
+                                       ->where('idatencion IS NULL')
+                                       ->findAll();
+        
+        // Obtener archivos del empleado (con idatencion)
+        $archivosEmpleado = $archivoModel->where('idatencion', $id)->findAll();
+        
+        // Combinar todos los archivos
+        $archivos = array_merge($archivosCliente, $archivosEmpleado);
 
         return $this->response->setJSON([
             'status' => 'success',
             'data' => $data,
-            'archivos' => $archivos
+            'archivos' => $archivos,
+            'archivos_cliente' => $archivosCliente,
+            'archivos_empleado' => $archivosEmpleado
         ]);
     }
 
@@ -159,7 +172,7 @@ class MisPedidosController extends BaseController
 
         $data = [
             'estado' => 'en_proceso',
-            'fechainicio' => date('Y-m-d H:i:s')
+            'fechainicio' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
         ];
 
         if ($atencionModel->update($id, $data)) {
@@ -169,7 +182,7 @@ class MisPedidosController extends BaseController
                 'idusuario' => $user['id'],
                 'accion' => 'Trabajo iniciado por el empleado',
                 'estado' => 'en_proceso',
-                'fecha_registro' => date('Y-m-d H:i:s')
+                'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
 
             return $this->response->setJSON(['status' => 'success', 'message' => '¡Trabajo iniciado correctamente!']);
@@ -202,7 +215,10 @@ class MisPedidosController extends BaseController
         ];
 
         if ($atencionModel->update($id, $data)) {
-            // Guardar archivos si existen
+            // Limpiar archivos anteriores si hay una revisión
+            $this->limpiarArchivosAnteriores((int)$id);
+            
+            // Guardar archivos nuevos si existen
             $this->guardarArchivosEntrega((int)$id, (int)$pedido['idrequerimiento']);
 
             $trackingModel = new TrackingModel();
@@ -211,7 +227,7 @@ class MisPedidosController extends BaseController
                 'idusuario' => $user['id'],
                 'accion' => 'Trabajo entregado para revisión',
                 'estado' => 'en_revision',
-                'fecha_registro' => date('Y-m-d H:i:s')
+                'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
 
             return $this->response->setJSON(['status' => 'success', 'message' => '¡Entrega realizada con éxito!']);
@@ -232,7 +248,7 @@ class MisPedidosController extends BaseController
         }
 
         $archivoModel = new ArchivoModel();
-        $carpeta = WRITEPATH . 'uploads/entregas';
+        $carpeta = FCPATH . 'uploads/entregables';
 
         if (!is_dir($carpeta)) {
             mkdir($carpeta, 0755, true);
@@ -251,7 +267,7 @@ class MisPedidosController extends BaseController
                     'idrequerimiento' => $idReq,
                     'idatencion' => $idAtn,
                     'nombre' => $file->getClientName(),
-                    'ruta' => 'uploads/entregas/' . $nombreNuevo,
+                    'ruta' => 'uploads/entregables/' . $nombreNuevo,
                     'tipo' => $file->getClientMimeType(),
                     'tamano' => $file->getSize(),
                 ]);
@@ -267,9 +283,38 @@ class MisPedidosController extends BaseController
         return $atencionModel->obtenerDetalladoPorEmpleado((int)$userId, ['en_proceso', 'en_revision']);
     }
 
+    private function obtenerPedidosRevision($userId)
+    {
+        $atencionModel = new AtencionModel();
+        return $atencionModel->obtenerDetalladoPorEmpleado((int)$userId, ['en_revision']);
+    }
+
     private function obtenerPedidos($userId)
     {
         $atencionModel = new AtencionModel();
         return $atencionModel->obtenerDetalladoPorEmpleado((int)$userId, ['pendiente_asignado', 'en_proceso', 'en_revision']);
+    }
+
+    /**
+     * Limpia archivos anteriores de una atención cuando se vuelve a entregar
+     * @param int $idAtencion
+     */
+    private function limpiarArchivosAnteriores(int $idAtencion): void
+    {
+        $archivoModel = new ArchivoModel();
+        
+        // Obtener archivos anteriores del empleado
+        $archivosAnteriores = $archivoModel->where('idatencion', $idAtencion)->findAll();
+        
+        foreach ($archivosAnteriores as $archivo) {
+            // Eliminar archivo físico del servidor
+            $rutaCompleta = FCPATH . $archivo['ruta'];
+            if (file_exists($rutaCompleta)) {
+                unlink($rutaCompleta);
+            }
+            
+            // Eliminar registro de la base de datos
+            $archivoModel->delete($archivo['id']);
+        }
     }
 }

@@ -16,7 +16,7 @@
         <p class="small mb-0" style="color:#aaa;">Cliente — Historial de requerimientos</p>
     </div>
     <button class="btn-rf" data-bs-toggle="modal" data-bs-target="#modal-nuevo-pedido">
-        <i class="bi bi-plus-lg"></i> Nuevo Pedido
+        <i class="bi bi-plus-lg"></i> Nuevo Pedido  
     </button>
 </div>
 
@@ -84,7 +84,7 @@
 
 <!-- Modal Selección de Servicios -->
 <div class="modal fade" id="modal-nuevo-pedido" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
-    aria-labelledby="modalLabel" aria-hidden="true">
+    aria-labelledby="modalLabel">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-rf">
             <div class="modal-header modal-rf-header">

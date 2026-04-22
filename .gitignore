@@ -121,6 +121,10 @@ _modules/*
 
 # Visual Studio Code
 .vscode/
+.cursor/
 
 /results/
 /phpunit*.xml
+
+.windsurf/
+.codeium/

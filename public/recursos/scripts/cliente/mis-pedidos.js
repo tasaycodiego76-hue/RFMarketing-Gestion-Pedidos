@@ -89,7 +89,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Función para generar opciones del select según servicio
   const generarOpcionesTipo = (idServicio) => {
-    const tipos = idServicio === "2" ? TIPOS_AUDIOVISUAL : TIPOS_DISENO;
+    let tipos;
+    switch(idServicio) {
+      case "1": 
+        tipos = TIPOS_DISENO; 
+        break;
+      case "2": 
+        tipos = TIPOS_AUDIOVISUAL; 
+        break;
+      case "3": 
+      case "4": 
+      default: 
+        // Para servicios nuevos (Creación de Contenido, Fotografía) usa configuración de Diseño
+        tipos = TIPOS_DISENO; 
+        break;
+    }
     return Object.entries(tipos).map(([key, data]) => {
       return `<option value="${key}">${data.label} — ${data.dias} días hábiles</option>`;
     }).join("");
@@ -265,7 +279,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const num = total - index;
         const cfgEstado = MAPA_ESTADOS[pedido.estado]
         const cfgPrioridad = MAPA_PRIORIDADES[pedido.prioridad]
-        const servicio = pedido.servicio || pedido.servicio_personalizado;
+        const servicio = pedido.servicio_personalizado || pedido.servicio;
 
         return `
         <tr data-numero="${pedido.idrequerimiento}">

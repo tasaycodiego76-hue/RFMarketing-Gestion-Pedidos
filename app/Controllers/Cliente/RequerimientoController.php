@@ -224,19 +224,54 @@ class RequerimientoController extends BaseController
         try {
             // Insertar Requerimiento
             $reqModel = new RequerimientoModel();
+            
+            // Debug: Ver qué datos se están insertando en requerimiento
+            log_message('debug', 'Datos a insertar en requerimiento: ' . json_encode($dataReq));
+            
             $idReq = $reqModel->insert($dataReq);
+            
+            // Debug: Ver qué retorna la inserción de requerimiento
+            log_message('debug', 'Resultado insert requerimiento: ' . $idReq);
+            
             $idReq = $this->obtenerIdInsertado($db, $idReq);
+            
+            // Debug: Ver ID final de requerimiento
+            log_message('debug', 'ID final requerimiento: ' . $idReq);
+            
             // Validacion
             if (!$idReq) {
+                // Debug: Ver errores del modelo de requerimiento
+                log_message('error', 'Errores requerimiento: ' . json_encode($reqModel->errors()));
                 throw new \RuntimeException('No se pudo obtener el ID del requerimiento.');
             }
 
             // Obtener el area_agencia según el servicio seleccionado
             $servicioModel = new ServicioModel();
-            $idAreaAgencia = $servicioModel->getAreaAgenciaByServicio((int)$idServicio);
+            
+            // Para servicios personalizados, usar área especial "Por Asignar"
+            if ($idServicio === null) {
+                $idAreaAgencia = 1; // Por defecto área de Diseño para servicios personalizados
+            } else {
+                $idAreaAgencia = $servicioModel->getAreaAgenciaByServicio((int)$idServicio);
+            }
 
             // Insertar Atención vinculada al requerimiento
             $atencionModel = new AtencionModel();
+            
+            // Debug: Ver datos de atención
+            log_message('debug', 'Datos atención: ' . json_encode([
+                'idrequerimiento' => $idReq,
+                'idadmin' => 1,
+                'idservicio' => $idServicio,
+                'servicio_personalizado' => $dataReq['servicio_personalizado'],
+                'titulo' => $dataReq['titulo'],
+                'prioridad' => $dataReq['prioridad'],
+                'estado' => 'pendiente_sin_asignar',
+                'fechafin' => $fechaObj->format('Y-m-d'),
+                'url_entrega' => null,
+                'idarea_agencia' => $idAreaAgencia,
+            ]));
+            
             $idAtn = $atencionModel->insert([
                 'idrequerimiento' => $idReq,
                 'idadmin' => 1,
@@ -249,9 +284,18 @@ class RequerimientoController extends BaseController
                 'url_entrega' => null,
                 'idarea_agencia' => $idAreaAgencia,
             ]);
+            
+            // Debug: Ver resultado del insert
+            log_message('debug', 'Resultado insert atención: ' . $idAtn);
+            
             $idAtn = $this->obtenerIdInsertado($db, $idAtn);
+            
+            // Debug: Ver ID final
+            log_message('debug', 'ID final atención: ' . $idAtn);
+            
             // Validacion
             if (!$idAtn) {
+                log_message('error', 'Errores atención: ' . json_encode($atencionModel->errors()));
                 throw new \RuntimeException('No se pudo obtener el ID de la atención.');
             }
 
@@ -262,7 +306,7 @@ class RequerimientoController extends BaseController
                 'idusuario' => $idUsuario,
                 'accion' => 'Nuevo requerimiento registrado. Pendiente de asignación',
                 'estado' => 'pendiente_sin_asignar',
-                'fecha_registro' => date('Y-m-d H:i:s'),
+                'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s'),
             ]);
 
             // Guardar archivos adjuntos (si el usuario subió alguno)
@@ -366,10 +410,10 @@ class RequerimientoController extends BaseController
                 $nombreNuevo = $file->getRandomName();
                 $file->move($carpeta, $nombreNuevo);
 
-                // Registrar en la BD
+                // Registrar en la BD (archivos del cliente solo tienen idrequerimiento)
                 $archivoModel->insert([
                     'idrequerimiento' => $idReq,
-                    'idatencion' => $idAtn,
+                    'idatencion' => null,  // Los archivos del cliente no tienen idatencion
                     'nombre' => $file->getClientName(),          // Nombre original
                     'ruta' => 'uploads/materiales-referencia/' . $nombreNuevo,  // Ruta relativa
                     'tipo' => $file->getClientMimeType(),      // Ej: image/png, application/pdf
@@ -438,15 +482,39 @@ class RequerimientoController extends BaseController
             ]);
         }
 
-        // Traer todos los archivos vinculados a este requerimiento
-        $archivos = $archivoModel->where('idrequerimiento', $RequerimientoID)->findAll();
+        // Obtener estado del requerimiento para filtrar archivos
+        $estado = $data['estado'] ?? '';
+        
+        // Obtener archivos del cliente (siempre visibles)
+        $archivosCliente = $archivoModel->where('idrequerimiento', $RequerimientoID)
+                                       ->where('idatencion IS NULL')
+                                       ->findAll();
+        
+        // Obtener archivos del empleado (solo si está finalizado)
+        $archivosEmpleado = [];
+        if ($estado === 'finalizado') {
+            $archivosEmpleado = $archivoModel->where('idrequerimiento', $RequerimientoID)
+                                            ->where('idatencion IS NOT NULL')
+                                            ->findAll();
+        }
+        
+        // Combinar archivos
+        $archivos = array_merge($archivosCliente, $archivosEmpleado);
+
+        // Obtener URLs solo si está finalizado
+        $urlSubida = $data['url_subida'] ?? null;
+        $urlEntrega = ($estado === 'finalizado') ? ($data['url_entrega'] ?? null) : null;
 
         // Retornar respuesta JSON con éxito y toda la información
         return $this->response->setJSON([
             'status' => 'success',
             'data' => [
-                'requerimiento' => $data,        // Datos del requerimiento + estado + servicio
-                'archivos' => $archivos          // Array con archivos asociados
+                'requerimiento' => $data,
+                'archivos' => $archivos,
+                'archivos_cliente' => $archivosCliente,
+                'archivos_empleado' => $archivosEmpleado,
+                'url_subida' => $urlSubida,
+                'url_entrega' => $urlEntrega,
             ]
         ]);
     }

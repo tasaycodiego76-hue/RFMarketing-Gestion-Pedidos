@@ -22,45 +22,71 @@
 <div class="row g-4">
     <div class="col-lg-8">
         <div class="card-dark-main p-4 h-100">
-            <div class="badges-row mb-4">
-                <span class="badge-type">
-                    <?= mb_strtoupper(esc($requerimiento['nombre_servicio'] ?? $requerimiento['servicio_personalizado']), 'UTF-8') ?>
-                </span>
-                <span class="badge-priority prio-<?= strtolower($requerimiento['prioridad']) ?>">
-                    <?= esc($requerimiento['prioridad']) ?>
-                </span>
-            </div>
 
-            <h1 class="main-project-title"><?= esc($requerimiento['titulo']) ?></h1>
-            <p class="university-subtext">
-                <?php if (!empty($user['nombre_area_agencia'])): ?>
-                    <?= esc($user['nombre_area_agencia']) ?> — Agencia
-                <?php elseif (!empty($user['nombre_empresa'])): ?>
-                    <?= esc($user['nombre_empresa']) ?>
-                <?php elseif (!empty($user['nombre_area'])): ?>
-                    <?= esc($user['nombre_area']) ?>
-                <?php else: ?>
-                    Cliente
-                <?php endif; ?>
-            </p>
+            <!-- Header del Requerimiento -->
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div class="flex-grow-1">
+                    <div class="badges-row mb-3">
+                        <span class="badge-type">
+                            <?= mb_strtoupper(esc($requerimiento['servicio_personalizado'] ?? $requerimiento['nombre_servicio']), 'UTF-8') ?>
+                        </span>
+                        <span class="badge-priority prio-<?= strtolower($requerimiento['prioridad']) ?>">
+                            <?= esc($requerimiento['prioridad']) ?>
+                        </span>
+                    </div>
+                    <h1 class="main-project-title mb-2"><?= esc($requerimiento['titulo']) ?></h1>
+                    <p class="university-subtext mb-0">
+                        <?php if (!empty($user['nombre_area_agencia'])): ?>
+                            <i class="bi bi-building me-1"></i><?= esc($user['nombre_area_agencia']) ?> - Agencia
+                        <?php elseif (!empty($user['nombre_empresa'])): ?>
+                            <i class="bi bi-briefcase me-1"></i><?= esc($user['nombre_empresa']) ?>
+                        <?php elseif (!empty($user['nombre_area'])): ?>
+                            <i class="bi bi-geo-alt me-1"></i><?= esc($user['nombre_area']) ?>
+                        <?php else: ?>
+                            <i class="bi bi-person me-1"></i>Cliente
+                        <?php endif; ?>
+                    </p>
+                </div>
+            </div>
 
             <div class="divider-dark my-4"></div>
 
-            <div class="row mb-4">
+            <!-- Información Principal -->
+            <div class="row g-4 mb-4">
                 <div class="col-md-6">
-                    <label class="label-tiny">OBJETIVO DE COMUNICACIÓN</label>
-                    <p class="content-text"><?= esc($requerimiento['objetivo_comunicacion']) ?></p>
+                    <div class="info-section">
+                        <label class="label-tiny mb-2">
+                            <i class="bi bi-bullseye me-1"></i>OBJETIVO DE COMUNICACIÓN
+                        </label>
+                        <div class="content-box">
+                            <p class="content-text mb-0"><?= esc($requerimiento['objetivo_comunicacion']) ?></p>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-6">
-                    <label class="label-tiny">PÚBLICO OBJETIVO</label>
-                    <p class="content-text"><?= esc($requerimiento['publico_objetivo']) ?></p>
+                    <div class="info-section">
+                        <label class="label-tiny mb-2">
+                            <i class="bi bi-people me-1"></i>PÚBLICO OBJETIVO
+                        </label>
+                        <div class="content-box">
+                            <p class="content-text mb-0"><?= esc($requerimiento['publico_objetivo']) ?></p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
+            <!-- Descripción -->
             <div class="mb-4">
-                <label class="label-tiny">DESCRIPCIÓN</label>
-                <div class="brief-container mt-2">
-                    <?= nl2br(esc($requerimiento['descripcion'])) ?>
+                <label class="label-tiny mb-2">
+                    <i class="bi bi-file-text me-1"></i>DESCRIPCIÓN DETALLADA
+                </label>
+                <div class="brief-container">
+                    <div id="descripcion-container"
+                        style="max-height: 150px; overflow: hidden; transition: max-height 0.3s ease;">
+                        <div class="content-box p-3">
+                            <?= nl2br(esc($requerimiento['descripcion'])) ?>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -205,15 +231,19 @@
             </p>
         </div>
     </div>
-    <?php if (!empty($archivos)): ?>
-        <div class="row g-4 mt-1">
-            <div class="col-12">
-                <div class="card-dark-main p-3">
-                    <label class="label-tiny mb-3 d-block">
-                        <i class="bi bi-paperclip me-1"></i> ARCHIVOS ADJUNTOS
-                    </label>
+    <div class="row g-4 mt-1">
+        <!-- Archivos del Cliente -->
+        <div class="col-12">
+            <div class="card-dark-main p-3">
+                <label class="label-tiny mb-3 d-block">
+                    <i class="bi bi-person-badge me-1"></i> ARCHIVOS ENVIADOS POR EL CLIENTE
+                </label>
+                <?php
+                $archivosCliente = array_filter($archivos ?? [], fn($archivo) => !empty($archivo['idrequerimiento']) && empty($archivo['idatencion']));
+                if (!empty($archivosCliente)):
+                    ?>
                     <div class="d-flex flex-wrap gap-2">
-                        <?php foreach ($archivos as $archivo): ?>
+                        <?php foreach ($archivosCliente as $archivo): ?>
                             <?php
                             $icono = 'bi-file-earmark';
                             $mime = $archivo['tipo'] ?? '';
@@ -232,7 +262,7 @@
                             $nombreArchivo = basename($archivo['ruta'] ?? '');
                             ?>
                             <a href="<?= base_url('cliente/archivos/' . $nombreArchivo) ?>" target="_blank"
-                                class="archivo-adjunto-card" title="<?= esc($archivo['nombre']) ?>">
+                                class="archivo-adjunto-card cliente-file" title="<?= esc($archivo['nombre']) ?>">
                                 <i class="bi <?= $icono ?>"></i>
                                 <div class="archivo-info">
                                     <span class="archivo-nombre"><?= esc($archivo['nombre']) ?></span>
@@ -242,31 +272,106 @@
                             </a>
                         <?php endforeach; ?>
                     </div>
+                <?php else: ?>
+                    <div class="text-muted text-center py-3">
+                        <i class="bi bi-inbox me-2"></i>
+                        <span class="small">No hay materiales de referencia</span>
+                    </div>
+                <?php endif; ?>
+                
+                <!-- URL de Referencia del Cliente -->
+                <?php if (!empty($requerimiento['url_subida'])): ?>
+                    <div class="mt-3">
+                        <label class="label-tiny mb-2 d-block">
+                            <i class="bi bi-link-45deg me-1"></i> ENLACE DE REFERENCIA
+                        </label>
+                        <a href="<?= esc($requerimiento['url_subida']) ?>" target="_blank" class="archivo-adjunto-card"
+                            style="max-width: 100%;">
+                            <i class="bi bi-globe"></i>
+                            <div class="archivo-info" style="flex: 1;">
+                                <span class="archivo-nombre"
+                                    style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    <?= esc($requerimiento['url_subida']) ?>
+                                </span>
+                                <span class="archivo-peso">Haz clic para abrir</span>
+                            </div>
+                            <i class="bi bi-box-arrow-up-right archivo-open"></i>
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Archivos de Entrega del Empleado - Solo visible si está finalizado o completado -->
+        <?php if (in_array(($requerimiento['estado'] ?? ''), ['finalizado', 'completado'])): ?>
+            <div class="col-12 mt-3">
+                <div class="card-dark-main p-3">
+                    <label class="label-tiny mb-3 d-block">
+                        <i class="bi bi-briefcase me-1"></i> ARCHIVOS DE ENTREGA DEL EMPLEADO
+                    </label>
+                    <?php
+                    $archivosEmpleado = array_filter($archivos ?? [], fn($archivo) => !empty($archivo['idatencion']));
+                    if (!empty($archivosEmpleado)):
+                        ?>
+                        <div class="d-flex flex-wrap gap-2">
+                            <?php foreach ($archivosEmpleado as $archivo): ?>
+                                <?php
+                                $icono = 'bi-file-earmark';
+                                $mime = $archivo['tipo'] ?? '';
+                                if (str_contains($mime, 'image'))
+                                    $icono = 'bi-file-earmark-image';
+                                elseif (str_contains($mime, 'pdf'))
+                                    $icono = 'bi-file-earmark-pdf';
+                                elseif (str_contains($mime, 'video'))
+                                    $icono = 'bi-file-earmark-play';
+                                elseif (str_contains($mime, 'word'))
+                                    $icono = 'bi-file-earmark-word';
+                                elseif (str_contains($mime, 'sheet') || str_contains($mime, 'excel'))
+                                    $icono = 'bi-file-earmark-excel';
+
+                                $kb = number_format(($archivo['tamano'] ?? 0) / 1024, 1);
+                                $nombreArchivo = basename($archivo['ruta'] ?? '');
+                                ?>
+                                <a href="<?= base_url($archivo['ruta']) ?>" target="_blank"
+                                    class="archivo-adjunto-card empleado-file" title="<?= esc($archivo['nombre']) ?>">
+                                    <i class="bi <?= $icono ?>"></i>
+                                    <div class="archivo-info">
+                                        <span class="archivo-nombre"><?= esc($archivo['nombre']) ?></span>
+                                        <span class="archivo-peso"><?= $kb ?> KB</span>
+                                    </div>
+                                    <i class="bi bi-box-arrow-up-right archivo-open"></i>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="text-muted text-center py-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <span class="small">No hay archivos de entrega para este requerimiento.</span>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <!-- URL de Entrega del Empleado - Solo visible si está finalizado o completado -->
+                    <?php if (!empty($requerimiento['url_entrega'])): ?>
+                        <div class="mt-3">
+                            <label class="label-tiny mb-2 d-block">
+                                <i class="bi bi-link-45deg me-1"></i> ENLACE DE ENTREGA
+                            </label>
+                            <a href="<?= esc($requerimiento['url_entrega']) ?>" target="_blank" class="archivo-adjunto-card"
+                                style="max-width: 100%;">
+                                <i class="bi bi-globe"></i>
+                                <div class="archivo-info" style="flex: 1;">
+                                    <span class="archivo-nombre"
+                                        style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        <?= esc($requerimiento['url_entrega']) ?>
+                                    </span>
+                                    <span class="archivo-peso">Haz clic para abrir</span>
+                                </div>
+                                <i class="bi bi-box-arrow-up-right archivo-open"></i>
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
-        </div>
-    <?php endif; ?>
-    <?php if (!empty($requerimiento['url_subida'])): ?>
-        <div class="col-12 mt-3">
-            <div class="card-dark-main p-3">
-                <label class="label-tiny mb-3 d-block">
-                    <i class="bi bi-link-45deg me-1"></i> ENLACE DE REFERENCIA
-                </label>
-                <a href="<?= esc($requerimiento['url_subida']) ?>" target="_blank" class="archivo-adjunto-card"
-                    style="max-width: 100%;">
-                    <i class="bi bi-globe"></i>
-                    <div class="archivo-info" style="flex: 1;">
-                        <span class="archivo-nombre"
-                            style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            <?= esc($requerimiento['url_subida']) ?>
-                        </span>
-                        <span class="archivo-peso">Haz clic para abrir</span>
-                    </div>
-                    <i class="bi bi-box-arrow-up-right archivo-open"></i>
-                </a>
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
+        <?php endif; ?>
 
-<?= $this->endSection() ?>
+        <?= $this->endSection() ?>

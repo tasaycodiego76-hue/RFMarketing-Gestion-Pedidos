@@ -161,14 +161,49 @@ class kanban extends Controller
     {
         $json = $this->request->getJSON(true);
         $idAtencion = $json['idatencion'];
-
         $idArea     = $json['idareaagencia'];
         $idAdmin    = session()->get('id') ?? 1;
 
         $atencionModel = new AtencionModel();
-        $atencionModel->asignarArea($idAtencion, $idArea, $idAdmin);
+        
+        // Verificar si es un servicio personalizado
+        $atencion = $atencionModel->find($idAtencion);
+        if (!$atencion) {
+            return $this->response->setJSON(['status' => 'error', 'msg' => 'Atención no encontrada']);
+        }
 
-        return $this->response->setJSON(['status' => 'success', 'msg' => 'Área asignada']);
+        $esServicioPersonalizado = (!empty($atencion['servicio_personalizado']));
+        
+        // Actualizar el área
+        $atencionModel->update($idAtencion, [
+            'idarea_agencia' => $idArea,
+            'estado' => $esServicioPersonalizado ? 'pendiente_asignado' : $atencion['estado']
+        ]);
+
+        // Crear tracking para servicios personalizados
+        if ($esServicioPersonalizado) {
+            $trackingModel = new \App\Models\TrackingModel();
+            $trackingModel->insert([
+                'idatencion' => $idAtencion,
+                'idusuario' => $idAdmin,
+                'accion' => 'Servicio personalizado asignado al área: ' . $this->getNombreArea($idArea),
+                'estado' => 'pendiente_asignado',
+                'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+        $msg = $esServicioPersonalizado 
+            ? 'Servicio personalizado asignado correctamente al área' 
+            : 'Área asignada';
+
+        return $this->response->setJSON(['status' => 'success', 'msg' => $msg]);
+    }
+
+    private function getNombreArea($idArea)
+    {
+        $areasModel = new AreasAgenciaModel();
+        $area = $areasModel->find($idArea);
+        return $area ? $area['nombre'] : 'Área desconocida';
     }
 
     /**

@@ -39,6 +39,47 @@
     </div>
 </div>
 
+<!-- SECCIÓN: REVISIÓN -->
+<p class="seccion-titulo">Pendientes de Revisión</p>
+
+<div class="card p-3 mb-4">
+    <?php if(empty($pedidos_revision)): ?>
+        <div class="text-center py-3" style="color: var(--texto-3);">
+            <i class="bi bi-check-circle" style="font-size: 24px; color: var(--amarillo); opacity: .2;"></i>
+            <p class="mt-2" style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">No hay entregas en revisión</p>
+        </div>
+    <?php else: ?>
+        <div class="pedidos-list">
+            <?php foreach($pedidos_revision as $pedido): ?>
+                <div class="pedido-card-admin" style="border-left: 4px solid var(--amarillo);">
+                    <div class="pedido-header">
+                        <div>
+                            <div class="pedido-id">#REQ-<?= $pedido['id_requerimiento'] ?></div>
+                            <div class="pedido-title"><?= esc($pedido['titulo']) ?></div>
+                        </div>
+                        <span class="pedido-status status-en-revision">
+                            <i class="bi bi-clock-fill mr-2" style="font-size: 5px;"></i>
+                            EN REVISIÓN
+                        </span>
+                    </div>
+                    <div class="pedido-info">
+                        <span><i class="bi bi-building"></i> <?= esc($pedido['empresa_nombre']) ?></span>
+                        <span><i class="bi bi-calendar-check"></i> Entregado: <?= date('d/m/Y', strtotime($pedido['fechafin'])) ?></span>
+                    </div>
+                    <div class="pedido-footer">
+                        <span style="color: var(--amarillo); font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;">
+                            Esperando aprobación
+                        </span>
+                        <button class="btn-outline" onclick="window.location.href='<?= base_url('empleado/mis_pedidos') ?>'">
+                            VER DETALLES <i class="bi bi-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</div>
+
 <!-- SECCIÓN: ACTIVIDAD (ESTILO ADMIN) -->
 <p class="seccion-titulo">Tareas en Ejecución</p>
 

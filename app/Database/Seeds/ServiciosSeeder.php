@@ -22,7 +22,7 @@ class ServiciosSeeder extends Seeder
                 'activo' => true,
             ],
             [
-                'nombre' => 'Gestión de Contenido',
+                'nombre' => 'Creacion de Contenido',
                 'descripcion' => 'Planificación, redacción y gestión de redes sociales',
                 'activo' => true,
             ],

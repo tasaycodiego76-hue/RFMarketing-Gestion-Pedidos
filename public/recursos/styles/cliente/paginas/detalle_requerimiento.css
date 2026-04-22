@@ -545,3 +545,222 @@
 .archivo-adjunto-card:hover .archivo-open {
   color: #f5c400;
 }
+
+/* Mejoras para textos largos en el detalle */
+.content-box {
+  background: #0d0d0d;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  padding: 12px 15px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.content-box .content-text {
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Para títulos largos - MEJORADO */
+.main-project-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.2;
+  word-break: break-word;
+  white-space: normal;
+  max-width: 100%;
+  overflow: hidden;
+  display: block;
+}
+
+/* Contenedor del título para evitar desbordamiento */
+.flex-grow-1 {
+  flex: 1;
+  min-width: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Header del requerimiento */
+.d-flex.justify-content-between.align-items-start {
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Responsive para títulos muy largos */
+@media (max-width: 768px) {
+  .main-project-title {
+    font-size: 1.8rem;
+    line-height: 1.3;
+  }
+}
+
+@media (max-width: 576px) {
+  .main-project-title {
+    font-size: 1.5rem;
+    line-height: 1.4;
+  }
+}
+
+/* Para tags y contenedores */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 32px;
+  align-items: flex-start;
+}
+
+.channel-tag, .format-tag, .special-tag {
+  border: 1px solid #333;
+  padding: 6px 14px;
+  border-radius: 8px;
+  color: #999;
+  font-size: 11px;
+  background: #1a1a1a;
+  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.special-tag {
+  border-color: #f5c400;
+  color: #f5c400;
+  background: rgba(245, 196, 0, 0.1);
+}
+
+/* Para archivos */
+.files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.file-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: #0d0d0d;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #aaa;
+  transition: all 0.2s ease;
+}
+
+.file-card:hover {
+  border-color: #f5c400;
+  color: #fff;
+  background: #141414;
+}
+
+.file-icon {
+  flex-shrink: 0;
+  font-size: 24px;
+  color: #f5c400;
+}
+
+.file-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #fff;
+}
+
+.file-size {
+  font-size: 10px;
+  color: #555;
+  margin-top: 2px;
+}
+
+.file-action {
+  flex-shrink: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.file-card:hover .file-action {
+  color: #f5c400;
+}
+
+/* Empty states mejorados */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #555;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.empty-state .small {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.5;
+}
+
+/* Contenedores de input con contadores */
+.input-container, .textarea-container {
+  position: relative;
+}
+
+.char-counter {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  font-size: 11px;
+  color: #555;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* Para la descripción truncada */
+#descripcion-container {
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+
+#descripcion-container.expanded {
+  max-height: none !important;
+}
+
+/* Botón expandir mejorado */
+#btn-expandir {
+  background: transparent;
+  border: 1px solid #f5c400;
+  color: #f5c400;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#btn-expandir:hover {
+  background: #f5c400;
+  color: #000;
+}

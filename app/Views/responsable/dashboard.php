@@ -10,6 +10,18 @@
     font-size: 11px;
     font-weight: 600;
 }
+
+/* Estilos específicos para tarjetas de revisión */
+.card-rf[style*="border-left"] {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-rf[style*="border-left"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(139, 92, 246, 0.15);
+    transition: all 0.3s ease;
+}
 </style>
 <?= $this->endSection() ?>
 
@@ -30,6 +42,13 @@
         <div class="card-rf text-center">
             <div class="metrica-valor" style="color:#F5C400"><?= $enProceso ?? 0 ?></div>
             <div style="font-size:13px;color:#a1a1aa">En Proceso</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card-rf text-center">
+            <div class="metrica-valor" style="color:#8b5cf6"><?= $enRevision ?? 0 ?></div>
+            <div style="font-size:13px;color:#a1a1aa">En Revisión</div>
         </div>
     </div>
 

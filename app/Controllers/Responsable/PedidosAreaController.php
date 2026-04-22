@@ -52,6 +52,10 @@ class PedidosAreaController extends BaseController
             ->where('estado', 'en_proceso')
             ->countAllResults();
 
+        $enRevision = $atencionModel->where('idarea_agencia', $idAreaAgencia)
+            ->where('estado', 'en_revision')
+            ->countAllResults();
+
         $completados = $atencionModel->where('idarea_agencia', $idAreaAgencia)
             ->where('estado', 'finalizado')
             ->countAllResults();
@@ -75,6 +79,7 @@ class PedidosAreaController extends BaseController
             ],
             'porAsignar' => $porAsignar,
             'enProceso' => $enProceso,
+            'enRevision' => $enRevision,
             'completados' => $completados,
             'totalMiembros' => $totalMiembros,
             'pendientes_asignar' => $porAsignar // Para el badge del sidebar
@@ -276,7 +281,7 @@ class PedidosAreaController extends BaseController
             $ok = $atencionModel->update($idAtencion, [
                 'idempleado' => $idUsuarioAsignado,
                 'estado' => 'en_proceso',
-                'fechainicio' => date('Y-m-d H:i:s')
+                'fechainicio' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
             if (!$ok) {
                 throw new \RuntimeException('No se pudo actualizar la atención.');
@@ -287,7 +292,7 @@ class PedidosAreaController extends BaseController
                 'idusuario' => $idResponsable,
                 'accion' => 'Asignado a ' . trim($empleado['nombre'] . ' ' . $empleado['apellidos']) . ' por responsable de área',
                 'estado' => 'en_proceso',
-                'fecha_registro' => date('Y-m-d H:i:s')
+                'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
             $db->transCommit();
             return $this->response->setJSON(['success' => true, 'message' => 'Pedido asignado correctamente.']);

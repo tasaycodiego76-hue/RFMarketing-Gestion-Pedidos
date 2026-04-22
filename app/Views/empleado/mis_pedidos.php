@@ -152,6 +152,13 @@
                                 <p style="font-size:11px; color:var(--texto-3); margin:0;">Buscando adjuntos...</p>
                             </div>
                         </div>
+
+                        <div class="col-md-12">
+                            <h6 style="color:var(--amarillo); font-family:'Bebas Neue'; letter-spacing:1px; font-size:16px;">ENLACES DE REFERENCIA</h6>
+                            <div id="lista-enlaces-requerimiento" style="background:#0d0d0d; padding:10px; border-radius:8px; border:1px solid #1e1e1e;">
+                                <p style="font-size:11px; color:var(--texto-3); margin:0;">Buscando enlaces...</p>
+                            </div>
+                        </div>
                     </div>
                 `;
 
@@ -164,7 +171,7 @@
                     res.archivos.forEach(a => {
                         arcHtml += `
                             <div class="col-md-6 mb-2">
-                                <a href="${BASE_URL}/cliente/archivos/${a.ruta.split('/').pop()}" target="_blank" class="d-flex align-items-center p-2" style="background:#111; border:1px solid #222; border-radius:6px; color:#bbb; text-decoration:none;">
+                                <a href="${BASE_URL}/${a.ruta}" target="_blank" class="d-flex align-items-center p-2" style="background:#111; border:1px solid #222; border-radius:6px; color:#bbb; text-decoration:none;">
                                     <i class="bi bi-file-earmark-text mr-2" style="color:var(--amarillo);"></i>
                                     <span class="text-truncate" style="font-size:11px;">${a.nombre}</span>
                                 </a>
@@ -175,6 +182,48 @@
                     $('#lista-archivos-requerimiento').html(arcHtml);
                 } else {
                     $('#lista-archivos-requerimiento').html('<p style="font-size:11px; color:#555; text-align:center; padding:10px; margin:0;">No hay archivos adjuntos en esta solicitud.</p>');
+                }
+
+                // Cargar URLs si tiene
+                let enlaceHtml = '<div class="row">';
+                
+                // URL del cliente (referencia)
+                if(res.data && res.data.url_subida) {
+                    enlaceHtml += `
+                        <div class="col-md-12 mb-2">
+                            <div style="margin-bottom:8px;">
+                                <small style="color:var(--texto-3); text-transform:uppercase; font-weight:700; font-size:10px;">URL DE REFERENCIA (CLIENTE)</small>
+                            </div>
+                            <a href="${res.data.url_subida}" target="_blank" class="d-flex align-items-center p-2" style="background:#111; border:1px solid #222; border-radius:6px; color:#bbb; text-decoration:none;">
+                                <i class="bi bi-link-45deg mr-2" style="color:var(--amarillo);"></i>
+                                <span class="text-truncate" style="font-size:11px;">${res.data.url_subida}</span>
+                                <i class="bi bi-box-arrow-up-right ml-2" style="font-size:10px;"></i>
+                            </a>
+                        </div>
+                    `;
+                }
+                
+                // URL de entrega del empleado
+                if(res.data && res.data.url_entrega) {
+                    enlaceHtml += `
+                        <div class="col-md-12 mb-2">
+                            <div style="margin-bottom:8px;">
+                                <small style="color:var(--texto-3); text-transform:uppercase; font-weight:700; font-size:10px;">URL DE ENTREGA (TÚ)</small>
+                            </div>
+                            <a href="${res.data.url_entrega}" target="_blank" class="d-flex align-items-center p-2" style="background:#111; border:1px solid #222; border-radius:6px; color:#bbb; text-decoration:none;">
+                                <i class="bi bi-link-45deg mr-2" style="color:var(--verde);"></i>
+                                <span class="text-truncate" style="font-size:11px;">${res.data.url_entrega}</span>
+                                <i class="bi bi-box-arrow-up-right ml-2" style="font-size:10px;"></i>
+                            </a>
+                        </div>
+                    `;
+                }
+                
+                if(enlaceHtml === '<div class="row">') {
+                    $('#lista-enlaces-requerimiento').html('<p style="font-size:11px; color:#555; text-align:center; padding:10px; margin:0;">No hay enlaces en esta solicitud.</p>');
+                } else {
+                    enlaceHtml += '</div>';
+                    $('#lista-enlaces-requerimiento').html(enlaceHtml);
                 }
 
                 modal.modal('show');

@@ -137,7 +137,11 @@ class AtencionModel extends Model
                 r.prioridad AS prioridad_cliente,
                 e.nombreempresa,
                 u.nombre AS empleado_nombre,
-                u.apellidos AS empleado_apellidos
+                u.apellidos AS empleado_apellidos,
+                CASE 
+                    WHEN a.servicio_personalizado IS NOT NULL THEN 1 
+                    ELSE 0 
+                END AS es_servicio_personalizado
             FROM atencion a
             INNER JOIN requerimiento r ON r.id = a.idrequerimiento
             INNER JOIN usuarios u_sol ON u_sol.id = r.idusuarioempresa
@@ -147,10 +151,9 @@ class AtencionModel extends Model
             LEFT JOIN usuarios u ON u.id = a.idempleado
             WHERE ar.idempresa = ?
               AND a.estado != 'cancelado'
-              AND a.idarea_agencia = ?
-            ORDER BY a.fechainicio DESC
+              AND (a.idarea_agencia = ? OR a.servicio_personalizado IS NOT NULL)
+            ORDER BY es_servicio_personalizado ASC, a.fechainicio DESC
         ";
-
 
         return $this->db->query($sql, [$idEmpresa, $idAreaAgencia])->getResultArray();
     }
@@ -175,9 +178,9 @@ class AtencionModel extends Model
         ", [$idAreaAgencia, $idAtencion]);
 
         $this->db->query("
-            INSERT INTO tracking (idatencion, idusuario, accion, estado)
-            VALUES (?, ?, 'Área asignada', 'pendiente_asignado')
-        ", [$idAtencion, $idAdmin]);
+            INSERT INTO tracking (idatencion, idusuario, accion, estado, fecha_registro)
+            VALUES (?, ?, 'Área asignada', 'pendiente_asignado', ?)
+        ", [$idAtencion, $idAdmin, (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')]);
 
         return true;
     }
@@ -280,13 +283,45 @@ class AtencionModel extends Model
             $builder = $this->db->table('atencion a')
                 ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, 
                           e.nombreempresa as empresa_nombre, 
+                          u_emp.nombre as empleado_nombre,
                           COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre')
                 ->join('requerimiento r', 'r.id = a.idrequerimiento')
                 ->join('usuarios u_cliente', 'u_cliente.id = r.idusuarioempresa')
                 ->join('areas ar_cliente', 'ar_cliente.id = u_cliente.idarea')
                 ->join('empresas e', 'e.id = ar_cliente.idempresa')
+                ->join('usuarios u_emp', 'u_emp.id = a.idempleado', 'left')
                 ->join('servicios s', 's.id = a.idservicio', 'left')
                 ->where('a.idempleado', $idEmpleado);
+    
+            if (!empty($estados)) {
+                $builder->whereIn('a.estado', $estados);
+            }
+    
+            return $builder->orderBy('a.prioridad', 'DESC')
+                           ->orderBy('a.fechacreacion', 'DESC')
+                           ->get()->getResultArray();
+        }
+
+        /**
+         * Obtener pedidos detallados para un área específica
+         * @param int $idAreaAgencia
+         * @param array $estados
+         * @return array
+         */
+        public function obtenerDetalladoPorArea(int $idAreaAgencia, array $estados = []): array
+        {
+            $builder = $this->db->table('atencion a')
+                ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, 
+                          e.nombreempresa as empresa_nombre, 
+                          u_emp.nombre as empleado_nombre,
+                          COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre')
+                ->join('requerimiento r', 'r.id = a.idrequerimiento')
+                ->join('usuarios u_cliente', 'u_cliente.id = r.idusuarioempresa')
+                ->join('areas ar_cliente', 'ar_cliente.id = u_cliente.idarea')
+                ->join('empresas e', 'e.id = ar_cliente.idempresa')
+                ->join('usuarios u_emp', 'u_emp.id = a.idempleado', 'left')
+                ->join('servicios s', 's.id = a.idservicio', 'left')
+                ->where('a.idarea_agencia', $idAreaAgencia);
     
             if (!empty($estados)) {
                 $builder->whereIn('a.estado', $estados);

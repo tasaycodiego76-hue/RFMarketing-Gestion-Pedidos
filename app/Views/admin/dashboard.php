@@ -46,6 +46,40 @@
 
 </div>
 
+<!-- PEDIDOS EN REVISIÓN -->
+<?php if (!empty($pedidos_revision)): ?>
+<p class="seccion-titulo">Pendientes de Revisión</p>
+<div class="row g-3 mb-4">
+    <?php foreach ($pedidos_revision as $pedido): ?>
+        <div class="col-12">
+            <div class="card" style="border-left: 4px solid #8b5cf6; background: #1a1a1a;">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge" style="background: #8b5cf6; color: white;">#REQ-<?= $pedido['id_requerimiento'] ?></span>
+                                <span class="badge bg-warning text-dark">EN REVISIÓN</span>
+                            </div>
+                            <h6 class="mb-2" style="color: #fff; font-weight: 600;"><?= esc($pedido['titulo_requerimiento']) ?></h6>
+                            <div class="d-flex flex-wrap gap-3 text-sm" style="color: #a1a1aa; font-size: 13px;">
+                                <span><i class="bi bi-person"></i> <?= esc($pedido['empleado_nombre'] . ' ' . $pedido['empleado_apellidos']) ?></span>
+                                <span><i class="bi bi-briefcase"></i> <?= esc($pedido['area_nombre'] ?? 'Sin área') ?></span>
+                                <span><i class="bi bi-calendar-check"></i> <?= date('d/m/Y', strtotime($pedido['fechafin'])) ?></span>
+                            </div>
+                        </div>
+                        <div class="ms-3">
+                            <button class="btn btn-sm" style="background: #8b5cf6; border: none; color: white;" onclick="window.location.href='<?= base_url('admin/kanban') ?>'">
+                                <i class="bi bi-eye"></i> Revisar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
+
 <!-- EMPRESAS -->
 <p class="seccion-titulo">Empresas</p>
 

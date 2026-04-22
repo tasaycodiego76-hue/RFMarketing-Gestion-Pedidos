@@ -57,5 +57,6 @@ class CrearTablaArchivos extends Migration
         $this->forge->dropTable('archivos');
         helper('filesystem');
         delete_files(FCPATH . 'uploads/materiales-referencia/');
+        delete_files(FCPATH . 'uploads/entregables/');
     }
 }
