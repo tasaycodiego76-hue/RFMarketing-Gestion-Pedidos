@@ -1,3 +1,30 @@
+// ══════════════════════════════════════════════════════
+// ══ FORZAR RECORTE DE TÍTULOS LARGOS EN LAS TARJETAS ══
+// ══════════════════════════════════════════════════════
+document.head.insertAdjacentHTML('beforeend', `
+<style>
+    .kb-card {
+        max-width: 100% !important;
+        overflow: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+    }
+    .kb-card h3, 
+    .kb-card h4, 
+    .kb-card h5, 
+    .kb-card-title, 
+    .kb-card p {
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        hyphens: auto;
+    }
+</style>
+`);
+
+
 // ═══════════════════════════════════════════════
 // ═══ KANBAN.JS — Flujo completo y sin errores ══
 // ═══════════════════════════════════════════════
@@ -51,7 +78,7 @@ async function confirmarAsignacion() {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ═══ RESPONSABLE — Asigna empleado O se autoasigna                          ═══
-//     ⚠ Asignar empleado ≠ desarrollando.                                    ═══
+//      Asignar empleado  desarrollando.                                    ═══
 //       Solo cuando alguien pulsa "Iniciar Trabajo" se pone fechainicio.     ═══
 // ═══════════════════════════════════════════════════════════════════════════════
 async function abrirModalAsignarEmpleado(idAtencion, idArea) {
@@ -203,9 +230,11 @@ async function verDetalle(idAtencion) {
         }
 
         // ── Archivos adjuntos ───────────────────────────────────
+        // ── Archivos adjuntos ───────────────────────────────────
         let arcHtml = '';
         if (archivos.length) {
-            arcHtml = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">`;
+            // Se agregó un max-height y overflow para hacer scroll si hay muchas evidencias, y grid-template dinámico
+            arcHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:8px;margin-top:8px;max-height:200px;overflow-y:auto;padding-right:4px;">`;
             archivos.forEach(a => {
                 const ext = a.nombre.split('.').pop().toLowerCase();
                 const icon = KB_ICONS[ext] ?? KB_ICONS.default;
@@ -213,11 +242,12 @@ async function verDetalle(idAtencion) {
                     <a href="${BASE_URL}/cliente/archivos/${a.ruta.split('/').pop()}" target="_blank"
                        style="display:flex;align-items:center;gap:8px;padding:9px 12px;
                               background:#0a0a0a;border:1px solid #1e1e1e;border-radius:7px;
-                              color:#aaa;text-decoration:none;font-size:11px;transition:border-color .15s;"
+                              color:#aaa;text-decoration:none;font-size:11px;transition:border-color .15s;
+                              min-width:0; overflow:hidden;"
                        onmouseover="this.style.borderColor='#F5C400'"
                        onmouseout="this.style.borderColor='#1e1e1e'">
                         <i class="bi ${icon}" style="color:#F5C400;font-size:16px;flex-shrink:0;"></i>
-                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.nombre}</span>
+                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">${a.nombre}</span>
                     </a>`;
             });
             arcHtml += '</div>';
@@ -225,11 +255,12 @@ async function verDetalle(idAtencion) {
             arcHtml = '<p style="color:#333;font-size:12px;font-style:italic;margin:8px 0 0;">No se adjuntaron archivos.</p>';
         }
 
+
         // ── Canales / Formatos como tags ────────────────────────
         const renderTags = json => {
-            if (!json) return '<span style="color:#333;font-size:12px;">---</span>';
+            if (!json) return '<span style="color:#555;font-size:12px;font-style:italic;">No especificado</span>';
             return _parseList(json)
-                .map(t => `<span style="background:#0a0a0a;color:#bbb;border:1px solid #1e1e1e;padding:3px 10px;border-radius:4px;font-size:11px;">${t}</span>`)
+                .map(t => `<span style="display:inline-block;background:#1e1e1e;color:#e8e8e8;border:1px solid #333;padding:5px 10px;border-radius:6px;font-size:11px;margin-bottom:6px;box-shadow:0 2px 4px rgba(0,0,0,0.2);">${t}</span>`)
                 .join(' ');
         };
 
@@ -329,6 +360,9 @@ async function verDetalle(idAtencion) {
                 color: #d0d0d0;
                 font-size: 13px;
                 line-height: 1.65;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                word-break: break-word;
             }
             .kd-hr { border: none; border-top: 1px solid #1a1a1a; margin: 12px 0; }
             .kd-info-row {
@@ -352,7 +386,7 @@ async function verDetalle(idAtencion) {
 
         <div style="font-family:'Segoe UI',system-ui,sans-serif;color:#c8c8c8;">
 
-            <!-- ══ CABECERA ══ -->
+                       <!-- ══ CABECERA ══ -->
             <div style="margin-bottom:18px;">
                 <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:12px;">
                     ${_pill(es.i, es.label, es.c, es.c + '18')}
@@ -360,50 +394,75 @@ async function verDetalle(idAtencion) {
                     ${d.servicio ? `<span style="background:#111;color:#888;border:1px solid #222;padding:4px 12px;border-radius:20px;font-size:11px;">${d.servicio}</span>` : ''}
                     ${d.tipo_requerimiento ? `<span style="background:#111;color:#555;border:1px solid #1e1e1e;padding:4px 12px;border-radius:20px;font-size:10px;">${d.tipo_requerimiento}</span>` : ''}
                 </div>
-                <h2 style="font-family:'Bebas Neue',sans-serif;color:#fff;font-size:26px;letter-spacing:2px;margin:0 0 2px;">${d.titulo || 'Sin Título'}</h2>
-                <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px;">
+                <h2 style="font-family:'Bebas Neue',sans-serif;color:#fff;font-size:26px;letter-spacing:2px;margin:0 0 2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;hyphens:auto;">${d.titulo || 'Sin Título'}</h2>
+                <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;">
                     ${d.nombreempresa || ''} ${d.area_solicitante_nombre ? '· ' + d.area_solicitante_nombre : ''}
                 </p>
                 ${trabajoHtml}
             </div>
 
+
             <!-- ══ GRID PRINCIPAL ══ -->
-            <div class="kd-main" style="display:grid;grid-template-columns:1fr 285px;gap:14px;align-items:start;">
+            <div class="kd-main" style="display:grid;grid-template-columns:1fr 285px;gap:18px;align-items:start;">
 
                 <!-- ══ IZQUIERDA ══ -->
-                <div>
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
 
                     <!-- Brief -->
                     ${_seccion('bi-bullseye', 'Brief del Pedido', '#F5C400', `
-                        <div class="kd-2col">
-                            <div>${_label('Objetivo de comunicación')}<div class="kd-val">${d.objetivo_comunicacion || '---'}</div></div>
-                            <div>${_label('Público objetivo')}<div class="kd-val">${d.publico_objetivo || '---'}</div></div>
-                        </div>
-                        <hr class="kd-hr">
-                        <div class="kd-2col">
-                            <div>${_label('Tipo de requerimiento')}<div class="kd-val">${d.tipo_requerimiento || 'Estándar'}</div></div>
-                            <div>${_label('Área solicitante')}<div class="kd-val" style="text-transform:uppercase;">${d.area_solicitante_nombre || '---'}</div></div>
+                        <div style="max-height: 400px; overflow-y: auto; padding-right: 8px; text-align: center; display: flex; flex-direction: column; gap: 14px;">
+                            
+                            <div style="background:#111; padding:16px; border-radius:8px; border:1px solid #1e1e1e;">
+                                ${_label('Objetivo de comunicación')}
+                                <div class="kd-val" style="width:100%; margin-top:8px;">${d.objetivo_comunicacion || '---'}</div>
+                            </div>
+
+                            <div style="background:#111; padding:16px; border-radius:8px; border:1px solid #1e1e1e;">
+                                ${_label('Público objetivo')}
+                                <div class="kd-val" style="width:100%; margin-top:8px;">${d.publico_objetivo || '---'}</div>
+                            </div>
+
+                            <div class="kd-2col">
+                                <div style="background:#111; padding:12px; border-radius:8px; border:1px solid #1e1e1e; display:flex;flex-direction:column;align-items:center;">
+                                    ${_label('Tipo de requerimiento')}
+                                    <div class="kd-val" style="margin-top:4px;">${d.tipo_requerimiento || 'Estándar'}</div>
+                                </div>
+                                <div style="background:#111; padding:12px; border-radius:8px; border:1px solid #1e1e1e; display:flex;flex-direction:column;align-items:center;">
+                                    ${_label('Área solicitante')}
+                                    <div class="kd-val" style="margin-top:4px;text-transform:uppercase;color:#F5C400;font-weight:700;">${d.area_solicitante_nombre || '---'}</div>
+                                </div>
+                            </div>
                         </div>
                     `)}
+
 
                     <!-- Descripción -->
                     ${_seccion('bi-card-text', 'Descripción', '#374151', `
-                        <div class="kd-val" style="line-height:1.75;white-space:pre-wrap;">${d.descripcion || 'Sin descripción.'}</div>
+                        <div class="kd-val" style="line-height:1.75;white-space:pre-wrap;word-break:break-word;max-height:250px;overflow-y:auto;padding-right:5px;">${d.descripcion || 'Sin descripción.'}</div>
                     `)}
+
 
                     <!-- Canales y formatos -->
                     ${_seccion('bi-broadcast', 'Canales y Formatos', '#374151', `
-                        <div class="kd-2col">
-                            <div>
-                                ${_label('Canales de difusión')}
-                                <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;">${renderTags(d.canales_difusion)}</div>
+                        <div class="kd-2col" style="gap:10px;">
+                            <div style="background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:12px;">
+                                <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;border-bottom:1px solid #222;padding-bottom:6px;">
+                                    <i class="bi bi-megaphone" style="color:#F5C400;font-size:12px;"></i>
+                                    ${_label('Canales de difusión')}
+                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:5px;">${renderTags(d.canales_difusion)}</div>
                             </div>
-                            <div>
-                                ${_label('Formatos solicitados')}
-                                <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;">${renderTags(d.formatos_solicitados)}</div>
+                            
+                            <div style="background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:12px;">
+                                <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;border-bottom:1px solid #222;padding-bottom:6px;">
+                                    <i class="bi bi-aspect-ratio" style="color:#F5C400;font-size:12px;"></i>
+                                    ${_label('Formatos solicitados')}
+                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:5px;">${renderTags(d.formatos_solicitados)}</div>
                             </div>
                         </div>
                     `)}
+
 
                     <!-- Archivos adjuntos -->
                     ${_seccion('bi-paperclip', 'Archivos Adjuntos', '#374151', arcHtml)}
@@ -420,7 +479,7 @@ async function verDetalle(idAtencion) {
                 </div>
 
                 <!-- ══ DERECHA: resumen sticky ══ -->
-                <div>
+                <div style="min-width:285px;">
                     <div style="background:#0a0a0a;border:1px solid #1e1e1e;border-radius:8px;padding:16px;position:sticky;top:0;">
 
                         <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#2a2a2a;margin-bottom:14px;">
@@ -505,7 +564,7 @@ async function verDetalle(idAtencion) {
                         ${(d.idempleado && d.estado === 'pendiente_asignado') ? `
                         <hr class="kd-hr">
                         <button onclick="iniciarTrabajo(${d.id})"
-                            style="width:100%;background:#F5C400;color:#000;border:none;
+                            style="width:100%;margin-top:10px;background:#F5C400;color:#000;border:none;
                                    padding:10px;border-radius:7px;font-family:'Bebas Neue',sans-serif;
                                    font-size:16px;letter-spacing:2px;cursor:pointer;
                                    display:flex;align-items:center;justify-content:center;gap:6px;">
@@ -604,9 +663,18 @@ function _errorHtml(msg) {
 
 function _parseList(json) {
     if (!json) return [];
-    try { const l = JSON.parse(json); return Array.isArray(l) ? l : [json]; }
-    catch { return [json]; }
+    try {
+        const l = JSON.parse(json);
+        return Array.isArray(l) ? l : [json];
+    } catch {
+        // Si no es un JSON o arreglo mágico, pero tiene comas, lo separa e ignora espacios vacíos
+        if (typeof json === 'string' && json.includes(',')) {
+            return json.split(',').map(s => s.trim()).filter(s => s);
+        }
+        return [json];
+    }
 }
+
 
 // ═══════════════════════════════════════
 // ═══ DRAG & DROP (SORTABLE.JS)        ══

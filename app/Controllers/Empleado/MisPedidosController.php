@@ -280,7 +280,8 @@ class MisPedidosController extends BaseController
     private function obtenerPedidosRecientes($userId)
     {
         $atencionModel = new AtencionModel();
-        return $atencionModel->obtenerDetalladoPorEmpleado((int)$userId, ['en_proceso', 'en_revision']);
+        // Solo obtenemos tareas nuevas asignadas o en desarrollo (excluyendo en_revision que ya tiene su propia sección)
+        return $atencionModel->obtenerDetalladoPorEmpleado((int)$userId, ['pendiente_asignado', 'en_proceso']);
     }
 
     private function obtenerPedidosRevision($userId)
