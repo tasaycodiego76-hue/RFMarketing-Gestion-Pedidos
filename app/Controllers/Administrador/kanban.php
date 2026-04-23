@@ -94,7 +94,7 @@ class kanban extends Controller
                 a.fechainicio, a.fechafin, a.fechacompletado,
                 a.observacion_revision, a.url_entrega,
                 r.descripcion, r.objetivo_comunicacion, r.tipo_requerimiento,
-                r.canales_difusion, r.publico_objetivo, r.formatos_solicitados,
+                r.canales_difusion, r.publico_objetivo, r.formatos_solicitados, r.formato_otros,
                 r.fecharequerida, r.fechacreacion AS r_fechacreacion, r.prioridad AS prioridad_cliente,
                 r.url_subida,
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
@@ -161,11 +161,21 @@ class kanban extends Controller
     {
         $json = $this->request->getJSON(true);
         $idAtencion = $json['idatencion'];
-        $idArea     = $json['idareaagencia'];
-        $idAdmin    = session()->get('id') ?? 1;
+        $idArea = $json['idareaagencia'];
+        $idAdmin = session()->get('id') ?? 1;
+
+        // Depuración: Ver qué datos llegan
+        log_message('debug', 'Datos recibidos en asignarArea: ' . json_encode($json));
+        log_message('debug', 'ID Atención: ' . $idAtencion);
+        log_message('debug', 'ID Área: ' . $idArea);
+
+        // Validar que el ID del área no sea nulo o vacío
+        if (!$idArea || $idArea === 'null' || $idArea === '') {
+            return $this->response->setJSON(['status' => 'error', 'msg' => 'ID de área no válido']);
+        }
 
         $atencionModel = new AtencionModel();
-        
+
         // Verificar si es un servicio personalizado
         $atencion = $atencionModel->find($idAtencion);
         if (!$atencion) {
@@ -173,7 +183,11 @@ class kanban extends Controller
         }
 
         $esServicioPersonalizado = (!empty($atencion['servicio_personalizado']));
-        
+
+        // Obtener nombre del área antes de usarlo
+        $nombreArea = $this->getNombreArea($idArea);
+        log_message('debug', 'Nombre del área obtenido: ' . $nombreArea);
+
         // Actualizar el área
         $atencionModel->update($idAtencion, [
             'idarea_agencia' => $idArea,
@@ -186,14 +200,14 @@ class kanban extends Controller
             $trackingModel->insert([
                 'idatencion' => $idAtencion,
                 'idusuario' => $idAdmin,
-                'accion' => 'Servicio personalizado asignado al área: ' . $this->getNombreArea($idArea),
+                'accion' => "Requerimiento asignado al área: {$nombreArea}.\nSu solicitud ha sido aprobada y derivada al departamento correspondiente para su gestión.",
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s'),
             ]);
         }
 
-        $msg = $esServicioPersonalizado 
-            ? 'Servicio personalizado asignado correctamente al área' 
+        $msg = $esServicioPersonalizado
+            ? 'Servicio personalizado asignado correctamente al área'
             : 'Área asignada';
 
         return $this->response->setJSON(['status' => 'success', 'msg' => $msg]);
@@ -210,53 +224,53 @@ class kanban extends Controller
      * Asignar empleado a una atención (Flujo Responsable)
      */
     public function asignarEmpleado()
-{
-    $json       = $this->request->getJSON(true);
-    $idAtencion = $json['idatencion'];
-    $idEmpleado = $json['idempleado'];
-    $idUsuario  = session()->get('id') ?? 1;
- 
-    $db = \Config\Database::connect();
- 
-    // Solo asigna el empleado. El estado queda como está (pendiente_asignado).
-    // NO se toca fechainicio ni se cambia a en_proceso todavía.
-    $db->query("
+    {
+        $json = $this->request->getJSON(true);
+        $idAtencion = $json['idatencion'];
+        $idEmpleado = $json['idempleado'];
+        $idUsuario = session()->get('id') ?? 1;
+
+        $db = \Config\Database::connect();
+
+        // Solo asigna el empleado. El estado queda como está (pendiente_asignado).
+        // NO se toca fechainicio ni se cambia a en_proceso todavía.
+        $db->query("
         UPDATE atencion
         SET idempleado = ?
         WHERE id = ?
     ", [$idEmpleado, $idAtencion]);
- 
-    $db->query("
+
+        $db->query("
         INSERT INTO tracking (idatencion, idusuario, accion, estado)
         SELECT ?, ?, 'Empleado asignado por responsable de área', estado
         FROM atencion WHERE id = ?
     ", [$idAtencion, $idUsuario, $idAtencion]);
- 
-    return $this->response->setJSON(['status' => 'success', 'msg' => 'Empleado asignado correctamente']);
-}
 
-public function iniciarTrabajo()
-{
-    $json       = $this->request->getJSON(true);
-    $idAtencion = $json['idatencion'];
-    $idUsuario  = session()->get('id') ?? 1;
- 
-    $db = \Config\Database::connect();
- 
-    $db->query("
+        return $this->response->setJSON(['status' => 'success', 'msg' => 'Empleado asignado correctamente']);
+    }
+
+    public function iniciarTrabajo()
+    {
+        $json = $this->request->getJSON(true);
+        $idAtencion = $json['idatencion'];
+        $idUsuario = session()->get('id') ?? 1;
+
+        $db = \Config\Database::connect();
+
+        $db->query("
         UPDATE atencion
         SET estado = 'en_proceso', fechainicio = NOW()
         WHERE id = ?
     ", [$idAtencion]);
- 
-    $db->query("
+
+        $db->query("
         INSERT INTO tracking (idatencion, idusuario, accion, estado)
         VALUES (?, ?, 'Trabajo iniciado por responsable/empleado', 'en_proceso')
     ", [$idAtencion, $idUsuario]);
- 
-    return $this->response->setJSON(['status' => 'success', 'msg' => 'Trabajo iniciado correctamente']);
-}
- 
+
+        return $this->response->setJSON(['status' => 'success', 'msg' => 'Trabajo iniciado correctamente']);
+    }
+
     /**
      * Cambiar estado de una atención
      */
@@ -267,8 +281,8 @@ public function iniciarTrabajo()
 
         $idAtencion = $json['idatencion'];
         $nuevoEstado = $json['estado'];
-        $idAdmin     = session()->get('id') ?? 1;
-        $accion      = $json['accion'] ?? 'Cambio de estado';
+        $idAdmin = session()->get('id') ?? 1;
+        $accion = $json['accion'] ?? 'Cambio de estado';
         $idAreaAgencia = $json['idareaagencia'] ?? null;
 
         $estadosValidos = ['pendiente_sin_asignar', 'pendiente_asignado', 'en_proceso', 'en_revision', 'finalizado', 'cancelado'];
@@ -313,8 +327,8 @@ public function iniciarTrabajo()
         $json = $this->request->getJSON(true);
 
         $idAtencion = $json['idatencion'];
-        $motivo     = $json['motivo'] ?? 'Sin motivo';
-        $idAdmin    = session()->get('id') ?? 1;
+        $motivo = $json['motivo'] ?? 'Sin motivo';
+        $idAdmin = session()->get('id') ?? 1;
 
         $db->query("
             UPDATE atencion 
@@ -327,7 +341,7 @@ public function iniciarTrabajo()
             VALUES (?, ?, 'Pedido cancelado', 'cancelado')
         ", [$idAtencion, $idAdmin]);
 
-        return $this->response->setJSON(['status' => 'success', 'msg' => 'Pedido cancelado']);
+        return $this->response->setJSON(['status' => 'success', 'msg' => 'Solicitud cancelada, El Motivo:' . $motivo . ' Si tienes dudas, contáctanos']);
     }
 
     public function areasAgencia()
@@ -353,7 +367,7 @@ public function iniciarTrabajo()
         }
 
         $idAreaAgencia = $responsable['idarea_agencia'];
-        
+
         $sql = "
             SELECT
                 a.id, a.titulo, a.estado, a.prioridad, a.fechafin,
@@ -379,9 +393,9 @@ public function iniciarTrabajo()
 
         $columnas = [
             'pendiente_asignado' => ['label' => 'POR ASIGNAR', 'color' => '#eab308', 'items' => []],
-            'en_proceso'         => ['label' => 'DESARROLLANDO', 'color' => '#a855f7', 'items' => []],
-            'en_revision'        => ['label' => 'PARA REVISIÓN', 'color' => '#f97316', 'items' => []],
-            'finalizado'         => ['label' => 'ENTREGADOS',   'color' => '#22c55e', 'items' => []],
+            'en_proceso' => ['label' => 'DESARROLLANDO', 'color' => '#a855f7', 'items' => []],
+            'en_revision' => ['label' => 'PARA REVISIÓN', 'color' => '#f97316', 'items' => []],
+            'finalizado' => ['label' => 'ENTREGADOS', 'color' => '#22c55e', 'items' => []],
         ];
 
         foreach ($atenciones as $a) {
@@ -396,12 +410,12 @@ public function iniciarTrabajo()
         }
 
         return view('responsable/kanban', [
-            'titulo'        => 'Kanban Área - ' . ($responsable['nombre_areaagencia'] ?? 'Agencia'),
-            'tituloPagina'  => 'GESTIÓN DE ÁREA',
-            'paginaActual'  => 'kanban',
-            'idArea'        => $idAreaAgencia,
-            'areaNombre'    => $responsable['nombre_areaagencia'],
-            'columnas'      => $columnas
+            'titulo' => 'Kanban Área - ' . ($responsable['nombre_areaagencia'] ?? 'Agencia'),
+            'tituloPagina' => 'GESTIÓN DE ÁREA',
+            'paginaActual' => 'kanban',
+            'idArea' => $idAreaAgencia,
+            'areaNombre' => $responsable['nombre_areaagencia'],
+            'columnas' => $columnas
         ]);
     }
 

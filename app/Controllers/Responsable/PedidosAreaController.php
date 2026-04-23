@@ -81,7 +81,6 @@ class PedidosAreaController extends BaseController
             'enProceso' => $enProceso,
             'enRevision' => $enRevision,
             'completados' => $completados,
-            'totalMiembros' => $totalMiembros,
             'pendientes_asignar' => $porAsignar // Para el badge del sidebar
         ];
 
@@ -290,12 +289,12 @@ class PedidosAreaController extends BaseController
             $trackingModel->insert([
                 'idatencion' => $idAtencion,
                 'idusuario' => $idResponsable,
-                'accion' => 'Asignado a ' . trim($empleado['nombre'] . ' ' . $empleado['apellidos']) . ' por responsable de área',
+                'accion' => "Proyecto en desarrollo.\nEl especialista " . trim($empleado['nombre'] . ' ' . $empleado['apellidos']) . " ha sido asignado para la elaboración de su requerimiento",
                 'estado' => 'en_proceso',
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
             $db->transCommit();
-            return $this->response->setJSON(['success' => true, 'message' => 'Pedido asignado correctamente.']);
+            return $this->response->setJSON(['success' => true, 'message' => 'Pedido asignado correctamente']);
         } catch (\Throwable $e) {
             $db->transRollback();
             return $this->response->setJSON(['success' => false, 'message' => 'Error al asignar: ' . $e->getMessage()]);

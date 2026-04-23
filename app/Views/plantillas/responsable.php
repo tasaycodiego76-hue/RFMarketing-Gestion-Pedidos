@@ -83,7 +83,7 @@
             <ul>
                 <!-- Dashboard - Métricas del área -->
                 <li>
-                    <a href="<?= base_url('responsable/dashboard') ?>"
+                    <a href="<?= base_url('responsable/dashboard') . '?test_user=' . ($user['id'] ?? '') ?>"
                         class="nav-link-item <?= (uri_string() == 'responsable/dashboard') ? 'active' : '' ?>">
                         <span class="nav-icon"><i class="bi bi-grid-1x2-fill"></i></span>
                         <span class="nav-text">Dashboard</span>
@@ -92,7 +92,7 @@
 
                 <!-- Bandeja de Entrada - Requerimientos nuevos del Admin -->
                 <li>
-                    <a href="<?= base_url('responsable/bandeja') ?>"
+                    <a href="<?= base_url('responsable/bandeja') . '?test_user=' . ($user['id'] ?? '') ?>"
                         class="nav-link-item <?= (uri_string() == 'responsable/bandeja') ? 'active' : '' ?>">
                         <span class="nav-icon"><i class="bi bi-inbox-fill"></i></span>
                         <span class="nav-text">Bandeja de Entrada</span>
@@ -106,7 +106,7 @@
 
                 <!-- En Proceso - Requerimientos activos -->
                 <li>
-                    <a href="<?= base_url('responsable/en-proceso') ?>"
+                    <a href="<?= base_url('responsable/en-proceso') . '?test_user=' . ($user['id'] ?? '') ?>"
                         class="nav-link-item <?= (uri_string() == 'responsable/en-proceso') ? 'active' : '' ?>">
                         <span class="nav-icon"><i class="bi bi-kanban-fill"></i></span>
                         <span class="nav-text">En Proceso</span>
@@ -120,7 +120,7 @@
 
                 <!-- Historial - Completados / devueltos -->
                 <li>
-                    <a href="<?= base_url('responsable/historial') ?>"
+                    <a href="<?= base_url('responsable/historial') . '?test_user=' . ($user['id'] ?? '') ?>"
                         class="nav-link-item <?= (uri_string() == 'responsable/historial') ? 'active' : '' ?>">
                         <span class="nav-icon"><i class="bi bi-clock-history"></i></span>
                         <span class="nav-text">Historial</span>
@@ -133,7 +133,7 @@
             <ul>
                 <!-- Mi Equipo - Ver miembros y carga de trabajo -->
                 <li>
-                    <a href="<?= base_url('responsable/equipo') ?>"
+                    <a href="<?= base_url('responsable/equipo') . '?test_user=' . ($user['id'] ?? '') ?>"
                         class="nav-link-item <?= (uri_string() == 'responsable/equipo') ? 'active' : '' ?>">
                         <span class="nav-icon"><i class="bi bi-people-fill"></i></span>
                         <span class="nav-text">Mi Equipo</span>
@@ -142,7 +142,7 @@
 
                 <!-- Retroalimentación - Devoluciones y observaciones -->
                 <li>
-                    <a href="<?= base_url('responsable/retroalimentacion') ?>"
+                    <a href="<?= base_url('responsable/retroalimentacion') . '?test_user=' . ($user['id'] ?? '') ?>"
                         class="nav-link-item <?= (uri_string() == 'responsable/retroalimentacion') ? 'active' : '' ?>">
                         <span class="nav-icon"><i class="bi bi-chat-square-text-fill"></i></span>
                         <span class="nav-text">Retroalimentación</span>

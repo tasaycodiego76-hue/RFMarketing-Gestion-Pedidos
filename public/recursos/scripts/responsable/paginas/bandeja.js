@@ -1,11 +1,3 @@
-/**
- * Bandeja de Entrada - Responsable de Área
- * Consume endpoints:
- * - GET responsable/pedidos/bandeja-json
- * - GET responsable/empleados/mi-area-json
- * - POST responsable/pedidos/asignar
- */
-
 // Variables globales
 let empleadosData = [];
 let requerimientosData = [];

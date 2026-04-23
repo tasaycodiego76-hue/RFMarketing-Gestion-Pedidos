@@ -32,7 +32,7 @@ class MisPedidosController extends BaseController
             'historial' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'finalizado'])->countAllResults(),
         ];
 
-        $pedidos = $atencionModel->obtenerDetalladoPorEmpleado((int)$user['id'], ['pendiente_asignado', 'en_proceso', 'en_revision']);
+        $pedidos = $atencionModel->obtenerDetalladoPorEmpleado((int) $user['id'], ['pendiente_asignado', 'en_proceso', 'en_revision']);
 
         return $this->response->setBody(view('empleado/mis_pedidos', [
             'titulo' => 'Mis Pedidos',
@@ -47,7 +47,8 @@ class MisPedidosController extends BaseController
     public function dashboard()
     {
         $user = $this->getActiveUser();
-        if (!$user || $user['rol'] !== 'empleado') return redirect()->to(base_url('login'));
+        if (!$user || $user['rol'] !== 'empleado')
+            return redirect()->to(base_url('login'));
 
         $userModel = new UsuarioModel();
         $userData = $userModel->getDetalleUsuario($user['id']);
@@ -74,7 +75,8 @@ class MisPedidosController extends BaseController
     public function historial()
     {
         $user = $this->getActiveUser();
-        if (!$user || $user['rol'] !== 'empleado') return redirect()->to(base_url('login'));
+        if (!$user || $user['rol'] !== 'empleado')
+            return redirect()->to(base_url('login'));
 
         $userModel = new UsuarioModel();
         $userData = $userModel->getDetalleUsuario($user['id']);
@@ -93,7 +95,7 @@ class MisPedidosController extends BaseController
             'paginaActual' => 'historial',
             'user' => $userData,
             'stats' => $stats,
-            'pedidos' => $atencionModel->obtenerDetalladoPorEmpleado((int)$user['id'], ['finalizado'])
+            'pedidos' => $atencionModel->obtenerDetalladoPorEmpleado((int) $user['id'], ['finalizado'])
         ]);
     }
 
@@ -108,7 +110,7 @@ class MisPedidosController extends BaseController
         }
 
         $db = \Config\Database::connect();
-        
+
         // Query similar al de Kanban Administrador pero filtrado por idempleado
         $data = $db->query("
             SELECT
@@ -135,15 +137,15 @@ class MisPedidosController extends BaseController
 
         // Obtener archivos adjuntos del requerimiento (tanto del cliente como del empleado)
         $archivoModel = new ArchivoModel();
-        
+
         // Obtener archivos del cliente (idrequerimiento sin idatencion)
         $archivosCliente = $archivoModel->where('idrequerimiento', $data['id_requerimiento'])
-                                       ->where('idatencion IS NULL')
-                                       ->findAll();
-        
+            ->where('idatencion IS NULL')
+            ->findAll();
+
         // Obtener archivos del empleado (con idatencion)
         $archivosEmpleado = $archivoModel->where('idatencion', $id)->findAll();
-        
+
         // Combinar todos los archivos
         $archivos = array_merge($archivosCliente, $archivosEmpleado);
 
@@ -211,21 +213,21 @@ class MisPedidosController extends BaseController
         $data = [
             'estado' => 'en_revision',
             'url_entrega' => $link,
-            'observacion_revision' => $notas 
+            'observacion_revision' => $notas
         ];
 
         if ($atencionModel->update($id, $data)) {
             // Limpiar archivos anteriores si hay una revisión
-            $this->limpiarArchivosAnteriores((int)$id);
-            
+            $this->limpiarArchivosAnteriores((int) $id);
+
             // Guardar archivos nuevos si existen
-            $this->guardarArchivosEntrega((int)$id, (int)$pedido['idrequerimiento']);
+            $this->guardarArchivosEntrega((int) $id, (int) $pedido['idrequerimiento']);
 
             $trackingModel = new TrackingModel();
             $trackingModel->insert([
                 'idatencion' => $id,
                 'idusuario' => $user['id'],
-                'accion' => 'Trabajo entregado para revisión',
+                'accion' => "En fase de revisión de calidad.\nEl entregable ha sido completado y se encuentra en proceso de validación por nuestro equipo supervisor.",
                 'estado' => 'en_revision',
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
@@ -280,19 +282,19 @@ class MisPedidosController extends BaseController
     private function obtenerPedidosRecientes($userId)
     {
         $atencionModel = new AtencionModel();
-        return $atencionModel->obtenerDetalladoPorEmpleado((int)$userId, ['en_proceso', 'en_revision']);
+        return $atencionModel->obtenerDetalladoPorEmpleado((int) $userId, ['en_proceso', 'en_revision']);
     }
 
     private function obtenerPedidosRevision($userId)
     {
         $atencionModel = new AtencionModel();
-        return $atencionModel->obtenerDetalladoPorEmpleado((int)$userId, ['en_revision']);
+        return $atencionModel->obtenerDetalladoPorEmpleado((int) $userId, ['en_revision']);
     }
 
     private function obtenerPedidos($userId)
     {
         $atencionModel = new AtencionModel();
-        return $atencionModel->obtenerDetalladoPorEmpleado((int)$userId, ['pendiente_asignado', 'en_proceso', 'en_revision']);
+        return $atencionModel->obtenerDetalladoPorEmpleado((int) $userId, ['pendiente_asignado', 'en_proceso', 'en_revision']);
     }
 
     /**
@@ -302,17 +304,17 @@ class MisPedidosController extends BaseController
     private function limpiarArchivosAnteriores(int $idAtencion): void
     {
         $archivoModel = new ArchivoModel();
-        
+
         // Obtener archivos anteriores del empleado
         $archivosAnteriores = $archivoModel->where('idatencion', $idAtencion)->findAll();
-        
+
         foreach ($archivosAnteriores as $archivo) {
             // Eliminar archivo físico del servidor
             $rutaCompleta = FCPATH . $archivo['ruta'];
             if (file_exists($rutaCompleta)) {
                 unlink($rutaCompleta);
             }
-            
+
             // Eliminar registro de la base de datos
             $archivoModel->delete($archivo['id']);
         }

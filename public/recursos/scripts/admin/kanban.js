@@ -160,12 +160,12 @@ async function verDetalle(idAtencion) {
 
         // ── Mapa de estados ─────────────────────────────────────
         const estadoMap = {
-            pendiente_sin_asignar: { c: '#f59e0b', label: 'Pendiente sin asignar', i: 'bi-hourglass-split' },
-            pendiente_asignado: { c: '#F5C400', label: 'Asignado al área', i: 'bi-send-check-fill' },
-            en_proceso: { c: '#10b981', label: 'En proceso', i: 'bi-lightning-charge-fill' },
-            en_revision: { c: '#a78bfa', label: 'En revisión', i: 'bi-eye-fill' },
-            finalizado: { c: '#22c55e', label: 'Entregado', i: 'bi-check2-circle' },
-            cancelado: { c: '#ef4444', label: 'Cancelado', i: 'bi-x-circle-fill' },
+            pendiente_sin_asignar: { c: '#f59e0b', label: '📋 Nuevo requerimiento', i: 'bi-hourglass-split' },
+            pendiente_asignado: { c: '#F5C400', label: '✅ Asignado al diseñador', i: 'bi-send-check-fill' },
+            en_proceso: { c: '#10b981', label: '🚀 Trabajando en tu diseño', i: 'bi-lightning-charge-fill' },
+            en_revision: { c: '#3b82f6', label: '👀 Listo para revisar', i: 'bi-eye-fill' },
+            finalizado: { c: '#22c55e', label: '🎉 Entregado con éxito', i: 'bi-check2-circle' },
+            cancelado: { c: '#ef4444', label: '❌ Cancelado', i: 'bi-x-circle-fill' },
         };
         const es = estadoMap[d.estado] ?? { c: '#aaa', label: d.estado.replace(/_/g, ' '), i: 'bi-circle' };
         const priC = d.prioridad_admin === 'Alta' ? '#ef4444' : (d.prioridad_admin === 'Media' ? '#F5C400' : '#3b82f6');
@@ -226,9 +226,23 @@ async function verDetalle(idAtencion) {
         }
 
         // ── Canales / Formatos como tags ────────────────────────
-        const renderTags = json => {
-            if (!json) return '<span style="color:#333;font-size:12px;">---</span>';
-            return _parseList(json)
+        const renderTags = (json, formatoOtros) => {
+            if (!json && !formatoOtros) return '<span style="color:#333;font-size:12px;">---</span>';
+            
+            let tags = [];
+            
+            // Procesar formatos_solicitados (JSON array)
+            if (json) {
+                tags = tags.concat(_parseList(json));
+            }
+            
+            // Procesar formato_otros (separar por comas)
+            if (formatoOtros) {
+                const otrosFormatos = formatoOtros.split(',').map(f => f.trim()).filter(f => f);
+                tags = tags.concat(otrosFormatos);
+            }
+            
+            return tags
                 .map(t => `<span style="background:#0a0a0a;color:#bbb;border:1px solid #1e1e1e;padding:3px 10px;border-radius:4px;font-size:11px;">${t}</span>`)
                 .join(' ');
         };
@@ -396,11 +410,11 @@ async function verDetalle(idAtencion) {
                         <div class="kd-2col">
                             <div>
                                 ${_label('Canales de difusión')}
-                                <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;">${renderTags(d.canales_difusion)}</div>
+                                <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;">${renderTags(d.canales_difusion, null)}</div>
                             </div>
                             <div>
                                 ${_label('Formatos solicitados')}
-                                <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;">${renderTags(d.formatos_solicitados)}</div>
+                                <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;">${renderTags(d.formatos_solicitados, d.formato_otros)}</div>
                             </div>
                         </div>
                     `)}
@@ -644,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 _post('admin/kanban/cambiarEstado', {
                     idatencion: idAtencion,
                     estado: 'pendiente_asignado',
-                    accion: 'Aprobado — enviado a Área (Drag & Drop)',
+                    accion: `Requerimiento asignado al área: ${AREA_NOMBRE}.\nSu solicitud ha sido aprobada y derivada al departamento correspondiente para su gestión.`,
                     idareaagencia: AREA_ACTUAL
                 }).then(data => {
                     if (data.status === 'success') location.reload();

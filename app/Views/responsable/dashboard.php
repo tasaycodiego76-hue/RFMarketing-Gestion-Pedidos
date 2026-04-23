@@ -59,13 +59,6 @@
         </div>
     </div>
 
-    <div class="col-6 col-md-3">
-        <div class="card-rf text-center">
-            <div class="metrica-valor" style="color:#3b82f6"><?= $totalMiembros ?? 0 ?></div>
-            <div style="font-size:13px;color:#a1a1aa">Mi Equipo</div>
-        </div>
-    </div>
-
 </div>
 
 <!-- Mensaje de ¡Bienvenida (Prueba) -->
@@ -79,6 +72,15 @@
         Desde aquí podrás gestionar los requerimientos asignados a tu área y distribuir el trabajo entre tu equipo.
     </p>
 </div>
+
+<!-- Pasar variables globales al JS -->
+<script>
+    const BASE_URL = "<?= base_url() ?>";
+    const RESPONSABLE_ID = "<?= esc($user['id']) ?>";
+    const RESPONSABLE_NOMBRE = "<?= esc($user['nombre'] . ' ' . $user['apellidos']) ?>";
+    const RESPONSABLE_AREA = "<?= esc($user['nombre_area'] ?? 'Sin área') ?>";
+    const RESPONSABLE_ROL = "<?= esc($user['rol']) ?>";
+</script>
 
 <?= $this->endSection() ?>
 

@@ -204,7 +204,17 @@
                     <span class="tag-outline"><?= esc($formato) ?></span>
                 <?php endforeach; ?>
                 <?php if (!empty($requerimiento['formato_otros'])): ?>
-                    <span class="tag-outline special"><?= esc($requerimiento['formato_otros']) ?></span>
+                    <?php 
+                    // Separar por comas y limpiar espacios
+                    $formatosOtros = array_map('trim', explode(',', $requerimiento['formato_otros']));
+                    foreach ($formatosOtros as $formatoOtro):
+                        if (!empty($formatoOtro)):
+                    ?>
+                            <span class="tag-outline special"><?= esc($formatoOtro) ?></span>
+                    <?php 
+                        endif;
+                    endforeach; 
+                    ?>
                 <?php endif; ?>
             </div>
         </div>

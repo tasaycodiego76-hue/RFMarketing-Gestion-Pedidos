@@ -49,19 +49,19 @@
 
         <nav>
             <p class="nav-seccion">PRINCIPAL</p>
-            <a href="<?= base_url('empleado/dashboard') ?>" class="nav-enlace <?= ($paginaActual == 'dashboard') ? 'activo' : '' ?>">
+            <a href="<?= base_url('empleado/dashboard') . '?test_user=' . ($user['id'] ?? '') ?>" class="nav-enlace <?= ($paginaActual == 'dashboard') ? 'activo' : '' ?>">
                 <i class="bi bi-grid-1x2"></i> Dashboard
             </a>
 
             <p class="nav-seccion">MI TRABAJO</p>
-            <a href="<?= base_url('empleado/mis_pedidos') ?>" class="nav-enlace <?= ($paginaActual == 'mis_pedidos') ? 'activo' : '' ?>">
+            <a href="<?= base_url('empleado/mis_pedidos') . '?test_user=' . ($user['id'] ?? '') ?>" class="nav-enlace <?= ($paginaActual == 'mis_pedidos') ? 'activo' : '' ?>">
                 <i class="bi bi-lightning-charge"></i> Mis Pedidos
                 <?php if (isset($stats['nuevos']) && $stats['nuevos'] > 0): ?>
                     <span class="nav-badge"><?= $stats['nuevos'] ?></span>
                 <?php endif; ?>
             </a>
 
-            <a href="<?= base_url('empleado/historial') ?>" class="nav-enlace <?= ($paginaActual == 'historial') ? 'activo' : '' ?>">
+            <a href="<?= base_url('empleado/historial') . '?test_user=' . ($user['id'] ?? '') ?>" class="nav-enlace <?= ($paginaActual == 'historial') ? 'activo' : '' ?>">
                 <i class="bi bi-clock-history"></i> Historial
             </a>
         </nav>

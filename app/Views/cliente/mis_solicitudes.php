@@ -393,5 +393,5 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-<script src="<?= base_url('recursos/scripts/cliente/mis-pedidos.js') ?>"></script>
+<script src="<?= base_url('recursos/scripts/cliente/paginas/mis-pedidos.js') ?>"></script>
 <?= $this->endSection() ?>

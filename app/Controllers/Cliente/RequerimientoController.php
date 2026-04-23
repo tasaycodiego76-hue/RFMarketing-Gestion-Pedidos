@@ -78,75 +78,72 @@ class RequerimientoController extends BaseController
         $servicioPersonalizado = $this->request->getPost('servicio_personalizado');
         $servicioUiNombre = (string) ($this->request->getPost('servicio_ui_nombre') ?? '');
         $esConsultivo = $this->esServicioConsultivo($servicioUiNombre);
-
         // Validar servicio personalizado si es requerido
         if ($idServicio === null && (empty($servicioPersonalizado) || trim($servicioPersonalizado) === '')) {
             $errores[] = 'El nombre del servicio personalizado es obligatorio.';
         }
-
         // Título (siempre obligatorio)
         $titulo = $this->request->getPost('titulo');
         if (empty($titulo) || trim($titulo) === '') {
             $errores[] = 'El título del requerimiento es obligatorio.';
         }
-
-            // Objetivo de comunicación
-            $objetivo = $this->request->getPost('objetivo_comunicacion');
-            if (!$esConsultivo && (empty($objetivo) || trim($objetivo) === '')) {
-                $errores[] = 'El objetivo de comunicación es obligatorio.';
+        // Objetivo de comunicación
+        $objetivo = $this->request->getPost('objetivo_comunicacion');
+        if (!$esConsultivo && (empty($objetivo) || trim($objetivo) === '')) {
+            $errores[] = 'El objetivo de comunicación es obligatorio.';
+        }
+        // Descripción
+        $descripcion = $this->request->getPost('descripcion');
+        if (empty($descripcion) || trim($descripcion) === '') {
+            $errores[] = 'La descripción es obligatoria.';
+        }
+        // Tipo de requerimiento
+        $tipoReq = $this->request->getPost('tipo_requerimiento');
+        if (!$esConsultivo && (empty($tipoReq) || trim($tipoReq) === '')) {
+            $errores[] = 'El tipo de requerimiento es obligatorio.';
+        }
+        // Canales de difusión - mínimo 1, máximo 3
+        $canalesRaw = $this->request->getPost('canales_difusion');
+        $canales = [];
+        if (!empty($canalesRaw)) {
+            $canales = json_decode($canalesRaw, true) ?: [];
+        }
+        $cantCanales = count($canales);
+        if (!$esConsultivo) {
+            if ($cantCanales === 0) {
+                $errores[] = 'Debe seleccionar al menos un canal de difusión.';
+            } elseif ($cantCanales > 3) {
+                $errores[] = 'No puede seleccionar más de 3 canales de difusión.';
             }
-            // Descripción
-            $descripcion = $this->request->getPost('descripcion');
-            if (empty($descripcion) || trim($descripcion) === '') {
-                $errores[] = 'La descripción es obligatoria.';
-            }
-            // Tipo de requerimiento
-            $tipoReq = $this->request->getPost('tipo_requerimiento');
-            if (!$esConsultivo && (empty($tipoReq) || trim($tipoReq) === '')) {
-                $errores[] = 'El tipo de requerimiento es obligatorio.';
-            }
-            // Canales de difusión - mínimo 1, máximo 3
-            $canalesRaw = $this->request->getPost('canales_difusion');
-            $canales = [];
-            if (!empty($canalesRaw)) {
-                $canales = json_decode($canalesRaw, true) ?: [];
-            }
-            $cantCanales = count($canales);
-            if (!$esConsultivo) {
-                if ($cantCanales === 0) {
-                    $errores[] = 'Debe seleccionar al menos un canal de difusión.';
-                } elseif ($cantCanales > 3) {
-                    $errores[] = 'No puede seleccionar más de 3 canales de difusión.';
-                }
-            }
-            // Público objetivo
-            $publico = $this->request->getPost('publico_objetivo');
-            if (!$esConsultivo && (empty($publico) || trim($publico) === '')) {
-                $errores[] = 'El público objetivo es obligatorio.';
-            }
-            // Materiales
-            $tieneMateriales = ($this->request->getPost('tiene_materiales') === '1');
-            $urlSubida = $this->request->getPost('url_subida');
-            $archivos = $this->request->getFiles();
-            $tieneArchivos = !empty($archivos['documentos']) && $this->hayArchivosValidos($archivos['documentos']);
-            //Validacion
-            if ($tieneMateriales && !$tieneArchivos && (empty($urlSubida) || trim($urlSubida) === '')) {
-                $errores[] = 'Si indica que tiene materiales, debe subir al menos un archivo o proporcionar una URL de referencia.';
-            }
-            // Formatos solicitados - mínimo 1
-            $formatosRaw = $this->request->getPost('formatos_solicitados');
-            $formatos = [];
-            if (!empty($formatosRaw)) {
-                $formatos = json_decode($formatosRaw, true) ?: [];
-            }
-            if (!$esConsultivo && count($formatos) === 0) {
-                $errores[] = 'Debe seleccionar al menos un formato solicitado.';
-            }
-            // Formato "Otros" - si está seleccionado, el campo formato_otros es obligatorio
-            $formatoOtros = $this->request->getPost('formato_otros');
-            if (!$esConsultivo && in_array('Otros', $formatos) && (empty($formatoOtros) || trim($formatoOtros) === '')) {
-                $errores[] = 'Si selecciona "Otros" en formatos, debe especificar el formato deseado.';
-            }
+        }
+        // Público objetivo
+        $publico = $this->request->getPost('publico_objetivo');
+        if (!$esConsultivo && (empty($publico) || trim($publico) === '')) {
+            $errores[] = 'El público objetivo es obligatorio.';
+        }
+        // Materiales
+        $tieneMateriales = ($this->request->getPost('tiene_materiales') === '1');
+        $urlSubida = $this->request->getPost('url_subida');
+        $archivos = $this->request->getFiles();
+        $tieneArchivos = !empty($archivos['documentos']) && $this->hayArchivosValidos($archivos['documentos']);
+        //Validacion
+        if ($tieneMateriales && !$tieneArchivos && (empty($urlSubida) || trim($urlSubida) === '')) {
+            $errores[] = 'Si indica que tiene materiales, debe subir al menos un archivo o proporcionar una URL de referencia.';
+        }
+        // Formatos solicitados - mínimo 1
+        $formatosRaw = $this->request->getPost('formatos_solicitados');
+        $formatos = [];
+        if (!empty($formatosRaw)) {
+            $formatos = json_decode($formatosRaw, true) ?: [];
+        }
+        if (!$esConsultivo && count($formatos) === 0) {
+            $errores[] = 'Debe seleccionar al menos un formato solicitado.';
+        }
+        // Formato "Otros" - si está seleccionado, el campo formato_otros es obligatorio
+        $formatoOtros = $this->request->getPost('formato_otros');
+        if (!$esConsultivo && in_array('Otros', $formatos) && (empty($formatoOtros) || trim($formatoOtros) === '')) {
+            $errores[] = 'Si selecciona "Otros" en formatos, debe especificar el formato deseado.';
+        }
 
         // Fecha requerida - SIEMPRE obligatoria para todos los servicios
         $fechaRaw = $this->request->getPost('fecharequerida');
@@ -224,20 +221,20 @@ class RequerimientoController extends BaseController
         try {
             // Insertar Requerimiento
             $reqModel = new RequerimientoModel();
-            
+
             // Debug: Ver qué datos se están insertando en requerimiento
             log_message('debug', 'Datos a insertar en requerimiento: ' . json_encode($dataReq));
-            
+
             $idReq = $reqModel->insert($dataReq);
-            
+
             // Debug: Ver qué retorna la inserción de requerimiento
             log_message('debug', 'Resultado insert requerimiento: ' . $idReq);
-            
+
             $idReq = $this->obtenerIdInsertado($db, $idReq);
-            
+
             // Debug: Ver ID final de requerimiento
             log_message('debug', 'ID final requerimiento: ' . $idReq);
-            
+
             // Validacion
             if (!$idReq) {
                 // Debug: Ver errores del modelo de requerimiento
@@ -247,17 +244,17 @@ class RequerimientoController extends BaseController
 
             // Obtener el area_agencia según el servicio seleccionado
             $servicioModel = new ServicioModel();
-            
+
             // Para servicios personalizados, usar área especial "Por Asignar"
             if ($idServicio === null) {
                 $idAreaAgencia = 1; // Por defecto área de Diseño para servicios personalizados
             } else {
-                $idAreaAgencia = $servicioModel->getAreaAgenciaByServicio((int)$idServicio);
+                $idAreaAgencia = $servicioModel->getAreaAgenciaByServicio((int) $idServicio);
             }
 
             // Insertar Atención vinculada al requerimiento
             $atencionModel = new AtencionModel();
-            
+
             // Debug: Ver datos de atención
             log_message('debug', 'Datos atención: ' . json_encode([
                 'idrequerimiento' => $idReq,
@@ -271,7 +268,7 @@ class RequerimientoController extends BaseController
                 'url_entrega' => null,
                 'idarea_agencia' => $idAreaAgencia,
             ]));
-            
+
             $idAtn = $atencionModel->insert([
                 'idrequerimiento' => $idReq,
                 'idadmin' => 1,
@@ -284,15 +281,15 @@ class RequerimientoController extends BaseController
                 'url_entrega' => null,
                 'idarea_agencia' => $idAreaAgencia,
             ]);
-            
+
             // Debug: Ver resultado del insert
             log_message('debug', 'Resultado insert atención: ' . $idAtn);
-            
+
             $idAtn = $this->obtenerIdInsertado($db, $idAtn);
-            
+
             // Debug: Ver ID final
             log_message('debug', 'ID final atención: ' . $idAtn);
-            
+
             // Validacion
             if (!$idAtn) {
                 log_message('error', 'Errores atención: ' . json_encode($atencionModel->errors()));
@@ -304,7 +301,7 @@ class RequerimientoController extends BaseController
             $trackingModel->insert([
                 'idatencion' => $idAtn,
                 'idusuario' => $idUsuario,
-                'accion' => 'Nuevo requerimiento registrado. Pendiente de asignación',
+                'accion' => "Solicitud registrada exitosamente.\nSu requerimiento ha sido recibido y se encuentra en cola de asignación.\nRecibirá notificación cuando sea procesado.",
                 'estado' => 'pendiente_sin_asignar',
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s'),
             ]);
@@ -360,9 +357,13 @@ class RequerimientoController extends BaseController
      */
     private function hayArchivosValidos($archivos)
     {
-        if (empty($archivos)) { return false; }
+        if (empty($archivos)) {
+            return false;
+        }
         foreach ($archivos as $file) {
-            if ($file->isValid()) { return true; }
+            if ($file->isValid()) {
+                return true;
+            }
         }
         return false;
     }
@@ -392,13 +393,17 @@ class RequerimientoController extends BaseController
         $archivos = $this->request->getFiles();
 
         // Si no hay archivos con el name="documentos[]", salir
-        if (empty($archivos['documentos'])) { return; }
+        if (empty($archivos['documentos'])) {
+            return;
+        }
 
         $archivoModel = new ArchivoModel();
         $carpeta = FCPATH . 'uploads/materiales-referencia';
 
         // Crear la carpeta si no existe
-        if (!is_dir($carpeta)) { mkdir($carpeta, 0755, true); }
+        if (!is_dir($carpeta)) {
+            mkdir($carpeta, 0755, true);
+        }
 
         foreach ($archivos['documentos'] as $file) {
             // Saltar archivos inválidos o ya procesados
@@ -484,20 +489,20 @@ class RequerimientoController extends BaseController
 
         // Obtener estado del requerimiento para filtrar archivos
         $estado = $data['estado'] ?? '';
-        
+
         // Obtener archivos del cliente (siempre visibles)
         $archivosCliente = $archivoModel->where('idrequerimiento', $RequerimientoID)
-                                       ->where('idatencion IS NULL')
-                                       ->findAll();
-        
+            ->where('idatencion IS NULL')
+            ->findAll();
+
         // Obtener archivos del empleado (solo si está finalizado)
         $archivosEmpleado = [];
         if ($estado === 'finalizado') {
             $archivosEmpleado = $archivoModel->where('idrequerimiento', $RequerimientoID)
-                                            ->where('idatencion IS NOT NULL')
-                                            ->findAll();
+                ->where('idatencion IS NOT NULL')
+                ->findAll();
         }
-        
+
         // Combinar archivos
         $archivos = array_merge($archivosCliente, $archivosEmpleado);
 
@@ -533,7 +538,7 @@ class RequerimientoController extends BaseController
 
         // Validar que el archivo existe y es un archivo (no una carpeta)
         if (!is_file($rutaCompleta)) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound( "El archivo no existe o no puede ser accedido." );
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("El archivo no existe o no puede ser accedido.");
         }
 
         // Obtener información del archivo
