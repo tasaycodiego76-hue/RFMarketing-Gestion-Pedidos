@@ -119,7 +119,7 @@ _modules/*
 .phpintel
 /api/
 
-# Visual Studio Code
+# Editores de Codigo (VSCode, Cursor, etc)
 .vscode/
 .cursor/
 
