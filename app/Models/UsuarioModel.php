@@ -36,15 +36,31 @@ class UsuarioModel extends Model
      * y la empresa para responsables de áreas de clientes
      * @return array
      */
-    public function listarConArea(): array
+    public function listarConArea(?string $search = null): array
     {
-        $result = $this->db->table('usuarios u')
+        $builder = $this->db->table('usuarios u')
             ->select('u.*')
             ->select("COALESCE(aa.nombre, ae.nombre, '-') as area_nombre")
             ->select("emp.nombreempresa as empresa_nombre")
             ->join('areas_agencia aa', 'aa.id = u.idarea_agencia', 'left')
             ->join('areas ae', 'ae.id = u.idarea', 'left')
-            ->join('empresas emp', 'emp.id = ae.idempresa', 'left')
+            ->join('empresas emp', 'emp.id = ae.idempresa', 'left');
+
+        if (!empty($search)) {
+            $s = $this->db->escapeLikeString($search);
+            $builder->groupStart()
+                ->where("u.nombre ILIKE '%$s%'", null, false)
+                ->orWhere("u.apellidos ILIKE '%$s%'", null, false)
+                ->orWhere("u.correo ILIKE '%$s%'", null, false)
+                ->orWhere("u.usuario ILIKE '%$s%'", null, false)
+                ->orWhere("u.rol::text ILIKE '%$s%'", null, false)
+                ->orWhere("aa.nombre ILIKE '%$s%'", null, false)
+                ->orWhere("ae.nombre ILIKE '%$s%'", null, false)
+                ->orWhere("emp.nombreempresa ILIKE '%$s%'", null, false)
+                ->groupEnd();
+        }
+
+        $result = $builder->orderBy('area_nombre', 'ASC')
             ->orderBy('u.rol', 'ASC')
             ->orderBy('u.nombre', 'ASC')
             ->get()->getResultArray();

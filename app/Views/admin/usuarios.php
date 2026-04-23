@@ -11,16 +11,19 @@
 <script src="<?= base_url('recursos/scripts/admin/usuarios.js') ?>"></script>
 <?= $this->endSection() ?>
 <?= $this->section('contenido') ?>
- <div class="d-flex justify-content-between align-items-center mb-3">
-      <div class="dropdown">
-          <button class="btn-nuevo mb-3 dropdown-toggle" id="btn-nuevo" data-toggle="dropdown" aria-haspopup="true"
-  aria-expanded="false">+ Nuevo</button>
-          <div class="dropdown-menu" aria-labelledby="btn-nuevo">
-              <a class="dropdown-item" href="#" id="opcion-empleado">Crear Empleado</a>
-              <a class="dropdown-item" href="#" id="opcion-area">Crear Área con Responsable</a>
-          </div>
-      </div>
-  </div>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+       <div class="dropdown">
+           <button class="btn-nuevo mb-0 dropdown-toggle" id="btn-nuevo" data-toggle="dropdown" aria-haspopup="true"
+   aria-expanded="false">+ Nuevo</button>
+           <div class="dropdown-menu" aria-labelledby="btn-nuevo">
+               <a class="dropdown-item" href="#" id="opcion-empleado">Crear Empleado</a>
+               <a class="dropdown-item" href="#" id="opcion-area">Crear Área con Responsable</a>
+           </div>
+       </div>
+       <div class="busqueda-contenedor">
+           <input type="text" id="input-busqueda" class="input-busqueda" placeholder="Buscar usuarios...">
+       </div>
+   </div>
 
 
 <table class="tabla-usuarios">
@@ -144,7 +147,7 @@
                       <!-- Solo empleado -->
                       <div id="campos-empleado" style="display:none;">
                           <div class="form-group">
-                              <label>Área de la Agencia</label>
+                              <label>Área de la Agencia <span class="text-danger">*</span></label>
                               <select class="form-control" id="idarea_agencia">
                                   <option value="">— Seleccione Área —</option>
                                   <?php foreach ($areasAgencia as $a): ?>
