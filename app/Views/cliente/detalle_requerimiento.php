@@ -81,11 +81,9 @@
                     <i class="bi bi-file-text me-1"></i>DESCRIPCIÓN DETALLADA
                 </label>
                 <div class="brief-container">
-                    <div id="descripcion-container"
-                        style="max-height: 150px; overflow: hidden; transition: max-height 0.3s ease;">
-                        <div class="content-box p-3">
+                    <div id="descripcion-container" class="fade-bottom"
+                        style="overflow: hidden; transition: max-height 0.3s ease;">
                             <?= nl2br(esc($requerimiento['descripcion'])) ?>
-                        </div>
                     </div>
                 </div>
             </div>

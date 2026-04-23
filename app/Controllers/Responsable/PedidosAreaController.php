@@ -226,16 +226,42 @@ class PedidosAreaController extends BaseController
         if (!$user['ok']) {
             return $this->response->setJSON(['success' => false, 'message' => $user['message']]);
         }
+        
         $usuarioModel = new UsuarioModel();
+        $atencionModel = new AtencionModel();
+        
         $lista = $usuarioModel->obtenerAsignablesPorAreaAgencia((int) $user['user']['idarea_agencia']);
-        $data = array_map(function ($u) {
+        
+        $data = array_map(function ($u) use ($atencionModel) {
             $esResponsable = ($u['esresponsable'] === true || $u['esresponsable'] === 't' || $u['esresponsable'] == 1);
+            
+            // Obtener todas las tareas del empleado
+            $tareas = $atencionModel->obtenerDetalladoPorEmpleado((int) $u['id']);
+            
+            $enProceso = 0;
+            $completados = 0;
+            $pendientes = 0;
+
+            foreach ($tareas as $t) {
+                if ($t['estado'] === 'en_proceso') {
+                    $enProceso++;
+                } elseif ($t['estado'] === 'finalizado' || $t['estado'] === 'completado') {
+                    $completados++;
+                } else {
+                    $pendientes++;
+                }
+            }
+            
             return [
                 'id' => (int) $u['id'],
                 'nombre_completo' => trim(($u['nombre'] ?? '') . ' ' . ($u['apellidos'] ?? '')),
-                'esresponsable' => $esResponsable
+                'esresponsable' => $esResponsable,
+                'en_proceso' => $enProceso,
+                'completados' => $completados,
+                'pendientes' => $pendientes
             ];
         }, $lista);
+        
         return $this->response->setJSON([
             'success' => true,
             'total' => count($data),

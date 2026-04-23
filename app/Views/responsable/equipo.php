@@ -7,20 +7,20 @@
 <?= $this->section('contenido') ?>
 
 <!-- Encabezado -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <div class="seccion-titulo">MI EQUIPO</div>
-        <p class="mb-0" style="color:#a1a1aa; font-size:14px;">Gestiona los miembros de tu área y su carga de trabajo</p>
-    </div>
-    <div class="d-flex gap-2">
-        <span class="badge-estado" id="contador-equipo" style="background:#3b82f6;">
-            <i class="bi bi-people-fill"></i> 0 miembros
-        </span>
+<div class="header">
+    <div class="header-top">
+        <div>
+            <h1>MI EQUIPO</h1>
+            <p>Gestiona los miembros de tu área y su carga de trabajo</p>
+        </div>
+        <div class="team-count" id="contador-equipo">
+            👥 0 miembros
+        </div>
     </div>
 </div>
 
 <!-- Grid de miembros del equipo -->
-<div id="contenedor-equipo" class="row g-3">
+<div id="contenedor-equipo" class="team-grid">
     <!-- Miembros cargados dinámicamente -->
 </div>
 
@@ -30,19 +30,41 @@
     <p>No hay miembros registrados en tu área</p>
 </div>
 
-<!-- Tarjeta de info del responsable -->
-<div class="card-rf mt-4">
-    <div class="d-flex align-items-center gap-3">
-        <div class="info-icon">
-            <i class="bi bi-info-circle-fill"></i>
-        </div>
-        <div>
-            <h6 class="mb-1">Información del Equipo</h6>
-            <p class="mb-0" style="color:#a1a1aa; font-size:14px;">
-                Como responsable de área, puedes asignar requerimientos a los miembros de tu equipo desde la
-                <strong>Bandeja de Entrada</strong>. Los miembros marcados con
-                <span class="badge-jefe">Jefe de Área</span> tienen privilegios administrativos.
-            </p>
+<!-- Modal Detalle Miembro -->
+<div class="modal fade" id="modalDetalleMiembro" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: #f5f5f5;">
+            <div class="modal-header" style="border-bottom: 1px solid #333;">
+                <h5 class="modal-title" style="font-weight: 600;">
+                    <span id="nombreMiembroModal" style="color: #d4af37;">Tareas del Miembro</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0" id="tablaTareasMiembro" style="background: transparent;">
+                        <thead style="background: rgba(255,255,255,0.05);">
+                            <tr>
+                                <th class="p-3 border-secondary">Requerimiento</th>
+                                <th class="p-3 border-secondary">Servicio</th>
+                                <th class="p-3 border-secondary">Estado</th>
+                                <th class="p-3 border-secondary">Prioridad</th>
+                                <th class="p-3 border-secondary">Inicio</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyTareasMiembro" style="border-top: 0;">
+                            <!-- Filas de tareas -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="sinTareasMiembro" class="text-center p-5 d-none text-muted">
+                    <i class="bi bi-check-circle" style="font-size: 3rem; opacity: 0.5;"></i>
+                    <p class="mt-3 mb-0" style="font-size: 1.1rem;">No hay tareas asignadas actualmente.</p>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #333;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: #333; border: 1px solid #444; color: #fff;">Cerrar</button>
+            </div>
         </div>
     </div>
 </div>

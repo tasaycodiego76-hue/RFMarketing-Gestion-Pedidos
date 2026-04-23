@@ -1,142 +1,210 @@
 /* ESTILOS MI EQUIPO - RESPONSABLE */
 
-/* Cards de miembros */
-.miembro-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    padding: 20px;
-    transition: var(--transition);
-    height: 100%;
+.header {
+  margin-bottom: 40px;
 }
 
-.miembro-card:hover {
-    border-color: var(--accent-primary);
-    transform: translateY(-2px);
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
-.miembro-card.responsable {
-    border-color: var(--accent-primary);
-    background: linear-gradient(135deg, rgba(245, 196, 0, 0.05), rgba(245, 196, 0, 0.02));
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #f5f5f5;
+  margin-bottom: 4px;
 }
 
-/* Header de card */
-.miembro-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 16px;
+.header p {
+  color: #888;
+  font-size: 0.95rem;
+  margin-bottom: 0;
 }
 
-.miembro-avatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 20px;
-    color: #000;
-    flex-shrink: 0;
+/* ===== BADGE DE MIEMBROS ===== */
+.team-count {
+  background: #d4af37;
+  color: #000;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.miembro-avatar.responsable {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    color: #fff;
+/* ===== GRID DE TARJETAS ===== */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
 }
 
-.miembro-info {
-    flex: 1;
-    min-width: 0;
+/* ===== TARJETA DE EMPLEADO ===== */
+.employee-card {
+  background: #151515;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  transition: all 0.2s ease;
 }
 
-.miembro-nombre {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.employee-card:hover {
+  border-color: #444;
 }
 
-.miembro-rol {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--text-secondary);
+.employee-card.jefe {
+  border: 1px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.03);
 }
 
-.badge-jefe {
-    background: rgba(59, 130, 246, 0.15);
-    color: #60a5fa;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 600;
+/* ===== HEADER DE TARJETA ===== */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-.badge-miembro {
-    background: rgba(34, 197, 94, 0.15);
-    color: #22c55e;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 600;
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  color: #fff;
 }
 
-/* Stats del miembro */
-.miembro-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border-color);
+.avatar.blue {
+  background: #3b82f6;
+}
+.avatar.yellow {
+  background: #f59e0b;
+}
+.avatar.green {
+  background: #10b981;
+}
+.avatar.purple {
+  background: #8b5cf6;
 }
 
-.stat-box {
-    text-align: center;
+.card-info {
+  flex: 1;
 }
 
-.stat-valor {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 24px;
-    color: var(--text-primary);
-    margin-bottom: 4px;
+.employee-name {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #f5f5f5;
+  margin-bottom: 4px;
 }
 
-.stat-valor.pendiente {
-    color: var(--warning);
+.employee-role {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.stat-valor.proceso {
-    color: var(--accent-primary);
+.employee-role.jefe {
+  background: #3b82f620;
+  color: #60a5fa;
+  border: 1px solid #3b82f6;
 }
 
-.stat-valor.completado {
-    color: var(--success);
+.employee-role.miembro {
+  background: #10b98120;
+  color: #34d399;
+  border: 1px solid #10b981;
 }
 
-.stat-label {
-    font-size: 10px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+/* ===== MÉTRICAS ===== */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
-/* Badge de estado */
-.badge-estado {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
+.metric {
+  text-align: center;
+  padding: 12px 4px;
+  background: #111;
+  border-radius: 8px;
+  border: 1px solid #222;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.metric-value {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.metric-value.warning {
+  color: #f59e0b;
+}
+.metric-value.success {
+  color: #22c55e;
+}
+.metric-value.info {
+  color: #3b82f6;
+}
+
+.metric-label {
+  font-size: 0.65rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ===== ACCIONES ===== */
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-secondary {
+  background: #333;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+.btn-secondary:hover {
+  background: #3f3f3f;
 }
 
 /* Estado vacío */
@@ -158,35 +226,18 @@
     margin: 0;
 }
 
-/* Icono info */
-.info-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: rgba(59, 130, 246, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.info-icon i {
-    font-size: 24px;
-    color: #60a5fa;
-}
-
 /* Skeleton loading */
 .skeleton-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    padding: 20px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+    border: 1px solid #333;
+    border-radius: 16px;
+    padding: 24px;
     height: 100%;
 }
 
 .skeleton-avatar {
-    width: 56px;
-    height: 56px;
+    width: 60px;
+    height: 60px;
     border-radius: 12px;
     background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
     background-size: 200% 100%;
@@ -216,40 +267,14 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
-    .miembro-stats {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .stat-valor {
-        font-size: 20px;
-    }
-
-    .miembro-avatar {
-        width: 48px;
-        height: 48px;
-        font-size: 16px;
-    }
-}
-
 @media (max-width: 576px) {
-    .miembro-card {
-        padding: 16px;
+    .team-grid {
+        grid-template-columns: 1fr;
     }
-
-    .miembro-header {
-        gap: 12px;
-    }
-
-    .miembro-nombre {
-        font-size: 14px;
-    }
-
-    .miembro-stats {
-        gap: 8px;
-    }
-
-    .stat-label {
-        font-size: 9px;
+    
+    .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
     }
 }

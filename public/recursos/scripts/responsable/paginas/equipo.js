@@ -47,47 +47,49 @@ function renderizarEquipo(empleados) {
 
     estadoVacio?.classList.add('d-none');
 
-    contenedor.innerHTML = empleados.map(emp => {
+    const colores = ['yellow', 'green', 'purple'];
+
+    contenedor.innerHTML = empleados.map((emp, index) => {
         const iniciales = obtenerIniciales(emp.nombre_completo);
         const esResponsable = emp.esresponsable;
+        const colorAvatar = esResponsable ? 'blue' : colores[index % colores.length];
+        
+        const enProceso = (emp.en_proceso || 0);
+        const completados = (emp.completados || 0);
+        const total = (emp.pendientes || 0) + enProceso + completados;
 
         return `
-            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                <div class="miembro-card ${esResponsable ? 'responsable' : ''}">
-                    <div class="miembro-header">
-                        <div class="miembro-avatar ${esResponsable ? 'responsable' : ''}">
-                            ${esResponsable
-                                ? '<i class="bi bi-shield-check" style="font-size:24px;"></i>'
-                                : iniciales
-                            }
-                        </div>
-                        <div class="miembro-info">
-                            <div class="miembro-nombre">${escaparHtml(emp.nombre_completo)}</div>
-                            <div class="miembro-rol">
-                                ${esResponsable
-                                    ? '<span class="badge-jefe">Jefe de Área</span>'
-                                    : '<span class="badge-miembro">Miembro del Equipo</span>'
-                                }
-                            </div>
-                        </div>
-                    </div>
-                    ${emp.pendientes !== undefined || emp.en_proceso !== undefined || emp.completados !== undefined ? `
-                    <div class="miembro-stats">
-                        <div class="stat-box">
-                            <div class="stat-valor pendiente">${emp.pendientes || 0}</div>
-                            <div class="stat-label">Pendientes</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-valor proceso">${emp.en_proceso || 0}</div>
-                            <div class="stat-label">En Proceso</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-valor completado">${emp.completados || 0}</div>
-                            <div class="stat-label">Completados</div>
-                        </div>
-                    </div>
-                    ` : ''}
+            <div class="employee-card ${esResponsable ? 'jefe' : ''}">
+              <div class="card-header">
+                <div class="avatar ${colorAvatar}">
+                  ${iniciales}
                 </div>
+                <div class="card-info">
+                  <div class="employee-name">${escaparHtml((emp.nombre_completo || '').toUpperCase())}</div>
+                  <span class="employee-role ${esResponsable ? 'jefe' : 'miembro'}">
+                    ${esResponsable ? '🛡️ Jefe de Área' : 'Miembro del Equipo'}
+                  </span>
+                </div>
+              </div>
+
+              <div class="metrics">
+                <div class="metric">
+                  <span class="metric-value warning">${enProceso}</span>
+                  <span class="metric-label">En proceso</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-value success">${completados}</span>
+                  <span class="metric-label">Completados</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-value info">${total}</span>
+                  <span class="metric-label">Total</span>
+                </div>
+              </div>
+
+              <div class="card-actions">
+                <button class="btn btn-secondary w-100" style="width: 100%;" onclick="verDetalleMiembro(${emp.id})">Ver Tareas</button>
+              </div>
             </div>
         `;
     }).join('');
@@ -111,7 +113,7 @@ function mostrarEstadoVacio() {
 function actualizarContador(cantidad) {
     const contador = document.getElementById('contador-equipo');
     if (contador) {
-        contador.innerHTML = `<i class="bi bi-people-fill"></i> ${cantidad} miembro${cantidad !== 1 ? 's' : ''}`;
+        contador.innerHTML = `👥 ${cantidad} miembro${cantidad !== 1 ? 's' : ''}`;
     }
 }
 
@@ -136,28 +138,26 @@ function mostrarError(mensaje) {
  */
 function generarSkeletonCards(cantidad) {
     return Array(cantidad).fill(0).map(() => `
-        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-            <div class="skeleton-card">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                    <div class="skeleton-avatar"></div>
-                    <div style="flex:1;">
-                        <div class="skeleton-line" style="width:70%;"></div>
-                        <div class="skeleton-line short"></div>
-                    </div>
+        <div class="employee-card">
+            <div class="card-header">
+                <div class="skeleton-avatar"></div>
+                <div class="card-info" style="width: 100%;">
+                    <div class="skeleton-line" style="width:70%;"></div>
+                    <div class="skeleton-line short"></div>
                 </div>
-                <div style="display:flex;gap:12px;">
-                    <div style="flex:1;text-align:center;">
-                        <div class="skeleton-line" style="height:24px;width:50%;margin:0 auto 4px;"></div>
-                        <div class="skeleton-line" style="width:80%;margin:0 auto;"></div>
-                    </div>
-                    <div style="flex:1;text-align:center;">
-                        <div class="skeleton-line" style="height:24px;width:50%;margin:0 auto 4px;"></div>
-                        <div class="skeleton-line" style="width:80%;margin:0 auto;"></div>
-                    </div>
-                    <div style="flex:1;text-align:center;">
-                        <div class="skeleton-line" style="height:24px;width:50%;margin:0 auto 4px;"></div>
-                        <div class="skeleton-line" style="width:80%;margin:0 auto;"></div>
-                    </div>
+            </div>
+            <div class="metrics">
+                <div class="metric">
+                    <div class="skeleton-line" style="height:24px;width:50%;margin:0 auto 4px;"></div>
+                    <div class="skeleton-line" style="width:80%;margin:0 auto;"></div>
+                </div>
+                <div class="metric">
+                    <div class="skeleton-line" style="height:24px;width:50%;margin:0 auto 4px;"></div>
+                    <div class="skeleton-line" style="width:80%;margin:0 auto;"></div>
+                </div>
+                <div class="metric">
+                    <div class="skeleton-line" style="height:24px;width:50%;margin:0 auto 4px;"></div>
+                    <div class="skeleton-line" style="width:80%;margin:0 auto;"></div>
                 </div>
             </div>
         </div>
@@ -180,4 +180,71 @@ function obtenerIniciales(nombre) {
     const primera = partes[0]?.[0] || '';
     const segunda = partes[1]?.[0] || '';
     return (primera + segunda).toUpperCase();
+}
+
+/**
+ * Ver detalles y tareas de un miembro
+ */
+function verDetalleMiembro(idEmpleado) {
+    fetch(`${base_url}responsable/equipo/miembro/${idEmpleado}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Actualizar título del modal
+                document.getElementById('nombreMiembroModal').innerText = `Tareas: ${data.empleado.nombre_completo}`;
+                
+                // Preparar la tabla
+                const tbody = document.getElementById('bodyTareasMiembro');
+                const table = document.getElementById('tablaTareasMiembro');
+                const sinTareas = document.getElementById('sinTareasMiembro');
+                
+                tbody.innerHTML = '';
+                
+                if (data.tareas && data.tareas.length > 0) {
+                    table.classList.remove('d-none');
+                    sinTareas.classList.add('d-none');
+                    
+                    data.tareas.forEach(tarea => {
+                        // Badge de estado
+                        let badgeClass = 'bg-secondary';
+                        let estadoTexto = tarea.estado;
+                        if (tarea.estado === 'en_proceso') { badgeClass = 'bg-warning text-dark'; estadoTexto = 'En Proceso'; }
+                        else if (tarea.estado === 'finalizado' || tarea.estado === 'completado') { badgeClass = 'bg-success'; estadoTexto = 'Completado'; }
+                        
+                        // Badge de prioridad
+                        let prioClass = 'bg-secondary';
+                        if (tarea.prioridad === 'Alta') prioClass = 'bg-danger';
+                        else if (tarea.prioridad === 'Media') prioClass = 'bg-warning text-dark';
+                        else if (tarea.prioridad === 'Baja') prioClass = 'bg-info text-dark';
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="text-truncate" style="max-width: 250px;" title="${escaparHtml(tarea.titulo)}">
+                                    <div style="font-weight: 500;">${escaparHtml(tarea.titulo)}</div>
+                                    <div style="font-size: 0.8rem; color: #888;">${escaparHtml(tarea.empresa_nombre || '')}</div>
+                                </td>
+                                <td style="vertical-align: middle;">${escaparHtml(tarea.servicio_nombre || '-')}</td>
+                                <td style="vertical-align: middle;"><span class="badge ${badgeClass}">${estadoTexto}</span></td>
+                                <td style="vertical-align: middle;"><span class="badge ${prioClass}">${tarea.prioridad || '-'}</span></td>
+                                <td style="vertical-align: middle; font-size: 0.85rem; color: #aaa;">${tarea.fechainicio ? tarea.fechainicio.split(' ')[0] : '-'}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    table.classList.add('d-none');
+                    sinTareas.classList.remove('d-none');
+                }
+                
+                // Mostrar modal con Bootstrap
+                const modalElement = document.getElementById('modalDetalleMiembro');
+                const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                modal.show();
+            } else {
+                alert(data.message || 'Error al obtener detalles');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error de conexión');
+        });
 }

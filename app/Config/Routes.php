@@ -31,22 +31,19 @@ $routes->group('admin', function ($routes) {
 
     $routes->get('kanban/(:num)/(:num)', 'Administrador\Kanban::index/$1/$2');
     // Kanban acciones
-$routes->post('kanban/asignar',        'Administrador\Kanban::asignar');
- $routes->post('kanban/asignarArea',    'Administrador\Kanban::asignarArea'); 
-$routes->post('kanban/cambiarEstado',  'Administrador\Kanban::cambiarEstado');
-$routes->post('kanban/cancelar',       'Administrador\Kanban::cancelar');
-$routes->get('kanban/empleados/(:num)', 'Administrador\Kanban::empleadosPorArea/$1');
-$routes->get('kanban/detalle/(:num)',   'Administrador\Kanban::detalle/$1');
- $routes->get('kanban/areas', 'Administrador\Kanban::areasAgencia');
-   $routes->get('responsable/kanban', 'Administrador\Kanban::responsable');
-   $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
-   $routes->post('kanban/asignarEmpleado',  'Administrador\Kanban::asignarEmpleado');
+    $routes->post('kanban/asignar', 'Administrador\Kanban::asignar');
+    $routes->post('kanban/asignarArea', 'Administrador\Kanban::asignarArea');
+    $routes->post('kanban/cambiarEstado', 'Administrador\Kanban::cambiarEstado');
+    $routes->post('kanban/cancelar', 'Administrador\Kanban::cancelar');
+    $routes->get('kanban/empleados/(:num)', 'Administrador\Kanban::empleadosPorArea/$1');
+    $routes->get('kanban/detalle/(:num)', 'Administrador\Kanban::detalle/$1');
+    $routes->get('kanban/areas', 'Administrador\Kanban::areasAgencia');
+    $routes->get('responsable/kanban', 'Administrador\Kanban::responsable');
+    $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
+    $routes->post('kanban/asignarEmpleado', 'Administrador\Kanban::asignarEmpleado');
     $routes->post('kanban/iniciarTrabajo', 'Administrador\kanban::iniciarTrabajo');
 
-
-
     //EMPRESAS 
-
     $routes->get('empresas', 'Administrador\EmpresasController::index');
     $routes->get('empresas/listar', 'Administrador\EmpresasController::listar');
     $routes->get('empresas/obtener/(:num)', 'Administrador\EmpresasController::obtener/$1');
@@ -68,6 +65,9 @@ $routes->group('responsable', function ($routes) {
     $routes->get('pedidos/bandeja-json', 'Responsable\PedidosAreaController::bandeja');
     $routes->get('empleados/mi-area-json', 'Responsable\PedidosAreaController::empleadosMiAreaJson');
     $routes->post('pedidos/asignar', 'Responsable\PedidosAreaController::asignarPedido');
+    
+    // Miembros del equipo
+    $routes->get('equipo/miembro/(:num)', 'Responsable\EquipoController::detalleMiembro/$1');
 });
 
 //Rutas para el Empleado
