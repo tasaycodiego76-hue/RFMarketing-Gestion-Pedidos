@@ -32,8 +32,9 @@ class UsuarioController extends Controller
      */
     public function listar()
     {
+        $search   = trim((string) $this->request->getGet('search'));
         $model    = new UsuarioModel();
-        $usuarios = $model->listarConArea();
+        $usuarios = $model->listarConArea($search);
 
         foreach ($usuarios as &$u) {
             $u['estado'] = ($u['estado'] === true || $u['estado'] === 't' || $u['estado'] == 1) ? 1 : 0;
@@ -77,29 +78,43 @@ class UsuarioController extends Controller
       }
 
       // Validación: Solo un responsable por área (solo si es explícitamente true)
-      $esResponsable = isset($datos['esresponsable']) && ($datos['esresponsable'] === true || $datos['esresponsable']
-  === 't' || $datos['esresponsable'] === 1);
-
-      if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agencia'])) {
-          $existeResponsable = $model->where('idarea_agencia', $datos['idarea_agencia'])
-              ->where('esresponsable', true)
-              ->where('estado', true)
-              ->first();
-
-          if ($existeResponsable) {
-              return $this->response->setJSON([
-                  'success' => false,
-                  'message' => 'Ya existe un responsable para esta área: ' . $existeResponsable['nombre'] . ' ' .
-  $existeResponsable['apellidos']
-              ]);
-          }
-
-          // Asegurar que se guarde como booleano
-          $datos['esresponsable'] = true;
-      } else {
-          // Asegurar false cuando no es responsable
-          $datos['esresponsable'] = false;
-      }
+      $esResponsable = isset($datos['esresponsable']) && ($datos['esresponsable'] === true || $datos['esresponsable'] === 't' || $datos['esresponsable'] === 1);
+ 
+// VALIDACIÓN: Para empleados NO responsables, verificar que el área tenga responsable asignado
+if ($datos['rol'] === 'empleado' && !empty($datos['idarea_agencia']) && !$esResponsable) {
+    $existeResponsable = $model->where('idarea_agencia', $datos['idarea_agencia'])
+        ->where('esresponsable', true)
+        ->where('estado', true)
+        ->first();
+ 
+    if (!$existeResponsable) {
+        return $this->response->setJSON([
+            'success' => false, 
+            'message' => 'Esta área no tiene un responsable asignado. Primero debe crear un responsable para esta área antes de registrar empleados.'
+        ]);
+    }
+}
+ 
+if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agencia'])) {
+    $existeResponsable = $model->where('idarea_agencia', $datos['idarea_agencia'])
+        ->where('esresponsable', true)
+        ->where('id !=', $datos['id'] ?? 0)
+        ->where('estado', true)
+        ->first();
+ 
+    if ($existeResponsable) {
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'Ya existe un responsable para esta área: ' . $existeResponsable['nombre'] . ' ' . $existeResponsable['apellidos']
+        ]);
+    }
+ 
+    // Asegurar que se guarde como booleano
+    $datos['esresponsable'] = true;
+} else {
+    // Asegurar false cuando no es responsable
+    $datos['esresponsable'] = false;
+}
 
       $id = $model->insert($datos, true);
 

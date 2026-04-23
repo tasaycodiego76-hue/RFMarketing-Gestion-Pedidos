@@ -11,11 +11,25 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       // ─── LISTAR USUARIOS ───────────────────────────────────
-      async function obtenerUsuarios() {
-      const response = await fetch(BASE_URL + 'admin/usuarios/listar');
-      const data     = await response.json();
+      async function obtenerUsuarios(search = '') {
+          try {
+              const baseUrl  = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
+              const query    = search ? '?search=' + encodeURIComponent(search) : '';
+              const response = await fetch(baseUrl + 'admin/usuarios/listar' + query);
+              
+              if (!response.ok) {
+                  console.error('Error al obtener usuarios:', response.statusText);
+                  return;
+              }
+              
+              const data = await response.json();
 
       tabla.innerHTML = '';
+      if (data.length === 0) {
+          tabla.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No se encontraron resultados para su búsqueda.</td></tr>';
+          return;
+      }
+
       data.forEach(u => {
           const badge     = u.estado ? `<span class="badge-activo">Activo</span>` : `<span
   class="badge-inactivo">Inactivo</span>`;
@@ -51,8 +65,11 @@ document.addEventListener('DOMContentLoaded', function () {
               ${btnToggle}
           </td>
       </tr>`;
-      });
-  }
+          });
+          } catch (error) {
+              console.error('Error al procesar usuarios:', error);
+          }
+      }
 
       // ─── CONFIGURAR FORMULARIO SEGÚN TIPO ─────────────────
       function configurarFormulario(tipo) {
@@ -83,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
               camposEmpleado.style.display = 'block';
               labelNombre.textContent = 'Nombre';
               tipodoc.innerHTML = '<option value="DNI">DNI</option><option value="CE">CE</option>';
+              document.querySelector('#idarea_agencia').required = true;
 
           } else if (tipo === 'responsable_area') {
               modalTitulo.textContent = 'Crear Área con Responsable';
@@ -272,6 +290,18 @@ document.addEventListener('DOMContentLoaded', function () {
           notificar(data.message);
           if (data.success) obtenerUsuarios();
       };
+
+      // ─── BUSCADOR ──────────────────────────────────────────
+      const inputBusqueda = document.querySelector('#input-busqueda');
+      let timeoutBusqueda = null;
+
+      inputBusqueda.addEventListener('input', function (e) {
+          const valor = e.target.value;
+          clearTimeout(timeoutBusqueda);
+          timeoutBusqueda = setTimeout(() => {
+              obtenerUsuarios(valor);
+          }, 1500);
+      });
 
       // ─── INICIO ────────────────────────────────────────────
       obtenerUsuarios();
