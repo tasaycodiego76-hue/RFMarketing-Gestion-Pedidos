@@ -61,8 +61,10 @@ php spark serve
 
 Con el servidor activo, puedes acceder a las siguientes rutas para validar el funcionamiento:
 
-- **Vista Cliente:** http://localhost:8080/cliente/mis_solicitudes?test_user=9
-- **Vista Administrador:** http://localhost:8080/index.php/admin/dashboard?test_user=1
+- **Vista Cliente:** http://localhost:8080/cliente/mis_solicitudes?test_user=14
+- **Vista Administrador:** http://localhost:8080/admin/dashboard?test_user=1
+- **Vista Responsable Area (Empleado):** http://localhost:8080/responsable/dashboard?test_user=12
+- **Vista Empleado:** http://localhost:8080/empleado/dashboard?test_user=11
 
 ---
 
