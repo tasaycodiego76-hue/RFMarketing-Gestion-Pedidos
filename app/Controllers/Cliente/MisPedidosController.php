@@ -74,7 +74,7 @@ class MisPedidosController extends BaseController
     }
 
     /**
-     * Metodo para Obtener Servicios 'Activos' según el área de agencia del usuario
+     * Metodo para Obtener Servicios 'Activos' para la creacion de un Requerimiento
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function servicios()
@@ -85,18 +85,8 @@ class MisPedidosController extends BaseController
         }
 
         $model = new ServicioModel();
-        
-        // Obtener el área de agencia del usuario
-        $idAreaAgencia = $user['idarea_agencia'] ?? null;
-        
-        if ($idAreaAgencia) {
-            // Obtener servicios según el área de agencia del usuario
-            $servicios = $model->getServiciosPorAreaAgencia($idAreaAgencia);
-        } else {
-            // Si no tiene área de agencia, mostrar todos los servicios activos
-            $servicios = $model->getActivos();
-        }
-        
+        $servicios = $model->getServiciosActivos();
+
         return $this->response->setJSON($servicios);
     }
 }

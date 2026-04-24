@@ -6,22 +6,25 @@ use CodeIgniter\Model;
 
 class ResponsablesEmpresaModel extends Model
 {
-    protected $table      = 'responsables_empresa';
+    protected $table = 'responsables_empresa';
     protected $primaryKey = 'id';
     protected $returnType = 'array';
 
     protected $allowedFields = ['idusuario', 'idempresa', 'fecha_inicio', 'estado'];
 
     /**
-     * Asigna un usuario como responsable de una empresa.
+     * Asigna un usuario como responsable de una empresa
+     * @param int $idUsuario
+     * @param int $idEmpresa
+     * @return void
      */
     public function asignarResponsable(int $idUsuario, int $idEmpresa): void
     {
         $this->insert([
-            'idusuario'    => $idUsuario,
-            'idempresa'    => $idEmpresa,
+            'idusuario' => $idUsuario,
+            'idempresa' => $idEmpresa,
             'fecha_inicio' => date('Y-m-d H:i:s'),
-            'estado'       => 'activo',
+            'estado' => 'activo',
         ]);
     }
 }
