@@ -187,12 +187,12 @@ async function verDetalle(idAtencion) {
 
         // ── Mapa de estados ─────────────────────────────────────
         const estadoMap = {
-            pendiente_sin_asignar: { c: '#f59e0b', label: '📋 Nuevo requerimiento', i: 'bi-hourglass-split' },
-            pendiente_asignado: { c: '#F5C400', label: '✅ Asignado al diseñador', i: 'bi-send-check-fill' },
-            en_proceso: { c: '#10b981', label: '🚀 Trabajando en tu diseño', i: 'bi-lightning-charge-fill' },
-            en_revision: { c: '#3b82f6', label: '👀 Listo para revisar', i: 'bi-eye-fill' },
-            finalizado: { c: '#22c55e', label: '🎉 Entregado con éxito', i: 'bi-check2-circle' },
-            cancelado: { c: '#ef4444', label: '❌ Cancelado', i: 'bi-x-circle-fill' },
+            pendiente_sin_asignar: { c: '#f59e0b', label: 'Por Aprobar', i: 'bi-hourglass-split' },
+            pendiente_asignado: { c: '#F5C400', label: 'Asignado', i: 'bi-send-check-fill' },
+            en_proceso: { c: '#10b981', label: 'En Proceso', i: 'bi-lightning-charge-fill' },
+            en_revision: { c: '#3b82f6', label: 'En Revisión', i: 'bi-eye-fill' },
+            finalizado: { c: '#22c55e', label: 'Entregado', i: 'bi-check2-circle' },
+            cancelado: { c: '#ef4444', label: 'Cancelado', i: 'bi-x-circle-fill' },
         };
         const es = estadoMap[d.estado] ?? { c: '#aaa', label: d.estado.replace(/_/g, ' '), i: 'bi-circle' };
         const priC = d.prioridad_admin === 'Alta' ? '#ef4444' : (d.prioridad_admin === 'Media' ? '#F5C400' : '#3b82f6');
@@ -287,11 +287,11 @@ async function verDetalle(idAtencion) {
                 ? `<a href="${d.url_entrega}" target="_blank" style="color:#60a5fa;text-decoration:underline;font-size:13px;word-break:break-all;">${d.url_entrega}</a>`
                 : '<span style="color:#333;font-size:12px;font-style:italic;">No se adjuntó enlace</span>';
             const msg = d.observacion_revision
-                ? `<div style="color:#ccc;font-size:13px;line-height:1.7;">${d.observacion_revision}</div>`
+                ? `<div class="kd-val" style="color:#ccc;font-size:13px;line-height:1.7;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;white-space:pre-wrap;">${d.observacion_revision}</div>`
                 : '<span style="color:#333;font-size:12px;font-style:italic;">Sin mensaje adicional</span>';
 
             entregablesHtml = _seccion('bi-box-arrow-up-right', 'Entregables del Área', '#3b82f6', `
-                <div style="margin-bottom:14px;">
+                <div style="margin-bottom:14px;min-width:0;">
                     ${_label('Enlace / Archivo de entrega')}
                     <div style="margin-top:5px;">${link}</div>
                 </div>

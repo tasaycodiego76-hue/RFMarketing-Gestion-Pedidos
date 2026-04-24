@@ -151,7 +151,7 @@ class AtencionModel extends Model
             LEFT JOIN usuarios u ON u.id = a.idempleado
             WHERE ar.idempresa = ?
               AND a.estado != 'cancelado'
-              AND (a.idarea_agencia = ? OR a.servicio_personalizado IS NOT NULL)
+              AND (a.idarea_agencia = ? OR (a.idarea_agencia IS NULL AND a.servicio_personalizado IS NOT NULL))
             ORDER BY es_servicio_personalizado ASC, a.fechainicio DESC
         ";
 
