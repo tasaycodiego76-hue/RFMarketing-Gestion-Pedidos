@@ -11,7 +11,7 @@
 <script src="<?= base_url('recursos/scripts/admin/usuarios.js') ?>"></script>
 <?= $this->endSection() ?>
 <?= $this->section('contenido') ?>
-  <div class="d-flex justify-content-between align-items-center mb-3">
+   <div class="d-flex justify-content-between align-items-center mb-3" style="flex-wrap: wrap; gap: 10px;">
        <div class="dropdown">
            <button class="btn-nuevo mb-0 dropdown-toggle" id="btn-nuevo" data-toggle="dropdown" aria-haspopup="true"
    aria-expanded="false">+ Nuevo</button>
@@ -25,21 +25,22 @@
        </div>
    </div>
 
-
-<table class="tabla-usuarios">
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Usuario</th>
-            <th>Correo</th>
-            <th>Rol</th>
-            <th>Área/Empresa</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody id="tabla-usuarios"></tbody>
-</table>
+<div class="tabla-contenedor">
+    <table class="tabla-usuarios">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Usuario</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Área / Empresa</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-usuarios"></tbody>
+    </table>
+</div>
 <div class="modal fade" id="modal-usuario" data-backdrop="static" tabindex="-1">
       <div class="modal-dialog modal-lg">
           <div class="modal-content">

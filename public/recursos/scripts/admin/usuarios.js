@@ -12,64 +12,113 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // ─── LISTAR USUARIOS ───────────────────────────────────
       async function obtenerUsuarios(search = '') {
-          try {
-              const baseUrl  = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
-              const query    = search ? '?search=' + encodeURIComponent(search) : '';
-              const response = await fetch(baseUrl + 'admin/usuarios/listar' + query);
-              
-              if (!response.ok) {
-                  console.error('Error al obtener usuarios:', response.statusText);
-                  return;
-              }
-              
-              const data = await response.json();
+    try {
+        const baseUrl  = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
+        const query    = search ? '?search=' + encodeURIComponent(search) : '';
+        const response = await fetch(baseUrl + 'admin/usuarios/listar' + query);
+        
+        if (!response.ok) {
+            console.error('Error al obtener usuarios:', response.statusText);
+            return;
+        }
+        
+        const data = await response.json();
 
-      tabla.innerHTML = '';
-      if (data.length === 0) {
-          tabla.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No se encontraron resultados para su búsqueda.</td></tr>';
-          return;
-      }
+        tabla.innerHTML = '';
+        if (data.length === 0) {
+            tabla.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No se encontraron resultados para su búsqueda.</td></tr>';
+            return;
+        }
 
-      data.forEach(u => {
-          const badge     = u.estado ? `<span class="badge-activo">Activo</span>` : `<span
-  class="badge-inactivo">Inactivo</span>`;
-          const btnToggle = u.estado
-              ? `<button class="btn btn-sm btn-warning"  onclick="toggleEstado(${u.id}, true)">Deshabilitar</button>`
-              : `<button class="btn btn-sm btn-success"  onclick="toggleEstado(${u.id}, false)">Habilitar</button>`;
+        data.forEach(u => {
 
-          // Usar rol_visual si existe, sino el rol normal
-         
- // Usar rol_visual si existe, sino el rol normal
-  const rolMostrar = u.rol_visual || u.rol;
+            if (u.rol && u.rol.toLowerCase().includes('administrador')) {
+    tabla.innerHTML += `
+        <tr>
+            <td class="td-nombre">${u.nombre} ${u.apellidos}</td>
+            <td class="td-usuario">${u.usuario ?? '-'}</td>
+            <td class="td-correo">${u.correo}</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+        </tr>`;
+    return; 
+}
+            
+            //  ROLES (Responsable limpio)
+            let rolClase = 'rol-empleado';
+            let rolTexto = 'Empleado';
 
-  // Solo mostrar indicador si es responsable de área de agencia
-  const esResponsable = u.esresponsable === true || u.esresponsable === 't' || u.esponsable == 1;
-  const indicadorResponsable = (u.rol === 'empleado' && esResponsable)
-      ? '<span class="punto-responsable" title="Responsable del área"></span> '
-      : '';
-  const rolConIndicador = indicadorResponsable + rolMostrar;
+            const esResponsable = u.rol === 'responsable_area' 
+                || u.esresponsable === true 
+                || u.esresponsable === 't' 
+                || u.esresponsable == 1;
 
-  // Usar area_completa si existe
-  const areaMostrar = u.area_completa || u.area_nombre || '-';
+            if (esResponsable) {
+                rolClase = 'rol-responsable';
+                rolTexto = 'Responsable';
+            } else if (u.rol === 'cliente') {
+                rolClase = 'rol-cliente';
+                rolTexto = 'Cliente';
+            }
 
-  tabla.innerHTML += `
-      <tr>
-          <td>${u.nombre} ${u.apellidos}</td>
-          <td>${u.usuario ?? '-'}</td>
-          <td>${u.correo}</td>
-          <td>${rolConIndicador}</td>
-          <td>${areaMostrar}</td>
-          <td>${badge}</td>
-          <td>
-              <button class="btn btn-sm btn-primary" onclick="editarUsuario(${u.id})">Editar</button>
-              ${btnToggle}
-          </td>
-      </tr>`;
-          });
-          } catch (error) {
-              console.error('Error al procesar usuarios:', error);
-          }
-      }
+            const rolBadge = `<span class="rol-badge ${rolClase}">${rolTexto}</span>`;
+
+            // 🔹 ÁREA (QUITAR EMPRESA ENTRE PARÉNTESIS)
+            let areaMostrar = u.area_completa || u.area_nombre || '-';
+
+            if (areaMostrar.includes('(')) {
+                areaMostrar = areaMostrar.split(' (')[0];
+            }
+
+            //  EMPRESA
+            const empresaMostrar = u.empresa_nombre || '';
+
+            //  MOSTRAR EN DOS LÍNEAS
+           const mostrarIcono = u.rol === 'cliente' || (u.empresa_nombre && u.empresa_nombre !== '');
+
+const areaEmpresa = `
+    <div class="area-empresa-contenedor">
+        ${mostrarIcono ? '<i class="bi bi-building area-icon"></i>' : ''}
+        <div class="area-info">
+            <div class="area-nombre">${areaMostrar}</div>
+            ${empresaMostrar ? `<div class="area-empresa">${empresaMostrar}</div>` : ''}
+        </div>
+    </div>`;
+
+            //  ESTADO
+            const badge = u.estado 
+                ? `<span class="badge-activo">Activo</span>` 
+                : `<span class="badge-inactivo">Inactivo</span>`;
+
+            //  BOTONES
+            const btnEditar = `<button class="btn-icon btn-icon-editar" onclick="editarUsuario(${u.id})" title="Editar usuario" style="cursor:pointer;">✎</button>`;
+            const btnToggle = u.estado
+                ? `<button class="btn-icon btn-icon-toggle activo" onclick="toggleEstado(${u.id}, true)" title="Desactivar usuario" style="cursor:pointer;">✕</button>`
+                : `<button class="btn-icon btn-icon-toggle inactivo" onclick="toggleEstado(${u.id}, false)" title="Activar usuario" style="cursor:pointer;">✓</button>`;
+
+            tabla.innerHTML += `
+                <tr>
+                    <td class="td-nombre">${u.nombre} ${u.apellidos}</td>
+                    <td class="td-usuario">${u.usuario ?? '-'}</td>
+                    <td class="td-correo">${u.correo}</td>
+                    <td>${rolBadge}</td>
+                    <td class="td-area-empresa">${areaEmpresa}</td>
+                    <td>${badge}</td>
+                    <td>
+                        <div class="acciones-contenedor">
+                            ${btnEditar}
+                            ${btnToggle}
+                        </div>
+                    </td>
+                </tr>`;
+        });
+
+    } catch (error) {
+        console.error('Error al procesar usuarios:', error);
+    }
+}
 
       // ─── CONFIGURAR FORMULARIO SEGÚN TIPO ─────────────────
       function configurarFormulario(tipo) {
