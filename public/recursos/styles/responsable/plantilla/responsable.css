@@ -500,6 +500,67 @@ body {
   .topbar {
     padding: 0 16px;
   }
+
+  /* Ajustes para topbar en móvil */
+  .topbar-right {
+    gap: 12px;
+  }
+
+  .topbar-user {
+    gap: 8px;
+  }
+
+  .user-info {
+    text-align: right;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .user-name {
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
+  }
+
+  .user-role {
+    font-size: 9px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
+  }
+
+  .user-avatar {
+    width: 26px;
+    height: 26px;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  /* Ocultar estadísticas en móvil si no hay espacio */
+  .area-stats {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar {
+    padding: 0 12px;
+  }
+
+  .user-name {
+    max-width: 60px;
+  }
+
+  .user-role {
+    max-width: 60px;
+  }
+
+  .topbar-right {
+    gap: 8px;
+  }
 }
 
 /* UTILIDADES Y COMPONENTES COMUNES */

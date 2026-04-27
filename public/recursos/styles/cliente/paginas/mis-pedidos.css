@@ -317,8 +317,184 @@
   background: #141414;
   border-bottom: 1px solid #222;
   padding: 25px;
+  padding-right: 50px;
   display: flex;
   gap: 15px;
+  position: relative;
+}
+
+/* Botón de cierre del modal - NEGRO TOTAL */
+.modal-rf-header .btn-close,
+.modal-rf-header .btn-close-white {
+  position: absolute !important;
+  top: 15px !important;
+  right: 15px !important;
+  background: #000 !important;
+  border: 2px solid #000 !important;
+  color: #f5c400 !important;
+  opacity: 1 !important;
+  font-size: 20px !important;
+  font-weight: bold !important;
+  padding: 6px !important;
+  transition: all 0.2s ease !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  text-shadow: 0 0 4px rgba(0,0,0,1) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,1) !important;
+}
+
+/* Override Bootstrap's default white icon for btn-close-white */
+.modal-rf-header .btn-close-white,
+.modal-rf-header .btn-close-white:focus,
+.modal-rf-header .btn-close-white:hover {
+  background-image: none !important;
+  opacity: 1 !important;
+  background: #000 !important;
+  border: 2px solid #000 !important;
+}
+
+/* Force override ALL Bootstrap btn-close styles */
+.modal-rf-header .btn-close,
+.modal-rf-header .btn-close:focus,
+.modal-rf-header .btn-close:hover,
+.modal-rf-header .btn-close:active,
+.modal-rf-header .btn-close-white,
+.modal-rf-header .btn-close-white:focus,
+.modal-rf-header .btn-close-white:hover,
+.modal-rf-header .btn-close-white:active {
+  background: #000 !important;
+  border: 2px solid #000 !important;
+  background-image: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  color: #f5c400 !important;
+}
+
+/* Icono dentro del botón */
+.modal-rf-header .btn-close i,
+.modal-rf-header .btn-close-white i {
+  color: #f5c400 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+}
+
+/* Ensure Bootstrap icon is visible - override any white filters */
+.modal-rf-header .btn-close-white .bi,
+.modal-rf-header .btn-close-white .bi::before,
+.modal-rf-header .btn-close .bi,
+.modal-rf-header .btn-close .bi::before {
+  color: #f5c400 !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* Additional override for Bootstrap icon SVG */
+.modal-rf-header .btn-close-white svg,
+.modal-rf-header .btn-close svg {
+  fill: #f5c400 !important;
+  color: #f5c400 !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* Force text color for any content inside the button */
+.modal-rf-header .btn-close-white *,
+.modal-rf-header .btn-close * {
+  color: #f5c400 !important;
+}
+
+.modal-rf-header .btn-close:hover,
+.modal-rf-header .btn-close-white:hover {
+  background: #000 !important;
+  border: 2px solid #000 !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,1) !important;
+}
+
+.modal-rf-header .btn-close:hover i,
+.modal-rf-header .btn-close-white:hover i {
+  color: #f5c400 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-rf-header .btn-close,
+  .modal-rf-header .btn-close-white {
+    width: 28px !important;
+    height: 28px !important;
+    padding: 4px !important;
+  }
+  
+  .modal-rf-header .btn-close i,
+  .modal-rf-header .btn-close-white i {
+    font-size: 14px !important;
+  }
+  
+  .modal-rf-body {
+    padding: 20px;
+  }
+  
+  /* Prioridad opciones en móvil */
+  .prioridad-opciones {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+  }
+  
+  .prio-opcion {
+    flex: 1;
+  }
+  
+  .prio-badge {
+    display: block;
+    text-align: center;
+    padding: 8px 4px;
+    font-size: 11px;
+  }
+  
+  /* Campos del formulario */
+  .field {
+    margin-bottom: 15px;
+  }
+  
+  .field label {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+  
+  .field-input {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  #campo-titulo {
+    min-height: 50px;
+    font-size: 15px;
+  }
+  
+  /* Autofill en móvil */
+  .autofill {
+    padding: 12px;
+  }
+  
+  .autofill-row {
+    padding: 8px 0;
+  }
+  
+  .autofill-k {
+    font-size: 12px;
+  }
+  
+  .autofill-v {
+    font-size: 13px;
+  }
 }
 .modal-rf-body {
   background: #111;
@@ -338,13 +514,15 @@
   align-items: center;
   justify-content: center;
   gap: 15px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  margin-bottom: 20px;
 }
 .step-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  min-width: 100px;
 }
 .step {
   width: 40px;
@@ -402,12 +580,20 @@
   width: 100%;
   background: #0a0a0a !important;
   border: 1px solid #1e1e1e !important;
-  border-radius: 6px;
-  padding: 12px;
-  font-size: 15px;
-  color: #eee;
+  color: #fff !important;
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-size: 14px;
   outline: none;
   transition: all 0.2s ease;
+  min-height: 50px;
+}
+
+/* Campo especial para título del requerimiento */
+#campo-titulo {
+  min-height: 60px;
+  font-size: 16px;
+  font-weight: 500;
 }
 .field-input:focus {
   border-color: #f5c400 !important;
@@ -605,6 +791,31 @@ textarea.form-control:focus {
   cursor: pointer;
   transition: all 0.2s ease;
   margin-bottom: 10px;
+}
+
+/* Layout responsivo para cards de servicio */
+@media (max-width: 768px) {
+  .servicio-card {
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+  
+  .servicio-card-icon {
+    font-size: 24px;
+    width: 40px;
+  }
+  
+  .servicio-card-nombre {
+    font-size: 14px;
+  }
+  
+  .servicio-card-desc {
+    font-size: 12px;
+  }
+  
+  .servicio-card-arrow {
+    font-size: 14px;
+  }
 }
 .servicio-card:hover {
   border-color: #f5c400;

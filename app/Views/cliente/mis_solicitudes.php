@@ -84,7 +84,7 @@
 
 <!-- Modal Selección de Servicios -->
 <div class="modal fade" id="modal-nuevo-pedido" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
-    aria-labelledby="modalLabel">
+    aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-rf">
             <div class="modal-header modal-rf-header">
@@ -92,7 +92,9 @@
                     <p class="campo-label mb-1">NUEVO PEDIDO</p>
                     <h5 class="modal-title mb-0">Selecciona el tipo de servicio</h5>
                 </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
             <div class="modal-body modal-rf-body p-4">
                 <!-- Cards de servicios -->
@@ -131,7 +133,9 @@
                             </div>
                         </div>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+    <i class="bi bi-x-lg"></i>
+</button>
                 </div>
                 <!-- Cuerpo Modal -->
                 <div class="modal-body modal-rf-body p-4">

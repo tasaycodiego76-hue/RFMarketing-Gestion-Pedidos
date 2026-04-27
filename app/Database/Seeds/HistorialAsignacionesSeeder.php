@@ -6,7 +6,7 @@ class HistorialAsignacionesSeeder extends Seeder {
     public function run() {
         $data = [
             [
-                'idpedido'            => 1, 
+                'idatencion'          => 1, 
                 'idempleado'          => 3, 
                 'idempleado_anterior' => null, 
                 'idadmin'             => 1, 

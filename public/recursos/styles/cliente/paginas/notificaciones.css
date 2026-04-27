@@ -1,0 +1,252 @@
+/* ESTILOS NOTIFICACIONES - CLIENTE */
+
+/* Variables CSS */
+:root {
+  --bg-body: #0a0a0a;
+  --card-bg: #111111;
+  --border-color: #222222;
+  --text-main: #ffffff;
+  --text-muted: #bbbbbb;
+  --accent-yellow: #f5c400;
+  --text-secondary: #cccccc;
+}
+
+/* Card principal */
+.card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px !important;
+}
+
+.card-header {
+  background: #1a1a1a !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+}
+
+.card-body {
+  background: var(--card-bg) !important;
+  color: var(--text-main) !important;
+}
+
+/* Lista de notificaciones */
+.list-group {
+  background: transparent !important;
+}
+
+.list-group-item {
+  background: #1a1a1a !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  margin-bottom: 12px !important;
+  color: var(--text-main) !important;
+  transition: all 0.3s ease !important;
+}
+
+.list-group-item:hover {
+  background: #222 !important;
+  transform: translateX(5px);
+}
+
+/* Layout principal - estado izquierda, fecha derecha */
+.notificacion-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.notificacion-contenido {
+  flex: 1;
+  min-width: 0;
+}
+
+.notificacion-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Badges de estado con colores consistentes */
+.badge-estado {
+  padding: 6px 12px !important;
+  border-radius: 20px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  white-space: nowrap !important;
+}
+
+/* Estados con colores del seguimiento */
+.badge-en_proceso {
+  background: rgba(13, 110, 253, 0.15) !important;
+  color: #0d6efd !important;
+}
+
+.badge-pendiente_asignado {
+  background: rgba(108, 117, 125, 0.15) !important;
+  color: #6c757d !important;
+}
+
+.badge-pendiente_sin_asignar {
+  background: rgba(108, 117, 125, 0.15) !important;
+  color: #6c757d !important;
+}
+
+.badge-finalizada {
+  background: rgba(25, 135, 84, 0.15) !important;
+  color: #198754 !important;
+}
+
+.badge-en_revision {
+  background: rgba(23, 162, 184, 0.15) !important;
+  color: #17a2b8 !important;
+}
+
+.badge-cancelado {
+  background: rgba(220, 53, 69, 0.15) !important;
+  color: #dc3545 !important;
+}
+
+/* Iconos de estado */
+.notificacion-icono {
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.icono-en_proceso {
+  color: #0d6efd !important;
+}
+
+.icono-finalizado {
+  color: #198754 !important;
+}
+
+.icono-en_revision {
+  color: #17a2b8 !important;
+}
+
+.icono-pendiente {
+  color: #6c757d !important;
+}
+
+.icono-cancelado {
+  color: #dc3545 !important;
+}
+
+/* Título y descripción */
+.notificacion-titulo {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--text-main) !important;
+  margin-bottom: 8px !important;
+  line-height: 1.4 !important;
+}
+
+.notificacion-accion {
+  font-size: 15px !important;
+  color: var(--text-secondary) !important;
+  margin-bottom: 10px !important;
+  line-height: 1.4 !important;
+}
+
+.notificacion-fecha {
+  font-size: 14px !important;
+  color: var(--text-muted) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.notificacion-fecha i {
+  color: var(--accent-yellow) !important;
+  font-size: 11px !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  /* En móvil: estado y fecha ambos a la izquierda, uno debajo del otro */
+  .notificacion-layout {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .notificacion-contenido {
+    width: 100%;
+  }
+  
+  .notificacion-meta {
+    align-items: flex-start;
+    width: 100%;
+  }
+  
+  .badge-estado {
+    align-self: flex-start;
+    font-size: 12px !important; /* Más grande en móvil */
+    padding: 8px 14px !important; /* Más padding */
+  }
+  
+  .notificacion-fecha {
+    text-align: left;
+    margin-top: 4px;
+  }
+  
+  /* Ajustes de espaciado en móvil - texto más grande */
+  .list-group-item {
+    padding: 18px !important; /* Más padding */
+  }
+  
+  .notificacion-titulo {
+    font-size: 17px !important; /* Aún más grande */
+  }
+  
+  .notificacion-accion {
+    font-size: 16px !important; /* Aún más grande */
+  }
+  
+  .notificacion-fecha {
+    font-size: 15px !important; /* Aún más grande */
+  }
+}
+
+/* Vista normal: estado y fecha en extremos opuestos */
+@media (min-width: 769px) {
+  .notificacion-layout {
+    justify-content: space-between; /* Empujar a extremos opuestos */
+  }
+  
+  .notificacion-meta {
+    flex-direction: column; /* Badge arriba, fecha abajo */
+    align-items: flex-end; /* Alineados a la derecha */
+    gap: 8px;
+  }
+}
+
+/* Estado vacío */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state i {
+  font-size: 64px;
+  color: #333;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.empty-state h5 {
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #999;
+  font-size: 14px;
+  margin: 0;
+}

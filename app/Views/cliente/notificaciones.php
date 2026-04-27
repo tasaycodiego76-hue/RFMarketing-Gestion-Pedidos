@@ -1,5 +1,9 @@
 <?= $this->extend('plantillas/cliente') ?>
 
+<?= $this->section('estilos') ?>
+<link rel="stylesheet" href="<?= base_url('recursos/styles/cliente/paginas/notificaciones.css') ?>">
+<?= $this->endSection() ?>
+
 <?php
 // Cargar notificaciones directamente desde el controlador
 $trackingModel = new \App\Models\TrackingModel();
@@ -25,53 +29,71 @@ $notificaciones = $trackingModel->getNotificacionesPorUsuario($user['id']);
                                 $fecha = new DateTime($notif['fecha_registro']);
                                 $fechaFormateada = $fecha->format('d/m/Y H:i');
                                 
-                                // Determinar el color del estado
-                                $estadoClass = '';
-                                $estadoIcon = '';
+                                // Determinar clases de estado
+                                $estadoBadgeClass = '';
+                                $estadoIconClass = '';
                                 
                                 switch($notif['estado']) {
                                     case 'en_proceso':
-                                        $estadoClass = 'text-primary';
-                                        $estadoIcon = 'bi-gear';
+                                        $estadoBadgeClass = 'badge-en_proceso';
+                                        $estadoIconClass = 'icono-en_proceso bi-gear';
                                         break;
                                     case 'finalizado':
-                                        $estadoClass = 'text-success';
-                                        $estadoIcon = 'bi-check-circle';
+                                        $estadoBadgeClass = 'badge-finalizada';
+                                        $estadoIconClass = 'icono-finalizado bi-check-circle';
                                         break;
                                     case 'en_revision':
-                                        $estadoClass = 'text-warning';
-                                        $estadoIcon = 'bi-eye';
+                                        $estadoBadgeClass = 'badge-en_revision';
+                                        $estadoIconClass = 'icono-en_revision bi-eye';
+                                        break;
+                                    case 'pendiente_asignado':
+                                        $estadoBadgeClass = 'badge-pendiente_asignado';
+                                        $estadoIconClass = 'icono-pendiente bi-clock';
+                                        break;
+                                    case 'pendiente_sin_asignar':
+                                        $estadoBadgeClass = 'badge-pendiente_sin_asignar';
+                                        $estadoIconClass = 'icono-pendiente bi-clock';
+                                        break;
+                                    case 'cancelado':
+                                        $estadoBadgeClass = 'badge-cancelado';
+                                        $estadoIconClass = 'icono-cancelado bi-x-circle';
                                         break;
                                     default:
-                                        $estadoClass = 'text-secondary';
-                                        $estadoIcon = 'bi-info-circle';
+                                        $estadoBadgeClass = 'badge-pendiente_sin_asignar';
+                                        $estadoIconClass = 'icono-pendiente bi-info-circle';
                                 }
                                 ?>
                                 <div class="list-group-item">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">
-                                                <i class="bi <?= $estadoIcon ?> <?= $estadoClass ?>"></i>
+                                    <div class="notificacion-layout">
+                                        <div class="notificacion-contenido">
+                                            <h6 class="notificacion-titulo">
+                                                <i class="bi <?= $estadoIconClass ?> notificacion-icono"></i>
                                                 <?= esc($notif['atencion_titulo'] ?? 'Sin título') ?>
                                             </h6>
-                                            <p class="mb-1"><?= esc($notif['accion']) ?></p>
-                                            <small class="text-muted">
-                                                Por: <?= esc($notif['realizado_por'] ?? 'Sistema') ?> • 
+                                            <p class="notificacion-accion"><?= esc($notif['accion']) ?></p>
+                                            <small class="notificacion-fecha">
+                                                <i class="bi bi-person"></i>
+                                                Por: <?= esc($notif['realizado_por'] ?? 'Sistema') ?>
+                                            </small>
+                                        </div>
+                                        <div class="notificacion-meta">
+                                            <span class="badge badge-estado <?= $estadoBadgeClass ?>">
+                                                <?= esc(str_replace('_', ' ', $notif['estado'] ?? 'Desconocido')) ?>
+                                            </span>
+                                            <small class="notificacion-fecha">
+                                                <i class="bi bi-clock"></i>
                                                 <?= $fechaFormateada ?>
                                             </small>
                                         </div>
-                                        <span class="badge bg-secondary rounded-pill">
-                                            <?= esc($notif['estado'] ?? 'Desconocido') ?>
-                                        </span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
                     <?php else: ?>
-                        <div class="text-center py-5">
-                            <i class="bi bi-bell-slash display-1 text-muted"></i>
-                            <h5 class="mt-3 text-muted">No tienes notificaciones</h5>
-                            <p class="text-muted">No se encontraron notificaciones recientes.</p>
+                        <div class="empty-state">
+                            <i class="bi bi-bell-slash"></i>
+                            <h5>No tienes notificaciones</h5>
+                            <p>No se encontraron notificaciones recientes.</p>
                         </div>
                     <?php endif; ?>
                 </div>

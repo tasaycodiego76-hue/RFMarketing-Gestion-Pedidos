@@ -65,7 +65,7 @@
   border-radius: 4px;
   font-size: 12px;
   font-weight: 800;
-  margin-right: 8px;
+  margin-left: 15px;
   text-transform: uppercase;
 }
 .badge-priority {
@@ -131,6 +131,20 @@
   border-radius: 10px;
   border-left: 3px solid var(--accent-yellow);
   transition: all 0.3s ease;
+}
+
+.timeline-item-seg .d-flex {
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between; /* Elementos en extremos opuestos */
+  align-items: center;
+}
+
+.timeline-item-seg small {
+  width: auto;
+  text-align: left;
+  margin-top: 0;
+  margin-left: auto;
 }
 .timeline-item-seg:hover {
   background: #222;
@@ -318,5 +332,19 @@
   }
   .timeline-item-seg {
     padding: 15px;
+  }
+  
+  /* Mantener layout horizontal en móvil */
+  .timeline-item-seg .d-flex {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .timeline-item-seg small {
+    width: auto;
+    text-align: right;
+    margin-top: 0;
+    margin-left: 10px;
   }
 }

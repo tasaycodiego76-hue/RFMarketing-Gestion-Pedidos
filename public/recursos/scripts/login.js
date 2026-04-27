@@ -26,7 +26,6 @@ function initLoginForm() {
     inputs.forEach(input => {
         input.addEventListener('focus', () => input.parentElement.classList.add('focused'));
         input.addEventListener('blur', () => input.parentElement.classList.remove('focused'));
-        input.addEventListener('input', () => validateField(input));
         input.addEventListener('keydown', handleKeyNavigation);
     });
 
@@ -82,8 +81,7 @@ function initValidation() {
     const form = document.querySelector('form[action*="login"]');
 
     inputs.forEach(input => {
-        input.addEventListener('blur', () => validateField(input));
-        input.addEventListener('input', () => clearFieldError(input));
+        input.addEventListener('blur', () => clearFieldError(input));
     });
 
     if (form) {
@@ -122,9 +120,6 @@ function validateField(field) {
             if (value.length < 3) {
                 isValid = false;
                 errorMessage = 'El usuario debe tener al menos 3 caracteres';
-            } else if (!/^[a-zA-Z0-9_]+$/.test(value)) {
-                isValid = false;
-                errorMessage = 'El usuario solo puede contener letras, números y guiones bajos';
             }
             break;
 

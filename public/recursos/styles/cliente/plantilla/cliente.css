@@ -285,10 +285,14 @@ ul { list-style: none; padding: 0; }
     color: var(--negro);
 }
 
-.topbar-user-name    { display: block; font-size: 14px; font-weight: 600; }
+.topbar-user-name    { 
+    display: block; font-size: 14px; font-weight: 600; 
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    max-width: 200px;
+}
 .topbar-user-empresa {
     display: block; font-size: 12px; color: var(--texto-3);
-    max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 

@@ -3,9 +3,36 @@ document.addEventListener("DOMContentLoaded", function () {
   const inputBuscador = document.getElementById("buscador"); // Campo de búsqueda
   const listaServicios = document.getElementById("lista-servicios"); // Lista de servicios modal
   const modalNuevoPedido = document.getElementById("modal-nuevo-pedido"); // Modal principal
+  const modalFormularioDetalle = document.getElementById("modal-formulario-detalle"); // Modal wizard
   const selectMateriales = document.getElementById("select-materiales"); // Select Sí/No materiales
   const inputArchivos = document.getElementById("input-archivos"); // Input file oculto
   const listaArchivos = document.getElementById("lista-archivos"); // Donde se muestran archivos
+
+  // Solucionar problema aria-hidden en modales
+  function fixAriaHidden() {
+    // Escuchar eventos de Bootstrap para modales
+    if (modalNuevoPedido) {
+      modalNuevoPedido.addEventListener('show.bs.modal', function () {
+        this.setAttribute('aria-hidden', 'false');
+      });
+      
+      modalNuevoPedido.addEventListener('hide.bs.modal', function () {
+        this.setAttribute('aria-hidden', 'true');
+      });
+    }
+
+    if (modalFormularioDetalle) {
+      modalFormularioDetalle.addEventListener('show.bs.modal', function () {
+        this.setAttribute('aria-hidden', 'false');
+      });
+      
+      modalFormularioDetalle.addEventListener('hide.bs.modal', function () {
+        this.setAttribute('aria-hidden', 'true');
+      });
+    }
+  }
+
+  fixAriaHidden();
 
   // Canales disponibles para difusión
   const CANALES = [
