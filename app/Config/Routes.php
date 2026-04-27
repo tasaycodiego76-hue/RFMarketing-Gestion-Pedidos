@@ -19,6 +19,9 @@ $routes->group('admin', function ($routes) {
     $routes->post('usuarios/registrar', 'Administrador\UsuarioController::registrar');
     $routes->put('usuarios/editar/(:num)', 'Administrador\UsuarioController::editar/$1');
     $routes->post('usuarios/toggleEstado', 'Administrador\UsuarioController::toggleEstado');
+    $routes->get('usuarios/infoReasignar/(:num)', 'Administrador\UsuarioController::infoReasignar/$1');
+    $routes->post('usuarios/reasignarCliente', 'Administrador\UsuarioController::reasignarCliente');
+    $routes->post('usuarios/reasignarEmpleadoArea', 'Administrador\UsuarioController::reasignarEmpleadoArea');
 
     $routes->get('areas', 'Administrador\AreasController::index');
     $routes->get('areas/listar', 'Administrador\AreasController::listar');

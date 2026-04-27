@@ -1,39 +1,39 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-      const tabla      = document.querySelector('#tabla-usuarios');
-      const formulario = document.querySelector('#form-usuario');
-      const btnGuardar = document.querySelector('#btn-guardar');
-      const inputTipoRegistro = document.querySelector('#tipo_registro');
+    const tabla = document.querySelector('#tabla-usuarios');
+    const formulario = document.querySelector('#form-usuario');
+    const btnGuardar = document.querySelector('#btn-guardar');
+    const inputTipoRegistro = document.querySelector('#tipo_registro');
 
-      // ─── NOTIFICACIÓN ──────────────────────────────────────
-      function notificar(mensaje) {
-          alert(mensaje);
-      }
+    // ─── NOTIFICACIÓN ──────────────────────────────────────
+    function notificar(mensaje) {
+        alert(mensaje);
+    }
 
-      // ─── LISTAR USUARIOS ───────────────────────────────────
-      async function obtenerUsuarios(search = '') {
-    try {
-        const baseUrl  = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
-        const query    = search ? '?search=' + encodeURIComponent(search) : '';
-        const response = await fetch(baseUrl + 'admin/usuarios/listar' + query);
-        
-        if (!response.ok) {
-            console.error('Error al obtener usuarios:', response.statusText);
-            return;
-        }
-        
-        const data = await response.json();
+    // ─── LISTAR USUARIOS ───────────────────────────────────
+    async function obtenerUsuarios(search = '') {
+        try {
+            const baseUrl = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
+            const query = search ? '?search=' + encodeURIComponent(search) : '';
+            const response = await fetch(baseUrl + 'admin/usuarios/listar' + query);
 
-        tabla.innerHTML = '';
-        if (data.length === 0) {
-            tabla.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No se encontraron resultados para su búsqueda.</td></tr>';
-            return;
-        }
+            if (!response.ok) {
+                console.error('Error al obtener usuarios:', response.statusText);
+                return;
+            }
 
-        data.forEach(u => {
+            const data = await response.json();
 
-            if (u.rol && u.rol.toLowerCase().includes('administrador')) {
-    tabla.innerHTML += `
+            tabla.innerHTML = '';
+            if (data.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No se encontraron resultados para su búsqueda.</td></tr>';
+                return;
+            }
+
+            data.forEach(u => {
+
+                if (u.rol && u.rol.toLowerCase().includes('administrador')) {
+                    tabla.innerHTML += `
         <tr>
             <td class="td-nombre">${u.nombre} ${u.apellidos}</td>
             <td class="td-usuario">${u.usuario ?? '-'}</td>
@@ -43,42 +43,46 @@ document.addEventListener('DOMContentLoaded', function () {
             <td>-</td>
             <td>-</td>
         </tr>`;
-    return; 
-}
-            
-            //  ROLES (Responsable limpio)
-            let rolClase = 'rol-empleado';
-            let rolTexto = 'Empleado';
+                    return;
+                }
 
-            const esResponsable = u.rol === 'responsable_area' 
-                || u.esresponsable === true 
-                || u.esresponsable === 't' 
-                || u.esresponsable == 1;
+                //  ROLES (Responsable > Empleado > Cliente)
+                let rolClase = 'rol-empleado';
+                let rolTexto = 'Empleado';
 
-            if (esResponsable) {
-                rolClase = 'rol-responsable';
-                rolTexto = 'Responsable';
-            } else if (u.rol === 'cliente') {
-                rolClase = 'rol-cliente';
-                rolTexto = 'Cliente';
-            }
+                // PRIORIDAD 1: CLIENTE (NO se debe sobreescribir)
+                const esCliente = u.rol === 'cliente';
 
-            const rolBadge = `<span class="rol-badge ${rolClase}">${rolTexto}</span>`;
+                const esResponsable = u.rol === 'responsable_area'
+                    || u.esresponsable === true
+                    || u.esresponsable === 't'
+                    || u.esresponsable == 1;
 
-            // 🔹 ÁREA (QUITAR EMPRESA ENTRE PARÉNTESIS)
-            let areaMostrar = u.area_completa || u.area_nombre || '-';
+                if (esCliente) {
+                    rolClase = 'rol-cliente';
+                    rolTexto = 'Cliente';
+                }
+                else if (esResponsable) {
+                    rolClase = 'rol-responsable';
+                    rolTexto = 'Responsable';
+                }
 
-            if (areaMostrar.includes('(')) {
-                areaMostrar = areaMostrar.split(' (')[0];
-            }
+                const rolBadge = `<span class="rol-badge ${rolClase}">${rolTexto}</span>`;
 
-            //  EMPRESA
-            const empresaMostrar = u.empresa_nombre || '';
+                // 🔹 ÁREA (QUITAR EMPRESA ENTRE PARÉNTESIS)
+                let areaMostrar = u.area_completa || u.area_nombre || '-';
 
-            //  MOSTRAR EN DOS LÍNEAS
-           const mostrarIcono = u.rol === 'cliente' || (u.empresa_nombre && u.empresa_nombre !== '');
+                if (areaMostrar.includes('(')) {
+                    areaMostrar = areaMostrar.split(' (')[0];
+                }
 
-const areaEmpresa = `
+                //  EMPRESA
+                const empresaMostrar = u.empresa_nombre || '';
+
+                //  MOSTRAR EN DOS LÍNEAS
+                const mostrarIcono = u.rol === 'cliente' || (u.empresa_nombre && u.empresa_nombre !== '');
+
+                const areaEmpresa = `
     <div class="area-empresa-contenedor">
         ${mostrarIcono ? '<i class="bi bi-building area-icon"></i>' : ''}
         <div class="area-info">
@@ -87,18 +91,24 @@ const areaEmpresa = `
         </div>
     </div>`;
 
-            //  ESTADO
-            const badge = u.estado 
-                ? `<span class="badge-activo">Activo</span>` 
-                : `<span class="badge-inactivo">Inactivo</span>`;
+                //  ESTADO
+                const badge = u.estado
+                    ? `<span class="badge-activo">Activo</span>`
+                    : `<span class="badge-inactivo">Inactivo</span>`;
 
-            //  BOTONES
-            const btnEditar = `<button class="btn-icon btn-icon-editar" onclick="editarUsuario(${u.id})" title="Editar usuario" style="cursor:pointer;">✎</button>`;
-            const btnToggle = u.estado
-                ? `<button class="btn-icon btn-icon-toggle activo" onclick="toggleEstado(${u.id}, true)" title="Desactivar usuario" style="cursor:pointer;">✕</button>`
-                : `<button class="btn-icon btn-icon-toggle inactivo" onclick="toggleEstado(${u.id}, false)" title="Activar usuario" style="cursor:pointer;">✓</button>`;
+                //  BOTONES
+                const btnEditar = `<button class="btn-icon btn-icon-editar" onclick="editarUsuario(${u.id})" title="Editar usuario" style="cursor:pointer;">✎</button>`;
+                const btnToggle = u.estado
+                    ? `<button class="btn-icon btn-icon-toggle activo" onclick="toggleEstado(${u.id}, true)" title="Desactivar usuario" style="cursor:pointer;">✕</button>`
+                    : `<button class="btn-icon btn-icon-toggle inactivo" onclick="toggleEstado(${u.id}, false)" title="Activar usuario" style="cursor:pointer;">✓</button>`;
+                
+                // Botón Reasignar (Solo para Clientes o Responsables de Área ACTIVO)
+                let btnReasignar = '';
+                if ((esCliente || esResponsable) && u.estado) {
+                    btnReasignar = `<button class="btn-icon btn-icon-reasignar" onclick="abrirModalReasignar(${u.id})" title="Reasignar responsable" style="cursor:pointer;"><i class="bi bi-person-gear"></i></button>`;
+                }
 
-            tabla.innerHTML += `
+                tabla.innerHTML += `
                 <tr>
                     <td class="td-nombre">${u.nombre} ${u.apellidos}</td>
                     <td class="td-usuario">${u.usuario ?? '-'}</td>
@@ -110,248 +120,464 @@ const areaEmpresa = `
                         <div class="acciones-contenedor">
                             ${btnEditar}
                             ${btnToggle}
+                            ${btnReasignar}
                         </div>
                     </td>
                 </tr>`;
+            });
+
+        } catch (error) {
+            console.error('Error al procesar usuarios:', error);
+        }
+    }
+
+    // ─── CONFIGURAR FORMULARIO SEGÚN TIPO ─────────────────
+    function configurarFormulario(tipo) {
+        inputTipoRegistro.value = tipo;
+
+        const grupoEmpresa = document.querySelector('#grupo-empresa');
+        const grupoNombreArea = document.querySelector('#grupo-nombre-area');
+        const grupoDescArea = document.querySelector('#grupo-descripcion-area');
+        const grupoRazonSocial = document.querySelector('#grupo-razonsocial');
+        const camposEmpleado = document.querySelector('#campos-empleado');
+        const tipodoc = document.querySelector('#tipodoc');
+        const labelNombre = document.querySelector('#label-nombre');
+        const modalTitulo = document.querySelector('#modal-titulo');
+
+        // Ocultar todo primero
+        [grupoEmpresa, grupoNombreArea, grupoDescArea, grupoRazonSocial, camposEmpleado].forEach(el => {
+            if (el) el.style.display = 'none';
         });
 
-    } catch (error) {
-        console.error('Error al procesar usuarios:', error);
+        // Deshabilitar required de campos condicionales
+        document.querySelector('#idempresa').required = false;
+        document.querySelector('#nombre_area').required = false;
+        document.querySelector('#razonsocial').required = false;
+        document.querySelector('#idarea_agencia').required = false;
+
+        if (tipo === 'empleado') {
+            modalTitulo.textContent = 'Nuevo Colaborador';
+            camposEmpleado.style.display = 'block';
+            labelNombre.textContent = 'Nombre';
+            tipodoc.innerHTML = '<option value="DNI">DNI</option><option value="CE">CE</option>';
+            document.querySelector('#idarea_agencia').required = true;
+
+        } else if (tipo === 'responsable_area') {
+            modalTitulo.textContent = 'Crear Área de Empresa + Responsable';
+            grupoEmpresa.style.display = 'block';
+            grupoNombreArea.style.display = 'block';
+            grupoDescArea.style.display = 'block';
+
+            // Hacer requeridos
+            document.querySelector('#idempresa').required = true;
+            document.querySelector('#nombre_area').required = true;
+
+            labelNombre.textContent = 'Nombre del Responsable';
+            tipodoc.innerHTML = '<option value="DNI">DNI</option><option value="CE">CE</option>';
+
+        } else if (tipo === 'cliente') {
+            modalTitulo.textContent = 'Crear Cliente';
+            grupoRazonSocial.style.display = 'block';
+            document.querySelector('#razonsocial').required = true;
+            labelNombre.textContent = 'Nombre del Responsable';
+            tipodoc.innerHTML = '<option value="RUC">RUC</option>';
+        }
+
+        actualizarDoc(tipodoc.value);
     }
-}
 
-      // ─── CONFIGURAR FORMULARIO SEGÚN TIPO ─────────────────
-      function configurarFormulario(tipo) {
-          inputTipoRegistro.value = tipo;
+    function actualizarDoc(tipo) {
+        const nd = document.querySelector('#numerodoc');
+        const limites = {
+            DNI: { max: '8', min: '8', ph: '8 dígitos' },
+            RUC: { max: '11', min: '11', ph: '11 dígitos' },
+            CE: { max: '12', min: '9', ph: '9-12 caracteres' }
+        };
+        const l = limites[tipo];
+        if (!l) return;
+        nd.setAttribute('maxlength', l.max);
+        nd.setAttribute('minlength', l.min);
+        nd.placeholder = l.ph;
+    }
 
-          const grupoEmpresa = document.querySelector('#grupo-empresa');
-          const grupoNombreArea = document.querySelector('#grupo-nombre-area');
-          const grupoDescArea = document.querySelector('#grupo-descripcion-area');
-          const grupoRazonSocial = document.querySelector('#grupo-razonsocial');
-          const camposEmpleado = document.querySelector('#campos-empleado');
-          const tipodoc = document.querySelector('#tipodoc');
-          const labelNombre = document.querySelector('#label-nombre');
-          const modalTitulo = document.querySelector('#modal-titulo');
+    document.querySelector('#tipodoc').addEventListener('change', () =>
+        actualizarDoc(document.querySelector('#tipodoc').value));
 
-          // Ocultar todo primero
-          [grupoEmpresa, grupoNombreArea, grupoDescArea, grupoRazonSocial, camposEmpleado].forEach(el => {
-              if (el) el.style.display = 'none';
-          });
+    // ─── EVENTOS DE OPCIONES ────────────────────────────────
+    document.querySelector('#opcion-empleado').addEventListener('click', (e) => {
+        e.preventDefault();
+        formulario.reset();
+        delete formulario.dataset.editId;
+        configurarFormulario('empleado');
+        $('#modal-usuario').modal('show');
+    });
 
-          // Deshabilitar required de campos condicionales
-          document.querySelector('#idempresa').required = false;
-          document.querySelector('#nombre_area').required = false;
-          document.querySelector('#razonsocial').required = false;
-          document.querySelector('#idarea_agencia').required = false;
+    document.querySelector('#opcion-area').addEventListener('click', (e) => {
+        e.preventDefault();
+        formulario.reset();
+        delete formulario.dataset.editId;
+        configurarFormulario('responsable_area');
+        $('#modal-usuario').modal('show');
+    });
 
-          if (tipo === 'empleado') {
-              modalTitulo.textContent = 'Crear Empleado';
-              camposEmpleado.style.display = 'block';
-              labelNombre.textContent = 'Nombre';
-              tipodoc.innerHTML = '<option value="DNI">DNI</option><option value="CE">CE</option>';
-              document.querySelector('#idarea_agencia').required = true;
+    // ─── GUARDAR (REGISTRAR O EDITAR) ──────────────────────
+    formulario.addEventListener('submit', async function (e) {
+        e.preventDefault();
 
-          } else if (tipo === 'responsable_area') {
-              modalTitulo.textContent = 'Crear Área con Responsable';
-              grupoEmpresa.style.display = 'block';
-              grupoNombreArea.style.display = 'block';
-              grupoDescArea.style.display = 'block';
+        const editId = formulario.dataset.editId;
+        const tipo = inputTipoRegistro.value;
+        const rolOriginal = formulario.dataset.rolOriginal;
 
-              // Hacer requeridos
-              document.querySelector('#idempresa').required = true;
-              document.querySelector('#nombre_area').required = true;
+        const datos = {
+            nombre: document.querySelector('#nombre').value,
+            apellidos: document.querySelector('#apellidos').value,
+            correo: document.querySelector('#correo').value,
+            telefono: document.querySelector('#telefono').value,
+            tipodoc: document.querySelector('#tipodoc').value,
+            numerodoc: document.querySelector('#numerodoc').value,
+            usuario: document.querySelector('#usuario').value,
+        };
 
-              labelNombre.textContent = 'Nombre del Responsable';
-              tipodoc.innerHTML = '<option value="DNI">DNI</option><option value="CE">CE</option>';
+        const clave = document.querySelector('#clave').value;
+        if (clave) datos.clave = clave;
 
-          } else if (tipo === 'cliente') {
-              modalTitulo.textContent = 'Crear Cliente';
-              grupoRazonSocial.style.display = 'block';
-              document.querySelector('#razonsocial').required = true;
-              labelNombre.textContent = 'Nombre del Responsable';
-              tipodoc.innerHTML = '<option value="RUC">RUC</option>';
-          }
+        if (editId) {
+            // Modo edición - mantener rol original
+            datos.rol = rolOriginal;
 
-          actualizarDoc(tipodoc.value);
-      }
+            // Si es empleado, enviar campos de área y responsable
+            if (rolOriginal === 'empleado') {
+                datos.idarea_agencia = document.querySelector('#idarea_agencia').value || null;
+                datos.esresponsable = document.querySelector('#esresponsable').checked;
+            }
+        } else {
+            // Modo creación según tipo
+            if (tipo === 'empleado') {
+                datos.rol = 'empleado';
+                datos.idarea_agencia = document.querySelector('#idarea_agencia').value || null;
+                datos.esresponsable = document.querySelector('#esresponsable').checked;
+            } else if (tipo === 'responsable_area') {
+                datos.rol = 'responsable_area';
+                datos.idempresa = document.querySelector('#idempresa').value;
+                datos.nombre_area = document.querySelector('#nombre_area').value;
+                datos.descripcion_area = document.querySelector('#descripcion_area').value;
+            } else if (tipo === 'cliente') {
+                datos.rol = 'cliente';
+                datos.razonsocial = document.querySelector('#razonsocial').value;
+            }
+        }
 
-      function actualizarDoc(tipo) {
-          const nd = document.querySelector('#numerodoc');
-          const limites = {
-              DNI: { max: '8',  min: '8',  ph: '8 dígitos' },
-              RUC: { max: '11', min: '11', ph: '11 dígitos' },
-              CE:  { max: '12', min: '9',  ph: '9-12 caracteres' }
-          };
-          const l = limites[tipo];
-          if (!l) return;
-          nd.setAttribute('maxlength', l.max);
-          nd.setAttribute('minlength', l.min);
-          nd.placeholder = l.ph;
-      }
+        const url = editId ? BASE_URL + 'admin/usuarios/editar/' + editId : BASE_URL + 'admin/usuarios/registrar';
+        const method = editId ? 'PUT' : 'POST';
 
-      document.querySelector('#tipodoc').addEventListener('change', () =>
-  actualizarDoc(document.querySelector('#tipodoc').value));
+        const response = await fetch(url, {
+            method, headers: { 'Content-Type': 'application/json' }, body:
+                JSON.stringify(datos)
+        });
+        const data = await response.json();
 
-      // ─── EVENTOS DE OPCIONES ────────────────────────────────
-      document.querySelector('#opcion-empleado').addEventListener('click', (e) => {
-          e.preventDefault();
-          formulario.reset();
-          delete formulario.dataset.editId;
-          configurarFormulario('empleado');
-          $('#modal-usuario').modal('show');
-      });
+        notificar(data.message);
+        if (!data.success) return;
 
-      document.querySelector('#opcion-area').addEventListener('click', (e) => {
-          e.preventDefault();
-          formulario.reset();
-          delete formulario.dataset.editId;
-          configurarFormulario('responsable_area');
-          $('#modal-usuario').modal('show');
-      });
+        $('#modal-usuario').modal('hide');
+        formulario.reset();
+        delete formulario.dataset.editId;
+        delete formulario.dataset.rolOriginal;
+        obtenerUsuarios();
+    });
 
-      // ─── GUARDAR (REGISTRAR O EDITAR) ──────────────────────
-  formulario.addEventListener('submit', async function (e) {
-      e.preventDefault();
+    // ─── EDITAR USUARIO ────────────────────────────────────
+    window.editarUsuario = async function (id) {
+        const response = await fetch(BASE_URL + 'admin/usuarios/obtener/' + id);
+        const u = await response.json();
 
-      const editId = formulario.dataset.editId;
-      const tipo = inputTipoRegistro.value;
-      const rolOriginal = formulario.dataset.rolOriginal;
+        formulario.reset();
+        formulario.dataset.editId = id;
+        formulario.dataset.rolOriginal = u.rol;
 
-      const datos = {
-          nombre:    document.querySelector('#nombre').value,
-          apellidos: document.querySelector('#apellidos').value,
-          correo:    document.querySelector('#correo').value,
-          telefono:  document.querySelector('#telefono').value,
-          tipodoc:   document.querySelector('#tipodoc').value,
-          numerodoc: document.querySelector('#numerodoc').value,
-          usuario:   document.querySelector('#usuario').value,
-      };
+        const inputClave = document.querySelector('#clave');
+        inputClave.removeAttribute('required');
+        inputClave.placeholder = 'Dejar en blanco para no cambiar';
 
-      const clave = document.querySelector('#clave').value;
-      if (clave) datos.clave = clave;
+        // Configurar según el rol existente
+        if (u.rol === 'empleado') {
+            configurarFormulario('empleado');
+            setTimeout(() => {
+                document.querySelector('#idarea_agencia').value = u.idarea_agencia ?? '';
+                // Fix: Postgres devuelve 't' o 'f' como string, o true/false boolean
+                const esResponsable = u.esresponsable === true || u.esresponsable === 't' || u.esresponsable === 1;
+                document.querySelector('#esresponsable').checked = esResponsable;
+            }, 50);
+        } else if (u.rol === 'cliente') {
+            if (u.idarea) {
+                // Es un responsable de área
+                configurarFormulario('responsable_area');
+            } else {
+                configurarFormulario('cliente');
+                setTimeout(() => {
+                    document.querySelector('#razonsocial').value = u.razonsocial ?? '';
+                }, 50);
+            }
+        }
 
-      if (editId) {
-          // Modo edición - mantener rol original
-          datos.rol = rolOriginal;
+        setTimeout(() => {
+            document.querySelector('#nombre').value = u.nombre ?? '';
+            document.querySelector('#apellidos').value = u.apellidos ?? '';
+            document.querySelector('#correo').value = u.correo ?? '';
+            document.querySelector('#telefono').value = u.telefono ?? '';
+            document.querySelector('#tipodoc').value = u.tipodoc ?? '';
+            document.querySelector('#numerodoc').value = u.numerodoc ?? '';
+            document.querySelector('#usuario').value = u.usuario ?? '';
+            actualizarDoc(u.tipodoc);
+        }, 50);
 
-          // Si es empleado, enviar campos de área y responsable
-          if (rolOriginal === 'empleado') {
-              datos.idarea_agencia = document.querySelector('#idarea_agencia').value || null;
-              datos.esresponsable = document.querySelector('#esresponsable').checked;
-          }
-      } else {
-          // Modo creación según tipo
-          if (tipo === 'empleado') {
-              datos.rol = 'empleado';
-              datos.idarea_agencia = document.querySelector('#idarea_agencia').value || null;
-              datos.esresponsable = document.querySelector('#esresponsable').checked;
-          } else if (tipo === 'responsable_area') {
-              datos.rol = 'responsable_area';
-              datos.idempresa = document.querySelector('#idempresa').value;
-              datos.nombre_area = document.querySelector('#nombre_area').value;
-              datos.descripcion_area = document.querySelector('#descripcion_area').value;
-          } else if (tipo === 'cliente') {
-              datos.rol = 'cliente';
-              datos.razonsocial = document.querySelector('#razonsocial').value;
-          }
-      }
+        $('#modal-usuario').modal('show');
+    };
 
-      const url    = editId ? BASE_URL + 'admin/usuarios/editar/' + editId : BASE_URL + 'admin/usuarios/registrar';
-      const method = editId ? 'PUT' : 'POST';
+    // ─── TOGGLE ESTADO ─────────────────────────────────────
+    window.toggleEstado = async function (id, estadoActual) {
+        const mensaje = estadoActual
+            ? '¿Seguro que deseas deshabilitar este usuario?'
+            : '¿Deseas volver a habilitar este usuario?';
 
-      const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body:
-  JSON.stringify(datos) });
-      const data     = await response.json();
+        if (!confirm(mensaje)) return;
 
-      notificar(data.message);
-      if (!data.success) return;
+        const response = await fetch(BASE_URL + 'admin/usuarios/toggleEstado', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, estado: !estadoActual })
+        });
+        const data = await response.json();
 
-      $('#modal-usuario').modal('hide');
-      formulario.reset();
-      delete formulario.dataset.editId;
-      delete formulario.dataset.rolOriginal;
-      obtenerUsuarios();
-  });
+        notificar(data.message);
+        if (data.success) obtenerUsuarios();
+    };
 
-  // ─── EDITAR USUARIO ────────────────────────────────────
-  window.editarUsuario = async function (id) {
-      const response = await fetch(BASE_URL + 'admin/usuarios/obtener/' + id);
-      const u        = await response.json();
+    // ─── BUSCADOR ──────────────────────────────────────────
+    const inputBusqueda = document.querySelector('#input-busqueda');
+    let timeoutBusqueda = null;
 
-      formulario.reset();
-      formulario.dataset.editId = id;
-      formulario.dataset.rolOriginal = u.rol;
+    inputBusqueda.addEventListener('input', function (e) {
+        const valor = e.target.value;
+        clearTimeout(timeoutBusqueda);
+        timeoutBusqueda = setTimeout(() => {
+            obtenerUsuarios(valor);
+        }, 1500);
+    });
 
-      const inputClave = document.querySelector('#clave');
-      inputClave.removeAttribute('required');
-      inputClave.placeholder = 'Dejar en blanco para no cambiar';
+    // ─── REASIGNACIÓN ──────────────────────────────────────
+    window.abrirModalReasignar = async function(id) {
+        try {
+            const response = await fetch(BASE_URL + 'admin/usuarios/infoReasignar/' + id);
+            const data = await response.json();
 
-      // Configurar según el rol existente
-      if (u.rol === 'empleado') {
-          configurarFormulario('empleado');
-          setTimeout(() => {
-              document.querySelector('#idarea_agencia').value = u.idarea_agencia ?? '';
-              // Fix: Postgres devuelve 't' o 'f' como string, o true/false boolean
-              const esResponsable = u.esresponsable === true || u.esresponsable === 't' || u.esresponsable === 1;
-              document.querySelector('#esresponsable').checked = esResponsable;
-          }, 50);
-      } else if (u.rol === 'cliente') {
-          if (u.idarea) {
-              // Es un responsable de área
-              configurarFormulario('responsable_area');
-          } else {
-              configurarFormulario('cliente');
-              setTimeout(() => {
-                  document.querySelector('#razonsocial').value = u.razonsocial ?? '';
-              }, 50);
-          }
-      }
+            if (!data.success) {
+                notificar(data.message);
+                return;
+            }
 
-      setTimeout(() => {
-          document.querySelector('#nombre').value    = u.nombre    ?? '';
-          document.querySelector('#apellidos').value = u.apellidos ?? '';
-          document.querySelector('#correo').value    = u.correo    ?? '';
-          document.querySelector('#telefono').value  = u.telefono  ?? '';
-          document.querySelector('#tipodoc').value   = u.tipodoc   ?? '';
-          document.querySelector('#numerodoc').value = u.numerodoc ?? '';
-          document.querySelector('#usuario').value   = u.usuario   ?? '';
-          actualizarDoc(u.tipodoc);
-      }, 50);
+            const infoDiv = document.querySelector('#info-reasignar-actual');
+            const formCliente = document.querySelector('#form-reasignar-cliente');
+            const formEmpleado = document.querySelector('#form-reasignar-empleado');
+            const historialDiv = document.querySelector('#historial-reasignaciones');
+            const btnProcesar = document.querySelector('#btn-procesar-reasignar');
 
-      $('#modal-usuario').modal('show');
-  };
+            // Reset forms
+            formCliente.reset();
+            formEmpleado.reset();
+            formCliente.style.display = 'none';
+            formEmpleado.style.display = 'none';
+            historialDiv.style.display = 'none';
+            btnProcesar.dataset.tipo = data.tipo;
 
-      // ─── TOGGLE ESTADO ─────────────────────────────────────
-      window.toggleEstado = async function (id, estadoActual) {
-          const mensaje = estadoActual
-              ? '¿Seguro que deseas deshabilitar este usuario?'
-              : '¿Deseas volver a habilitar este usuario?';
+            const formatFecha = (f) => f ? new Date(f).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
 
-          if (!confirm(mensaje)) return;
+            if (data.tipo === 'cliente') {
+                formCliente.style.display = 'block';
+                historialDiv.style.display = 'block';
+                
+                document.querySelector('#rea-id-registro-actual').value = data.actual.id || '';
+                document.querySelector('#rea-id-empresa').value = data.actual.idempresa;
+                document.querySelector('#rea-id-usuario-anterior').value = data.usuario.id;
+                document.querySelector('#rea-id-area').value = data.usuario.idarea || '';
 
-          const response = await fetch(BASE_URL + 'admin/usuarios/toggleEstado', {
-              method:  'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body:    JSON.stringify({ id, estado: !estadoActual })
-          });
-          const data = await response.json();
+                infoDiv.innerHTML = `
+                    <div class="p-3 rounded mb-2" style="background: rgba(245, 196, 0, 0.1); border: 1px solid rgba(245, 196, 0, 0.3);">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                    <i class="bi bi-building text-dark fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <p class="mb-0 text-white-50 small font-weight-bold uppercase" style="letter-spacing: 1px;">Empresa Actual</p>
+                                <h6 class="text-white mb-0 font-weight-bold" style="font-size: 16px;">${data.actual.nombreempresa} <span class="text-warning ml-2" style="font-size: 11px; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">RUC: ${data.actual.ruc}</span></h6>
+                            </div>
+                        </div>
+                        <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
+                        <div class="row">
+                            <div class="col-md-6 mb-2 mb-md-0 border-right border-secondary">
+                                <p class="mb-0 text-white-50 small">Responsable en funciones</p>
+                                <p class="mb-0 text-white font-weight-bold" style="font-size: 14px;">${data.usuario.nombre} ${data.usuario.apellidos}</p>
+                            </div>
+                            <div class="col-md-6 pl-md-4">
+                                <p class="mb-0 text-white-50 small">Fecha de toma de cargo</p>
+                                <p class="mb-0 text-warning font-weight-bold" style="font-size: 13px;"><i class="bi bi-calendar-check mr-1"></i> ${formatFecha(data.actual.fecha_inicio)}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
 
-          notificar(data.message);
-          if (data.success) obtenerUsuarios();
-      };
+                // Historial (Solo mostrar registros pasados/inactivos para que sea una verdadera "línea de tiempo de reasignaciones")
+                const listaHistorial = document.querySelector('#lista-historial-reasignar');
+                listaHistorial.innerHTML = '';
+                
+                // Filtramos para no mostrar al que ya está activo arriba
+                const reasignacionesPasadas = data.historial ? data.historial.filter(h => h.estado !== 'activo') : [];
 
-      // ─── BUSCADOR ──────────────────────────────────────────
-      const inputBusqueda = document.querySelector('#input-busqueda');
-      let timeoutBusqueda = null;
+                if (reasignacionesPasadas.length > 0) {
+                    reasignacionesPasadas.forEach(h => {
+                        listaHistorial.innerHTML += `
+                            <tr style="border-bottom: 1px solid #222;">
+                                <td class="py-2">
+                                    <div class="font-weight-bold text-white" style="font-size: 12px;">${h.nombre || 'N/A'} ${h.apellidos || ''}</div>
+                                    <div class="text-white-50 small" style="font-size: 10px;">${h.correo || '-'}</div>
+                                </td>
+                                <td class="py-2 text-white" style="opacity: 0.9; font-size: 11px;">
+                                    <i class="bi bi-arrow-right-short text-success"></i> ${formatFecha(h.fecha_inicio)}
+                                </td>
+                                <td class="py-2 text-white" style="opacity: 0.9; font-size: 11px;">
+                                    <i class="bi bi-arrow-left-short text-danger"></i> ${formatFecha(h.fecha_fin)}
+                                </td>
+                                <td class="py-2 text-center">
+                                    <span class="badge bg-secondary text-white" style="font-size: 8px; padding: 3px 6px; opacity: 0.6; letter-spacing: 0.5px;">ANTERIOR</span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    listaHistorial.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center py-4">
+                                <div class="text-white-50 mb-1" style="font-size: 12px;"><i class="bi bi-info-circle mr-1"></i> Sin reasignaciones previas</div>
+                                <div class="small text-muted" style="font-size: 10px;">Este es el primer responsable asignado a la empresa.</div>
+                            </td>
+                        </tr>
+                    `;
+                }
 
-      inputBusqueda.addEventListener('input', function (e) {
-          const valor = e.target.value;
-          clearTimeout(timeoutBusqueda);
-          timeoutBusqueda = setTimeout(() => {
-              obtenerUsuarios(valor);
-          }, 1500);
-      });
+            } else if (data.tipo === 'empleado') {
+                formEmpleado.style.display = 'block';
+                document.querySelector('#rea-emp-id-actual').value = data.actual.id;
 
-      // ─── INICIO ────────────────────────────────────────────
-      obtenerUsuarios();
-  });
+                infoDiv.innerHTML = `
+                    <div class="p-3 rounded mb-2" style="background: rgba(167, 139, 250, 0.1); border: 1px solid rgba(167, 139, 250, 0.3);">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: #a78bfa;">
+                                    <i class="bi bi-person-badge text-dark fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <p class="mb-0 text-white-50 small font-weight-bold uppercase" style="letter-spacing: 1px;">Área de Agencia</p>
+                                <h6 class="text-white mb-0 font-weight-bold" style="font-size: 16px;">${data.area ? data.area.nombre : 'Área no especificada'}</h6>
+                            </div>
+                        </div>
+                        <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-0 text-white-50 small">Jefe de Área Actual</p>
+                                <p class="mb-0 text-white font-weight-bold" style="font-size: 14px;">${data.actual.nombre} ${data.actual.apellidos}</p>
+                            </div>
+                            <div class="col-md-6 text-md-right d-flex align-items-center justify-content-md-end">
+                                <span class="badge" style="background: rgba(167, 139, 250, 0.2); color: #c4b5fd; border: 1px solid #a78bfa; font-size: 10px; font-weight: 700;">RESPONSABLE ACTIVO</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const select = document.querySelector('#rea-emp-nuevo');
+                select.innerHTML = '<option value="" style="background: #111;">— Seleccionar Sucesor del Equipo —</option>';
+                if (data.asignables && data.asignables.length > 0) {
+                    data.asignables.forEach(e => {
+                        if (e.id != data.actual.id) {
+                            const nombreFull = `${e.nombre || 'Sin nombre'} ${e.apellidos || ''}`.trim();
+                            const correoInfo = e.correo ? ` (${e.correo})` : '';
+                            select.innerHTML += `<option value="${e.id}" style="background: #111;">${nombreFull}${correoInfo}</option>`;
+                        }
+                    });
+                }
+            }
+
+            $('#modal-reasignar').modal('show');
+        } catch (e) {
+            console.error(e);
+            notificar('Error técnico al cargar el panel de reasignación');
+        }
+    };
+
+    document.querySelector('#btn-procesar-reasignar').addEventListener('click', async function() {
+        const tipo = this.dataset.tipo;
+        let url = '';
+        let datos = {};
+
+        if (tipo === 'cliente') {
+            const form = document.querySelector('#form-reasignar-cliente');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            url = BASE_URL + 'admin/usuarios/reasignarCliente';
+            datos = {
+                id_registro_actual: document.querySelector('#rea-id-registro-actual').value,
+                id_usuario_anterior: document.querySelector('#rea-id-usuario-anterior').value,
+                id_empresa: document.querySelector('#rea-id-empresa').value,
+                id_area: document.querySelector('#rea-id-area').value,
+                tipodoc: document.querySelector('#rea-tipodoc').value,
+                numerodoc: document.querySelector('#rea-numerodoc').value,
+                nombre: document.querySelector('#rea-nombre').value,
+                apellidos: document.querySelector('#rea-apellidos').value,
+                correo: document.querySelector('#rea-correo').value,
+                telefono: document.querySelector('#rea-telefono').value,
+                usuario: document.querySelector('#rea-usuario').value,
+                clave: document.querySelector('#rea-clave').value
+            };
+
+        } else if (tipo === 'empleado') {
+            const idNuevo = document.querySelector('#rea-emp-nuevo').value;
+            if (!idNuevo) {
+                notificar('Por favor, selecciona al nuevo colaborador que asumirá la responsabilidad.');
+                return;
+            }
+
+            url = BASE_URL + 'admin/usuarios/reasignarEmpleadoArea';
+            datos = {
+                id_actual: document.querySelector('#rea-emp-id-actual').value,
+                id_nuevo: idNuevo
+            };
+        }
+
+        if (!confirm('¿CONFIRMAR REASIGNACIÓN?\nEsta acción es irreversible y actualizará todos los permisos del sistema.')) return;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+            const result = await response.json();
+
+            notificar(result.message || 'Operación completada');
+            if (result.success) {
+                $('#modal-reasignar').modal('hide');
+                obtenerUsuarios();
+            }
+        } catch (e) {
+            notificar('Ocurrió un error al procesar el cambio de responsable');
+        }
+    });
+
+    // ─── INICIO ────────────────────────────────────────────
+    obtenerUsuarios();
+});

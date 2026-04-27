@@ -148,7 +148,7 @@ class UsuarioModel extends Model
     {
         // Definimos la consulta con placeholders para mayor seguridad
         $sql = "
-            SELECT id, nombre, apellidos, esresponsable, rol, estado, idarea_agencia
+            SELECT id, nombre, apellidos, correo, esresponsable, rol, estado, idarea_agencia
             FROM usuarios
             WHERE idarea_agencia = ?
                 AND rol = 'empleado'

@@ -13,8 +13,11 @@
 </head>
 <body>
 
+<!-- OVERLAY PARA SIDEBAR EN MÓVIL -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
 <!-- BARRA LATERAL -->
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
 
     <div class="sidebar-logo">
         <div class="marca">RF</div>
@@ -59,8 +62,7 @@
             <i class="bi bi-people"></i> Usuarios
         </a>
         <a href="<?= site_url('admin/areas') ?>" class="nav-enlace <?= ($paginaActual == 'areas') ? 'activo' : '' ?>">
-    <i class="bi bi-diagram-3"></i> Áreas
-</a>
+            <i class="bi bi-diagram-3"></i> Áreas
         </a>
         <a href="<?= site_url('admin/empresas') ?>" class="nav-enlace <?= ($paginaActual == 'empresas') ? 'activo' : '' ?>">
             <i class="bi bi-building"></i> Empresas
@@ -73,7 +75,7 @@
             <div class="usuario-nombre">Administrador</div>
             <div class="usuario-rol">Admin</div>
         </div>
-        <a href="<?= site_url('logout') ?>" class="ms-auto" style="color:#444" title="Salir">
+        <a href="<?= site_url('logout') ?>" class="ms-auto" style="color:#999; font-size: 18px; transition: color .2s;" title="Salir">
             <i class="bi bi-box-arrow-right"></i>
         </a>
     </div>
@@ -85,6 +87,9 @@
 
     <!-- BARRA SUPERIOR -->
     <header class="topbar">
+        <button class="btn-menu-toggle" id="btn-menu-toggle" aria-label="Abrir menú">
+            <i class="bi bi-list"></i>
+        </button>
         <div class="topbar-titulo"><?= esc($tituloPagina ?? 'PANEL') ?></div>
     </header>
 
@@ -125,6 +130,46 @@
         document.getElementById('menu-empresas').classList.toggle('show');
         this.querySelector('.arrow-icon').classList.toggle('rotado');
     });
+
+    // ── Toggle sidebar en móvil ──
+    (function () {
+        var btnToggle = document.getElementById('btn-menu-toggle');
+        var sidebar   = document.getElementById('sidebar');
+        var overlay   = document.getElementById('sidebar-overlay');
+
+        function abrirSidebar() {
+            sidebar.classList.add('abierto');
+            overlay.classList.add('activo');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarSidebar() {
+            sidebar.classList.remove('abierto');
+            overlay.classList.remove('activo');
+            document.body.style.overflow = '';
+        }
+
+        if (btnToggle) {
+            btnToggle.addEventListener('click', function () {
+                if (sidebar.classList.contains('abierto')) {
+                    cerrarSidebar();
+                } else {
+                    abrirSidebar();
+                }
+            });
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', cerrarSidebar);
+        }
+
+        // Cerrar sidebar si se agranda la ventana
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 992) {
+                cerrarSidebar();
+            }
+        });
+    })();
 </script>
 
 </body>
