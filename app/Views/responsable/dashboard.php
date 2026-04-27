@@ -10,13 +10,11 @@
     font-size: 11px;
     font-weight: 600;
 }
-
 /* Estilos específicos para tarjetas de revisión */
 .card-rf[style*="border-left"] {
     position: relative;
     overflow: hidden;
 }
-
 .card-rf[style*="border-left"]:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 16px rgba(139, 92, 246, 0.15);

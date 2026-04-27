@@ -141,25 +141,39 @@
     font-weight: 600;
 }
 
-/* Botón asignar */
-.btn-asignar {
-    background: rgba(245, 196, 0, 0.1);
-    border: 1px solid var(--accent-primary);
-    color: var(--accent-primary);
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 12px;
+/* Botones de acción */
+.btn-asignar, .btn-ver-detalle {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 11px;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
+}
+
+.btn-asignar {
+    background: rgba(245, 196, 0, 0.1);
+    border: 1px solid var(--accent-primary);
+    color: var(--accent-primary);
 }
 
 .btn-asignar:hover {
     background: var(--accent-primary);
     color: #000;
+}
+
+.btn-ver-detalle {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid #3b82f6;
+    color: #3b82f6;
+}
+
+.btn-ver-detalle:hover {
+    background: #3b82f6;
+    color: #fff;
 }
 
 /* Estado vacío */
@@ -320,6 +334,18 @@
     color: var(--text-muted);
 }
 
+.empleado-workload {
+    margin-top: 4px;
+}
+
+.empleado-workload small {
+    font-size: 10px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 .empleado-check {
     width: 20px;
     height: 20px;
@@ -354,6 +380,229 @@
     }
 }
 
+/* Estilos para modal de detalle */
+.card-dark-main {
+    background: #161616;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.badges-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.badge-type {
+    background: rgba(245, 196, 0, 0.15);
+    color: var(--accent-primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-priority {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.prio-alta { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.prio-media { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.prio-baja { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+
+.main-project-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.divider-dark {
+    height: 1px;
+    background: var(--border-color);
+    border: none;
+}
+
+.info-section {
+    margin-bottom: 10px;
+}
+
+.label-tiny {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.content-box {
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    padding: 6px 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    min-height: auto;
+}
+
+.content-box .content-text {
+    color: #ddd;
+    font-size: 16px;
+    line-height: 1.4;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    padding: 0 !important;
+}
+
+.brief-container {
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: #ddd;
+    font-size: 16px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    height: auto;
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
+    display: block;
+    text-align: left;
+}
+
+#descripcion-container {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    padding: 0 !important;
+    margin: 0 !important;
+    line-height: 1.4;
+    display: block;
+    text-align: left;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.timeline-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.timeline-item i {
+    width: 16px;
+    height: 16px;
+    color: var(--accent-primary);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.t-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.t-value {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.tag-outline {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.tag-outline.special {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.archivo-adjunto-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #0f0f0f;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: var(--transition);
+    max-width: 300px;
+}
+
+.archivo-adjunto-card:hover {
+    border-color: var(--accent-primary);
+    background: rgba(245, 196, 0, 0.05);
+}
+
+.archivo-adjunto-card i {
+    font-size: 20px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.archivo-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.archivo-nombre {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.archivo-peso {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.archivo-open {
+    font-size: 14px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .tabla-rf-responsable {
@@ -365,9 +614,9 @@
         padding: 12px 8px;
     }
 
-    .btn-asignar {
-        padding: 6px 10px;
-        font-size: 11px;
+    .btn-asignar, .btn-ver-detalle {
+        padding: 4px 8px;
+        font-size: 10px;
     }
 
     .tabla-header-responsable {
@@ -378,5 +627,13 @@
 
     .buscador-wrap-responsable {
         max-width: none;
+    }
+
+    .main-project-title {
+        font-size: 20px;
+    }
+
+    .archivo-adjunto-card {
+        max-width: 100%;
     }
 }

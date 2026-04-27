@@ -6,6 +6,8 @@ use App\Controllers\BaseController;
 use App\Models\UsuarioModel;
 use App\Models\AtencionModel;
 use App\Models\TrackingModel;
+use App\Models\RequerimientoModel;
+use App\Models\ArchivoModel;
 
 class PedidosAreaController extends BaseController
 {
@@ -194,6 +196,42 @@ class PedidosAreaController extends BaseController
     }
 
     /**
+     * Renderiza la vista de Tareas En Proceso
+     * @return string|\CodeIgniter\HTTP\ResponseInterface
+     */
+    public function vistaTareasEnProceso()
+    {
+        $user = $this->ValidarSesion_DatosUser();
+        if (!$user['ok']) {
+            return redirect()->to('login')->with('error', $user['message']);
+        }
+
+        $atencionModel = new AtencionModel();
+        $usuarioModel = new UsuarioModel();
+
+        $idAreaAgencia = (int) $user['user']['idarea_agencia'];
+
+        // Métricas para el sidebar/dashboard
+        $porAsignar = count($atencionModel->obtenerBandejaResponsable($idAreaAgencia));
+        $enProceso = $atencionModel->where('idarea_agencia', $idAreaAgencia)
+            ->where('estado', 'en_proceso')
+            ->countAllResults();
+        $totalMiembros = count($usuarioModel->obtenerAsignablesPorAreaAgencia($idAreaAgencia));
+
+        $data = [
+            'titulo' => 'Tareas en Proceso',
+            'tituloPagina' => 'Tareas en Proceso',
+            'user' => $user['userData'],
+            'pendientes_asignar' => $porAsignar,
+            'en_proceso' => $enProceso,
+            'totalMiembros' => $totalMiembros
+        ];
+
+        // Asegúrate de que esta vista exista en /app/Views/Responsable/tareas_proceso.php
+        return view('Responsable/en_proceso', $data);
+    }
+
+    /**
      * Datos de la Bandeja de Entrada para el Responsable de Area
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
@@ -226,18 +264,18 @@ class PedidosAreaController extends BaseController
         if (!$user['ok']) {
             return $this->response->setJSON(['success' => false, 'message' => $user['message']]);
         }
-        
+
         $usuarioModel = new UsuarioModel();
         $atencionModel = new AtencionModel();
-        
+
         $lista = $usuarioModel->obtenerAsignablesPorAreaAgencia((int) $user['user']['idarea_agencia']);
-        
+
         $data = array_map(function ($u) use ($atencionModel) {
             $esResponsable = ($u['esresponsable'] === true || $u['esresponsable'] === 't' || $u['esresponsable'] == 1);
-            
+
             // Obtener todas las tareas del empleado
             $tareas = $atencionModel->obtenerDetalladoPorEmpleado((int) $u['id']);
-            
+
             $enProceso = 0;
             $completados = 0;
             $pendientes = 0;
@@ -251,7 +289,7 @@ class PedidosAreaController extends BaseController
                     $pendientes++;
                 }
             }
-            
+
             return [
                 'id' => (int) $u['id'],
                 'nombre_completo' => trim(($u['nombre'] ?? '') . ' ' . ($u['apellidos'] ?? '')),
@@ -261,11 +299,83 @@ class PedidosAreaController extends BaseController
                 'pendientes' => $pendientes
             ];
         }, $lista);
-        
+
         return $this->response->setJSON([
             'success' => true,
             'total' => count($data),
             'data' => $data
+        ]);
+    }
+
+    public function tareasEnProceso()
+    {
+        $user = $this->getActiveUser();
+        $esResponsable = isset($user['esresponsable']) && ($user['esresponsable'] === 't' || $user['esresponsable'] === true || $user['esresponsable'] === 1);
+
+        if (!$user || $user['rol'] !== 'empleado' || !$esResponsable) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Acceso denegado.']);
+        }
+
+        if (empty($user['idarea_agencia'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No tienes un área de agencia asignada.']);
+        }
+
+        $atencionModel = new AtencionModel();
+        $usuarioModel = new UsuarioModel();
+        $requerimientoModel = new \App\Models\RequerimientoModel();
+
+        // Obtener todos los empleados del área
+        $empleados = $usuarioModel->obtenerAsignablesPorAreaAgencia((int) $user['idarea_agencia']);
+
+        $tareasPorEmpleado = [];
+
+        foreach ($empleados as $empleado) {
+            // Obtener tareas en proceso de este empleado
+            $tareas = $atencionModel->obtenerTareasPorEmpleadoEstado($empleado['id'], 'en_proceso');
+
+            $tareasDetalladas = [];
+            foreach ($tareas as $tarea) {
+                $detalle = $requerimientoModel->getDetalleCompleto($tarea['idrequerimiento']);
+                if ($detalle) {
+                    $tareaConDetalle = array_merge($tarea, $detalle);
+                    // Agregar identificador único para mejor manejo en frontend
+                    $tareaConDetalle['identificador_unico'] = 'EMP_' . $empleado['id'] . '_TAREA_' . $tarea['id'] . '_' . date('His');
+                    $tareasDetalladas[] = $tareaConDetalle;
+                }
+            }
+
+            // Ordenar por prioridad (alta > media > baja) y luego por fecha de asignación
+            $prioridadOrden = ['alta' => 1, 'media' => 2, 'baja' => 3];
+            usort($tareasDetalladas, function ($a, $b) use ($prioridadOrden) {
+                $prioA = $prioridadOrden[strtolower($a['prioridad'] ?? 'media')] ?? 2;
+                $prioB = $prioridadOrden[strtolower($b['prioridad'] ?? 'media')] ?? 2;
+
+                if ($prioA != $prioB) {
+                    return $prioA - $prioB;
+                }
+
+                // Si misma prioridad, ordenar por fecha de asignación (más reciente primero)
+                $fechaA = strtotime($a['fechaasignacion'] ?? '1970-01-01');
+                $fechaB = strtotime($b['fechaasignacion'] ?? '1970-01-01');
+                return $fechaB - $fechaA;
+            });
+
+            $tareasPorEmpleado[] = [
+                'id' => (int) $empleado['id'],
+                'nombre' => $empleado['nombre'] ?? '',
+                'apellidos' => $empleado['apellidos'] ?? '',
+                'nombre_completo' => trim(($empleado['nombre'] ?? '') . ' ' . ($empleado['apellidos'] ?? '')),
+                'esresponsable' => ($empleado['esresponsable'] === true || $empleado['esresponsable'] === 't' || $empleado['esresponsable'] == 1),
+                'tareas' => $tareasDetalladas,
+                'total_tareas' => count($tareasDetalladas)
+            ];
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $tareasPorEmpleado,
+            'total_empleados' => count($tareasPorEmpleado),
+            'total_tareas' => array_sum(array_column($tareasPorEmpleado, 'total_tareas'))
         ]);
     }
 
@@ -327,10 +437,54 @@ class PedidosAreaController extends BaseController
         }
     }
 
+
     /**
-     * Contexto común de seguridad para endpoints responsable (Validar la SESION ID y Extraer datos de Usuario)
-     * @return array{message: string, ok: bool|array{ok: bool, user: array, userData: array}}
+     * Obtener detalles completos de un requerimiento para el responsable
      */
+    public function obtenerDetalleRequerimiento()
+    {
+        $user = $this->ValidarSesion_DatosUser();
+        if (!$user['ok']) {
+            return $this->response->setJSON(['success' => false, 'message' => $user['message']]);
+        }
+
+        $idAtencion = (int) $this->request->getGet('id');
+        if ($idAtencion <= 0) {
+            return $this->response->setJSON(['success' => false, 'message' => 'ID de atención no válido']);
+        }
+
+        $atencionModel = new AtencionModel();
+        $requerimientoModel = new RequerimientoModel();
+        $archivoModel = new ArchivoModel();
+
+        // 1. Validar que la atención pertenezca al área del responsable
+        if (!$atencionModel->atencionPerteneceAArea($idAtencion, (int) $user['user']['idarea_agencia'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'El requerimiento no pertenece a tu área']);
+        }
+
+        // 2. Obtener la atención
+        $atencion = $atencionModel->find($idAtencion);
+        if (!$atencion) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Requerimiento no encontrado']);
+        }
+
+        // 3. Obtener detalles completos del requerimiento
+        $detalle = $requerimientoModel->getDetalleCompleto($atencion['idrequerimiento']);
+        if (!$detalle) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No se encontraron detalles del requerimiento']);
+        }
+
+        // 4. Obtener archivos asociados
+        $archivos = $archivoModel->where('idrequerimiento', $atencion['idrequerimiento'])->findAll();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $detalle,
+            'archivos' => $archivos,
+            'atencion' => $atencion
+        ]);
+    }
+
     private function ValidarSesion_DatosUser(): array
     {
         $user = $this->getActiveUser();

@@ -35,7 +35,6 @@
         <table class="tabla-rf-responsable" id="tablaBandeja">
             <thead>
                 <tr>
-                    <th>#</th>
                     <th>Título</th>
                     <th>Servicio</th>
                     <th>Empresa/Cliente</th>
@@ -102,6 +101,27 @@
                 <button type="button" class="btn-rf" id="btn-confirmar-asignacion" disabled>
                     <i class="bi bi-check-lg"></i> Confirmar Asignación
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ver Detalle Requerimiento -->
+<div class="modal fade" id="modal-ver-detalle" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content modal-rf">
+            <div class="modal-header modal-rf-header">
+                <div>
+                    <p class="campo-label mb-1">DETALLE DEL REQUERIMIENTO</p>
+                    <h5 class="modal-title mb-0" id="detalle-titulo-requerimiento">Detalles completos</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body modal-rf-body p-4" id="detalle-contenido">
+                <!-- Contenido cargado dinámicamente -->
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>

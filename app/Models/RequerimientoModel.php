@@ -32,6 +32,11 @@ class RequerimientoModel extends Model
 
     public function getDetalleCompleto($RequerimientoID)
     {
+        return $this->find($RequerimientoID);
+    }
+
+    public function DetalleCompletoget($RequerimientoID)
+    {
         $sql = "
         SELECT 
             r.*,
@@ -56,4 +61,5 @@ class RequerimientoModel extends Model
         ";
         return $this->db->query($sql, [$RequerimientoID])->getRowArray();
     }
+
 }

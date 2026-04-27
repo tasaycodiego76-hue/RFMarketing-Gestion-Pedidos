@@ -118,7 +118,6 @@ class AtencionModel extends Model
     }
 
     /**
-
      * Obtener Requerimiento y su Atencion para mostrar en el kanban
      * @param int $idEmpresa
      * @param int $idAreaAgencia
@@ -330,6 +329,21 @@ class AtencionModel extends Model
             return $builder->orderBy('a.prioridad', 'DESC')
                            ->orderBy('a.fechacreacion', 'DESC')
                            ->get()->getResultArray();
+        }
+
+        /**
+         * Obtener tareas de un empleado por estado específico
+         * @param int $idEmpleado
+         * @param string $estado
+         * @return array
+         */
+        public function obtenerTareasPorEmpleadoEstado(int $idEmpleado, string $estado): array
+        {
+            return $this->where('idempleado', $idEmpleado)
+                       ->where('estado', $estado)
+                       ->orderBy('prioridad', 'DESC')
+                       ->orderBy('fechainicio', 'DESC')
+                       ->findAll();
         }
 }
 
