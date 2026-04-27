@@ -283,12 +283,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         return `
         <tr data-numero="${pedido.idrequerimiento}">
-          <td style="color:#555;font-size:11px;font-weight:bold;">#${num}</td>
-          <td>${pedido.titulo ? `<span style="font-weight:600;font-size:13px;">${pedido.titulo}</span>` : `<span style="color:#777;font-style:italic;">Sin título</span>`}</td>
-          <td>${servicio}</td>
+          <td style="color:#999;font-size:15px;font-weight:bold;">#${num}</td>
+          <td>${pedido.titulo ? `<span style="font-weight:600;font-size:17px;">${pedido.titulo}</span>` : `<span style="color:#777;font-style:italic;">Sin título</span>`}</td>
+          <td style="font-size:15px;">${servicio}</td>
           <td><span class="badge-estado ${cfgEstado.clase}">${cfgEstado.texto.toUpperCase()}</span></td>
           <td>${pedido.prioridad ? `<span class="badge-prio ${cfgPrioridad.clase}">${cfgPrioridad.etiqueta}</span>` : "—"}</td>
-          <td style="color:#777;font-size:11px;">${pedido.fechacreacion.substring(0, 10)}</td>
+          <td style="color:#ccc;font-size:15px;">${pedido.fechacreacion.substring(0, 10)}</td>
           <td>
             <button onclick="verDetalle(${pedido.idrequerimiento})" class="btn-ver" style="border:none;background:none;cursor:pointer;">
               <i class="bi bi-eye" style="color:#007bff;"></i>

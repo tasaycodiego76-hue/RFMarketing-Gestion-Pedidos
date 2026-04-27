@@ -100,9 +100,39 @@ class TrackingController extends BaseController
 
     /**
      * Muestra las Ultimas 20 Notifcaciones de los Requerimientos de un Usuario
-     * @return \CodeIgniter\HTTP\ResponseInterface
+     * @return string|\CodeIgniter\HTTP\ResponseInterface
      */
     public function notificaciones()
+    {
+        $user = $this->getActiveUser();
+
+        // Validación de cliente (la que ya tienes)
+        if (!is_array($user) || $user['rol'] !== 'cliente') {
+            return redirect()->to(base_url('/'))->with('error', 'Acceso denegado.');
+        }
+
+        // Traer datos del usuario para el Sidebar/TopBar
+        $usuarioModel = new UsuarioModel();
+        $userData = $usuarioModel->getDetalleUsuario($user['id']);
+
+        return view('cliente/notificaciones', [
+            'titulo' => 'Mis Notificaciones',
+            'user' => [
+                'id' => $userData['id'],
+                'nombre' => $userData['nombre'] ?? 'Sin nombre',
+                'apellidos' => $userData['apellidos'] ?? '',
+                'rol' => $userData['rol'] ?? 'cliente',
+                'area' => $userData['nombre_area'] ?? 'Sin Área',
+                'empresa' => $userData['nombre_empresa'] ?? 'Sin Empresa'
+            ]
+        ]);
+    }
+
+    /**
+     * Endpoint API para obtener notificaciones en JSON (usado por AJAX)
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function notificacionesJson()
     {
         $user = $this->getActiveUser();
 

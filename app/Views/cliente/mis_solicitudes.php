@@ -13,7 +13,7 @@
         <h2 class="mb-0" style="font-size:2rem; font-weight:800;">
             <?= esc($user['nombre'] . ' ' . $user['apellidos']) ?>
         </h2>
-        <p class="small mb-0" style="color:#aaa;">Cliente — Historial de requerimientos</p>
+        <p class="small mb-0" style="color:#ccc; font-size:15px;">Cliente — Historial de requerimientos</p>
     </div>
     <button class="btn-rf" data-bs-toggle="modal" data-bs-target="#modal-nuevo-pedido">
         <i class="bi bi-plus-lg"></i> Nuevo Pedido  

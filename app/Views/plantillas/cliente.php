@@ -160,7 +160,7 @@
                 </div>
 
                 <!-- Logout -->
-                <a href="<?= base_url('logout') ?>" class="topbar-icon-btn logout-btn" title="Cerrar sesión">
+                <a href="<?= base_url('auth/logout') ?>" class="topbar-icon-btn logout-btn" title="Cerrar sesión">
                     <i class="bi bi-box-arrow-right"></i>
                 </a>
             </div>

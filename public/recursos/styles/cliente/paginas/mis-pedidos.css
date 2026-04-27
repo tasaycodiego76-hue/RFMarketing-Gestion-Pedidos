@@ -24,9 +24,9 @@
 /* TÍTULOS Y SECCIONES */
 
 .seccion-titulo {
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 700;
-  color: #666;
+  color: #ccc;
   letter-spacing: 2px;
   text-transform: uppercase;
   display: flex;
@@ -41,17 +41,17 @@
   background: #1e1e1e;
 }
 .campo-label {
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #555;
+  color: #ccc;
   display: block;
   margin-bottom: 6px;
 }
 .campo-sublabel {
-  font-size: 11px;
-  color: #666;
+  font-size: 13px;
+  color: #ccc;
   margin: 6px 0 0 0;
 }
 /* Separador visual entre secciones */
@@ -68,7 +68,7 @@
   gap: 8px;
   color: #f5c400;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -85,17 +85,17 @@
   border-radius: 12px;
 }
 .met-label {
-  font-size: 12px;
-  color: #888;
+  font-size: 14px;
+  color: #ccc;
 }
 .met-num {
-  font-size: 48px;
+  font-size: 52px;
   line-height: 1;
   letter-spacing: 1px;
 }
 .met-sub {
-  font-size: 11px;
-  color: #555;
+  font-size: 13px;
+  color: #c0c0c0;
 }
 /* Colores métricas */
 .amarillo {
@@ -120,17 +120,18 @@
 }
 .tabla-rf th {
   background: #0d0d0d;
-  color: #444;
-  font-size: 10px;
+  color: #c0c0c0;
+  font-size: 14px;
   text-transform: uppercase;
-  padding: 12px;
+  padding: 16px 14px;
   border-bottom: 2px solid #1e1e1e;
   letter-spacing: 1px;
 }
 .tabla-rf td {
-  padding: 15px 12px;
+  padding: 18px 14px;
   border-bottom: 1px solid #161616;
   color: #eee;
+  font-size: 15px;
 }
 .tabla-rf tr:hover {
   background: rgba(255, 255, 255, 0.03);
@@ -160,9 +161,9 @@
   background: #1a1a1a;
   border: 1px solid #333;
   border-radius: 50px;
-  padding: 8px 15px 8px 40px;
+  padding: 10px 15px 10px 40px;
   color: #fff;
-  font-size: 13px;
+  font-size: 15px;
   outline: none;
   transition: all 0.3s ease;
 }
@@ -176,9 +177,9 @@
 .badge-estado,
 .badge-prio {
   display: inline-block;
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: 50px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.5px;
   white-space: nowrap;
@@ -223,9 +224,9 @@
 }
 /* Badges de servicio */
 .sbadge {
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 4px;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
 }
@@ -245,9 +246,9 @@
 .sbadge-resumen {
   display: inline-flex;
   align-items: center;
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -272,8 +273,8 @@
   color: #000;
   border: none;
   border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 13px;
+  padding: 11px 22px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
@@ -389,11 +390,11 @@
 }
 .field label {
   display: block;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: #999;
+  color: #d0d0d0;
   margin-bottom: 10px;
 }
 /* Inputs estilizados */
@@ -403,7 +404,7 @@
   border: 1px solid #1e1e1e !important;
   border-radius: 6px;
   padding: 12px;
-  font-size: 13px;
+  font-size: 15px;
   color: #eee;
   outline: none;
   transition: all 0.2s ease;
@@ -423,7 +424,7 @@
   color: #eee !important;
   border-radius: 6px;
   padding: 12px !important;
-  font-size: 13px;
+  font-size: 15px;
   transition: all 0.2s ease;
 }
 .form-select:focus {
@@ -491,7 +492,7 @@ textarea.form-control:focus {
   border: 1px solid #1e1e1e;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 11.5px;
+  font-size: 14px;
   transition: all 0.2s;
   min-height: 44px;
 }
@@ -508,7 +509,7 @@ textarea.form-control:focus {
 }
 .check-item span {
   line-height: 1.4;
-  color: #c0c0c0;
+  color: #d5d5d5;
   margin-left: 8px;
 }
 .check-item input:checked + span {
@@ -540,11 +541,11 @@ textarea.form-control:focus {
   padding: 15px;
 }
 .autofill-title {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: #888;
+  color: #ccc;
   margin-bottom: 15px;
   display: flex;
   align-items: center;
@@ -573,12 +574,12 @@ textarea.form-control:focus {
   border-bottom: none;
 }
 .autofill-k {
-  font-size: 11px;
-  color: #888;
+  font-size: 13px;
+  color: #ccc;
   font-weight: 600;
 }
 .autofill-v {
-  font-size: 12px;
+  font-size: 14px;
   color: #22c55e;
   font-weight: 600;
   display: flex;
@@ -620,14 +621,14 @@ textarea.form-control:focus {
   flex: 1;
 }
 .servicio-card-nombre {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   color: #f0f0f0;
   margin: 0 0 3px 0;
 }
 .servicio-card-desc {
-  font-size: 11px;
-  color: #555;
+  font-size: 13px;
+  color: #c0c0c0;
   margin: 0;
 }
 .servicio-card-arrow {
@@ -669,16 +670,16 @@ textarea.form-control:focus {
 }
 .info-tipo-header i {
   color: #f5c400;
-  font-size: 14px;
+  font-size: 16px;
 }
 .info-tipo-header span {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: #f5c400;
 }
 .info-tipo-desc {
-  font-size: 11px;
-  color: #aaa;
+  font-size: 13px;
+  color: #d0d0d0;
   line-height: 1.5;
   margin: 0 0 10px 0;
 }
@@ -687,15 +688,15 @@ textarea.form-control:focus {
   gap: 16px;
 }
 .info-tipo-meta span {
-  font-size: 10px;
-  color: #888;
+  font-size: 12px;
+  color: #ccc;
   display: flex;
   align-items: center;
   gap: 4px;
 }
 .info-tipo-meta i {
-  font-size: 11px;
-  color: #666;
+  font-size: 13px;
+  color: #bbb;
 }
 /* Input fecha mejorado */
 .fecha-input-wrapper {
@@ -793,14 +794,14 @@ textarea.form-control:focus {
   color: #0a0a0a;
 }
 .resumen-titulo {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: #f0f0f0;
   margin: 0;
 }
 .resumen-sub {
-  font-size: 11px;
-  color: #888;
+  font-size: 13px;
+  color: #ccc;
   margin: 2px 0 0 0;
 }
 /* Cards del resumen */
@@ -831,7 +832,7 @@ textarea.form-control:focus {
   justify-content: center;
 }
 .resumen-card-titulo {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: #f5c400;
   text-transform: uppercase;
@@ -856,13 +857,13 @@ textarea.form-control:focus {
   gap: 6px;
 }
 .resumen-label {
-  font-size: 10px;
-  color: #888;
+  font-size: 13px;
+  color: #ccc;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 .resumen-valor {
-  font-size: 12px;
+  font-size: 14px;
   color: #f0f0f0;
   font-weight: 500;
   text-align: right;
@@ -872,7 +873,7 @@ textarea.form-control:focus {
   text-align: left;
   max-width: 100%;
   line-height: 1.5;
-  color: #c0c0c0;
+  color: #d5d5d5;
 }
 .resumen-valor.link {
   color: #f5c400;
@@ -880,9 +881,9 @@ textarea.form-control:focus {
 }
 .resumen-badge {
   display: inline-block;
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
 }
 .resumen-badge.prio-baja {
@@ -918,7 +919,7 @@ textarea.form-control:focus {
 }
 .resumen-archivo-item span {
   font-size: 11px;
-  color: #c0c0c0;
+  color: #d0d0d0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -940,8 +941,8 @@ textarea.form-control:focus {
   margin-top: 2px;
 }
 .resumen-aviso span {
-  font-size: 11px;
-  color: #888;
+  font-size: 13px;
+  color: #ccc;
   line-height: 1.5;
 }
 
@@ -970,7 +971,7 @@ textarea.form-control:focus {
 }
 .upload-area-simple span {
   font-size: 12px;
-  color: #c0c0c0;
+  color: #d0d0d0;
 }
 /* Archivos adjuntos en lista */
 #lista-archivos .archivo-item-simple {
@@ -1000,7 +1001,7 @@ textarea.form-control:focus {
 }
 #lista-archivos .archivo-size {
   font-size: 10px;
-  color: #666;
+  color: #999;
 }
 #lista-archivos .btn-eliminar {
   background: transparent;

@@ -67,7 +67,7 @@
         </nav>
 
         <div class="sidebar-footer">
-            <a href="<?= base_url('logout') ?>" class="nav-enlace logout-link">
+            <a href="<?= base_url('auth/logout') ?>" class="nav-enlace logout-link">
                 <i class="bi bi-box-arrow-right"></i> Salir
             </a>
         </div>

@@ -6,10 +6,17 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 
-$routes->get('/', 'Home::index');
+/* $routes->get('/', 'Home::index'); */
+
+//Rutas Publicas(Cualquier sitio dentro de la aplicacion que no requiere acceso)
+$routes->get('/', 'AuthController::login');                      //RUTA RAIZ 
+$routes->get('/auth/login', 'AuthController::login');            //Intento de Inicio Sesion
+$routes->post('/auth/login', 'AuthController::verificar');    //Verificar la Sesion
+$routes->get('/auth/logout', 'AuthController::logout');          //Cerrar Sesion
+
 
 //Rutas para el Administrador
-$routes->group('admin', function ($routes) {
+$routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'Administrador\DashboardController::index');
     $routes->get('usuarios', 'Administrador\UsuarioController::index');
     $routes->get('usuarios/listar', 'Administrador\UsuarioController::listar');
@@ -53,7 +60,7 @@ $routes->group('admin', function ($routes) {
 });
 
 //Rutas para el Responsable (Jefe de Área)
-$routes->group('responsable', function ($routes) {
+$routes->group('responsable', ['filter' => 'auth'], function ($routes) {
     //Dashboar de Metricas - Plantilla (Prueba)
     $routes->get('dashboard', 'Responsable\PedidosAreaController::index');
 
@@ -65,13 +72,13 @@ $routes->group('responsable', function ($routes) {
     $routes->get('pedidos/bandeja-json', 'Responsable\PedidosAreaController::bandeja');
     $routes->get('empleados/mi-area-json', 'Responsable\PedidosAreaController::empleadosMiAreaJson');
     $routes->post('pedidos/asignar', 'Responsable\PedidosAreaController::asignarPedido');
-    
+
     // Miembros del equipo
     $routes->get('equipo/miembro/(:num)', 'Responsable\EquipoController::detalleMiembro/$1');
 });
 
 //Rutas para el Empleado
-$routes->group('empleado', function ($routes) {
+$routes->group('empleado', ['filter' => 'auth'],  function ($routes) {
     $routes->get('dashboard', 'Empleado\MisPedidosController::dashboard');
     $routes->get('mis_pedidos', 'Empleado\MisPedidosController::index');
     $routes->get('historial', 'Empleado\MisPedidosController::historial');
@@ -81,7 +88,7 @@ $routes->group('empleado', function ($routes) {
 });
 
 //Rutas para el Cliente
-$routes->group('cliente', function ($routes) {
+$routes->group('cliente', ['filter' => 'auth'], function ($routes) {
     //Plantilla
     $routes->get('mis_solicitudes', 'Cliente\MisPedidosController::index');
     // API / Datos
@@ -97,8 +104,10 @@ $routes->group('cliente', function ($routes) {
     $routes->post('requerimiento/guardar', 'Cliente\RequerimientoController::guardar');
     // Ruta especial para VER los archivos desde la Vista Detalle
     $routes->get('archivos/(:segment)', 'Cliente\RequerimientoController::verArchivo/$1');
-    // Ruta para ver notificaciones (General) / Endpoint
+    // Ruta para ver notificaciones (Vista)
     $routes->get('notificaciones', 'Cliente\TrackingController::notificaciones');
+    // Ruta para obtener notificaciones en JSON (AJAX)
+    $routes->get('notificaciones-json', 'Cliente\TrackingController::notificacionesJson');
     // Ruta para Seguimiento de un Requerimiento (Específico) / Endpoint
     $routes->get('requerimiento/seguimiento/(:num)', 'Cliente\TrackingController::seguimiento/$1');
     //Vista para el Seguimiento del Requerimiento

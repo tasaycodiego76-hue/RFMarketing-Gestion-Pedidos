@@ -73,7 +73,7 @@
             <div class="usuario-nombre">Administrador</div>
             <div class="usuario-rol">Admin</div>
         </div>
-        <a href="<?= site_url('logout') ?>" class="ms-auto" style="color:#444" title="Salir">
+        <a href="<?= site_url('auth/logout') ?>" class="ms-auto" style="color:#444" title="Salir">
             <i class="bi bi-box-arrow-right"></i>
         </a>
     </div>
