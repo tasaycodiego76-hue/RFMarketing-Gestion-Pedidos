@@ -102,7 +102,7 @@ async function abrirModalAsignarEmpleado(idAtencion, idArea) {
 
         // Auto-asignación del responsable
         if (typeof EMPLEADO_ACTUAL_ID !== 'undefined' && EMPLEADO_ACTUAL_ID) {
-            select.innerHTML += `<option value="${EMPLEADO_ACTUAL_ID}" style="font-weight:700;color:#F5C400;">⭐ Asignarme a mí mismo</option>`;
+            select.innerHTML += `<option value="${EMPLEADO_ACTUAL_ID}" style="font-weight:700;color:#F5C400;"> Asignarme a mí mismo</option>`;
         }
 
         data.forEach(u => {
@@ -229,7 +229,6 @@ async function verDetalle(idAtencion) {
                 </div>`;
         }
 
-        // ── Archivos adjuntos ───────────────────────────────────
         // ── Archivos adjuntos ───────────────────────────────────
         let arcHtml = '';
         if (archivos.length) {

@@ -162,11 +162,6 @@ if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agen
     }
 
     /**
-     * Actualiza los datos de un usuario.
-     * @param mixed $id
-     * @return \CodeIgniter\HTTP\ResponseInterface
-     */
-    /**
    * Actualiza los datos de un usuario.
    * @param mixed $id
    * @return \CodeIgniter\HTTP\ResponseInterface

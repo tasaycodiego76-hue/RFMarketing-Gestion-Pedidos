@@ -6,7 +6,13 @@
 
 <?= $this->section('scripts') ?>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-<script>const AREA_ACTUAL = <?= $idAreaAgencia ?>;</script>
+<!-- Declarando variables AQUÍ -->
+<script>
+    const ADMIN_ID = "<?= session()->get('id') ?? 1 ?>";
+    const ADMIN_ROL = "<?= session()->get('rol') ?? 'admin' ?>";
+    const AREA_ACTUAL = <?= $idAreaAgencia ?>;
+    const AREA_NOMBRE = "<?= esc($areaActual['nombre'] ?? '') ?>";
+</script>
 <script src="<?= base_url('recursos/scripts/admin/kanban.js') ?>"></script>
 <?= $this->endSection() ?>
 
@@ -181,14 +187,5 @@
         </div>
     </div>
 </div>
-
-<!-- Pasar variables globales al JavaScript -->
-<script>
-    const BASE_URL = "<?= base_url() ?>";
-    const ADMIN_ID = "<?= session()->get('id') ?? 1 ?>";
-    const ADMIN_ROL = "<?= session()->get('rol') ?? 'admin' ?>";
-    const AREA_ACTUAL = <?= $idAreaAgencia ?>;
-    const AREA_NOMBRE = "<?= esc($areaActual['nombre'] ?? '') ?>";
-</script>
 
 <?= $this->endSection() ?>

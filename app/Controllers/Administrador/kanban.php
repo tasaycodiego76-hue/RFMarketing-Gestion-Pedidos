@@ -85,7 +85,7 @@ class kanban extends Controller
     {
         $db = \Config\Database::connect();
 
-        // 1. Consulta principal (sin cambios aquí)
+        // 1. Consulta principal 
         $data = $db->query("
             SELECT
                 a.id, a.titulo, a.estado, a.num_modificaciones,
@@ -131,7 +131,6 @@ class kanban extends Controller
         // --- SOLUCIÓN PARA LA CARPETA PUBLIC/UPLOADS ---
         // Recorremos los archivos para generar la URL pública
         foreach ($archivos as &$archivo) {
-            // base_url() generará: http://localhost/proyecto/public/uploads/nombre.ext
             // Esto asume que en tu DB la ruta se guarda como: uploads/archivo.jpg
             $archivo['url_completa'] = base_url($archivo['ruta']);
         }
@@ -350,74 +349,6 @@ class kanban extends Controller
         return $this->response->setJSON($areasAgenciaModel->listarActivas());
     }
 
-    public function responsable()
-    {
-        $session = session();
-        $idResponsable = $session->get('id') ?? 1;
-
-        $db = \Config\Database::connect();
-        $responsable = $db->query("
-            SELECT idarea_agencia, nombre_areaagencia
-            FROM usuarios_detalle_vw
-            WHERE id = ?
-        ", [$idResponsable])->getRowArray();
-
-        if (!$responsable || !$responsable['idarea_agencia']) {
-            return "No tienes área asignada como responsable.";
-        }
-
-        $idAreaAgencia = $responsable['idarea_agencia'];
-
-        $sql = "
-            SELECT
-                a.id, a.titulo, a.estado, a.prioridad, a.fechafin,
-                a.fechainicio, a.fechacreacion, a.idempleado, a.idrequerimiento,
-                COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
-                r.fecharequerida,
-                e.nombreempresa,
-                u.nombre AS empleado_nombre,
-                u.apellidos AS empleado_apellidos
-            FROM atencion a
-            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
-            INNER JOIN usuarios u_sol ON u_sol.id = r.idusuarioempresa
-            INNER JOIN areas ar ON ar.id = u_sol.idarea
-            INNER JOIN empresas e ON e.id = ar.idempresa
-            LEFT JOIN servicios s ON s.id = a.idservicio
-            LEFT JOIN usuarios u ON u.id = a.idempleado
-            WHERE a.idarea_agencia = ?
-              AND a.estado IN ('en_proceso', 'pendiente_asignado', 'en_revision', 'finalizado')
-            ORDER BY a.fechacreacion DESC
-        ";
-
-        $atenciones = $db->query($sql, [$idAreaAgencia])->getResultArray();
-
-        $columnas = [
-            'pendiente_asignado' => ['label' => 'POR ASIGNAR', 'color' => '#eab308', 'items' => []],
-            'en_proceso' => ['label' => 'DESARROLLANDO', 'color' => '#a855f7', 'items' => []],
-            'en_revision' => ['label' => 'PARA REVISIÓN', 'color' => '#f97316', 'items' => []],
-            'finalizado' => ['label' => 'ENTREGADOS', 'color' => '#22c55e', 'items' => []],
-        ];
-
-        foreach ($atenciones as $a) {
-            $estado = $a['estado'];
-            // Para el responsable, 'en_proceso' pero sin empleado es 'pendiente_asignado'
-            if ($estado === 'en_proceso' && !$a['idempleado']) {
-                $estado = 'pendiente_asignado';
-            }
-            if (isset($columnas[$estado])) {
-                $columnas[$estado]['items'][] = $a;
-            }
-        }
-
-        return view('responsable/kanban', [
-            'titulo' => 'Kanban Área - ' . ($responsable['nombre_areaagencia'] ?? 'Agencia'),
-            'tituloPagina' => 'GESTIÓN DE ÁREA',
-            'paginaActual' => 'kanban',
-            'idArea' => $idAreaAgencia,
-            'areaNombre' => $responsable['nombre_areaagencia'],
-            'columnas' => $columnas
-        ]);
-    }
 
     public function cambiarPrioridad()
     {
