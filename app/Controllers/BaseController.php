@@ -25,31 +25,25 @@ abstract class BaseController extends Controller
     }
 
     /**
-     * Obtiene el usuario (Parametro = ID / URL) activo simulado para la solicitud actual
+     * Obtiene el usuario autenticado desde la sesión
      * @return array|null Datos del usuario o null
      */
     public function getActiveUser()
     {
-        // Intentamos obtener el ID de la URL
-        $testUserId = $this->request->getGet('test_user');
+        // Obtener ID de usuario desde la sesión de autenticación
+        $usuarioId = session()->get('usuario_id');
 
-        // Si NO hay ID en la URL, lo buscamos en la Sesión
-        if (!$testUserId) {
-            $testUserId = session()->get('test_user_id');
-        }
-
-        // Si no hay ID en ningún lado, devolvemos null
-        if (!$testUserId) {
+        // Si no hay ID de usuario en sesión, devolvemos null
+        if (!$usuarioId) {
             return null;
         }
 
         // Buscamos el usuario en la BD con ese ID
         $userModel = new UsuarioModel();
-        $user = $userModel->find($testUserId);
+        $user = $userModel->find($usuarioId);
 
-        // Si el usuario existe, lo guardamos en sesión para "recordarlo" en la siguiente página
+        // Si el usuario existe, lo devolvemos
         if ($user) {
-            session()->set('test_user_id', $user['id']);
             return $user;
         }
 

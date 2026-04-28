@@ -5,9 +5,9 @@
 }
 
 .seccion-titulo {
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 700;
-  color: #666;
+  color: #d0d0d0;
   letter-spacing: 2px;
   text-transform: uppercase;
   display: flex;
@@ -29,12 +29,12 @@
 }
 
 .servicio-tag {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #888;
-  padding: 3px 10px;
+  color: #bbb;
+  padding: 4px 12px;
   border: 1px solid #2a2a2a;
   border-radius: 4px;
 }
@@ -42,9 +42,9 @@
 /* Badges de Estado y Prioridad */
 .badge-estado,
 .badge-prio {
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: 50px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -78,11 +78,11 @@
 
 .detalle-titulo {
   color: #f0f0f0;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
 }
 .detalle-empresa {
-  font-size: 12px;
-  color: #555;
+  font-size: 14px;
+  color: #c0c0c0;
 }
 .detalle-sep {
   height: 1px;
@@ -91,15 +91,15 @@
 
 .campo-label {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: #555;
+  color: #ccc;
   margin-bottom: 6px;
 }
 .campo-valor {
-  font-size: 13px;
-  color: #ccc;
+  font-size: 15px;
+  color: #ddd;
   line-height: 1.6;
 }
 
@@ -110,35 +110,35 @@
   border-bottom: 1px solid #1a1a1a;
 }
 .info-item i {
-  color: #444;
+  color: #999;
 }
 .info-label {
   display: block;
-  font-size: 9px;
-  color: #555;
+  font-size: 11px;
+  color: #ccc;
   font-weight: 700;
 }
 .info-valor {
-  font-size: 13px;
-  color: #ccc;
+  font-size: 15px;
+  color: #ddd;
 }
 
 .tag-item {
-  font-size: 11px;
-  color: #aaa;
+  font-size: 15px;
+  color: #e0e0e0;
   background: #1a1a1a;
   border: 1px solid #2a2a2a;
   border-radius: 6px;
-  padding: 5px 12px;
+  padding: 8px 16px;
 }
 
 .btn-rf-outline {
   border: 1px solid #333;
-  color: #ccc;
-  padding: 6px 15px;
+  color: #ddd;
+  padding: 8px 18px;
   border-radius: 6px;
   text-decoration: none;
-  font-size: 13px;
+  font-size: 14px;
   transition: 0.3s;
 }
 .btn-rf-outline:hover {
@@ -148,11 +148,11 @@
 
 .brief-box {
   background: rgba(255, 255, 255, 0.03);
-  padding: 15px;
+  padding: 16px;
   border-radius: 8px;
-  border-left: 3px solid #f5c400; /* Color amarillo RF */
-  font-size: 13.5px;
-  color: #ddd;
+  border-left: 3px solid #f5c400;
+  font-size: 15px;
+  color: #e0e0e0;
   line-height: 1.8;
 }
 
@@ -177,7 +177,7 @@
 :root {
   --bg-card: #111111;
   --border-color: #222;
-  --text-muted: #888;
+  --text-muted: #bbb;
   --accent: #f5c400;
 }
 
@@ -207,8 +207,8 @@
 
 .info-block label {
   display: block;
-  font-size: 10px;
-  color: var(--text-muted);
+  font-size: 12px;
+  color: #ccc;
   font-weight: 700;
   letter-spacing: 1px;
   margin-bottom: 8px;
@@ -216,7 +216,7 @@
 
 .info-block p {
   color: #eee;
-  font-size: 14px;
+  font-size: 16px;
   margin-bottom: 0;
 }
 .full-width {
@@ -237,7 +237,7 @@
 }
 
 .label-entrega {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--accent);
   letter-spacing: 1px;
@@ -270,19 +270,19 @@
 
 .icon-step {
   font-size: 1.2rem;
-  color: #444;
+  color: #999;
 }
 
 .step-label {
   display: block;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #ccc;
 }
 
 .step-value {
   display: block;
-  font-size: 13px;
+  font-size: 15px;
   color: #fff;
 }
 
@@ -290,15 +290,15 @@
 .badge-tag {
   background: #222;
   color: #fff;
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
 }
 .badge-prio {
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
 }
 .prio-alta {
@@ -313,19 +313,19 @@
 .status-en_revision {
   background: #002b36;
   color: #2aa198;
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .tag-footer {
   background: #1a1a1a;
-  border: 1px solid #333;
-  padding: 5px 12px;
+  border: 1px solid #444;
+  padding: 8px 16px;
   border-radius: 6px;
-  font-size: 11px;
-  color: #ccc;
+  font-size: 15px;
+  color: #e0e0e0;
 }
 
 /* Paleta de colores Dark Capturas */
@@ -334,7 +334,7 @@
   --card-bg: #111111;
   --border-color: #222222;
   --text-main: #ffffff;
-  --text-muted: #666666;
+  --text-muted: #bbbbbb;
   --accent-yellow: #f5c400;
 }
 
@@ -356,26 +356,26 @@
 }
 
 .label-tiny {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #d0d0d0;
   letter-spacing: 1.2px;
   text-transform: uppercase;
 }
 
 .content-text {
-  color: #ccc;
-  font-size: 14px;
+  color: #ddd;
+  font-size: 16px;
   margin-top: 5px;
 }
 
 .brief-container {
   background: #0d0d0d;
   border: 1px solid #1a1a1a;
-  padding: 15px;
+  padding: 16px;
   border-radius: 8px;
-  color: #bbb;
-  font-size: 14px;
+  color: #ddd;
+  font-size: 16px;
   line-height: 1.6;
 }
 
@@ -388,7 +388,7 @@
 }
 
 .timeline-item i {
-  color: #444;
+  color: #999;
   font-size: 1.2rem;
 }
 .timeline-item.active-step i {
@@ -397,13 +397,13 @@
 
 .t-label {
   display: block;
-  font-size: 9px;
-  color: var(--text-muted);
+  font-size: 11px;
+  color: #ccc;
   font-weight: 700;
 }
 .t-value {
   display: block;
-  font-size: 13px;
+  font-size: 15px;
   color: #fff;
   margin-top: 2px;
 }
@@ -412,16 +412,16 @@
 .badge-type {
   background: #222;
   color: #fff;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   margin-right: 8px;
 }
 .badge-status {
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   margin-right: 8px;
 }
@@ -439,9 +439,9 @@
 }
 
 .badge-priority {
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
 }
 .prio-alta {
@@ -455,11 +455,11 @@
 
 /* Tags inferiores */
 .tag-outline {
-  border: 1px solid #333;
-  padding: 6px 14px;
+  border: 1px solid #444;
+  padding: 9px 18px;
   border-radius: 8px;
-  color: #999;
-  font-size: 11px;
+  color: #e0e0e0;
+  font-size: 15px;
   background: #1a1a1a;
 }
 
@@ -474,23 +474,23 @@
 
 .f-name {
   color: #fff;
-  font-size: 12px;
+  font-size: 14px;
   display: block;
 }
 .f-size {
-  color: #555;
-  font-size: 11px;
+  color: #c0c0c0;
+  font-size: 13px;
 }
 
 .btn-link-entrega {
   background: var(--accent-yellow);
   color: #000;
-  padding: 10px 18px;
+  padding: 11px 20px;
   border-radius: 6px;
   text-decoration: none;
   font-weight: 700;
   display: inline-block;
-  font-size: 13px;
+  font-size: 14px;
   transition: 0.3s;
 }
 
@@ -507,7 +507,7 @@
   border: 1px solid #2a2a2a;
   border-radius: 10px;
   text-decoration: none;
-  color: #aaa;
+  color: #ccc;
   transition: all 0.2s ease;
   min-width: 180px;
 }
@@ -527,7 +527,7 @@
   flex-direction: column;
 }
 .archivo-nombre {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -535,8 +535,8 @@
   max-width: 140px;
 }
 .archivo-peso {
-  font-size: 10px;
-  color: #555;
+  font-size: 12px;
+  color: #c0c0c0;
 }
 .archivo-open {
   font-size: 12px;
@@ -558,8 +558,8 @@
 }
 
 .content-box .content-text {
-  color: #ccc;
-  font-size: 14px;
+  color: #ddd;
+  font-size: 16px;
   line-height: 1.6;
   margin: 0;
   white-space: pre-wrap;
@@ -622,14 +622,14 @@
 }
 
 .channel-tag, .format-tag, .special-tag {
-  border: 1px solid #333;
-  padding: 6px 14px;
+  border: 1px solid #444;
+  padding: 9px 18px;
   border-radius: 8px;
-  color: #999;
-  font-size: 11px;
+  color: #e0e0e0;
+  font-size: 15px;
   background: #1a1a1a;
   white-space: nowrap;
-  max-width: 200px;
+  max-width: 250px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -656,7 +656,7 @@
   border: 1px solid #2a2a2a;
   border-radius: 10px;
   text-decoration: none;
-  color: #aaa;
+  color: #ccc;
   transition: all 0.2s ease;
 }
 
@@ -678,7 +678,7 @@
 }
 
 .file-name {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -687,8 +687,8 @@
 }
 
 .file-size {
-  font-size: 10px;
-  color: #555;
+  font-size: 12px;
+  color: #c0c0c0;
   margin-top: 2px;
 }
 
@@ -706,7 +706,7 @@
 .empty-state {
   text-align: center;
   padding: 40px 20px;
-  color: #555;
+  color: #999;
 }
 
 .empty-state i {
@@ -716,8 +716,8 @@
 }
 
 .empty-state .small {
-  font-size: 13px;
-  color: #444;
+  font-size: 15px;
+  color: #999;
   line-height: 1.5;
 }
 

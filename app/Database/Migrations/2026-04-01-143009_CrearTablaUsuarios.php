@@ -9,7 +9,7 @@ class CrearTablaUsuarios extends Migration
     public function up()
     {
         $this->db->query("CREATE TYPE rol_enum     AS ENUM ('administrador', 'empleado', 'cliente')");
-        $this->db->query("CREATE TYPE tipodoc_enum AS ENUM ('DNI', 'RUC', 'CE')");
+        $this->db->query("CREATE TYPE tipodoc_enum AS ENUM ('DNI', 'CE')");
 
         $this->forge->addField([
             'id' => [
@@ -48,12 +48,12 @@ class CrearTablaUsuarios extends Migration
             ],
             'usuario' => [
                 'type' => 'VARCHAR',
-                'constraint' => 50,
+                'constraint' => 100,
                 'null' => false,
             ],
             'clave' => [
                 'type' => 'VARCHAR',
-                'constraint' => 255,
+                'constraint' => 100,
                 'null' => false,
             ],
             'rol' => [

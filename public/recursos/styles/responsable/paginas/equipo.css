@@ -277,4 +277,66 @@
         align-items: flex-start;
         gap: 16px;
     }
+    
+    /* Tabla de tareas en modal - Responsive */
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    #tablaTareasMiembro th:nth-child(1),
+    #tablaTareasMiembro td:nth-child(1) {
+        min-width: 200px;
+        max-width: 250px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+    }
+    
+    #tablaTareasMiembro th:nth-child(2),
+    #tablaTareasMiembro td:nth-child(2) {
+        min-width: 100px;
+        max-width: 120px;
+    }
+    
+    #tablaTareasMiembro th:nth-child(3),
+    #tablaTareasMiembro td:nth-child(3) {
+        min-width: 80px;
+        max-width: 90px;
+    }
+    
+    #tablaTareasMiembro th:nth-child(4),
+    #tablaTareasMiembro td:nth-child(4) {
+        min-width: 80px;
+        max-width: 90px;
+    }
+    
+    #tablaTareasMiembro th:nth-child(5),
+    #tablaTareasMiembro td:nth-child(5) {
+        min-width: 70px;
+        max-width: 80px;
+    }
+    
+    /* Ajustes adicionales para móviles */
+    #tablaTareasMiembro td {
+        font-size: 0.85rem;
+        vertical-align: top;
+        padding: 8px !important;
+    }
+    
+    #tablaTareasMiembro th {
+        font-size: 0.8rem;
+        padding: 8px !important;
+    }
+}
+
+/* Para tablets */
+@media (max-width: 768px) {
+    #tablaTareasMiembro th:nth-child(1),
+    #tablaTareasMiembro td:nth-child(1) {
+        min-width: 180px;
+        max-width: 220px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+    }
 }

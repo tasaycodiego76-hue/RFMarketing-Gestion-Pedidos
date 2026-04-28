@@ -8,46 +8,38 @@ class ServicioModel extends Model
 {
     protected $table = 'servicios';
     protected $primaryKey = 'id';
-
-    // Definimos qué columnas se pueden devolver o manipular
     protected $allowedFields = ['nombre', 'descripcion', 'activo'];
 
-    // Devolver solo los servicios activos
-    public function getActivos()
+    /**
+     * Funcion que devuelve todos los Servicios Activos 
+     * @return array<array<bool|float|int|object|string|null>|object>
+     */
+    public function getServiciosActivos()
     {
         return $this->where('activo', true)->findAll();
     }
 
-    // Obtener servicios según el área de agencia del usuario
-    public function getServiciosPorAreaAgencia(int $idAreaAgencia)
-    {
-        return $this->where('activo', true)->findAll();
-    }
-
-    // Obtener el área de agencia según el ID del servicio (para compatibilidad)
+    /**
+     * Diccionario de Mapeo, el cual relaciona un servicio con su área de agencia. 
+     * Si se crea un nuevo servicio lo Vincula con la nueva Area de la Agencia
+     * @param int $idServicio
+     * @return int
+     */
     public function getAreaAgenciaByServicio(int $idServicio): ?int
     {
-        // Mapeo de servicios a áreas de agencia
         $mapeoServicioArea = [
-            1 => 1, // Diseño Gráfico -> Área de Diseño
-            2 => 2, // Audiovisual -> Área de Audiovisual
-            3 => 3, // Creación de Contenido -> Área de Creación de Contenido
-            4 => 4, // Fotografía -> Área de Fotografía
+            1 => 1, // Diseño Gráfico            -> Área de Diseño
+            2 => 2, // Audiovisual               -> Área de Audiovisual
+            3 => 3, // Creación de Contenido     -> Área de Creación de Contenido
+            4 => 4, // Fotografía                -> Área de Fotografía
+            5 => 1, // Diseño de Pagina Web      -> Área de Diseño
         ];
-        
         // Si existe el mapeo, usarlo
         if (isset($mapeoServicioArea[$idServicio])) {
             return $mapeoServicioArea[$idServicio];
         }
 
-        // Si no existe en el mapeo, asumir que es un servicio/área personalizado
-        // y usar el mismo ID del servicio como ID de área
+        // Si no, asumir que es un servicio/área (Creadas al Mismo tiempo) e usar el mismo ID del servicio como ID de área
         return $idServicio;
-    }
-
-    // Obtener el área de agencia según el servicio y la agencia del usuario
-    public function getAreaAgenciaPorServicioYAgencia(int $idServicio, int $idAreaAgencia): ?int
-    {
-        return $idAreaAgencia;
     }
 }

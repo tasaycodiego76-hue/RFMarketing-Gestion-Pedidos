@@ -32,6 +32,27 @@ class UsuarioModel extends Model
     protected $updatedField = '';
 
     /**
+     * Verifica las credenciales del usuario
+     * @param string $usuario
+     * @param string $clave
+     * @return array<bool|float|int|object|string|null>|object|null
+     */
+    public function verificarCredenciales(string $usuario, string $clave): ?object
+    {
+        //Verificar si existe el Usuario
+        $row = $this->where('usuario', $usuario)->first();
+
+        //Asumimos que el usuario existe... entonces validamos la clave
+        if ($row && password_verify($clave, $row['clave'])) {
+            //Acceso es Correcto
+            return (object) $row;
+        }
+
+        //El usuario NO existe, retornamos null
+        return null;
+    }
+
+    /**
      * Devuelve todos los usuarios con el nombre de su área resuelta
      * y la empresa para responsables de áreas de clientes
      * @return array

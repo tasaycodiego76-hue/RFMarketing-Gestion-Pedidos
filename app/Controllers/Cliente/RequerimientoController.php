@@ -16,15 +16,13 @@ class RequerimientoController extends BaseController
     /**
      * Funcion que Renderiza la Vista de la Plantilla e Insertara los Detalles del Requerimiento
      * @param mixed $id
-     * @return string|\CodeIgniter\HTTP\RedirectResponse|\CodeIgniter\HTTP\ResponseInterface
+     * @return string|\CodeIgniter\HTTP\RedirectResponse
      */
     public function vistaDetalle($id)
     {
-        // Obtiene el usuario de la sesión
         $user = $this->getActiveUser();
-        // Validación de Seguridad
+        // Validación de Seguridad (Solo Clientes)
         if (!is_array($user) || $user['rol'] !== 'cliente') {
-            // Si no es cliente, lo mandamos al login o inicio con un flashdata
             return redirect()->to(base_url('/'))->with('error', 'Acceso denegado.');
         }
 
@@ -49,19 +47,20 @@ class RequerimientoController extends BaseController
 
         // Renderizar Vista
         return view('cliente/detalle_requerimiento', [
-            'requerimiento' => $detalle, // Datos del centro de la página
-            'archivos' => $archivos,      // Lista de archivos
-            'user' => $userData       // Informacion para el Sidebar / Topbar (Plantilla)
+            'requerimiento' => $detalle,
+            'archivos' => $archivos,
+            'user' => $userData
         ]);
     }
 
     /**
-     * Guarda un nuevo requerimiento con su atención y archivos adjuntos, ademas de Crear el Primer Tracking (Seguimiento).
+     * Guarda un nuevo requerimiento Completo; con su atención y archivos adjuntos, ademas de Crear el Primer Tracking (Seguimiento)
+     * @throws \RuntimeException
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function guardar()
     {
-        // VALIDAR SESIÓN
+        // Validar Sesion
         $userSession = $this->getActiveUser();
         $idUsuario = is_array($userSession) ? $userSession['id'] : $userSession;
 
@@ -69,40 +68,38 @@ class RequerimientoController extends BaseController
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Sesión no válida.']);
         }
 
-        // Validaciones (Error)
+        // Validaciones de Entrada
         $errores = [];
 
-        // Servicio
+        // Servicio 
         $idServicio = $this->request->getPost('idservicio');
         $idServicio = (!empty($idServicio) && $idServicio != '0') ? (int) $idServicio : null;
         $servicioPersonalizado = $this->request->getPost('servicio_personalizado');
+
+        // Servicio "Creacion de Contenido"
         $servicioUiNombre = (string) ($this->request->getPost('servicio_ui_nombre') ?? '');
         $esConsultivo = $this->esServicioConsultivo($servicioUiNombre);
-        // Validar servicio personalizado si es requerido
+
+        // Validaciones de Campos, si es error agregar al arreglo $errores[]
         if ($idServicio === null && (empty($servicioPersonalizado) || trim($servicioPersonalizado) === '')) {
             $errores[] = 'El nombre del servicio personalizado es obligatorio.';
         }
-        // Título (siempre obligatorio)
         $titulo = $this->request->getPost('titulo');
         if (empty($titulo) || trim($titulo) === '') {
             $errores[] = 'El título del requerimiento es obligatorio.';
         }
-        // Objetivo de comunicación
         $objetivo = $this->request->getPost('objetivo_comunicacion');
         if (!$esConsultivo && (empty($objetivo) || trim($objetivo) === '')) {
             $errores[] = 'El objetivo de comunicación es obligatorio.';
         }
-        // Descripción
         $descripcion = $this->request->getPost('descripcion');
         if (empty($descripcion) || trim($descripcion) === '') {
             $errores[] = 'La descripción es obligatoria.';
         }
-        // Tipo de requerimiento
         $tipoReq = $this->request->getPost('tipo_requerimiento');
         if (!$esConsultivo && (empty($tipoReq) || trim($tipoReq) === '')) {
             $errores[] = 'El tipo de requerimiento es obligatorio.';
         }
-        // Canales de difusión - mínimo 1, máximo 3
         $canalesRaw = $this->request->getPost('canales_difusion');
         $canales = [];
         if (!empty($canalesRaw)) {
@@ -116,21 +113,17 @@ class RequerimientoController extends BaseController
                 $errores[] = 'No puede seleccionar más de 3 canales de difusión.';
             }
         }
-        // Público objetivo
         $publico = $this->request->getPost('publico_objetivo');
         if (!$esConsultivo && (empty($publico) || trim($publico) === '')) {
             $errores[] = 'El público objetivo es obligatorio.';
         }
-        // Materiales
         $tieneMateriales = ($this->request->getPost('tiene_materiales') === '1');
         $urlSubida = $this->request->getPost('url_subida');
         $archivos = $this->request->getFiles();
         $tieneArchivos = !empty($archivos['documentos']) && $this->hayArchivosValidos($archivos['documentos']);
-        //Validacion
         if ($tieneMateriales && !$tieneArchivos && (empty($urlSubida) || trim($urlSubida) === '')) {
             $errores[] = 'Si indica que tiene materiales, debe subir al menos un archivo o proporcionar una URL de referencia.';
         }
-        // Formatos solicitados - mínimo 1
         $formatosRaw = $this->request->getPost('formatos_solicitados');
         $formatos = [];
         if (!empty($formatosRaw)) {
@@ -139,13 +132,10 @@ class RequerimientoController extends BaseController
         if (!$esConsultivo && count($formatos) === 0) {
             $errores[] = 'Debe seleccionar al menos un formato solicitado.';
         }
-        // Formato "Otros" - si está seleccionado, el campo formato_otros es obligatorio
         $formatoOtros = $this->request->getPost('formato_otros');
         if (!$esConsultivo && in_array('Otros', $formatos) && (empty($formatoOtros) || trim($formatoOtros) === '')) {
             $errores[] = 'Si selecciona "Otros" en formatos, debe especificar el formato deseado.';
         }
-
-        // Fecha requerida - SIEMPRE obligatoria para todos los servicios
         $fechaRaw = $this->request->getPost('fecharequerida');
         if (empty($fechaRaw)) {
             $errores[] = 'La fecha de entrega requerida es obligatoria.';
@@ -155,16 +145,14 @@ class RequerimientoController extends BaseController
                 $fechaRequerida->setTime(0, 0, 0); //Limpiar la Hora (Dia Completos)
                 $hoy = new \DateTime('now', new \DateTimeZone('America/Lima'));
                 $hoy->setTime(0, 0, 0); //Limpiar la Hora (Dia Completos)
-
-                // Para Creación de Contenido, usar 2 días hábiles como mínimo por defecto
-                // o calcular según tipo si existe
+                // Para Creación de Contenido, usar 2 días hábiles como mínimo por defecto o calcular según tipo si existe
                 if (empty($tipoReq)) {
                     $diasHabiles = 2;
                 } else {
                     $diasHabiles = $this->obtenerDiasHabilesPorTipo($tipoReq ?? '');
                 }
-                $fechaMinima = $this->calcularFechaMinima($diasHabiles);
 
+                $fechaMinima = $this->calcularFechaMinima($diasHabiles);
                 if ($fechaRequerida < $fechaMinima) {
                     $errores[] = "La fecha de entrega debe ser al menos dentro de {$diasHabiles} días hábiles ({$fechaMinima->format('d/m/Y')}).";
                 }
@@ -175,8 +163,6 @@ class RequerimientoController extends BaseController
                 $errores[] = 'La fecha de entrega no es válida.';
             }
         }
-
-        // Prioridad
         $prioridad = ucfirst(strtolower($this->request->getPost('prioridad') ?? 'Media'));
         $prioridadesPermitidas = ['Baja', 'Media', 'Alta'];
         if (!in_array($prioridad, $prioridadesPermitidas)) {
@@ -195,7 +181,7 @@ class RequerimientoController extends BaseController
         // Preparar Datos a Insertar
         $fechaObj = new \DateTime($fechaRaw, new \DateTimeZone('America/Lima'));
 
-        // Array con datos del Requerimiento
+        // Array con datos del Requerimiento (Obligatorios, excepto cuando el servicio en 'Creacion de Contenido    ')
         $dataReq = [
             'idusuarioempresa' => (int) $idUsuario,
             'idservicio' => $idServicio,
@@ -214,7 +200,7 @@ class RequerimientoController extends BaseController
             'prioridad' => $prioridad,
         ];
 
-        // INSERTAR EN LA BD (dentro de una transacción) 
+        // Iniciar Transaccion (Insertar Requerimiento) 
         $db = \Config\Database::connect();
         $db->transStart();
 
@@ -222,22 +208,11 @@ class RequerimientoController extends BaseController
             // Insertar Requerimiento
             $reqModel = new RequerimientoModel();
 
-            // Debug: Ver qué datos se están insertando en requerimiento
-            log_message('debug', 'Datos a insertar en requerimiento: ' . json_encode($dataReq));
-
             $idReq = $reqModel->insert($dataReq);
-
-            // Debug: Ver qué retorna la inserción de requerimiento
-            log_message('debug', 'Resultado insert requerimiento: ' . $idReq);
-
             $idReq = $this->obtenerIdInsertado($db, $idReq);
-
-            // Debug: Ver ID final de requerimiento
-            log_message('debug', 'ID final requerimiento: ' . $idReq);
 
             // Validacion
             if (!$idReq) {
-                // Debug: Ver errores del modelo de requerimiento
                 log_message('error', 'Errores requerimiento: ' . json_encode($reqModel->errors()));
                 throw new \RuntimeException('No se pudo obtener el ID del requerimiento.');
             }
@@ -255,20 +230,6 @@ class RequerimientoController extends BaseController
             // Insertar Atención vinculada al requerimiento
             $atencionModel = new AtencionModel();
 
-            // Debug: Ver datos de atención
-            log_message('debug', 'Datos atención: ' . json_encode([
-                'idrequerimiento' => $idReq,
-                'idadmin' => 1,
-                'idservicio' => $idServicio,
-                'servicio_personalizado' => $dataReq['servicio_personalizado'],
-                'titulo' => $dataReq['titulo'],
-                'prioridad' => $dataReq['prioridad'],
-                'estado' => 'pendiente_sin_asignar',
-                'fechafin' => $fechaObj->format('Y-m-d'),
-                'url_entrega' => null,
-                'idarea_agencia' => $idAreaAgencia,
-            ]));
-
             $idAtn = $atencionModel->insert([
                 'idrequerimiento' => $idReq,
                 'idadmin' => 1,
@@ -282,14 +243,7 @@ class RequerimientoController extends BaseController
                 'idarea_agencia' => $idAreaAgencia,
             ]);
 
-            // Debug: Ver resultado del insert
-            log_message('debug', 'Resultado insert atención: ' . $idAtn);
-
             $idAtn = $this->obtenerIdInsertado($db, $idAtn);
-
-            // Debug: Ver ID final
-            log_message('debug', 'ID final atención: ' . $idAtn);
-
             // Validacion
             if (!$idAtn) {
                 log_message('error', 'Errores atención: ' . json_encode($atencionModel->errors()));

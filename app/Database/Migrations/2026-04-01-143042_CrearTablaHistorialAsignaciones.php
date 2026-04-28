@@ -13,7 +13,7 @@ class CrearTablaHistorialAsignaciones extends Migration
                 'type'           => 'BIGINT',
                 'auto_increment' => true,
             ],
-            'idpedido' => [
+            'idatencion' => [
                 'type' => 'BIGINT',
                 'null' => false,
             ],
@@ -45,7 +45,7 @@ class CrearTablaHistorialAsignaciones extends Migration
         ]);
 
         $this->forge->addPrimaryKey('id');
-        $this->forge->addForeignKey('idpedido',            'atencion', 'id', 'RESTRICT', 'CASCADE');
+        $this->forge->addForeignKey('idatencion',          'atencion', 'id', 'RESTRICT', 'CASCADE');
         $this->forge->addForeignKey('idempleado',          'usuarios', 'id', 'RESTRICT', 'CASCADE');
         $this->forge->addForeignKey('idempleado_anterior', 'usuarios', 'id', 'SET NULL',  'CASCADE');
         $this->forge->addForeignKey('idadmin',             'usuarios', 'id', 'RESTRICT', 'CASCADE');

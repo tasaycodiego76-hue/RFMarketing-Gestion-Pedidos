@@ -177,7 +177,7 @@
 
         <!-- Footer del Sidebar - Logout -->
         <div class="sidebar-footer">
-            <a href="<?= base_url('logout') ?>" class="logout-link">
+            <a href="<?= base_url('auth/logout') ?>" class="logout-link">
                 <i class="bi bi-box-arrow-left"></i>
                 <span>Cerrar Sesión</span>
             </a>

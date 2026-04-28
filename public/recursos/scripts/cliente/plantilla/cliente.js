@@ -2,6 +2,7 @@
 const sidebar = document.getElementById("sidebar"); // El contenedor del menú lateral
 const overlay = document.getElementById("sidebarOverlay"); // El fondo oscuro que bloquea el resto de la pantalla
 const hamburgerBtn = document.getElementById("hamburgerBtn"); // El botón de tres líneas (hamburguesa)
+const sidebarCloseBtn = document.getElementById("sidebarCloseBtn"); // El botón X para cerrar
 
 //Muestra el menú y bloquea el scroll de la página
 function abrirSidebar() {
@@ -34,3 +35,8 @@ hamburgerBtn.addEventListener("click", function () {
 
 //Permite al usuario cerrar el menú simplemente tocando cualquier parte oscura de la pantalla
 overlay.addEventListener("click", cerrarSidebar);
+
+// Agregar evento al botón X para cerrar el sidebar
+if (sidebarCloseBtn) {
+  sidebarCloseBtn.addEventListener("click", cerrarSidebar);
+}

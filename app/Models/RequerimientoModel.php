@@ -30,6 +30,12 @@ class RequerimientoModel extends Model
         'prioridad'
     ];
 
+    /**
+     * Obtiene toda la información relacionada de un requerimiento.
+     * uniendo datos de atención, servicio y el personal asignado
+     * @param mixed $RequerimientoID
+     * @return array|null
+     */
     public function getDetalleCompleto($RequerimientoID)
     {
         $sql = "

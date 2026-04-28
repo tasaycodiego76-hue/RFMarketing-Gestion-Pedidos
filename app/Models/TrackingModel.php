@@ -56,7 +56,7 @@ class TrackingModel extends Model
             INNER JOIN atencion a ON a.id = t.idatencion
             INNER JOIN requerimiento r ON r.id = a.idrequerimiento
             INNER JOIN usuarios u_admin ON u_admin.id = t.idusuario
-            WHERE r.idusuario = ?
+            WHERE r.idusuarioempresa = ?
             ORDER BY t.fecha_registro DESC 
             LIMIT 20";
 

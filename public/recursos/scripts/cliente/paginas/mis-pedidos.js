@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const inputBuscador = document.getElementById("buscador"); // Campo de búsqueda
   const listaServicios = document.getElementById("lista-servicios"); // Lista de servicios modal
   const modalNuevoPedido = document.getElementById("modal-nuevo-pedido"); // Modal principal
+  const modalFormularioDetalle = document.getElementById("modal-formulario-detalle"); // Modal wizard
   const selectMateriales = document.getElementById("select-materiales"); // Select Sí/No materiales
   const inputArchivos = document.getElementById("input-archivos"); // Input file oculto
   const listaArchivos = document.getElementById("lista-archivos"); // Donde se muestran archivos
@@ -13,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "Impresión física de folletos", "Banner físico", "Letreros", "Merch para eventos específicos",
   ];
   // Formatos según tipo de servicio (1=Diseño, 2=Audiovisual, 0=Personalizado)
-  const FORMATOS = {
+  const FORMATOS = {  
     1: [
       "Emailing", "Post Facebook/IG", "Historia FB/IG", "Historia WhatsApp", "Post LinkedIn", "SIGU", "Aula Virtual", "Wallpaper", 
       "Banner Web", "Volante A5", "Afiche A4/A3", "Credenciales", "Banner 2x1", "Tarjeta Personal", "Tríptico", "Díptico", "Folder",
@@ -28,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
       "Afiche A4/A3", "Banner Web", "Spot TV", "Banner físico", "Emailing", "Imagen JPG/PNG", "Otros",
     ],
   };
-  // Opciones de tipo de requerimiento con días hábiles (SELECT)
+  // Tipos de requerimiento disponibles según área de servicio con días hábiles (SELECT)
   const TIPOS_DISENO = {
     adaptacion: { label: "Adaptación de Arte", dias: 2 },
     creacion: { label: "Creación de Arte", dias: 4 },
@@ -42,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
     creacion_editorial: { label: "Creación de editorial (revistas, boletines, guías, similares)", dias: 7 },
     adaptacion_editorial: { label: "Adaptación de editorial (revistas, boletines, guías, similares)", dias: 7 },
   };
-  // Mapeo de tipos de requerimiento para la BD (valores que se guardan)
+  // Mapeo de tipos de requerimiento para la BD (Valores que se envían al backend)
   const MAPA_TIPOS = {
     adaptacion: "Adaptación de Arte",
     creacion: "Creación de Arte",
@@ -50,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
     adaptacion_editorial: "Adaptación de editorial",
     creacion_video: "Creación de Videos",
   };
-  // Días hábiles por tipo (usado en validación frontend)
+  // Días hábiles mínimos por tipo (usado para validar fecha en frontend), sincronizado con obtenerDiasHabilesPorTipo() del backend
   const DIAS_HABILES_POR_TIPO = {
     adaptacion: 2,
     creacion: 4,
@@ -58,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
     adaptacion_editorial: 7,
     creacion_video: 7,
   };
-  // Información descriptiva para mostrar en UI 
+  // Descripción completa de cada tipo para el panel informativo del Formulario
   const INFO_TIPOS = {
     adaptacion: {
       titulo: "Adaptación de Arte",
@@ -88,6 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // Función para generar opciones del select según servicio
+  // Servicios 1 = Diseño, 2 = Audiovisual; el resto (3, 4, personalizado) usa el mapa de Diseño
   const generarOpcionesTipo = (idServicio) => {
     let tipos;
     switch(idServicio) {
@@ -97,10 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
       case "2": 
         tipos = TIPOS_AUDIOVISUAL; 
         break;
-      case "3": 
-      case "4": 
       default: 
-        // Para servicios nuevos (Creación de Contenido, Fotografía) usa configuración de Diseño
         tipos = TIPOS_DISENO; 
         break;
     }
@@ -109,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }).join("");
   };
 
-  // Configuración visual de badges de estado
+  // Mapeo de claves de estado/prioridad a clases CSS y texto para mostrar en tabla
   const MAPA_ESTADOS = {
     pendiente_sin_asignar: { texto: "Por Aprobar", clase: "estado-por_aprobar" },
     pendiente_asignado: { texto: "Asignado", clase: "estado-pendiente_asignado" },
@@ -118,7 +117,6 @@ document.addEventListener("DOMContentLoaded", function () {
     finalizado: { texto: "Finalizado", clase: "estado-completado" },
     cancelado: { texto: "Cancelado", clase: "estado-cancelado" },
   };
-  // Configuración visual de badges de prioridad
   const MAPA_PRIORIDADES = {
     Baja: { clase: "prio-baja", etiqueta: "Baja" },
     Media: { clase: "prio-media", etiqueta: "Media" },
@@ -126,53 +124,43 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // Variables Globales
-  let pasoActual = 1; // Controla paso del Wizard (Paso actual del wizard)
-  let archivosSeleccionados = []; // Archivos seleccionados para upload
-  let temporizadorBusqueda; // Para el debounce del buscador (Temporizador)
-  let nombreServicioSeleccionado = ""; // Nombre de servicio mostrado en UI
+  let pasoActual = 1;                   // Controla paso del Wizard (1, 2, 3)
+  let archivosSeleccionados = [];       // Archivos seleccionados para upload
+  let temporizadorBusqueda;             // Para el debounce del buscador (Temporizador)
+  let nombreServicioSeleccionado = "";  // Nombre de servicio mostrado en UI (Modo Consultivo y Resumen)
 
   // HELPERS (funciones de ayuda/reutilizables)
-  const qs = (selector) => document.querySelector(selector); // Buscar el primer elemento que coincida con el selector
-  const qsAll = (selector) => document.querySelectorAll(selector); // Devuelve todos los elementos que coincidan
-  const getVal = (selector) => qs(selector)?.value?.trim() || ""; // Obtiene valor limpio de un input, o vacío si no existe
-  const getIdVal = (id) => document.getElementById(id)?.value?.trim() || ""; // Obtiene el elemento de un ID específico (limpio)
+  const qs = (selector) => document.querySelector(selector);                  // Buscar el primer elemento que coincida con el selector
+  const qsAll = (selector) => document.querySelectorAll(selector);            // Devuelve todos los elementos que coincidan
+  const getVal = (selector) => qs(selector)?.value?.trim() || "";             // Obtiene valor limpio de un input, o vacío si no existe
+  const getIdVal = (id) => document.getElementById(id)?.value?.trim() || "";  // Obtiene el elemento de un ID específico (limpio)
   // Crea una lista con los valores de los checkboxes marcados
   const checkedVals = (name) => Array.from(qsAll(`input[name="${name}"]:checked`)).map((c) => c.value);
-  const normalizarTexto = (texto = "") =>
-    texto.toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
-  const esServicioConsultivo = (nombreServicio = "") =>
-    normalizarTexto(nombreServicio) === "creacion de contenido";
-
-  // Convierte bytes a formato legible (KB, MB, GB)
-  const formatearTamano = (bytes) => {
-    if (!bytes){ return "0 Bytes"; }
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return (
-      parseFloat((bytes / Math.pow(1024, i)).toFixed(1)) + " " + ["Bytes", "KB", "MB", "GB"][i]
-    );
-  };
-
-  // Retorna el icono Bootstrap según el tipo de archivo
+  // Elimina tildes y normaliza a minúsculas para comparaciones robustas
+  const normalizarTexto = (texto = "") => texto.toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+  // El servicio "Creación de Contenido" tiene validaciones diferentes (modo consultivo)
+  const esServicioConsultivo = (nombreServicio = "") => normalizarTexto(nombreServicio) === "creacion de contenido";
+  // Retorna la clase de icono Bootstrap correspondiente al tipo MIME o extensión del archivo
   const getIconoArchivo = (mimeType, fileName) => {
     if (mimeType?.startsWith("image/")) return "bi-file-earmark-image";
     if (mimeType?.startsWith("video/")) return "bi-file-earmark-play";
     if (mimeType?.startsWith("audio/")) return "bi-file-earmark-music";
     if (mimeType?.includes("pdf")) return "bi-file-earmark-pdf";
-    if ( mimeType?.includes("word") || fileName?.endsWith(".doc") || fileName?.endsWith(".docx") ) return "bi-file-earmark-word";
-    if ( mimeType?.includes("excel") || fileName?.endsWith(".xls") || fileName?.endsWith(".xlsx") ) return "bi-file-earmark-excel";
+    if (mimeType?.includes("word") || fileName?.endsWith(".doc") || fileName?.endsWith(".docx") ) return "bi-file-earmark-word";
+    if (mimeType?.includes("excel") || fileName?.endsWith(".xls") || fileName?.endsWith(".xlsx") ) return "bi-file-earmark-excel";
     if (mimeType?.includes("powerpoint") || fileName?.endsWith(".ppt") || fileName?.endsWith(".pptx") ) return "bi-file-earmark-ppt";
     if (mimeType?.includes("zip") || fileName?.endsWith(".zip") || fileName?.endsWith(".rar")) return "bi-file-earmark-zip";
     return "bi-file-earmark";
   };
 
-  // Configuración base para SweetAlert2 
+  // Configuración base para todos los SweetAlert2 del módulo 
   const swalBase = {
     background: "#1a1a1a",
     color: "#f0f0f0",
     confirmButtonColor: "#f5c400",
   };
 
-  // Muestra modal con lista de errores de validación
+  // Muestra un modal de errores con lista de mensajes
   const mostrarErrores = (errores) => {
     Swal.fire({
       ...swalBase,
@@ -183,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   };
 
-  // VISTA PREVIA ARCHIVOS: Renderiza la lista de archivos seleccionados con preview
+  // VISTA PREVIA ARCHIVOS: Muestra miniaturas para imágenes y íconos para el resto de formatos
   function mostrarPreviewArchivos(files) {
     if (!listaArchivos){ return; }
     archivosSeleccionados = files;
@@ -202,7 +190,6 @@ document.addEventListener("DOMContentLoaded", function () {
               ${iconoPreview}
               <div style="flex:1;min-width:0;">
                 <div style="font-size:12px;font-weight:600;color:#f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${file.name}"> ${file.name} </div>
-                <div style="font-size:11px;color:#888;margin-top:4px;"> ${formatearTamano(file.size)} </div>
               </div>
             </div>
           `;
@@ -219,7 +206,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // CARGAR SERVICIOS: Obtiene y muestra los servicios disponibles en el modal
+  // Consulta al backend la lista de servicios activos y genera las cards del modal
   async function cargarServicios() {
     listaServicios.innerHTML = "";
     try {
@@ -281,24 +268,20 @@ document.addEventListener("DOMContentLoaded", function () {
         const cfgPrioridad = MAPA_PRIORIDADES[pedido.prioridad]
         const servicio = pedido.servicio_personalizado || pedido.servicio;
 
-        return `
-        <tr data-numero="${pedido.idrequerimiento}">
-          <td style="color:#555;font-size:11px;font-weight:bold;">#${num}</td>
-          <td>${pedido.titulo ? `<span style="font-weight:600;font-size:13px;">${pedido.titulo}</span>` : `<span style="color:#777;font-style:italic;">Sin título</span>`}</td>
-          <td>${servicio}</td>
-          <td><span class="badge-estado ${cfgEstado.clase}">${cfgEstado.texto.toUpperCase()}</span></td>
-          <td>${pedido.prioridad ? `<span class="badge-prio ${cfgPrioridad.clase}">${cfgPrioridad.etiqueta}</span>` : "—"}</td>
-          <td style="color:#777;font-size:11px;">${pedido.fechacreacion.substring(0, 10)}</td>
-          <td>
-            <button onclick="verDetalle(${pedido.idrequerimiento})" class="btn-ver" style="border:none;background:none;cursor:pointer;">
-              <i class="bi bi-eye" style="color:#007bff;"></i>
-            </button>
-            <button onclick="verSeguimiento(${pedido.idrequerimiento})" class="btn-ver" style="border:none;background:none;cursor:pointer;margin-left:8px;">
-              <i class="bi bi-clock-history" style="color:#28a745;"></i>
-            </button>
-          </td>
-        </tr>
-      `;
+         return `
+          <tr data-numero="${pedido.idrequerimiento}">
+            <td style="color:#999;font-size:15px;font-weight:bold;">#${num}</td>
+            <td>${pedido.titulo ? `<span style="font-weight:600;font-size:17px;">${pedido.titulo}</span>` : `<span style="color:#777;font-style:italic;">Sin título</span>`}</td>
+            <td style="font-size:15px;">${servicio}</td>
+            <td><span class="badge-estado ${cfgEstado.clase}">${cfgEstado.texto.toUpperCase()}</span></td>
+            <td>${pedido.prioridad ? `<span class="badge-prio ${cfgPrioridad.clase}">${cfgPrioridad.etiqueta}</span>` : "—"}</td>
+            <td style="color:#ccc;font-size:15px;">${pedido.fechacreacion.substring(0, 10)}</td>
+            <td>
+              <button onclick="verDetalle(${pedido.idrequerimiento})" class="btn-ver" style="border:none;background:none;cursor:pointer;"><i class="bi bi-eye" style="color:#007bff;"></i></button>
+              <button onclick="verSeguimiento(${pedido.idrequerimiento})" class="btn-ver" style="border:none;background:none;cursor:pointer;margin-left:8px;"><i class="bi bi-clock-history" style="color:#28a745;"></i></button>
+            </td>
+          </tr>
+        `;
       }).join("");
     } catch (error) {
       console.error("Error al obtener pedidos:", error);
@@ -315,13 +298,13 @@ document.addEventListener("DOMContentLoaded", function () {
     clearTimeout(temporizadorBusqueda);
     temporizadorBusqueda = setTimeout(() => {
       const termino = inputBuscador.value.trim().toLowerCase();
-      qsAll("#tablaPedidos tbody tr").forEach((fila) => { // Filtra cada fila de la tabla
+      qsAll("#tablaPedidos tbody tr").forEach((fila) => {
         if (!termino) {
           fila.style.display = "";
           return;
         }
-        const celdas = Array.from(fila.querySelectorAll("td")).map((td) => td.textContent.toLowerCase()); // Obtiene texto de todas las celdas
-        fila.style.display = celdas.some((c) => c.includes(termino)) ? "" : "none"; // Muestra la fila si coincide, si no la oculta
+        const celdas = Array.from(fila.querySelectorAll("td")).map((td) => td.textContent.toLowerCase());
+        fila.style.display = celdas.some((c) => c.includes(termino)) ? "" : "none";
       });
     }, 1500);
   });
@@ -347,67 +330,27 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   const aplicarModoConsultivo = (activo) => {
-    const campoObjetivo = qs('[name="objetivo"]');
-    const campoTipoReq = qs('[name="tipo_requerimiento"]');
-    const campoPublico = qs('[name="publico"]');
-    const bloqueObjetivo = campoObjetivo?.closest(".field");
-    const bloqueTipoReq = campoTipoReq?.closest(".field");
-    const bloqueCanales = document.getElementById("canales-checks")?.closest(".field");
-    const bloqueFormatos = document.getElementById("formatos-checks")?.closest(".field");
-    const bloqueFormatoOtros = document.getElementById("contenedor-formato-otros");
+    const campos = {
+      objetivo: qs('[name="objetivo"]'),
+      tipoReq: qs('[name="tipo_requerimiento"]'),
+      publico: qs('[name="publico"]')
+    };
+    
+    Object.values(campos).forEach(campo => {
+      if (campo) activo ? campo.removeAttribute("required") : campo.setAttribute("required", "required");
+    });
+    
     const aviso = document.getElementById("info-creacion-contenido");
-    const sectionPaso1 = document.getElementById("section-1");
-    const idAvisoPaso1 = "info-creacion-contenido-paso1";
-
-    // Relaja obligatoriedad para flujo consultivo
-    if (campoObjetivo) activo ? campoObjetivo.removeAttribute("required") : campoObjetivo.setAttribute("required", "required");
-    if (campoTipoReq) activo ? campoTipoReq.removeAttribute("required") : campoTipoReq.setAttribute("required", "required");
-    if (campoPublico) activo ? campoPublico.removeAttribute("required") : campoPublico.setAttribute("required", "required");
-
-    // Mantener todos los campos visibles (solo cambia obligatoriedad)
-    if (bloqueObjetivo) bloqueObjetivo.style.display = "";
-    if (bloqueTipoReq) bloqueTipoReq.style.display = "";
-    if (bloqueCanales) bloqueCanales.style.display = "";
-    if (bloqueFormatos) bloqueFormatos.style.display = "";
-    if (bloqueFormatoOtros) bloqueFormatoOtros.style.display = "none";
     if (aviso) {
-      aviso.innerHTML = `
-        <i class="bi bi-info-circle-fill"></i>
-        <strong>Modo Flexible Activado</strong><br>
-        Para <em>Creación de Contenido</em>, solo son obligatorios: <strong>Título del requerimiento</strong>, <strong>Fecha requerida</strong> y <strong>Descripción detallada</strong>.
-      `;
+      aviso.innerHTML = `<i class="bi bi-info-circle-fill"></i><strong>Modo Flexible Activado</strong><br>Para <em>Creación de Contenido</em>, solo son obligatorios: <strong>Título del requerimiento</strong>, <strong>Fecha requerida</strong> y <strong>Descripción detallada</strong>.`;
       aviso.style.display = activo ? "block" : "none";
     }
-
-    // Aviso equivalente en paso 1 para evitar confusión del usuario
-    if (sectionPaso1) {
-      let avisoPaso1 = document.getElementById(idAvisoPaso1);
-      if (!avisoPaso1) {
-        avisoPaso1 = document.createElement("div");
-        avisoPaso1.id = idAvisoPaso1;
-        avisoPaso1.className = "alert alert-info mb-3";
-        avisoPaso1.style.cssText = "display:none; background:#1a3a4a; border:1px solid #2d5a6b; color:#b0d4e3;";
-        avisoPaso1.innerHTML = `
-          <i class="bi bi-info-circle-fill"></i>
-          <strong>Modo Flexible Activado</strong><br>
-          Para <em>Creación de Contenido</em>, solo son obligatorios: <strong>Título del requerimiento</strong>, <strong>Fecha requerida</strong> y <strong>Descripción detallada</strong>.
-        `;
-
-        const bloqueDatosCuenta = sectionPaso1.querySelector(".autofill");
-        if (bloqueDatosCuenta?.parentNode) {
-          bloqueDatosCuenta.parentNode.insertBefore(avisoPaso1, bloqueDatosCuenta.nextSibling);
-        } else {
-          sectionPaso1.prepend(avisoPaso1);
-        }
-      }
-      avisoPaso1.style.display = activo ? "block" : "none";
-    }
-
+    
     if (activo) {
-      if (campoObjetivo) campoObjetivo.value = "";
-      if (campoTipoReq) campoTipoReq.value = "";
-      qsAll('input[name="canales[]"]').forEach((input) => (input.checked = false));
-      qsAll('input[name="formatos[]"]').forEach((input) => (input.checked = false));
+      if (campos.objetivo) campos.objetivo.value = "";
+      if (campos.tipoReq) campos.tipoReq.value = "";
+      qsAll('input[name="canales[]"]').forEach(input => input.checked = false);
+      qsAll('input[name="formatos[]"]').forEach(input => input.checked = false);
       const formatoOtros = qs('[name="formato_otros"]');
       if (formatoOtros) formatoOtros.value = "";
     }
@@ -426,8 +369,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Actualiza UI con el servicio seleccionado
     nombreServicioSeleccionado = nombreServicio || "Personalizado";
-    el("wbadge-container") &&
-      (el("wbadge-container").textContent = nombreServicioSeleccionado);
+    el("wbadge-container") && (el("wbadge-container").textContent = nombreServicioSeleccionado);
     el("form-idservicio") && (el("form-idservicio").value = idServicio);
     aplicarModoConsultivo(esServicioConsultivo(nombreServicioSeleccionado));
 
@@ -438,25 +380,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Genera checkboxes de canales y formatos
     const cc = el("canales-checks");
-    if (cc)
-      cc.innerHTML = generarChecks(
-        CANALES,
-        "canales[]",
-        "limitarSeleccion(this, 'canales[]', 3)",
-      );
+    if (cc) cc.innerHTML = generarChecks(CANALES, "canales[]", "limitarSeleccion(this, 'canales[]', 3)");
+
     const cf = el("formatos-checks");
-    if (cf)
-      cf.innerHTML = generarChecks(
-        FORMATOS[idServicio] ?? FORMATOS[0],
-        "formatos[]",
-        "toggleFormatoOtros(this)",
-      );
+    if (cf) cf.innerHTML = generarChecks(FORMATOS[idServicio] ?? FORMATOS[0], "formatos[]", "toggleFormatoOtros(this)");
 
     // Actualiza opciones de tipo de requerimiento según el servicio
     const selectTipo = el("tipo_req");
-    if (selectTipo) {
-      selectTipo.innerHTML = '<option value="" selected disabled>Seleccionar...</option>' + generarOpcionesTipo(idServicio);
-    }
+    if (selectTipo) selectTipo.innerHTML = '<option value="" selected disabled>Seleccionar...</option>' + generarOpcionesTipo(idServicio);
+
     // Oculta info del tipo anterior
     const infoContainer = el("info-tipo-container");
     if (infoContainer) infoContainer.style.display = "none";
@@ -473,20 +405,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (qsAll(`input[name="${nombre}"]:checked`).length > maximo) {
       checkbox.checked = false;
       checkbox.closest(".check-item").style.borderColor = "#ef4444";
-      setTimeout(
-        () => (checkbox.closest(".check-item").style.borderColor = ""),
-        800,
-      );
+      setTimeout(() => (checkbox.closest(".check-item").style.borderColor = ""), 800);
     }
   };
 
   // Muestra/oculta campo "Otros" en formatos
   window.toggleFormatoOtros = () => {
     const cont = document.getElementById("contenedor-formato-otros");
-    if (cont)
-      cont.style.display = qs('input[name="formatos[]"][value="Otros"]:checked')
-        ? "block"
-        : "none";
+    if (cont) cont.style.display = qs('input[name="formatos[]"][value="Otros"]:checked') ? "block" : "none";
   };
 
   // Mostrar info del tipo seleccionado
@@ -542,17 +468,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // Actualiza visibilidad de secciones
     secciones.forEach((s) => s.classList.add("d-none"));
     indicadores.forEach((i) => i.classList.remove("active"));
-    document
-      .getElementById(`section-${numeroPaso}`)
-      ?.classList.remove("d-none");
-    document
-      .getElementById(`step-${numeroPaso}-indicador`)
-      ?.classList.add("active");
+    document.getElementById(`section-${numeroPaso}`)?.classList.remove("d-none");
+    document.getElementById(`step-${numeroPaso}-indicador`)?.classList.add("active");
 
     // Actualiza título
     const titulo = document.getElementById("form-titulo-servicio");
-    if (titulo)
-      titulo.innerText = `Paso ${numeroPaso}: ${["Info básica", "Detalles y formatos", "Confirmar y enviar"][numeroPaso - 1]}`;
+    if (titulo){ titulo.innerText = `Paso ${numeroPaso}: ${["Info básica", "Detalles y formatos", "Confirmar y enviar"][numeroPaso - 1]}`; }
 
     // Actualiza botones
     btnAtras?.classList.toggle("d-none", numeroPaso === 1);
@@ -566,9 +487,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Retrocede un paso
-  window.retrocederPaso = () => {
-    if (pasoActual > 1) irAlPaso(pasoActual - 1);
-  };
+  window.retrocederPaso = () => { if (pasoActual > 1) irAlPaso(pasoActual - 1); };
 
   document.getElementById("btn-siguiente")?.addEventListener("click", validarYPasar);
 
@@ -700,14 +619,8 @@ document.addEventListener("DOMContentLoaded", function () {
     fd.append("canales_difusion", JSON.stringify(modoConsultivo ? [] : canales));
     fd.append("formatos_solicitados", JSON.stringify(modoConsultivo ? [] : formatos));
     fd.append("fecharequerida", getVal('[name="fecha_entrega"]'));
-    fd.append(
-      "prioridad",
-      qs('input[name="prioridad"]:checked')?.value || "Media",
-    );
-    fd.append(
-      "tiene_materiales",
-      document.getElementById("select-materiales")?.value || "0",
-    );
+    fd.append("prioridad",qs('input[name="prioridad"]:checked')?.value || "Media");
+    fd.append("tiene_materiales",document.getElementById("select-materiales")?.value || "0");
     const fo = getVal('[name="formato_otros"]');
     if (!modoConsultivo && fo) fd.append("formato_otros", fo);
     const url = getVal('[name="url_referencia"]');
@@ -767,7 +680,7 @@ document.addEventListener("DOMContentLoaded", function () {
         btnEnviar.innerHTML =
           'Enviar Requerimiento <i class="bi bi-check-lg"></i>';
       }
-    });
+  });
 
   // Paso 3 - Resumen
   function generarResumen() {
@@ -849,9 +762,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Archivos adjuntos (solo si existen)
     const resArch = document.getElementById("res-archivos");
     const resWrap = document.getElementById("res-archivos-wrap");
-    const archivosPrev = archivosSeleccionados.length
-      ? archivosSeleccionados
-      : Array.from(inputArchivos?.files || []);
+    const archivosPrev = archivosSeleccionados.length ? archivosSeleccionados : Array.from(inputArchivos?.files || []);
 
     if (resArch && resWrap) {
       if (tieneMat && archivosPrev.length) {
@@ -879,7 +790,6 @@ document.addEventListener("DOMContentLoaded", function () {
   window.verSeguimiento = (id) => {
     if (id) window.location.href = `${base_url}cliente/seguimiento/${id}`;
   };
-
 });
 
 // Funciones Globales (badges Tablas)

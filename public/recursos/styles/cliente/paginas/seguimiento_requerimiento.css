@@ -10,9 +10,9 @@
   --card-bg: #111111;
   --border-color: #222222;
   --text-main: #ffffff;
-  --text-muted: #666666;
+  --text-muted: #bbbbbb;
   --accent-yellow: #f5c400;
-  --text-secondary: #888888;
+  --text-secondary: #cccccc;
 }
 
 /* CARDS PRINCIPALES */
@@ -27,7 +27,7 @@
   margin-bottom: 1.5rem;
 }
 .breadcrumb-text {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -39,20 +39,20 @@
   margin: 10px 0 5px 0;
 }
 .cliente-rol-sub {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-secondary);
   margin: 0;
 }
 .label-tiny {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--text-muted);
   letter-spacing: 1.2px;
   text-transform: uppercase;
 }
 .content-text {
-  color: #ccc;
-  font-size: 14px;
+  color: #ddd;
+  font-size: 16px;
   margin-top: 5px;
   line-height: 1.6;
 }
@@ -61,17 +61,17 @@
 .badge-type {
   background: #222;
   color: #fff;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
-  margin-right: 8px;
+  margin-left: 15px;
   text-transform: uppercase;
 }
 .badge-priority {
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
 }
 .prio-alta {
@@ -132,6 +132,20 @@
   border-left: 3px solid var(--accent-yellow);
   transition: all 0.3s ease;
 }
+
+.timeline-item-seg .d-flex {
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between; /* Elementos en extremos opuestos */
+  align-items: center;
+}
+
+.timeline-item-seg small {
+  width: auto;
+  text-align: left;
+  margin-top: 0;
+  margin-left: auto;
+}
 .timeline-item-seg:hover {
   background: #222;
   transform: translateX(5px);
@@ -150,15 +164,15 @@
 }
 .timeline-estado {
   display: inline-block;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 .timeline-fecha {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -170,18 +184,18 @@
 .timeline-descripcion {
   margin: 12px 0;
   color: #e0e0e0;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.7;
 }
 .timeline-responsable {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
   display: flex;
   align-items: center;
   gap: 5px;
 }
 .timeline-responsable i {
-  color: #555;
+  color: #999;
 }
 /* Estados del timeline con colores diferentes */
 .timeline-item-seg[data-estado="pendiente_sin_asignar"] {
@@ -223,7 +237,7 @@
 }
 .t-label {
   display: block;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-muted);
   font-weight: 700;
   text-transform: uppercase;
@@ -231,7 +245,7 @@
 }
 .t-value {
   display: block;
-  font-size: 13px;
+  font-size: 15px;
   color: #fff;
   margin-top: 2px;
   font-weight: 500;
@@ -242,12 +256,12 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
+  padding: 11px 22px;
   background: #222;
   color: #fff;
   border-radius: 8px;
   text-decoration: none;
-  font-size: 13px;
+  font-size: 14px;
   transition: all 0.3s ease;
   border: 1px solid #333;
 }
@@ -258,11 +272,11 @@
 }
 .btn-outline-light {
   border: 1px solid #444;
-  color: #ccc;
-  padding: 10px 20px;
+  color: #ddd;
+  padding: 11px 22px;
   border-radius: 8px;
   text-decoration: none;
-  font-size: 13px;
+  font-size: 14px;
   transition: 0.3s;
   background: transparent;
   display: inline-flex;
@@ -288,12 +302,12 @@
 }
 .empty-state p {
   color: var(--text-muted);
-  font-size: 16px;
+  font-size: 18px;
   margin-bottom: 10px;
 }
 .empty-state small {
-  color: #444;
-  font-size: 13px;
+  color: #999;
+  font-size: 14px;
 }
 
 /* DIVISORES*/
@@ -318,5 +332,19 @@
   }
   .timeline-item-seg {
     padding: 15px;
+  }
+  
+  /* Mantener layout horizontal en móvil */
+  .timeline-item-seg .d-flex {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .timeline-item-seg small {
+    width: auto;
+    text-align: right;
+    margin-top: 0;
+    margin-left: 10px;
   }
 }
