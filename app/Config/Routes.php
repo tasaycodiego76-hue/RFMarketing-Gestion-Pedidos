@@ -43,6 +43,7 @@ $routes->group('admin', function ($routes) {
     $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
     $routes->post('kanban/asignarEmpleado', 'Administrador\Kanban::asignarEmpleado');
     $routes->post('kanban/iniciarTrabajo', 'Administrador\kanban::iniciarTrabajo');
+    $routes->post('kanban/regresarAProceso', 'Administrador\kanban::regresarAProceso');
 
     //EMPRESAS 
     $routes->get('empresas', 'Administrador\EmpresasController::index');
@@ -76,6 +77,7 @@ $routes->group('empleado', function ($routes) {
     $routes->get('dashboard', 'Empleado\MisPedidosController::dashboard');
     $routes->get('mis_pedidos', 'Empleado\MisPedidosController::index');
     $routes->get('historial', 'Empleado\MisPedidosController::historial');
+    $routes->get('retroalimentacion', 'Empleado\MisPedidosController::retroalimentacion');
     $routes->post('pedido-iniciar/(:num)', 'Empleado\MisPedidosController::iniciarPedido/$1');
     $routes->post('pedido-entregar/(:num)', 'Empleado\MisPedidosController::entregarPedido/$1');
     $routes->get('pedido-detalle/(:num)', 'Empleado\MisPedidosController::detalle/$1');

@@ -7,6 +7,8 @@ use App\Models\EmpresaModel;
 use App\Models\AreasAgenciaModel;
 use App\Models\AtencionModel;
 use App\Models\ArchivoModel;
+use App\Models\RetroalimentacionModel;
+use App\Models\TrackingModel;
 
 class kanban extends Controller
 {
@@ -120,18 +122,25 @@ class kanban extends Controller
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Atención no encontrada']);
         }
 
-        // 2. Consulta de archivos
-        $archivos = $db->table('archivos')
+        // 2. Consulta de archivos separados
+        $archivosCliente = $db->table('archivos')
             ->select('nombre, ruta')
-            ->where('idatencion', $idAtencion)
-            ->orWhere('idrequerimiento', $data['idrequerimiento'])
+            ->where('idrequerimiento', $data['idrequerimiento'])
+            ->where('idatencion IS NULL') // Los archivos del cliente no tienen idatencion vinculada inicialmente
             ->get()
             ->getResultArray();
 
-        // --- SOLUCIÓN PARA LA CARPETA PUBLIC/UPLOADS ---
-        // Recorremos los archivos para generar la URL pública
-        foreach ($archivos as &$archivo) {
-            // Esto asume que en tu DB la ruta se guarda como: uploads/archivo.jpg
+        $archivosEmpleado = $db->table('archivos')
+            ->select('nombre, ruta')
+            ->where('idatencion', $idAtencion)
+            ->get()
+            ->getResultArray();
+
+        // Generar URL completa para ambos
+        foreach ($archivosCliente as &$archivo) {
+            $archivo['url_completa'] = base_url($archivo['ruta']);
+        }
+        foreach ($archivosEmpleado as &$archivo) {
             $archivo['url_completa'] = base_url($archivo['ruta']);
         }
 
@@ -149,7 +158,8 @@ class kanban extends Controller
         return $this->response->setJSON([
             'status' => 'success',
             'data' => $data,
-            'archivos' => $archivos,
+            'archivos_cliente' => $archivosCliente,
+            'archivos_empleado' => $archivosEmpleado,
         ]);
     }
 
@@ -360,5 +370,47 @@ class kanban extends Controller
 
         $db->query("UPDATE atencion SET prioridad = ? WHERE id = ?", [$prioridad, $idAtencion]);
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Prioridad actualizada']);
+    }
+
+    public function regresarAProceso()
+    {
+        $json = $this->request->getJSON(true);
+        $idAtencion = $json['idatencion'];
+        $mensaje = $json['mensaje'];
+        $idAdmin = session()->get('id') ?? 1;
+
+        $db = \Config\Database::connect();
+        $atencionModel = new AtencionModel();
+        $retroModel = new RetroalimentacionModel();
+        $trackingModel = new TrackingModel();
+
+        $atencion = $atencionModel->find($idAtencion);
+        if (!$atencion) {
+            return $this->response->setJSON(['status' => 'error', 'msg' => 'Pedido no encontrado']);
+        }
+
+        // 1. Actualizar estado del pedido a 'en_proceso'
+        $atencionModel->update($idAtencion, [
+            'estado' => 'en_proceso'
+        ]);
+
+        // 2. Registrar en la tabla de retroalimentación
+        $retroModel->insert([
+            'idatencion' => $idAtencion,
+            'idevaluador' => $idAdmin,
+            'contenido' => $mensaje,
+            'fecha' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
+        ]);
+
+        // 3. Registrar en tracking
+        $trackingModel->insert([
+            'idatencion' => $idAtencion,
+            'idusuario' => $idAdmin,
+            'accion' => "Pedido regresado a proceso con observaciones: " . $mensaje,
+            'estado' => 'en_proceso',
+            'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
+        ]);
+
+        return $this->response->setJSON(['status' => 'success', 'msg' => 'Pedido regresado correctamente con retroalimentación']);
     }
 }

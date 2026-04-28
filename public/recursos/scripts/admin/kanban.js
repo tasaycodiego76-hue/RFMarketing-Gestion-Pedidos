@@ -142,11 +142,15 @@ async function iniciarTrabajo(idAtencion) {
 // ══════════════════════════════════════════════════════
 async function verDetalle(idAtencion) {
     const cuerpo = document.getElementById('detalle-cuerpo');
+    if (!cuerpo) return;
+
+    // Loader inicial
     cuerpo.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;gap:14px;">
-            <div class="spinner-border" style="color:#F5C400;width:2rem;height:2rem;border-width:3px;"></div>
-            <span style="color:#555;font-size:10px;letter-spacing:2px;font-weight:700;text-transform:uppercase;">Cargando expediente...</span>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;gap:20px;">
+            <div class="spinner-border" style="color:#F5C400;width:3rem;height:3rem;border-width:4px;"></div>
+            <span style="color:#F5C400;font-size:12px;letter-spacing:3px;font-weight:700;text-transform:uppercase;">Cargando expediente completo...</span>
         </div>`;
+    
     $('#modalDetalle').modal('show');
 
     try {
@@ -154,438 +158,312 @@ async function verDetalle(idAtencion) {
         const res = await r.json();
 
         if (res.status !== 'success') {
-            cuerpo.innerHTML = _errorHtml('No se pudo cargar el expediente.');
+            cuerpo.innerHTML = _errorHtml('No se pudo obtener la información detallada.');
             return;
         }
 
         const d = res.data;
-        const archivos = res.archivos || [];
+        const archivosCliente = res.archivos_cliente || [];
+        const archivosEmpleado = res.archivos_empleado || [];
 
-        // ── Fechas formateadas ──────────────────────────────────
-        const fmt = s => s ? s.substring(0, 10).split('-').reverse().join('/') : null;
-        const fReq = d.fecharequerida ? d.fecharequerida.substring(0, 10).split('-').reverse().join('/') : null;
-        const fSol = fmt(d.r_fechacreacion);
-        const fIni = fmt(d.fechainicio);
-        const fFin = fmt(d.fechacompletado);
+        // ── Fechas (Ya vienen formateadas desde el servidor) ─────
+        const fReq = d.fecharequerida || '---';
+        const fSol = d.r_fechacreacion || '---'; // r_fechacreacion no se formatea en PHP, solo requerida/inicio/fin/completa
+        const fIni = d.fechainicio || '---';
+        const fFin = d.fechacompletado || '---';
+        
+        // Formateo extra solo para r_fechacreacion si viene como timestamp
+        const fmtRaw = s => (s && s.length > 10) ? s.substring(0, 10).split('-').reverse().join('/') : s;
+        const fSolFmt = fmtRaw(fSol);
 
-        // ── Estado del trabajo (según flujo real del sistema) ───
-        //
-        //   pendiente_asignado (sin empleado)     → "Pendiente de asignación"
-        //   pendiente_asignado (con empleado)     → "Asignado — aún no iniciado"
-        //   en_proceso (con empleado)             → "Desarrollando"
-        //   finalizado                             → "Completado"
+        // ── Pill de Estado ──────────────────────────────────────
         let trabajoHtml;
         if (d.estado === 'finalizado') {
-            trabajoHtml = _pill('bi-check2-circle', 'Completado', '#22c55e', '#052e16');
+            trabajoHtml = _pill('bi-check2-all', 'COMPLETADO', '#22c55e', 'rgba(34,197,94,0.1)');
         } else if (!d.idempleado) {
-            trabajoHtml = _pill('bi-hourglass-split', 'Pendiente de asignación', '#6b7280', '#111');
+            trabajoHtml = _pill('bi-hourglass', 'PENDIENTE ASIGNACIÓN', '#888', 'rgba(136,136,136,0.1)');
         } else if (d.estado === 'pendiente_asignado') {
-            trabajoHtml = _pill('bi-person-check-fill', 'Asignado — aún no iniciado', '#F5C400', '#1a1500');
+            trabajoHtml = _pill('bi-person-check', 'ASIGNADO', '#F5C400', 'rgba(245,196,0,0.1)');
         } else {
-            trabajoHtml = _pill('bi-lightning-charge-fill', 'Desarrollando', '#10b981', '#001a0f');
+            trabajoHtml = _pill('bi-lightning-charge', 'EN DESARROLLO', '#10b981', 'rgba(16,185,129,0.1)');
         }
 
-        // ── Mapa de estados ─────────────────────────────────────
-        const estadoMap = {
-            pendiente_sin_asignar: { c: '#f59e0b', label: 'Por Aprobar', i: 'bi-hourglass-split' },
-            pendiente_asignado: { c: '#F5C400', label: 'Asignado', i: 'bi-send-check-fill' },
-            en_proceso: { c: '#10b981', label: 'En Proceso', i: 'bi-lightning-charge-fill' },
-            en_revision: { c: '#3b82f6', label: 'En Revisión', i: 'bi-eye-fill' },
-            finalizado: { c: '#22c55e', label: 'Entregado', i: 'bi-check2-circle' },
-            cancelado: { c: '#ef4444', label: 'Cancelado', i: 'bi-x-circle-fill' },
+        // ── Renderizado de Archivos ──────────────────────────────
+        const renderArchivos = (lista, color = '#F5C400') => {
+            if (!lista.length) return '<div style="color:#ffffff;font-size:14px;font-weight:700;padding:5px 0;">No se adjuntaron archivos.</div>';
+            let html = `<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));gap:10px;margin-top:10px;">`;
+            lista.forEach(a => {
+                const ext = a.nombre.split('.').pop().toLowerCase();
+                const icon = KB_ICONS[ext] ?? KB_ICONS.default;
+                html += `
+                    <a href="${a.url_completa}" target="_blank" 
+                       style="display:flex;align-items:center;gap:10px;padding:12px;background:#0a0a0a;border:1px solid #222;border-radius:8px;color:#fff;text-decoration:none;font-size:11px;transition:border-color 0.2s;">
+                        <i class="bi ${icon}" style="color:${color};font-size:16px;"></i>
+                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.nombre}</span>
+                    </a>`;
+            });
+            html += '</div>';
+            return html;
         };
-        const es = estadoMap[d.estado] ?? { c: '#aaa', label: d.estado.replace(/_/g, ' '), i: 'bi-circle' };
-        const priC = d.prioridad_admin === 'Alta' ? '#ef4444' : (d.prioridad_admin === 'Media' ? '#F5C400' : '#3b82f6');
-        const priI = d.prioridad_admin === 'Alta' ? 'bi-arrow-up-circle-fill' : (d.prioridad_admin === 'Media' ? 'bi-dash-circle-fill' : 'bi-arrow-down-circle-fill');
 
-        // ── Bloque empleado asignado ────────────────────────────
+        const arcClienteHtml = renderArchivos(archivosCliente);
+        const arcEmpleadoHtml = renderArchivos(archivosEmpleado, '#10b981');
+
+        // ── Tags para canales/formatos ──────────────────────────
+        const renderTags = json => {
+            if (!json) return '<div style="color:#ffffff;font-size:13px;font-weight:900;text-align:center;width:100%;">SIN ESPECIFICAR</div>';
+            const list = _parseList(json);
+            return `<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px;width:100%;">` + 
+                list.map(t => {
+                    const texto = String(t || '').toUpperCase();
+                    return `<span style="background:#F5C400;color:#000;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:800;border:1px solid #fff;box-shadow:0 3px 8px rgba(245,196,0,0.2);white-space:nowrap;">${texto}</span>`;
+                }).join('') + 
+                `</div>`;
+        };
+
+        // ── Bloque del Empleado ──────────────────────────────────
         let empleadoHtml;
         if (d.empleado_nombre) {
             const ini = (d.empleado_nombre[0] + (d.empleado_apellidos?.[0] ?? '')).toUpperCase();
             empleadoHtml = `
-                <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
-                    <div style="width:36px;height:36px;border-radius:50%;
-                        background:linear-gradient(135deg,#F5C400,#b45309);
-                        color:#000;font-weight:800;font-size:13px;
-                        display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ini}</div>
+                <div style="display:flex; align-items:center; gap:12px; text-align:left; width:100%;">
+                    <div style="width:50px; height:50px; background:linear-gradient(135deg, #F5C400, #ff8c00); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:900; color:#000; border:2px solid #fff; flex-shrink:0;">
+                        ${ini}
+                    </div>
                     <div>
-                        <div style="color:#f0f0f0;font-weight:700;font-size:13px;">${d.empleado_nombre} ${d.empleado_apellidos}</div>
-                        <div style="color:#555;font-size:10px;text-transform:uppercase;letter-spacing:.5px;">
-                            ${d.estado === 'en_proceso' ? 'En desarrollo' : (d.estado === 'finalizado' ? 'Finalizado' : 'Asignado — sin iniciar')}
-                        </div>
+                        <div style="color:#ffffff; font-size:15px; font-weight:800;">${d.empleado_nombre} ${d.empleado_apellidos}</div>
+                        <div style="color:#F5C400; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px;">EJECUTOR ASIGNADO</div>
                     </div>
                 </div>`;
         } else {
             empleadoHtml = `
-                <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
-                    <div style="width:36px;height:36px;border-radius:50%;background:#111;
-                        border:2px dashed #222;display:flex;align-items:center;justify-content:center;">
-                        <i class="bi bi-person-dash" style="color:#444;font-size:16px;"></i>
+                <div style="display:flex; align-items:center; gap:12px; text-align:left; width:100%;">
+                    <div style="width:50px; height:50px; background:#111; border:1px dashed #F5C400; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#F5C400; flex-shrink:0;">
+                        <i class="bi bi-person" style="font-size:24px;"></i>
                     </div>
                     <div>
-                        <div style="color:#F5C400;font-weight:700;font-size:13px;">Sin asignar</div>
-                        <div style="color:#555;font-size:10px;letter-spacing:.5px;">Esperando al responsable del área</div>
+                        <div style="color:#F5C400; font-size:14px; font-weight:800;">Sin asignar</div>
+                        <div style="color:#888; font-size:10px;">Esperando responsable</div>
                     </div>
                 </div>`;
         }
 
-        // ── Archivos adjuntos ───────────────────────────────────
-        let arcHtml = '';
-        if (archivos.length) {
-            // Se agregó un max-height y overflow para hacer scroll si hay muchas evidencias, y grid-template dinámico
-            arcHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:8px;margin-top:8px;max-height:200px;overflow-y:auto;padding-right:4px;">`;
-            archivos.forEach(a => {
-                const ext = a.nombre.split('.').pop().toLowerCase();
-                const icon = KB_ICONS[ext] ?? KB_ICONS.default;
-                arcHtml += `
-                    <a href="${BASE_URL}/cliente/archivos/${a.ruta.split('/').pop()}" target="_blank"
-                       style="display:flex;align-items:center;gap:8px;padding:9px 12px;
-                              background:#0a0a0a;border:1px solid #1e1e1e;border-radius:7px;
-                              color:#aaa;text-decoration:none;font-size:11px;transition:border-color .15s;
-                              min-width:0; overflow:hidden;"
-                       onmouseover="this.style.borderColor='#F5C400'"
-                       onmouseout="this.style.borderColor='#1e1e1e'">
-                        <i class="bi ${icon}" style="color:#F5C400;font-size:16px;flex-shrink:0;"></i>
-                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">${a.nombre}</span>
-                    </a>`;
-            });
-            arcHtml += '</div>';
-        } else {
-            arcHtml = '<p style="color:#333;font-size:12px;font-style:italic;margin:8px 0 0;">No se adjuntaron archivos.</p>';
-        }
-
-
-        // ── Canales / Formatos como tags ────────────────────────
-
-        const renderTags = json => {
-            if (!json) return '<span style="color:#555;font-size:12px;font-style:italic;">No especificado</span>';
-            return _parseList(json)
-                .map(t => `<span style="display:inline-block;background:#1e1e1e;color:#e8e8e8;border:1px solid #333;padding:5px 10px;border-radius:6px;font-size:11px;margin-bottom:6px;box-shadow:0 2px 4px rgba(0,0,0,0.2);">${t}</span>`)
-                .join(' ');
-        };
-
-        // ── URLs enviadas por el cliente (por aprobar / aprobado / en proceso) ─────
-        let urlsClienteHtml = '';
-        if (d.estado === 'pendiente_sin_asignar' || d.estado === 'pendiente_asignado' || d.estado === 'en_proceso') {
-            const link = d.url_subida
-                ? `<a href="${d.url_subida}" target="_blank" style="color:#60a5fa;text-decoration:underline;font-size:13px;word-break:break-all;">${d.url_subida}</a>`
-                : '<span style="color:#333;font-size:12px;font-style:italic;">No se adjuntó enlace</span>';
-
-            urlsClienteHtml = _seccion('bi-link-45deg', 'URLs enviadas por el Cliente', '#60a5fa', `
-                <div>
-                    ${_label('Enlace / URLs')}
-                    <div style="margin-top:5px;">${link}</div>
-                </div>
-            `);
-        }
-
-        // ── Entregables (en_revision / finalizado) ──────────────
+        // ── Sección de Entrega ──────────────────────────────────
         let entregablesHtml = '';
         if (d.estado === 'en_revision' || d.estado === 'finalizado') {
-            const link = d.url_entrega
-                ? `<a href="${d.url_entrega}" target="_blank" style="color:#60a5fa;text-decoration:underline;font-size:13px;word-break:break-all;">${d.url_entrega}</a>`
-                : '<span style="color:#333;font-size:12px;font-style:italic;">No se adjuntó enlace</span>';
-            const msg = d.observacion_revision
-                ? `<div class="kd-val" style="color:#ccc;font-size:13px;line-height:1.7;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;white-space:pre-wrap;">${d.observacion_revision}</div>`
-                : '<span style="color:#333;font-size:12px;font-style:italic;">Sin mensaje adicional</span>';
-
-            entregablesHtml = _seccion('bi-box-arrow-up-right', 'Entregables del Área', '#3b82f6', `
-                <div style="margin-bottom:14px;min-width:0;">
-                    ${_label('Enlace / Archivo de entrega')}
-                    <div style="margin-top:5px;">${link}</div>
-                </div>
-                <div>
-                    ${_label('Mensaje del desarrollador')}
-                    <div style="margin-top:5px;">${msg}</div>
-                </div>
-            `);
+            entregablesHtml = `
+                <div style="margin-top:25px; background:rgba(16,185,129,0.03); border:1px solid rgba(16,185,129,0.1); border-radius:15px; padding:25px;">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+                        <i class="bi bi-check-all" style="color:#10b981;font-size:24px;"></i>
+                        <span style="font-family:'Bebas Neue';font-size:22px;color:#fff;letter-spacing:1px;">RESULTADO DE LA ENTREGA</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:25px;">
+                        <div>
+                            ${_label('Enlace de Entrega Final')}
+                            <div style="margin-top:8px;">
+                                ${d.url_entrega ? `<a href="${d.url_entrega}" target="_blank" style="color:#10b981;font-weight:800;font-size:16px;text-decoration:underline;">Abrir Link de Entrega <i class="bi bi-box-arrow-up-right ml-1"></i></a>` : '<span style="color:#ffffff;">Sin link adjunto</span>'}
+                            </div>
+                        </div>
+                        <div>
+                            ${_label('Mensaje del Desarrollador')}
+                            <div style="color:#ffffff;font-size:13px;line-height:1.6;margin-top:8px;white-space:pre-wrap;">${d.observacion_revision || 'No se incluyeron notas.'}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px;">
+                        ${_label('Archivos del Empleado')}
+                        ${arcEmpleadoHtml}
+                    </div>
+                </div>`;
         }
 
-        // ── Panel cambio prioridad (solo admin en pendiente_sin_asignar) ──
-        let prioridadPanel = '';
-        if (d.estado === 'pendiente_sin_asignar') {
-            prioridadPanel = _seccion('bi-flag-fill', 'Cambiar Prioridad', '#F5C400', `
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <select id="detalle-prioridad"
-                        style="background:#0a0a0a;border:1px solid #1e1e1e;color:#f0f0f0;
-                               padding:6px 10px;border-radius:6px;font-size:12px;outline:none;
-                               cursor:pointer;">
-                        <option value="Baja"  ${d.prioridad_admin === 'Baja' ? 'selected' : ''}>Baja</option>
-                        <option value="Media" ${d.prioridad_admin === 'Media' ? 'selected' : ''}>Media</option>
-                        <option value="Alta"  ${d.prioridad_admin === 'Alta' ? 'selected' : ''}>Alta</option>
-                    </select>
-                    <button onclick="cambiarPrioridad(${d.id})"
-                        style="background:#F5C400;color:#000;border:none;padding:7px 20px;
-                               border-radius:6px;font-family:'Bebas Neue',sans-serif;
-                               font-size:15px;letter-spacing:2px;cursor:pointer;">
-                        GUARDAR
-                    </button>
-                </div>
-            `);
-        }
+        // ── Título del Modal ────────────────────────────────────
+        document.getElementById('detalle-titulo').innerText = (d.nombreempresa || 'PEDIDO').toUpperCase();
 
-        // ══════════════════════════════════
-        // ══  HTML FINAL DEL MODAL        ══
-        // ══════════════════════════════════
-        const html = `
-        <style>
-            .kd-sec {
-                background: #0a0a0a;
-                border: 1px solid #1e1e1e;
-                border-left-width: 3px;
-                border-radius: 8px;
-                padding: 16px 18px;
-                margin-bottom: 12px;
-            }
-            .kd-sec-title {
-                font-family: 'Bebas Neue', sans-serif;
-                font-size: 14px;
-                letter-spacing: 2px;
-                text-transform: uppercase;
-                margin-bottom: 14px;
-                display: flex;
-                align-items: center;
-                gap: 7px;
-            }
-            .kd-label {
-                font-size: 9px;
-                font-weight: 700;
-                letter-spacing: 1px;
-                text-transform: uppercase;
-                color: #444;
-                display: block;
-                margin-bottom: 4px;
-            }
-            .kd-val {
-                color: #d0d0d0;
-                font-size: 13px;
-                line-height: 1.65;
-                word-wrap: break-word;
-                overflow-wrap: break-word;
-                word-break: break-word;
-            }
-            .kd-hr { border: none; border-top: 1px solid #1a1a1a; margin: 12px 0; }
-            .kd-info-row {
-                display: flex; align-items: flex-start;
-                gap: 10px; padding: 9px 0;
-                border-bottom: 1px solid #111;
-            }
-            .kd-info-row:last-child { border-bottom: none; }
-            .kd-icon {
-                width: 28px; height: 28px; border-radius: 6px;
-                background: #111; display: flex; align-items: center;
-                justify-content: center; flex-shrink: 0;
-                font-size: 13px; color: #444;
-            }
-            .kd-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-            @media(max-width:640px) {
-                .kd-2col { grid-template-columns: 1fr; }
-                .kd-main { grid-template-columns: 1fr !important; }
-            }
-        </style>
-
-        <div style="font-family:'Segoe UI',system-ui,sans-serif;color:#c8c8c8;">
-
-                       <!-- ══ CABECERA ══ -->
-            <div style="margin-bottom:18px;">
-                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:12px;">
-                    ${_pill(es.i, es.label, es.c, es.c + '18')}
-                    ${_pill(priI, (d.prioridad_admin || 'Baja'), priC, priC + '18')}
-                    ${d.servicio ? `<span style="background:#111;color:#888;border:1px solid #222;padding:4px 12px;border-radius:20px;font-size:11px;">${d.servicio}</span>` : ''}
-                    ${d.tipo_requerimiento ? `<span style="background:#111;color:#555;border:1px solid #1e1e1e;padding:4px 12px;border-radius:20px;font-size:10px;">${d.tipo_requerimiento}</span>` : ''}
-                </div>
-                <h2 style="font-family:'Bebas Neue',sans-serif;color:#fff;font-size:26px;letter-spacing:2px;margin:0 0 2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;hyphens:auto;">${d.titulo || 'Sin Título'}</h2>
-                <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;">
-                    ${d.nombreempresa || ''} ${d.area_solicitante_nombre ? '· ' + d.area_solicitante_nombre : ''}
-                </p>
-                ${trabajoHtml}
-            </div>
-
-
-            <!-- ══ GRID PRINCIPAL ══ -->
-            <div class="kd-main" style="display:grid;grid-template-columns:1fr 285px;gap:18px;align-items:start;">
-
-                <!-- ══ IZQUIERDA ══ -->
-                <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
-
-                    <!-- Brief -->
-                    ${_seccion('bi-bullseye', 'Brief del Pedido', '#F5C400', `
-                        <div style="max-height: 400px; overflow-y: auto; padding-right: 8px; text-align: center; display: flex; flex-direction: column; gap: 14px;">
-                            
-                            <div style="background:#111; padding:16px; border-radius:8px; border:1px solid #1e1e1e;">
-                                ${_label('Objetivo de comunicación')}
-                                <div class="kd-val" style="width:100%; margin-top:8px;">${d.objetivo_comunicacion || '---'}</div>
-                            </div>
-
-                            <div style="background:#111; padding:16px; border-radius:8px; border:1px solid #1e1e1e;">
-                                ${_label('Público objetivo')}
-                                <div class="kd-val" style="width:100%; margin-top:8px;">${d.publico_objetivo || '---'}</div>
-                            </div>
-
-                            <div class="kd-2col">
-                                <div style="background:#111; padding:12px; border-radius:8px; border:1px solid #1e1e1e; display:flex;flex-direction:column;align-items:center;">
-                                    ${_label('Tipo de requerimiento')}
-                                    <div class="kd-val" style="margin-top:4px;">${d.tipo_requerimiento || 'Estándar'}</div>
-                                </div>
-                                <div style="background:#111; padding:12px; border-radius:8px; border:1px solid #1e1e1e; display:flex;flex-direction:column;align-items:center;">
-                                    ${_label('Área solicitante')}
-                                    <div class="kd-val" style="margin-top:4px;text-transform:uppercase;color:#F5C400;font-weight:700;">${d.area_solicitante_nombre || '---'}</div>
-                                </div>
-                            </div>
+        // ── CONSTRUCCIÓN FINAL DEL HTML ────────────────────────
+        cuerpo.innerHTML = `
+            <style>
+                .det-container { padding: 5px 15px 20px; color: #ffffff; width: 100%; font-family: 'Inter', sans-serif; }
+                
+                /* Estructura Grid Principal */
+                .det-main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+                
+                /* Secciones Universales */
+                .det-card { background: #0c0c0c; border: 1px solid #222; border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+                .det-card-header { background: #111; padding: 12px 18px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 10px; }
+                .det-card-header i { font-size: 18px; color: #F5C400; }
+                .det-card-header span { font-family: 'Bebas Neue'; font-size: 18px; letter-spacing: 1px; color: #eee; }
+                .det-card-body { padding: 18px; }
+                
+                /* Etiquetas y Datos */
+                .det-data-box { background: #000; border: 1px solid #1a1a1a; border-radius: 8px; padding: 12px; height: 100%; }
+                .det-data-label { color: #F5C400; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; display: block; }
+                .det-data-value { color: #fff; font-size: 13px; line-height: 1.5; font-weight: 500; }
+                
+                /* Responsive */
+                @media (max-width: 992px) {
+                    .det-main-grid { grid-template-columns: 1fr; }
+                    .det-header { flex-direction: column; align-items: flex-start !important; gap: 15px; }
+                }
+            </style>
+            
+            <div class="det-container">
+                <!-- 1. HEADER PREMIUM -->
+                <div class="det-header" style="display:flex; justify-content:space-between; align-items:flex-end; padding-bottom:20px; border-bottom:1px solid #222; margin-bottom:25px;">
+                    <div>
+                        <div style="font-size:10px; color:#F5C400; font-weight:900; letter-spacing:3px; text-transform:uppercase; margin-bottom:6px;">ADMINISTRACIÓN DE REQUERIMIENTO</div>
+                        <h2 style="font-family:'Bebas Neue', sans-serif; font-size:36px; color:#ffffff; letter-spacing:1px; margin:0; line-height:0.9;">${d.titulo || 'SIN TÍTULO'}</h2>
+                        <div style="margin-top:10px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                            <span style="color:#eee; font-size:14px; font-weight:700; display:flex; align-items:center; gap:6px;"><i class="bi bi-building" style="color:#F5C400;"></i> ${d.nombreempresa}</span>
+                            <span style="color:#444;">|</span>
+                            <span style="color:#F5C400; font-size:13px; font-weight:800; text-transform:uppercase;">${d.servicio || 'GENERAL'}</span>
                         </div>
-                    `)}
-
-
-                    <!-- Descripción -->
-                    ${_seccion('bi-card-text', 'Descripción', '#374151', `
-                        <div class="kd-val" style="line-height:1.75;white-space:pre-wrap;word-break:break-word;max-height:250px;overflow-y:auto;padding-right:5px;">${d.descripcion || 'Sin descripción.'}</div>
-                    `)}
-
-
-                    <!-- Canales y formatos -->
-                    ${_seccion('bi-broadcast', 'Canales y Formatos', '#374151', `
-                        <div class="kd-2col" style="gap:10px;">
-                            <div style="background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:12px;">
-                                <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;border-bottom:1px solid #222;padding-bottom:6px;">
-                                    <i class="bi bi-megaphone" style="color:#F5C400;font-size:12px;"></i>
-                                    ${_label('Canales de difusión')}
-                                </div>
-                                <div style="display:flex;flex-wrap:wrap;gap:5px;">${renderTags(d.canales_difusion)}</div>
-                            </div>
-                            
-                            <div style="background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:12px;">
-                                <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;border-bottom:1px solid #222;padding-bottom:6px;">
-                                    <i class="bi bi-aspect-ratio" style="color:#F5C400;font-size:12px;"></i>
-                                    ${_label('Formatos solicitados')}
-                                </div>
-                                <div style="display:flex;flex-wrap:wrap;gap:5px;">${renderTags(d.formatos_solicitados)}</div>
-                            </div>
-                        </div>
-                    `)}
-
-
-                    <!-- Archivos adjuntos -->
-                    ${_seccion('bi-paperclip', 'Archivos Adjuntos', '#374151', arcHtml)}
-
-                    <!-- URLs del cliente si aplica -->
-                    ${urlsClienteHtml}
-
-                    <!-- Entregables si aplica -->
-                    ${entregablesHtml}
-
-                    <!-- Panel prioridad admin -->
-                    ${prioridadPanel}
-
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+                        ${trabajoHtml}
+                        <div style="font-size:11px; color:#555; font-weight:700;">ID: #${d.id.toString().padStart(5, '0')}</div>
+                    </div>
                 </div>
 
-                <!-- ══ DERECHA: resumen sticky ══ -->
-                <div style="min-width:285px;">
-                    <div style="background:#0a0a0a;border:1px solid #1e1e1e;border-radius:8px;padding:16px;position:sticky;top:0;">
-
-                        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#2a2a2a;margin-bottom:14px;">
-                            Información del Pedido
-                        </div>
-
-                        <!-- Empleado -->
-                        <div style="margin-bottom:14px;">
-                            ${_label('Empleado asignado')}
-                            ${empleadoHtml}
-                        </div>
-
-                        <hr class="kd-hr">
-
-                        <!-- Fecha requerida -->
-                        <div class="kd-info-row">
-                            <div class="kd-icon"><i class="bi bi-calendar-event"></i></div>
-                            <div>
-                                ${_label('Fecha requerida')}
-                                <div style="color:${fReq ? '#f0f0f0' : '#444'};font-size:13px;font-weight:700;">${fReq ?? 'No definida'}</div>
-                            </div>
-                        </div>
-
-                        <!-- Fecha solicitud -->
-                        <div class="kd-info-row">
-                            <div class="kd-icon"><i class="bi bi-calendar-plus"></i></div>
-                            <div>
-                                ${_label('Fecha de solicitud')}
-                                <div style="color:#f0f0f0;font-size:13px;font-weight:700;">${fSol ?? '---'}</div>
-                            </div>
-                        </div>
-
-                        <!-- Inicio de trabajo -->
-                        <div class="kd-info-row">
-                            <div class="kd-icon"><i class="bi bi-play-circle" style="color:${fIni ? '#10b981' : '#333'};"></i></div>
-                            <div>
-                                ${_label('Inicio de trabajo')}
-                                <div style="color:${fIni ? '#10b981' : '#444'};font-size:13px;font-weight:700;">
-                                    ${fIni ?? 'Aún no iniciado'}
+                <div class="det-main-grid">
+                    
+                    <!-- COLUMNA IZQUIERDA: CONTENIDO -->
+                    <div class="det-content-col">
+                        
+                        <!-- Brief Estratégico -->
+                        <div class="det-card" style="border-top: 3px solid #F5C400;">
+                            <div class="det-card-header"><i class="bi bi-bullseye"></i> <span>ESTRATEGIA Y OBJETIVOS</span></div>
+                            <div class="det-card-body">
+                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:20px;">
+                                    <div class="det-data-box">
+                                        <span class="det-data-label">Objetivo de Comunicación</span>
+                                        <div class="det-data-value">${d.objetivo_comunicacion || '---'}</div>
+                                    </div>
+                                    <div class="det-data-box">
+                                        <span class="det-data-label">Público Objetivo</span>
+                                        <div class="det-data-value">${d.publico_objetivo || '---'}</div>
+                                    </div>
+                                </div>
+                                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; border-top:1px solid #222; padding-top:15px;">
+                                    <div><span class="det-data-label">Categoría</span><div style="color:#F5C400; font-weight:800; font-size:12px;">${d.tipo_requerimiento || 'ESTÁNDAR'}</div></div>
+                                    <div><span class="det-data-label">Área Solicitante</span><div style="color:#fff; font-weight:700; font-size:12px;">${d.area_solicitante_nombre || '---'}</div></div>
+                                    <div><span class="det-data-label">Prioridad Cliente</span><div style="color:#fff; font-weight:700; font-size:12px;">${d.prioridad_cliente || 'MEDIA'}</div></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Completado (si aplica) -->
-                        ${fFin ? `
-                        <div class="kd-info-row">
-                            <div class="kd-icon"><i class="bi bi-check2-all" style="color:#22c55e;"></i></div>
-                            <div>
-                                ${_label('Completado el')}
-                                <div style="color:#22c55e;font-size:13px;font-weight:700;">${fFin}</div>
+                        <!-- Instrucciones -->
+                        <div class="det-card" style="border-top: 3px solid #3b82f6;">
+                            <div class="det-card-header"><i class="bi bi-chat-right-text" style="color:#3b82f6;"></i> <span>DESCRIPCIÓN DEL PROYECTO</span></div>
+                            <div class="det-card-body">
+                                <div style="color:#eee; font-size:14px; line-height:1.6; white-space:pre-wrap; background:#000; padding:15px; border-radius:8px; border:1px solid #1a1a1a;">${d.descripcion || 'Sin descripción detallada.'}</div>
+                            </div>
+                        </div>
+
+                        <!-- Canales y Formatos -->
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
+                            <div class="det-card" style="border-top: 3px solid #a855f7; margin-bottom:0;">
+                                <div class="det-card-header"><i class="bi bi-share" style="color:#a855f7;"></i> <span>CANALES</span></div>
+                                <div class="det-card-body" style="padding:15px;">${renderTags(d.canales_difusion)}</div>
+                            </div>
+                            <div class="det-card" style="border-top: 3px solid #06b6d4; margin-bottom:0;">
+                                <div class="det-card-header"><i class="bi bi-box" style="color:#06b6d4;"></i> <span>FORMATOS</span></div>
+                                <div class="det-card-body" style="padding:15px;">${renderTags(d.formatos_solicitados)}</div>
+                            </div>
+                        </div>
+
+                        <!-- Archivos y Recursos -->
+                        <div class="det-card" style="border-top: 3px solid #6366f1;">
+                            <div class="det-card-header"><i class="bi bi-folder2-open" style="color:#6366f1;"></i> <span>RECURSOS Y MATERIAL</span></div>
+                            <div class="det-card-body">
+                                ${arcClienteHtml}
+                                ${d.url_subida ? `
+                                <div style="margin-top:20px; background:#000; padding:12px; border-radius:8px; border:1px solid #333; text-align:center;">
+                                    <a href="${d.url_subida}" target="_blank" style="color:#3b82f6; font-size:12px; font-weight:900; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+                                        <i class="bi bi-cloud-arrow-down" style="font-size:18px;"></i> ABRIR REPOSITORIO DE ARCHIVOS EXTERNO
+                                    </a>
+                                </div>` : ''}
+                            </div>
+                        </div>
+
+                        ${entregablesHtml}
+                    </div>
+
+                    <!-- COLUMNA DERECHA: ESTADO Y CONTROL -->
+                    <div class="det-sidebar-col">
+                        
+                        <!-- Ejecutor -->
+                        <div class="det-card" style="border-top: 3px solid #F5C400;">
+                            <div class="det-card-header"><i class="bi bi-person-badge"></i> <span>RESPONSABLE</span></div>
+                            <div class="det-card-body" style="padding:20px 15px;">
+                                ${empleadoHtml}
+                            </div>
+                        </div>
+
+                        <!-- Tiempos -->
+                        <div class="det-card" style="border-top: 3px solid #F5C400;">
+                            <div class="det-card-header"><i class="bi bi-clock-history"></i> <span>CONTROL DE TIEMPOS</span></div>
+                            <div class="det-card-body">
+                                <div style="display:flex; flex-direction:column; gap:10px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:10px 12px; border-radius:8px;">
+                                        <span style="color:#555; font-size:10px; font-weight:900;">SOLICITUD</span>
+                                        <span style="color:#fff; font-size:12px; font-weight:700;">${fSolFmt}</span>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(245,196,0,0.05); padding:10px 12px; border-radius:8px; border:1px solid rgba(245,196,0,0.1);">
+                                        <span style="color:#F5C400; font-size:10px; font-weight:900;">FECHA ENTREGA</span>
+                                        <span style="color:#fff; font-size:13px; font-weight:900;">${fReq}</span>
+                                    </div>
+                                    ${d.fechainicio !== '—' ? `
+                                    <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:10px 12px; border-radius:8px;">
+                                        <span style="color:#555; font-size:10px; font-weight:900;">INICIO REAL</span>
+                                        <span style="color:#fff; font-size:12px; font-weight:700;">${fIni}</span>
+                                    </div>` : ''}
+                                    ${d.fechacompletado !== '—' ? `
+                                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(34,197,94,0.05); padding:10px 12px; border-radius:8px; border:1px solid rgba(34,197,94,0.1);">
+                                        <span style="color:#22c55e; font-size:10px; font-weight:900;">COMPLETADO</span>
+                                        <span style="color:#fff; font-size:13px; font-weight:900;">${fFin}</span>
+                                    </div>` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seguimiento -->
+                        <div class="det-card" style="border-top: 3px solid #f59e0b;">
+                            <div class="det-card-header"><i class="bi bi-arrow-repeat" style="color:#f59e0b;"></i> <span>AUDITORÍA</span></div>
+                            <div class="det-card-body">
+                                <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:12px; border-radius:8px;">
+                                    <span style="color:#888; font-size:11px; font-weight:800;">MODIFICACIONES</span>
+                                    <span style="background:#f59e0b; color:#000; padding:2px 12px; border-radius:15px; font-size:13px; font-weight:900;">${d.num_modificaciones || 0}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prioridad Admin -->
+                        ${(d.estado === 'pendiente_sin_asignar') ? `
+                        <div class="det-card" style="border-top: 3px solid #ef4444;">
+                            <div class="det-card-header"><i class="bi bi-exclamation-triangle" style="color:#ef4444;"></i> <span>PRIORIDAD ADMINISTRATIVA</span></div>
+                            <div class="det-card-body">
+                                <select id="detalle-prioridad" style="background:#000; color:#fff; border:1px solid #333; border-radius:8px; padding:10px; font-size:13px; width:100%; font-weight:700; margin-bottom:12px;">
+                                    <option value="Baja" ${d.prioridad_admin==='Baja'?'selected':''}>Baja</option>
+                                    <option value="Media" ${d.prioridad_admin==='Media'?'selected':''}>Media</option>
+                                    <option value="Alta" ${d.prioridad_admin==='Alta'?'selected':''}>Alta</option>
+                                </select>
+                                <button onclick="cambiarPrioridad(${d.id})" style="background:#F5C400; color:#000; border:none; border-radius:8px; padding:10px; font-weight:900; font-size:13px; width:100%; cursor:pointer; transition:transform 0.1s active;">ACTUALIZAR PRIORIDAD</button>
                             </div>
                         </div>` : ''}
-
-                        <!-- Área de agencia -->
-                        <div class="kd-info-row">
-                            <div class="kd-icon"><i class="bi bi-building"></i></div>
-                            <div>
-                                ${_label('Área de agencia')}
-                                <div style="color:#f0f0f0;font-size:12px;font-weight:700;text-transform:uppercase;">${d.area_nombre || '---'}</div>
-                            </div>
-                        </div>
-
-                        <!-- Modificaciones -->
-                        <div class="kd-info-row">
-                            <div class="kd-icon"><i class="bi bi-arrow-repeat"></i></div>
-                            <div>
-                                ${_label('Modificaciones')}
-                                <div style="color:#f0f0f0;font-size:13px;font-weight:700;">${d.num_modificaciones || 0}</div>
-                            </div>
-                        </div>
-
-                        <hr class="kd-hr">
-
-                        <!-- Estado actual -->
-                        <div>
-                            ${_label('Estado actual')}
-                            <div style="margin-top:6px;">${_pill(es.i, es.label, es.c, es.c + '18')}</div>
-                        </div>
-
-                        <!-- Botón INICIAR TRABAJO:
-                             Solo aparece si hay empleado asignado y aún no inicia -->
-                        ${(d.idempleado && d.estado === 'pendiente_asignado') ? `
-                        <hr class="kd-hr">
-                        <button onclick="iniciarTrabajo(${d.id})"
-                            style="width:100%;margin-top:10px;background:#F5C400;color:#000;border:none;
-                                   padding:10px;border-radius:7px;font-family:'Bebas Neue',sans-serif;
-                                   font-size:16px;letter-spacing:2px;cursor:pointer;
-                                   display:flex;align-items:center;justify-content:center;gap:6px;">
-                            <i class="bi bi-play-fill"></i> INICIAR TRABAJO
-                        </button>` : ''}
 
                     </div>
                 </div>
 
+                <!-- 3. FOOTER ACCIONES -->
+                <div style="margin-top:20px; padding-top:20px; border-top:1px solid #222; display:flex; justify-content:center;">
+                    <button class="btn btn-secondary" data-dismiss="modal" style="background:#1a1a1a; border:1px solid #333; font-family:'Bebas Neue'; font-size:18px; letter-spacing:1px; padding:10px 60px; border-radius:8px; color:#888;">CERRAR EXPEDIENTE</button>
+                </div>
             </div>
-        </div>`;
-
-        // Título del modal
-        document.getElementById('detalle-titulo').innerHTML =
-            d.cliente_nombre ? d.cliente_nombre.toUpperCase() : 'CLIENTE';
-
-        cuerpo.innerHTML = html;
+        `;
 
     } catch (e) {
-        console.error(e);
-        cuerpo.innerHTML = _errorHtml('Error fatal al cargar los datos. Intente nuevamente.');
+        console.error("ERROR EN DETALLE:", e);
+        cuerpo.innerHTML = _errorHtml('Hubo un error al procesar el expediente. Por favor, intenta de nuevo.');
     }
 }
 
@@ -604,6 +482,34 @@ async function cambiarEstado(id, est, acc) {
     const data = await _post('admin/kanban/cambiarEstado', { idatencion: id, estado: est, accion: acc });
     if (data.status === 'success') location.reload();
     else alert(data.msg);
+}
+
+// ── SOLICITAR RETROALIMENTACIÓN AL REGRESAR A PROCESO ──
+function solicitarRetroalimentacion(id) {
+    document.getElementById('retro-idatencion').value = id;
+    document.getElementById('retro-mensaje').value = '';
+    $('#modalRetro').modal('show');
+}
+
+async function enviarRetroalimentacion() {
+    const id = document.getElementById('retro-idatencion').value;
+    const msg = document.getElementById('retro-mensaje').value;
+
+    if (!msg.trim()) {
+        alert('Por favor, escribe un mensaje de mejora.');
+        return;
+    }
+
+    const data = await _post('admin/kanban/regresarAProceso', { 
+        idatencion: id, 
+        mensaje: msg 
+    });
+
+    if (data.status === 'success') {
+        location.reload();
+    } else {
+        alert(data.msg);
+    }
 }
 
 async function cancelarAtencion(id) {
@@ -636,8 +542,8 @@ function _resetModal(titulo, btnTexto, btnOnclick) {
 
 function _pill(icon, label, color, bg) {
     return `<span style="background:${bg};color:${color};border:1px solid ${color}33;
-        padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px;
-        text-transform:uppercase;display:inline-flex;align-items:center;gap:5px;">
+        padding:6px 14px;border-radius:20px;font-size:12px;font-weight:800;letter-spacing:0.5px;
+        text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;">
         <i class="bi ${icon}"></i>${label}</span>`;
 }
 
@@ -651,7 +557,7 @@ function _seccion(icon, titulo, color, innerHtml) {
 }
 
 function _label(texto) {
-    return `<span class="kd-label">${texto}</span>`;
+    return `<span style="color:#F5C400; font-size:12px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; display:block; margin-bottom:8px; border-bottom:2px solid #F5C400; padding-bottom:4px; display:inline-block; font-family:'Bebas Neue', sans-serif;">${texto}</span>`;
 }
 
 function _errorHtml(msg) {
@@ -712,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 _post('admin/kanban/cambiarEstado', {
                     idatencion: idAtencion,
                     estado: 'pendiente_asignado',
-                    accion: `Requerimiento asignado al área: ${AREA_NOMBRE}.\nSu solicitud ha sido aprobada y derivada al departamento correspondiente para su gestión.`,
+                    accion: 'Requerimiento asignado al área: ' + AREA_NOMBRE,
                     idareaagencia: AREA_ACTUAL
                 }).then(data => {
                     if (data.status === 'success') location.reload();

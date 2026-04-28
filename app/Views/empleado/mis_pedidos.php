@@ -25,51 +25,75 @@
 
 <div id="contenedor-pedidos">
     <?php if(empty($pedidos)): ?>
-        <div class="text-center py-5" style="background: rgba(0,0,0,.1); border: 1px dashed var(--borde); border-radius: 10px;">
-            <i class="bi bi-inbox" style="font-size: 30px; color: var(--texto-3);"></i>
-            <p class="mt-2" style="font-size: 11px; color: var(--texto-3); text-transform: uppercase;">Bandeja de entrada vacía</p>
+        <div class="text-center py-5" style="background: rgba(0,0,0,.1); border: 1px dashed var(--borde); border-radius: 16px;">
+            <i class="bi bi-inbox" style="font-size: 40px; color: var(--texto-3); opacity: 0.3;"></i>
+            <p class="mt-3" style="font-size: 11px; color: var(--texto-3); text-transform: uppercase; letter-spacing: 2px;">No tienes tareas pendientes</p>
         </div>
     <?php else: ?>
-        <?php foreach($pedidos as $pedido): ?>
-            <div class="pedido-card-admin" id="pedido-<?= $pedido['id'] ?>">
-                <div class="pedido-header">
-                    <div>
-                        <div class="pedido-id"><?= esc(strtoupper($pedido['empresa_nombre'])) ?> — #REQ-<?= $pedido['id_requerimiento'] ?></div>
-                        <div class="pedido-title"><?= esc($pedido['titulo']) ?></div>
-                    </div>
-                    <?php 
-                        $statusClass = str_replace('_', '-', $pedido['estado']);
-                    ?>
-                    <span class="pedido-status status-<?= $statusClass ?>">
-                        <i class="bi bi-circle-fill mr-1" style="font-size: 4px;"></i>
-                        <?= strtoupper(str_replace('_', ' ', $pedido['estado'])) ?>
-                    </span>
-                </div>
+        <div class="row">
+            <?php foreach($pedidos as $pedido): ?>
+                <?php 
+                    $claseStatus = ($pedido['estado'] == 'pendiente_asignado') ? 'task-new' : 
+                                  (($pedido['estado'] == 'en_proceso') ? 'task-process' : 'task-revision');
+                    
+                    $pillStatus = ($pedido['estado'] == 'pendiente_asignado') ? 'pill-new' : 
+                                 (($pedido['estado'] == 'en_proceso') ? 'pill-process' : 'pill-revision');
+                    
+                    $textoStatus = ($pedido['estado'] == 'pendiente_asignado') ? 'POR INICIAR' : 
+                                  (($pedido['estado'] == 'en_proceso') ? 'EN CURSO' : 'REVISIÓN');
+                ?>
+                <div class="col-12 col-xl-6 mb-4">
+                    <div class="emp-task-card <?= $claseStatus ?>" id="pedido-<?= $pedido['id'] ?>">
+                        
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="task-client">
+                                <i class="bi bi-building"></i> <?= esc($pedido['empresa_nombre']) ?>
+                            </div>
+                            <span class="task-status-pill <?= $pillStatus ?>">
+                                <?= $textoStatus ?>
+                            </span>
+                        </div>
 
-                <div class="pedido-info">
-                    <span><i class="bi bi-gear-fill"></i> <?= esc($pedido['servicio_nombre']) ?></span>
-                    <span><i class="bi bi-flag-fill"></i> <?= strtoupper(esc($pedido['prioridad'])) ?></span>
-                    <span><i class="bi bi-calendar-check"></i> <?= isset($pedido['fechafin']) ? date('d/m/Y', strtotime($pedido['fechafin'])) : '---' ?></span>
-                </div>
+                        <div class="task-title"><?= esc($pedido['titulo']) ?></div>
 
-                <div class="pedido-footer">
-                    <div class="d-flex gap-2">
-                        <button class="btn-outline" onclick="verDetalleSolicitud(<?= $pedido['id'] ?>)">
-                            <i class="bi bi-eye mr-1"></i> VER SOLICITUD
-                        </button>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <?php if($pedido['estado'] == 'pendiente_asignado'): ?>
-                            <button class="btn-yellow" onclick="abrirModalAccion(<?= $pedido['id'] ?>, 'iniciar')">INICIAR TRABAJO</button>
-                        <?php elseif($pedido['estado'] == 'en_proceso'): ?>
-                            <button class="btn-green" onclick="abrirModalAccion(<?= $pedido['id'] ?>, 'entregar')">ENTREGAR TRABAJO</button>
-                        <?php else: ?>
-                            <button class="btn-outline" disabled>EN REVISIÓN</button>
-                        <?php endif; ?>
+                        <div class="task-meta">
+                            <div class="task-meta-item">
+                                <i class="bi bi-tag-fill"></i> <?= esc($pedido['servicio_nombre']) ?>
+                            </div>
+                            <div class="task-meta-item">
+                                <i class="bi bi-calendar-event"></i> <?= isset($pedido['fechafin']) ? date('d M Y', strtotime($pedido['fechafin'])) : '---' ?>
+                            </div>
+                            <div class="task-meta-item">
+                                <i class="bi bi-hash"></i> REQ-<?= $pedido['id_requerimiento'] ?>
+                            </div>
+                        </div>
+
+                        <div class="task-actions">
+                            <button class="task-primary-btn btn-view" onclick="verDetalleSolicitud(<?= $pedido['id'] ?>)">
+                                <i class="bi bi-eye"></i> BRIEF
+                            </button>
+                            
+                            <div class="d-flex gap-2">
+                                <?php if($pedido['estado'] == 'pendiente_asignado'): ?>
+                                    <button class="task-primary-btn btn-start" onclick="abrirModalAccion(<?= $pedido['id'] ?>, 'iniciar')">
+                                        <i class="bi bi-play-fill"></i> COMENZAR
+                                    </button>
+                                <?php elseif($pedido['estado'] == 'en_proceso'): ?>
+                                    <button class="task-primary-btn btn-deliver" onclick="abrirModalAccion(<?= $pedido['id'] ?>, 'entregar')">
+                                        <i class="bi bi-cloud-arrow-up-fill"></i> ENTREGAR
+                                    </button>
+                                <?php else: ?>
+                                    <span style="font-size: 10px; font-weight: 700; color: var(--texto-3); letter-spacing: 1px; text-transform: uppercase;">
+                                        En manos del admin <i class="bi bi-hourglass-split ml-1"></i>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-            </div>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
+        </div>
     <?php endif; ?>
 </div>
 

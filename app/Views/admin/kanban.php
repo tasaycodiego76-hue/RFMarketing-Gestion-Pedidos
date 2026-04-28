@@ -67,6 +67,15 @@
                 <?php if (empty($col['items'])): ?>
                     <div class="kb-empty">Sin requerimientos</div>
                 <?php else: ?>
+                    <?php 
+                    // Ordenar TODOS los pedidos por prioridad: Alta > Media > Baja
+                    usort($col['items'], function($a, $b) {
+                        $prios = ['Alta' => 1, 'Media' => 2, 'Baja' => 3];
+                        $vA = $prios[$a['prioridad_admin'] ?? ($a['prioridad'] ?? 'Media')] ?? 2;
+                        $vB = $prios[$b['prioridad_admin'] ?? ($b['prioridad'] ?? 'Media')] ?? 2;
+                        return $vA <=> $vB;
+                    });
+                    ?>
                     <?php foreach ($col['items'] as $p): ?>
                         <div class="kb-card" data-id="<?= $p['id'] ?>">
                             <div class="kb-card-top">
@@ -91,9 +100,9 @@
                             </div>
 
                             <?php if (!empty($p['fechafin'])): ?>
-                                <div class="kb-card-fecha">Entrega: <?= date('d M Y', strtotime($p['fechafin'])) ?></div>
+                                <div class="kb-card-fecha"><i class="bi bi-calendar-check mr-1"></i> Entrega: <?= date('d M Y', strtotime($p['fechafin'])) ?></div>
                             <?php elseif (!empty($p['fecharequerida'])): ?>
-                                <div class="kb-card-fecha">Requerida: <?= date('d M Y', strtotime($p['fecharequerida'])) ?></div>
+                                <div class="kb-card-fecha"><i class="bi bi-calendar-event mr-1"></i> Requerida: <?= date('d M Y', strtotime($p['fecharequerida'])) ?></div>
                             <?php endif ?>
 
                             <div class="kb-card-footer">
@@ -132,7 +141,7 @@
                                         onclick="cambiarEstado(<?= $p['id'] ?>, 'finalizado', 'SU Requerimiento ha sido Completado Satisfactoriamente')">✓
                                         Aprobar</button>
                                     <button class="kb-btn kb-btn-regresar"
-                                        onclick="cambiarEstado(<?= $p['id'] ?>, 'en_proceso', 'Regresado a proceso')">↶
+                                        onclick="solicitarRetroalimentacion(<?= $p['id'] ?>)">↶
                                         Regresar</button>
                                     <button class="kb-btn kb-btn-ver-sm" onclick="verDetalle(<?= $p['id'] ?>)">Ver</button>
                                 <?php else: ?>
@@ -173,7 +182,7 @@
 
 <!-- ═══ MODAL VER DETALLE (Bootstrap 4) ═══ -->
 <div class="modal fade" id="modalDetalle" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
         <div class="modal-content kb-modal">
             <div class="modal-header kb-modal-header">
                 <h6 class="modal-title" id="detalle-titulo">Detalle</h6>
@@ -183,6 +192,33 @@
             </div>
             <div class="modal-body" id="detalle-cuerpo">
                 Cargando...
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL RETROALIMENTACIÓN (Admin -> Empleado) ═══ -->
+<div class="modal fade" id="modalRetro" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content kb-modal">
+            <div class="modal-header kb-modal-header">
+                <h6 class="modal-title" style="color: var(--amarillo);"><i class="bi bi-chat-left-text mr-2"></i>Enviar a Corrección</h6>
+                <button type="button" class="close kb-modal-close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="retro-idatencion">
+                <p style="font-size: 11px; color: #888; margin-bottom: 15px; line-height: 1.4;">
+                    Por favor, indica los puntos específicos que el empleado debe mejorar o corregir en este pedido.
+                </p>
+                <div class="form-group">
+                    <label class="kb-modal-label">Mensaje de mejora:</label>
+                    <textarea id="retro-mensaje" class="form-control kb-modal-select" rows="5" placeholder="Escribe aquí las observaciones..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer kb-modal-footer">
+                <button class="btn kb-btn-confirmar-asignar" style="background: #ef4444; color: #fff;" onclick="enviarRetroalimentacion()">Enviar a Corrección</button>
             </div>
         </div>
     </div>
