@@ -37,7 +37,9 @@
                 <tr>
                     <th>Título</th>
                     <th>Servicio</th>
-                    <th>Empresa/Cliente</th>
+                    <th>Empresa</th>
+                    <th>Área</th>
+                    <th>Usuario</th>
                     <th>Prioridad</th>
                     <th>Fecha Solicitud</th>
                     <th>Estado</th>
@@ -52,6 +54,38 @@
     <div id="estado-vacio" class="estado-vacio d-none">
         <i class="bi bi-inbox"></i>
         <p>No hay solicitudes pendientes en tu bandeja</p>
+    </div>
+</div>
+
+<!-- NUEVA SECCIÓN: PENDIENTES DE REVISIÓN -->
+<div class="mt-5 mb-4">
+    <div class="seccion-titulo">TAREAS ENVIADAS (ESPERANDO REVISIÓN)</div>
+    <p class="mb-0" style="color:#a1a1aa; font-size:14px;">Trabajos completados por el equipo que esperan aprobación final</p>
+</div>
+
+<div class="card-rf" style="overflow:hidden;">
+    <div class="table-responsive">
+        <table class="tabla-rf-responsable" id="tablaRevision">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Ejecutor</th>
+                    <th>Empresa</th>
+                    <th>Área</th>
+                    <th>Usuario</th>
+                    <th>Servicio</th>
+                    <th>Fecha Entrega</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="contenido-revision">
+                <!-- Contenido cargado dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+    <div id="estado-vacio-revision" class="estado-vacio d-none">
+        <i class="bi bi-send-check"></i>
+        <p>No hay tareas pendientes de revisión en este momento</p>
     </div>
 </div>
 

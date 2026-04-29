@@ -283,6 +283,8 @@ class AtencionModel extends Model
                 ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, 
                           e.nombreempresa as empresa_nombre, 
                           u_emp.nombre as empleado_nombre,
+                          u_cliente.nombre as cliente_nombre,
+                          ar_cliente.nombre as area_nombre,
                           COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre')
                 ->join('requerimiento r', 'r.id = a.idrequerimiento')
                 ->join('usuarios u_cliente', 'u_cliente.id = r.idusuarioempresa')
@@ -313,6 +315,8 @@ class AtencionModel extends Model
                 ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, 
                           e.nombreempresa as empresa_nombre, 
                           u_emp.nombre as empleado_nombre,
+                          u_cliente.nombre as cliente_nombre,
+                          ar_cliente.nombre as area_nombre,
                           COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre')
                 ->join('requerimiento r', 'r.id = a.idrequerimiento')
                 ->join('usuarios u_cliente', 'u_cliente.id = r.idusuarioempresa')
@@ -344,6 +348,35 @@ class AtencionModel extends Model
                        ->orderBy('prioridad', 'DESC')
                        ->orderBy('fechainicio', 'DESC')
                        ->findAll();
+        }
+
+        /**
+         * Obtener tareas devueltas (con observaciones) para un área específica
+         * @param int $idAreaAgencia
+         * @return array
+         */
+        public function obtenerRetroalimentacionPorArea(int $idAreaAgencia): array
+        {
+            return $this->db->table('atencion a')
+                ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, 
+                          e.nombreempresa as empresa_nombre, 
+                          u_emp.nombre as empleado_nombre,
+                          u_emp.apellidos as empleado_apellidos,
+                          u_cliente.nombre as cliente_nombre,
+                          ar_cliente.nombre as area_nombre,
+                          COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre')
+                ->join('requerimiento r', 'r.id = a.idrequerimiento')
+                ->join('usuarios u_cliente', 'u_cliente.id = r.idusuarioempresa')
+                ->join('areas ar_cliente', 'ar_cliente.id = u_cliente.idarea')
+                ->join('empresas e', 'e.id = ar_cliente.idempresa')
+                ->join('usuarios u_emp', 'u_emp.id = a.idempleado', 'left')
+                ->join('servicios s', 's.id = a.idservicio', 'left')
+                ->where('a.idarea_agencia', $idAreaAgencia)
+                ->where('a.observacion_revision IS NOT NULL')
+                ->where("a.observacion_revision != ''")
+                ->whereIn('a.estado', ['en_proceso', 'pendiente_asignado', 'en_revision'])
+                ->orderBy('a.fechacreacion', 'DESC')
+                ->get()->getResultArray();
         }
 }
 

@@ -257,12 +257,12 @@
 }
 
 .info-req-label {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--text-muted);
 }
 
 .info-req-valor {
-    font-size: 13px;
+    font-size: 15px;
     color: var(--text-primary);
     font-weight: 500;
 }
@@ -323,14 +323,14 @@
 }
 
 .empleado-nombre {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 2px;
 }
 
 .empleado-rol {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-muted);
 }
 
@@ -361,6 +361,10 @@
     background: var(--accent-primary);
     border-color: var(--accent-primary);
     color: #000;
+}
+
+.emp-ocupado {
+    border-left: 3px solid #F5C400;
 }
 
 /* Skeleton loading */

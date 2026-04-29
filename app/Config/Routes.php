@@ -75,13 +75,22 @@ $routes->group('responsable', ['filter' => 'auth'], function ($routes) {
     $routes->post('pedidos/asignar', 'Responsable\PedidosAreaController::asignarPedido');
     $routes->get('pedidos/detalle', 'Responsable\PedidosAreaController::obtenerDetalleRequerimiento');
     $routes->get('tareas/en-proceso', 'Responsable\PedidosAreaController::tareasEnProceso');
+    $routes->get('tareas/empleado/(:num)', 'Responsable\PedidosAreaController::tareasPorEmpleado/$1');
+    $routes->get('archivos/vista-previa/(:num)', 'Responsable\PedidosAreaController::vistaPrevia/$1');
+    $routes->post('pedidos/actualizar', 'Responsable\PedidosAreaController::actualizarRequerimiento');
+
+    // NUEVAS RUTAS PARA EL RESPONSABLE (Similares a Empleado)
+    $routes->get('historial', 'Responsable\PedidosAreaController::historial');
+    $routes->get('retroalimentacion', 'Responsable\PedidosAreaController::vistaRetroalimentacion');
+    $routes->post('pedido-iniciar/(:num)', 'Responsable\PedidosAreaController::iniciarPedido/$1');
+    $routes->post('pedido-entregar/(:num)', 'Responsable\PedidosAreaController::entregarPedido/$1');
 
     // Miembros del equipo
     $routes->get('equipo/miembro/(:num)', 'Responsable\EquipoController::detalleMiembro/$1');
 });
 
 //Rutas para el Empleado
-$routes->group('empleado', ['filter' => 'auth'],  function ($routes) {
+$routes->group('empleado', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'Empleado\MisPedidosController::dashboard');
     $routes->get('mis_pedidos', 'Empleado\MisPedidosController::index');
     $routes->get('historial', 'Empleado\MisPedidosController::historial');
