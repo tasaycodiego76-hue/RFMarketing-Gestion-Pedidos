@@ -51,6 +51,9 @@
             <p class="nav-seccion">COMUNICACIÓN</p>
             <a href="<?= base_url('empleado/retroalimentacion') ?>" class="nav-enlace <?= ($paginaActual == 'retroalimentacion') ? 'activo' : '' ?>">
                 <i class="bi bi-chat-left-text"></i> Retroalimentación
+                <?php if (isset($stats['retro_count']) && $stats['retro_count'] > 0): ?>
+                    <span class="nav-badge" style="background:#ef4444;"><?= $stats['retro_count'] ?></span>
+                <?php endif; ?>
             </a>
         </nav>
 

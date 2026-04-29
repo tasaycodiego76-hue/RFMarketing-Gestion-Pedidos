@@ -31,6 +31,7 @@ class MisPedidosController extends BaseController
             'proceso' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_proceso'])->countAllResults(),
             'revision' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_revision'])->countAllResults(),
             'historial' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'finalizado'])->countAllResults(),
+            'retro_count' => (new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id']) ? count((new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id'])) : 0,
         ];
 
         $pedidos = $atencionModel->obtenerDetalladoPorEmpleado((int) $user['id'], ['pendiente_asignado', 'en_proceso', 'en_revision']);
@@ -60,6 +61,7 @@ class MisPedidosController extends BaseController
             'proceso' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_proceso'])->countAllResults(),
             'revision' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_revision'])->countAllResults(),
             'historial' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'finalizado'])->countAllResults(),
+            'retro_count' => (new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id']) ? count((new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id'])) : 0,
         ];
 
         return view('empleado/dashboard', [
@@ -88,6 +90,7 @@ class MisPedidosController extends BaseController
             'proceso' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_proceso'])->countAllResults(),
             'revision' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_revision'])->countAllResults(),
             'historial' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'finalizado'])->countAllResults(),
+            'retro_count' => (new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id']) ? count((new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id'])) : 0,
         ];
 
         return view('empleado/historial', [
@@ -337,6 +340,7 @@ class MisPedidosController extends BaseController
             'proceso' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_proceso'])->countAllResults(),
             'revision' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_revision'])->countAllResults(),
             'historial' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'finalizado'])->countAllResults(),
+            'retro_count' => (new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id']) ? count((new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id'])) : 0,
         ];
 
         $retroModel = new RetroalimentacionModel();

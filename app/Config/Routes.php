@@ -52,6 +52,8 @@ $routes->group('admin', function ($routes) {
     $routes->post('empresas/registrar', 'Administrador\EmpresasController::registrar');
     $routes->put('empresas/editar/(:num)', 'Administrador\EmpresasController::editar/$1');
     $routes->post('empresas/toggleEstado', 'Administrador\EmpresasController::toggleEstado');
+
+    $routes->get('historial', 'Administrador\HistorialController::index');
 });
 
 //Rutas para el Responsable (Jefe de Área)

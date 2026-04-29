@@ -321,9 +321,10 @@ async function verDetalle(idAtencion) {
                             <span style="color:#fff; font-size:13px; font-weight:800; text-transform:uppercase; background:#111; padding:2px 10px; border-radius:4px;">${d.servicio || 'GENERAL'}</span>
                         </div>
                     </div>
-                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
                         ${trabajoHtml}
-                        <div style="font-size:11px; color:#333; font-weight:800;">ID: #${d.id.toString().padStart(5, '0')}</div>
+                        <div style="font-size:12px; color:#F5C400; font-weight:900; letter-spacing:1px;">#REQ-${d.idrequerimiento || '---'}</div>
+                        <div style="font-size:9px; color:#444; font-weight:700;">ATENCIÓN: #${d.id.toString().padStart(5, '0')}</div>
                     </div>
                 </div>
 
@@ -399,13 +400,6 @@ async function verDetalle(idAtencion) {
                             <div class="det-card-header"><i class="bi bi-person-badge"></i> <span>RESPONSABLE</span></div>
                             <div class="det-card-body" style="padding:20px 15px;">
                                 ${empleadoHtml}
-                                ${d.estado === 'pendiente_asignado' ? `
-                                <div style="margin-top:25px;">
-                                    <button onclick="iniciarTrabajo(${d.id})" class="det-btn-start">
-                                        <i class="bi bi-play-fill" style="font-size:20px;"></i> INICIAR TRABAJO
-                                    </button>
-                                    <div style="color:#444; font-size:9px; text-align:center; margin-top:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">El tiempo comenzará al pulsar</div>
-                                </div>` : ''}
                             </div>
                         </div>
 

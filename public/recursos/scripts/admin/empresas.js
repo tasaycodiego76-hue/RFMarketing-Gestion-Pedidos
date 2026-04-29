@@ -1,138 +1,121 @@
 document.addEventListener('DOMContentLoaded', function () {
-      const tabla = document.querySelector('#tabla-empresas');
-      const formulario = document.querySelector('#form-empresa');
+    const tabla = document.querySelector('#tabla-empresas');
+    const formulario = document.querySelector('#form-empresa');
 
-      function notificar(mensaje) {
-          alert(mensaje);
-      }
+    function notificar(mensaje) {
+        alert(mensaje);
+    }
 
-      async function obtenerEmpresas() {
-          const response = await fetch(BASE_URL + 'admin/empresas/listar');
-          const data = await response.json();
+    async function obtenerEmpresas() {
+        try {
+            const response = await fetch(BASE_URL + 'admin/empresas/listar');
+            const data = await response.json();
 
-          tabla.innerHTML = '';
+            tabla.innerHTML = '';
 
-          if (data.length === 0) {
-              tabla.innerHTML = '<tr><td colspan="6" class="text-center">No hay empresas</td></tr>';
-              return;
-          }
+            if (data.length === 0) {
+                tabla.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No hay empresas registradas.</td></tr>';
+                return;
+            }
 
-          data.forEach(e => {
-              const badge = e.estado
-                  ? '<span class="badge-activo">Activo</span>'
-                  : '<span class="badge-inactivo">Inactivo</span>';
+            data.forEach(e => {
+                const badge = e.estado
+                    ? '<span class="badge-activo">Activo</span>'
+                    : '<span class="badge-inactivo">Inactivo</span>';
 
-              const btnToggle = e.estado
-                  ? `<button class="btn btn-sm btn-warning" onclick="toggleEstado(${e.id}, true)">Deshabilitar</button>`
-                  : `<button class="btn btn-sm btn-success" onclick="toggleEstado(${e.id}, false)">Habilitar</button>`;
+                // BOTONES IGUALES A USUARIOS
+                const btnEditar = `<button class="btn-icon btn-icon-editar" onclick="editarEmpresa(${e.id})" title="Editar" style="cursor:pointer;">✎</button>`;
+                const btnToggle = e.estado
+                    ? `<button class="btn-icon btn-icon-toggle activo" onclick="toggleEstado(${e.id}, true)" title="Desactivar" style="cursor:pointer;">✕</button>`
+                    : `<button class="btn-icon btn-icon-toggle inactivo" onclick="toggleEstado(${e.id}, false)" title="Activar" style="cursor:pointer;">✓</button>`;
 
-              tabla.innerHTML += `
-                  <tr>
-                      <td>${e.nombreempresa}</td>
-                      <td>${e.ruc || '-'}</td>
-                      <td>${e.correo || '-'}</td>
-                      <td>${e.telefono || '-'}</td>
-                      <td>${badge}</td>
-                      <td>
-                          <button class="btn btn-sm btn-primary" onclick="editarEmpresa(${e.id})">Editar</button>
-                          ${btnToggle}
-                      </td>
-                  </tr>
-              `;
-          });
-      }
+                tabla.innerHTML += `
+                    <tr>
+                        <td class="td-nombre">${e.nombreempresa}</td>
+                        <td class="td-usuario">${e.ruc || '-'}</td>
+                        <td class="td-correo">${e.correo || '-'}</td>
+                        <td class="td-area-empresa">${e.telefono || '-'}</td>
+                        <td style="text-align: center;">${badge}</td>
+                        <td>
+                            <div class="acciones-contenedor">
+                                ${btnEditar}
+                                ${btnToggle}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        } catch (error) {
+            console.error('Error al listar empresas:', error);
+        }
+    }
 
-      formulario.addEventListener('submit', async function (e) {
-          e.preventDefault();
-          const editId = formulario.dataset.editId;
+    formulario.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const editId = formulario.dataset.editId;
+        const datos = {
+            nombreempresa: document.querySelector('#nombreempresa').value.trim(),
+            ruc: document.querySelector('#ruc').value.trim(),
+            correo: document.querySelector('#correo').value.trim(),
+            telefono: document.querySelector('#telefono').value.trim(),
+        };
 
-          const datos = {
-              nombreempresa: document.querySelector('#nombreempresa').value.trim(),
-              ruc: document.querySelector('#ruc').value.trim(),
-              correo: document.querySelector('#correo').value.trim(),
-              telefono: document.querySelector('#telefono').value.trim(),
-          };
+        const url = editId ? BASE_URL + 'admin/empresas/editar/' + editId : BASE_URL + 'admin/empresas/registrar';
+        const method = editId ? 'PUT' : 'POST';
 
-          const url = editId
-              ? BASE_URL + 'admin/empresas/editar/' + editId
-              : BASE_URL + 'admin/empresas/registrar';
-          const method = editId ? 'PUT' : 'POST';
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+        const data = await response.json();
 
-          const response = await fetch(url, {
-              method,
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(datos)
-          });
-          const data = await response.json();
+        if (data.success) {
+            notificar(data.message);
+            $('#modal-empresa').modal('hide');
+            formulario.reset();
+            delete formulario.dataset.editId;
+            obtenerEmpresas();
+        } else {
+            alert(data.message || 'Error al guardar');
+        }
+    });
 
-          notificar(data.message);
-          if (!data.success) return;
+    window.editarEmpresa = async function (id) {
+        const response = await fetch(BASE_URL + 'admin/empresas/obtener/' + id);
+        const e = await response.json();
+        if (!e || e.success === false) return;
 
-          $('#modal-empresa').modal('hide');
-          formulario.reset();
-          delete formulario.dataset.editId;
-          obtenerEmpresas();
-      });
-
-      window.editarEmpresa = async function (id) {
-          const response = await fetch(BASE_URL + 'admin/empresas/obtener/' + id);
-          const e = await response.json();
-
-          if (!e || e.success === false) {
-              notificar('No encontrada');
-              return;
-          }
-
-          formulario.reset();
-          formulario.dataset.editId = id;
-
-          document.querySelector('#nombreempresa').value = e.nombreempresa || '';
-          document.querySelector('#ruc').value = e.ruc || '';
-          document.querySelector('#correo').value = e.correo || '';
-          document.querySelector('#telefono').value = e.telefono || '';
-
-          document.querySelector('#modal-titulo').textContent = 'Editar Empresa';
-          $('#modal-empresa').modal('show');
-      };
+        formulario.reset();
+        formulario.dataset.editId = id;
+        document.querySelector('#nombreempresa').value = e.nombreempresa || '';
+        document.querySelector('#ruc').value = e.ruc || '';
+        document.querySelector('#correo').value = e.correo || '';
+        document.querySelector('#telefono').value = e.telefono || '';
+        document.querySelector('#modal-titulo').textContent = 'Editar Empresa';
+        $('#modal-empresa').modal('show');
+    };
 
     window.toggleEstado = async function (id, estadoActual) {
-    // estadoActual viene como boolean de la base de datos (Postgres)
-    const mensaje = estadoActual 
-        ? '¿Seguro que deseas deshabilitar esta empresa?' 
-        : '¿Deseas volver a habilitar esta empresa?';
-
-    if (!confirm(mensaje)) return;
-
-    // Enviamos el opuesto booleano
-    const nuevoEstado = !estadoActual; 
-
-    const response = await fetch(BASE_URL + 'admin/empresas/toggleEstado', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, estado: nuevoEstado }) 
-    });
-    
-    const data = await response.json();
-
-    if (data.success) {
-        notificar(data.message);
-        
-        // Actualizar Sidebar inmediatamente
-        const itemSidebar = document.getElementById(`sidebar-item-${id}`);
-        if (itemSidebar) {
-            nuevoEstado ? itemSidebar.classList.remove('d-none') : itemSidebar.classList.add('d-none');
+        if (!confirm('¿Seguro que deseas cambiar el estado de esta empresa?')) return;
+        const response = await fetch(BASE_URL + 'admin/empresas/toggleEstado', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, estado: !estadoActual }) 
+        });
+        const data = await response.json();
+        if (data.success) {
+            notificar(data.message);
+            obtenerEmpresas();
         }
+    };
 
-        obtenerEmpresas(); // Refrescar tabla
-    }
-};
+    document.querySelector('#btn-nueva-empresa').addEventListener('click', () => {
+        formulario.reset();
+        delete formulario.dataset.editId;
+        document.querySelector('#modal-titulo').textContent = 'Nueva Empresa';
+        $('#modal-empresa').modal('show');
+    });
 
-      document.querySelector('#btn-nueva-empresa').addEventListener('click', () => {
-          formulario.reset();
-          delete formulario.dataset.editId;
-          document.querySelector('#modal-titulo').textContent = 'Nueva Empresa';
-          $('#modal-empresa').modal('show');
-      });
-
-      obtenerEmpresas();
-  });
+    obtenerEmpresas();
+});

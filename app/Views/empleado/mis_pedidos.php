@@ -1,7 +1,45 @@
 <?= $this->extend('plantillas/empleado') ?>
 
+<?= $this->section('styles') ?>
+<style>
+    @keyframes pulse-yellow {
+        0% { box-shadow: 0 0 0 0 rgba(245, 196, 0, 0.7); border-color: rgba(245, 196, 0, 1); }
+        70% { box-shadow: 0 0 0 15px rgba(245, 196, 0, 0); border-color: rgba(245, 196, 0, 1); }
+        100% { box-shadow: 0 0 0 0 rgba(245, 196, 0, 0); border-color: rgba(245, 196, 0, 0.2); }
+    }
+    .highlight-task {
+        animation: pulse-yellow 2s infinite;
+        border: 2px solid var(--amarillo) !important;
+        transform: scale(1.02);
+        z-index: 10;
+    }
+</style>
+<?= $this->endSection() ?>
+
 <?= $this->section('scripts') ?>
 <script src="<?= base_url('recursos/scripts/empleado/misPedidos.js') ?>"></script>
+<script>
+    $(document).ready(function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const highlightId = urlParams.get('highlight');
+        
+        if (highlightId) {
+            const target = $('#pedido-' + highlightId);
+            if (target.length) {
+                $('html, body').animate({
+                    scrollTop: target.offset().top - 100
+                }, 800);
+                
+                target.addClass('highlight-task');
+                
+                // Quitar el highlight después de un tiempo para que no sea molesto
+                setTimeout(() => {
+                    target.removeClass('highlight-task');
+                }, 6000);
+            }
+        }
+    });
+</script>
 <?= $this->endSection() ?>
 <?= $this->section('contenido') ?>
 

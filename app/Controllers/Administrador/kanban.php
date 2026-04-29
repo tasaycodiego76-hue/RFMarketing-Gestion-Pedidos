@@ -30,7 +30,7 @@ class kanban extends Controller
         $atenciones = $atencionModel->obtenerParaKanban((int) $idEmpresa, (int) $idAreaAgencia);
 
         $columnas = [
-            'pendiente_sin_asignar' => ['label' => 'POR APROBAR', 'color' => '#eab308', 'items' => []],
+            'pendiente_sin_asignar' => ['label' => 'REVISAR', 'color' => '#eab308', 'items' => []],
             'en_proceso' => ['label' => 'EN PROCESO', 'color' => '#a855f7', 'items' => []],
             'en_revision' => ['label' => 'EN REVISIÓN', 'color' => '#f97316', 'items' => []],
             'finalizado' => ['label' => 'ENTREGADO', 'color' => '#22c55e', 'items' => []],
@@ -389,10 +389,8 @@ class kanban extends Controller
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Pedido no encontrado']);
         }
 
-        // 1. Actualizar estado del pedido a 'en_proceso'
-        $atencionModel->update($idAtencion, [
-            'estado' => 'en_proceso'
-        ]);
+        // 1. Actualizar estado del pedido a 'en_proceso' e incrementar modificaciones
+        $db->query("UPDATE atencion SET estado = 'en_proceso', num_modificaciones = num_modificaciones + 1 WHERE id = ?", [$idAtencion]);
 
         // 2. Registrar en la tabla de retroalimentación
         $retroModel->insert([

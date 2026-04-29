@@ -28,6 +28,7 @@ class RetroalimentacionModel extends Model
             ->join('requerimiento', 'requerimiento.id = atencion.idrequerimiento')
             ->join('usuarios', 'usuarios.id = retroalimentacion.idevaluador')
             ->where('atencion.idempleado', $idEmpleado)
+            ->where('atencion.estado', 'en_proceso') // Solo mostrar si sigue en proceso
             ->orderBy('retroalimentacion.fecha', 'DESC')
             ->findAll();
     }

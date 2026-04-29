@@ -34,7 +34,7 @@
         </div>
     </div>
     <div class="kb-head-stats">
-        <div class="kb-stat"><span class="st-morado"><?= $stats['por_aprobar'] ?? 0 ?></span><small>POR APROBAR</small>
+        <div class="kb-stat"><span class="st-morado"><?= $stats['por_aprobar'] ?? 0 ?></span><small>REVISAR</small>
         </div>
         <div class="kb-stat"><span class="st-amarillo"><?= $stats['activos'] ?? 0 ?></span><small>ACTIVOS</small></div>
         <div class="kb-stat"><span class="st-naranja"><?= $stats['en_revision'] ?? 0 ?></span><small>EN REVISIÓN</small>
@@ -134,21 +134,23 @@
 
                             <div class="kb-card-actions">
                                 <?php if ($estado === 'pendiente_sin_asignar'): ?>
-                                    <button class="kb-btn kb-btn-asignar" onclick="verDetalle(<?= $p['id'] ?>)">REVISAR Y
-                                        ASIGNAR</button>
+                                    <button class="kb-btn kb-btn-asignar" onclick="verDetalle(<?= $p['id'] ?>)">REVISAR</button>
                                 <?php elseif ($estado === 'en_proceso'): ?>
                                     <button class="kb-btn kb-btn-detalle" onclick="verDetalle(<?= $p['id'] ?>)">DETALLES DEL
                                         PROGRESO</button>
                                 <?php elseif ($estado === 'en_revision'): ?>
-                                    <button class="kb-btn kb-btn-aprobar"
-                                        onclick="cambiarEstado(<?= $p['id'] ?>, 'finalizado', 'Completado satisfatoriamente')">APROBAR
-                                        ENTREGA</button>
+                                    <button class="kb-btn kb-btn-detalle" 
+                                        style="margin-bottom:8px; border-color:#F5C400; color:#F5C400 !important; background:rgba(245,196,0,0.05);" 
+                                        onclick="verDetalle(<?= $p['id'] ?>)">
+                                        <i class="bi bi-eye"></i> VER RECURSOS Y BRIEF
+                                    </button>
                                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                                        <button class="kb-btn kb-btn-detalle" onclick="verDetalle(<?= $p['id'] ?>)">VER
-                                            RECURSOS</button>
                                         <button class="kb-btn kb-btn-regresar"
                                             style="background:rgba(239, 68, 68, 0.1); color:#ef4444 !important; border-color:rgba(239, 68, 68, 0.2);"
-                                            onclick="solicitarRetroalimentacion(<?= $p['id'] ?>)">RECHAZAR</button>
+                                            onclick="solicitarRetroalimentacion(<?= $p['id'] ?>)">REGRESAR</button>
+                                        <button class="kb-btn kb-btn-aprobar"
+                                            style="background:rgba(16,185,129,0.1); color:#10b981 !important; border-color:rgba(16,185,129,0.2);"
+                                            onclick="cambiarEstado(<?= $p['id'] ?>, 'finalizado', 'Completado satisfatoriamente')">APROBAR</button>
                                     </div>
                                 <?php else: ?>
                                     <button class="kb-btn kb-btn-detalle" onclick="verDetalle(<?= $p['id'] ?>)">VER EXPEDIENTE
@@ -182,53 +184,6 @@
             </div>
             <div class="modal-footer kb-modal-footer">
                 <button class="btn kb-btn-confirmar-asignar" onclick="confirmarAsignacion()">Asignar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ═══ MODAL VER DETALLE (Bootstrap 4) ═══ -->
-<div class="modal fade" id="modalDetalle" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-        <div class="modal-content kb-modal">
-            <div class="modal-header kb-modal-header">
-                <h6 class="modal-title" id="detalle-titulo">Detalle</h6>
-                <button type="button" class="close kb-modal-close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="detalle-cuerpo">
-                Cargando...
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ═══ MODAL RETROALIMENTACIÓN (Admin -> Empleado) ═══ -->
-<div class="modal fade" id="modalRetro" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content kb-modal">
-            <div class="modal-header kb-modal-header">
-                <h6 class="modal-title" style="color: var(--amarillo);"><i class="bi bi-chat-left-text mr-2"></i>Enviar
-                    a Corrección</h6>
-                <button type="button" class="close kb-modal-close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="retro-idatencion">
-                <p style="font-size: 11px; color: #888; margin-bottom: 15px; line-height: 1.4;">
-                    Por favor, indica los puntos específicos que el empleado debe mejorar o corregir en este pedido.
-                </p>
-                <div class="form-group">
-                    <label class="kb-modal-label">Mensaje de mejora:</label>
-                    <textarea id="retro-mensaje" class="form-control kb-modal-select" rows="5"
-                        placeholder="Escribe aquí las observaciones..."></textarea>
-                </div>
-            </div>
-            <div class="modal-footer kb-modal-footer">
-                <button class="btn kb-btn-confirmar-asignar" style="background: #ef4444; color: #fff;"
-                    onclick="enviarRetroalimentacion()">Enviar a Corrección</button>
             </div>
         </div>
     </div>
