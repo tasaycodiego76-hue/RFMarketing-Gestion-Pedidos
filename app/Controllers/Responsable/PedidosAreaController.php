@@ -226,18 +226,18 @@ class PedidosAreaController extends BaseController
         if (!$user['ok']) {
             return $this->response->setJSON(['success' => false, 'message' => $user['message']]);
         }
-        
+
         $usuarioModel = new UsuarioModel();
         $atencionModel = new AtencionModel();
-        
+
         $lista = $usuarioModel->obtenerAsignablesPorAreaAgencia((int) $user['user']['idarea_agencia']);
-        
+
         $data = array_map(function ($u) use ($atencionModel) {
             $esResponsable = ($u['esresponsable'] === true || $u['esresponsable'] === 't' || $u['esresponsable'] == 1);
-            
+
             // Obtener todas las tareas del empleado
             $tareas = $atencionModel->obtenerDetalladoPorEmpleado((int) $u['id']);
-            
+
             $enProceso = 0;
             $completados = 0;
             $pendientes = 0;
@@ -251,7 +251,7 @@ class PedidosAreaController extends BaseController
                     $pendientes++;
                 }
             }
-            
+
             return [
                 'id' => (int) $u['id'],
                 'nombre_completo' => trim(($u['nombre'] ?? '') . ' ' . ($u['apellidos'] ?? '')),
@@ -261,7 +261,7 @@ class PedidosAreaController extends BaseController
                 'pendientes' => $pendientes
             ];
         }, $lista);
-        
+
         return $this->response->setJSON([
             'success' => true,
             'total' => count($data),
@@ -302,11 +302,10 @@ class PedidosAreaController extends BaseController
         $db = \Config\Database::connect();
         $db->transBegin();
         try {
-            // 3) Asignar empleado y pasar a en_proceso
+            // 3) Solo asignar empleado. El estado sigue pendiente_asignado.
+            //    El empleado debe pulsar "Iniciar Trabajo" para pasar a en_proceso.
             $ok = $atencionModel->update($idAtencion, [
                 'idempleado' => $idUsuarioAsignado,
-                'estado' => 'en_proceso',
-                'fechainicio' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
             if (!$ok) {
                 throw new \RuntimeException('No se pudo actualizar la atención.');
@@ -315,8 +314,8 @@ class PedidosAreaController extends BaseController
             $trackingModel->insert([
                 'idatencion' => $idAtencion,
                 'idusuario' => $idResponsable,
-                'accion' => "Proyecto en desarrollo.\nEl especialista " . trim($empleado['nombre'] . ' ' . $empleado['apellidos']) . " ha sido asignado para la elaboración de su requerimiento",
-                'estado' => 'en_proceso',
+                'accion' => "Empleado asignado al pedido.\nEl especialista " . trim($empleado['nombre'] . ' ' . $empleado['apellidos']) . " ha sido designado para este requerimiento. Pendiente de inicio.",
+                'estado' => 'pendiente_asignado',
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
             $db->transCommit();

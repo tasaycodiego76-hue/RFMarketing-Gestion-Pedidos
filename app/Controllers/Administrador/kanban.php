@@ -205,7 +205,7 @@ class kanban extends Controller
 
         // Crear tracking para servicios personalizados
         if ($esServicioPersonalizado) {
-            $trackingModel = new \App\Models\TrackingModel();
+            $trackingModel = new TrackingModel();
             $trackingModel->insert([
                 'idatencion' => $idAtencion,
                 'idusuario' => $idAdmin,
