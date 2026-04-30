@@ -120,35 +120,20 @@ async function confirmarAsignacionEmpleado() {
     const idEmpleado = document.getElementById('asignar-empleado').value;
     if (!idEmpleado) { alert('Selecciona un empleado'); return; }
 
-    // Solo asigna el empleado. El estado sigue siendo pendiente_asignado.
-    // fechainicio se pone cuando alguien pulsa "Iniciar Trabajo".
     const data = await _post('admin/kanban/asignarEmpleado', { idatencion: idAtencion, idempleado: idEmpleado });
     if (data.status === 'success') location.reload();
     else alert(data.msg);
 }
 
-// ══════════════════════════════════════════════════════════════════
-// ═══ INICIAR TRABAJO — pone fechainicio + estado = en_proceso  ═══
-// ══════════════════════════════════════════════════════════════════
-async function iniciarTrabajo(idAtencion) {
-    if (!confirm('¿Confirmar inicio de trabajo en este pedido?')) return;
-    const data = await _post('admin/kanban/iniciarTrabajo', { idatencion: idAtencion });
-    if (data.status === 'success') location.reload();
-    else alert(data.msg);
-}
-
-// ══════════════════════════════════════════════════════
-// ═══ VER DETALLE — modal con estilo del sistema     ═══
-// ══════════════════════════════════════════════════════
 async function verDetalle(idAtencion) {
     const cuerpo = document.getElementById('detalle-cuerpo');
     if (!cuerpo) return;
 
-    // Loader inicial
+    // Loader inicial con estilo premium
     cuerpo.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;gap:20px;">
-            <div class="spinner-border" style="color:#F5C400;width:3rem;height:3rem;border-width:4px;"></div>
-            <span style="color:#F5C400;font-size:12px;letter-spacing:3px;font-weight:700;text-transform:uppercase;">Cargando expediente completo...</span>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:450px;background:#080808;border-radius:0 0 16px 16px;">
+            <div class="spinner-border" style="color:#F5C400;width:3.5rem;height:3.5rem;border-width:3px;margin-bottom:24px;"></div>
+            <span style="color:#F5C400;font-size:11px;letter-spacing:4px;font-weight:900;text-transform:uppercase;animation:pulse 2s infinite;">Preparando expediente digital...</span>
         </div>`;
 
     $('#modalDetalle').modal('show');
@@ -166,58 +151,90 @@ async function verDetalle(idAtencion) {
         const archivosCliente = res.archivos_cliente || [];
         const archivosEmpleado = res.archivos_empleado || [];
 
-        // ── Fechas (Ya vienen formateadas desde el servidor) ─────
+        // ── Fechas y Tiempos ─────
         const fReq = d.fecharequerida || '---';
-        const fSol = d.r_fechacreacion || '---'; // r_fechacreacion no se formatea en PHP, solo requerida/inicio/fin/completa
+        const fSol = d.r_fechacreacion || '---';
         const fIni = d.fechainicio || '---';
         const fFin = d.fechacompletado || '---';
-
-        // Formateo extra solo para r_fechacreacion si viene como timestamp
         const fmtRaw = s => (s && s.length > 10) ? s.substring(0, 10).split('-').reverse().join('/') : s;
         const fSolFmt = fmtRaw(fSol);
 
+        // ── Lógica de Pasos (Stepper) ──────────────────────────
+        const estados = ['pendiente_sin_asignar', 'pendiente_asignado', 'en_proceso', 'en_revision', 'finalizado'];
+        const actualIdx = estados.indexOf(d.estado);
+
+        const renderStep = (idx, icon, label) => {
+            const isDone = actualIdx >= idx;
+            const isCurrent = actualIdx === idx;
+            const color = isDone ? '#F5C400' : '#222';
+            const iconColor = isDone ? '#000' : '#444';
+            const bgColor = isDone ? '#F5C400' : '#0f0f0f';
+
+            return `
+                <div class="step-item ${isCurrent ? 'current' : ''} ${isDone ? 'done' : ''}">
+                    <div class="step-icon" style="background:${bgColor}; color:${iconColor}; border:1px solid ${isDone ? '#F5C400' : '#222'};">
+                        <i class="bi ${icon}"></i>
+                    </div>
+                    <div class="step-label" style="color:${isDone ? '#fff' : '#444'};">${label}</div>
+                </div>
+            `;
+        };
+
+        const stepperHtml = `
+            <div class="workflow-stepper">
+                ${renderStep(0, 'bi-plus-lg', 'SOLICITUD')}
+                <div class="step-line ${actualIdx > 0 ? 'active' : ''}"></div>
+                ${renderStep(2, 'bi-play-fill', 'PROCESO')}
+                <div class="step-line ${actualIdx > 2 ? 'active' : ''}"></div>
+                ${renderStep(3, 'bi-eye-fill', 'REVISIÓN')}
+                <div class="step-line ${actualIdx > 3 ? 'active' : ''}"></div>
+                ${renderStep(4, 'bi-check-all', 'ENTREGA')}
+            </div>
+        `;
+
         // ── Pill de Estado ──────────────────────────────────────
-        let trabajoHtml;
-        if (d.estado === 'finalizado') {
-            trabajoHtml = _pill('bi-check2-all', 'COMPLETADO', '#22c55e', 'rgba(34,197,94,0.1)');
-        } else if (!d.idempleado) {
-            trabajoHtml = _pill('bi-hourglass', 'PENDIENTE ASIGNACIÓN', '#888', 'rgba(136,136,136,0.1)');
-        } else if (d.estado === 'pendiente_asignado') {
-            trabajoHtml = _pill('bi-person-check', 'ASIGNADO', '#F5C400', 'rgba(245,196,0,0.1)');
-        } else {
-            trabajoHtml = _pill('bi-lightning-charge', 'EN DESARROLLO', '#10b981', 'rgba(16,185,129,0.1)');
-        }
+        let statusConfig = { label: 'ESTADO DESCONOCIDO', color: '#888', icon: 'bi-question-circle' };
+        if (d.estado === 'finalizado') statusConfig = { label: 'COMPLETADO', color: '#10b981', icon: 'bi-check2-all' };
+        else if (!d.idempleado) statusConfig = { label: 'SIN ASIGNAR', color: '#F5C400', icon: 'bi-person-exclamation' };
+        else if (d.estado === 'pendiente_asignado') statusConfig = { label: 'ASIGNADO', color: '#a855f7', icon: 'bi-person-check' };
+        else if (d.estado === 'en_proceso') statusConfig = { label: 'EN DESARROLLO', color: '#3b82f6', icon: 'bi-lightning-charge' };
+        else if (d.estado === 'en_revision') statusConfig = { label: 'EN REVISIÓN', color: '#f97316', icon: 'bi-eye' };
+
+        const statusPill = `
+            <div class="status-pill-premium" style="--pill-color: ${statusConfig.color}">
+                <i class="bi ${statusConfig.icon}"></i>
+                <span>${statusConfig.label}</span>
+            </div>
+        `;
 
         // ── Renderizado de Archivos ──────────────────────────────
         const renderArchivos = (lista, color = '#F5C400') => {
-            if (!lista.length) return '<div style="color:#ffffff;font-size:14px;font-weight:700;padding:5px 0;">No se adjuntaron archivos.</div>';
-            let html = `<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));gap:10px;margin-top:10px;">`;
-            lista.forEach(a => {
-                const ext = a.nombre.split('.').pop().toLowerCase();
-                const icon = KB_ICONS[ext] ?? KB_ICONS.default;
-                html += `
-                    <a href="${a.url_completa}" target="_blank" 
-                       style="display:flex;align-items:center;gap:10px;padding:12px;background:#0a0a0a;border:1px solid #222;border-radius:8px;color:#fff;text-decoration:none;font-size:11px;transition:border-color 0.2s;">
-                        <i class="bi ${icon}" style="color:${color};font-size:16px;"></i>
-                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.nombre}</span>
-                    </a>`;
-            });
-            html += '</div>';
-            return html;
+            if (!lista.length) return '<div class="no-files">No se encontraron archivos adjuntos.</div>';
+            return `<div class="files-grid">` +
+                lista.map(a => {
+                    const ext = a.nombre.split('.').pop().toLowerCase();
+                    const icon = KB_ICONS[ext] ?? KB_ICONS.default;
+                    return `
+                        <a href="${a.url_completa}" target="_blank" class="file-card">
+                            <div class="file-icon" style="color:${color}"><i class="bi ${icon}"></i></div>
+                            <div class="file-info">
+                                <span class="file-name">${a.nombre}</span>
+                                <span class="file-ext">${ext.toUpperCase()}</span>
+                            </div>
+                            <i class="bi bi-download download-icon"></i>
+                        </a>`;
+                }).join('') + '</div>';
         };
 
         const arcClienteHtml = renderArchivos(archivosCliente);
         const arcEmpleadoHtml = renderArchivos(archivosEmpleado, '#10b981');
 
-        // ── Tags para canales/formatos ──────────────────────────
+        // ── Tags ───────────────────────────────────────────────
         const renderTags = json => {
-            if (!json) return '<div style="color:#ffffff;font-size:13px;font-weight:900;text-align:center;width:100%;">SIN ESPECIFICAR</div>';
             const list = _parseList(json);
-            return `<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px;width:100%;">` +
-                list.map(t => {
-                    const texto = String(t || '').toUpperCase();
-                    return `<span style="background:#F5C400;color:#000;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:800;border:1px solid #fff;box-shadow:0 3px 8px rgba(245,196,0,0.2);white-space:nowrap;">${texto}</span>`;
-                }).join('') +
+            if (!list.length) return '<span class="tag-empty">SIN ESPECIFICAR</span>';
+            return `<div class="tags-container">` +
+                list.map(t => `<span class="tag-item">${String(t).toUpperCase()}</span>`).join('') +
                 `</div>`;
         };
 
@@ -226,212 +243,243 @@ async function verDetalle(idAtencion) {
         if (d.empleado_nombre) {
             const ini = (d.empleado_nombre[0] + (d.empleado_apellidos?.[0] ?? '')).toUpperCase();
             empleadoHtml = `
-                <div style="display:flex; align-items:center; gap:12px; text-align:left; width:100%;">
-                    <div style="width:50px; height:50px; background:linear-gradient(135deg, #F5C400, #ff8c00); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:900; color:#000; border:2px solid #fff; flex-shrink:0;">
-                        ${ini}
-                    </div>
-                    <div>
-                        <div style="color:#ffffff; font-size:15px; font-weight:800;">${d.empleado_nombre} ${d.empleado_apellidos}</div>
-                        <div style="color:#F5C400; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px;">EJECUTOR ASIGNADO</div>
+                <div class="user-card-premium">
+                    <div class="user-avatar-premium">${ini}</div>
+                    <div class="user-details">
+                        <span class="user-name">${d.empleado_nombre} ${d.empleado_apellidos}</span>
+                        <span class="user-role">RESPONSABLE ASIGNADO</span>
                     </div>
                 </div>`;
         } else {
             empleadoHtml = `
-                <div style="display:flex; align-items:center; gap:12px; text-align:left; width:100%;">
-                    <div style="width:50px; height:50px; background:#111; border:1px dashed #F5C400; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#F5C400; flex-shrink:0;">
-                        <i class="bi bi-person" style="font-size:24px;"></i>
-                    </div>
-                    <div>
-                        <div style="color:#F5C400; font-size:14px; font-weight:800;">Sin asignar</div>
-                        <div style="color:#888; font-size:10px;">Esperando responsable</div>
-                    </div>
-                </div>`;
-        }
-
-        // ── Sección de Entrega ──────────────────────────────────
-        let entregablesHtml = '';
-        if (d.estado === 'en_revision' || d.estado === 'finalizado') {
-            entregablesHtml = `
-                <div style="margin-top:25px; background:rgba(16,185,129,0.03); border:1px solid rgba(16,185,129,0.1); border-radius:15px; padding:25px;">
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
-                        <i class="bi bi-check-all" style="color:#10b981;font-size:24px;"></i>
-                        <span style="font-family:'Bebas Neue';font-size:22px;color:#fff;letter-spacing:1px;">RESULTADO DE LA ENTREGA</span>
-                    </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:25px;">
-                        <div>
-                            ${_label('Enlace de Entrega Final')}
-                            <div style="margin-top:8px;">
-                                ${d.url_entrega ? `<a href="${d.url_entrega}" target="_blank" style="color:#10b981;font-weight:800;font-size:16px;text-decoration:underline;">Abrir Link de Entrega <i class="bi bi-box-arrow-up-right ml-1"></i></a>` : '<span style="color:#ffffff;">Sin link adjunto</span>'}
-                            </div>
-                        </div>
-                        <div>
-                            ${_label('Mensaje del Desarrollador')}
-                            <div style="color:#ffffff;font-size:13px;line-height:1.6;margin-top:8px;white-space:pre-wrap;">${d.observacion_revision || 'No se incluyeron notas.'}</div>
-                        </div>
-                    </div>
-                    <div style="margin-top:20px;">
-                        ${_label('Archivos del Empleado')}
-                        ${arcEmpleadoHtml}
+                <div class="user-card-premium unassigned">
+                    <div class="user-avatar-premium"><i class="bi bi-person-dash"></i></div>
+                    <div class="user-details">
+                        <span class="user-name">PENDIENTE</span>
+                        <span class="user-role">ESPERANDO RESPONSABLE</span>
                     </div>
                 </div>`;
         }
 
         // ── Título del Modal ────────────────────────────────────
-        document.getElementById('detalle-titulo').innerText = (d.nombreempresa || 'PEDIDO').toUpperCase();
+        document.getElementById('detalle-titulo').innerText = (d.nombreempresa || 'DETALLE DE PEDIDO').toUpperCase();
 
-        // ── CONSTRUCCIÓN FINAL DEL HTML ────────────────────────
         cuerpo.innerHTML = `
             <style>
-                .det-container { padding: 5px 15px 20px; color: #ffffff; width: 100%; font-family: 'Inter', sans-serif; background: #080808; }
+                .exp-container { background: #080808; color: #fff; font-family: 'DM Sans', sans-serif; padding-bottom: 40px; }
                 
-                /* Estructura Grid Principal */
-                .det-main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+                /* Stepper */
+                .workflow-stepper { display: flex; align-items: center; justify-content: space-between; padding: 30px 60px; background: #0a0a0a; border-bottom: 1px solid #151515; margin-bottom: 30px; }
+                .step-item { display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; z-index: 2; }
+                .step-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+                .step-label { font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+                .step-line { flex-grow: 1; height: 2px; background: #151515; margin: 0 -20px; position: relative; top: -12px; z-index: 1; }
+                .step-line.active { background: #F5C400; }
+                .step-item.current .step-icon { box-shadow: 0 0 20px rgba(245, 196, 0, 0.3); transform: scale(1.1); }
                 
-                /* Secciones Universales */
-                .det-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-                .det-card-header { background: #000; padding: 12px 18px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; gap: 10px; }
-                .det-card-header i { font-size: 18px; color: #F5C400; }
-                .det-card-header span { font-family: 'Bebas Neue'; font-size: 18px; letter-spacing: 1px; color: #F5C400; }
-                .det-card-body { padding: 18px; }
+                /* Layout */
+                .exp-grid { display: grid; grid-template-columns: 1fr 340px; gap: 30px; padding: 0 30px; }
                 
-                /* Etiquetas y Datos */
-                .det-data-box { background: #050505; border: 1px solid #111; border-radius: 8px; padding: 12px; height: 100%; }
-                .det-data-label { color: #555; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; display: block; }
-                .det-data-value { color: #fff; font-size: 13px; line-height: 1.5; font-weight: 600; }
+                /* Cards */
+                .exp-card { background: #0a0a0a; border: 1px solid #151515; border-radius: 16px; overflow: hidden; margin-bottom: 25px; transition: border-color 0.3s; }
+                .exp-card:hover { border-color: #222; }
+                .exp-card-header { padding: 16px 20px; background: #0c0c0c; border-bottom: 1px solid #151515; display: flex; align-items: center; gap: 12px; }
+                .exp-card-header i { color: #F5C400; font-size: 18px; }
+                .exp-card-header span { font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 1px; color: #fff; }
+                .exp-card-body { padding: 25px; }
                 
-                /* Botón Iniciar */
-                .det-btn-start { background: #F5C400; color: #000; border: none; border-radius: 8px; padding: 14px; font-weight: 900; font-size: 13px; width: 100%; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; }
-                .det-btn-start:hover { background: #ffcf1a; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(245, 196, 0, 0.3); }
-
+                /* Data Boxes */
+                .data-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+                .data-box { background: #050505; border: 1px solid #111; padding: 15px; border-radius: 12px; }
+                .data-label { color: #fff; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; display: block; opacity: 0.8; }
+                .data-value { color: #fff; font-size: 14px; font-weight: 600; line-height: 1.5; }
+                .data-value.highlight { color: #F5C400; }
+                
+                /* Tags */
+                .tags-container { display: flex; flex-wrap: wrap; gap: 8px; }
+                .tag-item { background: #111; color: #fff; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 700; border: 1px solid #222; }
+                .tag-empty { color: #444; font-size: 11px; font-style: italic; }
+                
+                /* Files */
+                .files-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+                .file-card { background: #050505; border: 1px solid #111; padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 12px; text-decoration: none; transition: all 0.2s; }
+                .file-card:hover { border-color: #F5C400; background: #0a0a0a; transform: translateY(-2px); }
+                .file-icon { font-size: 20px; }
+                .file-info { flex-grow: 1; min-width: 0; }
+                .file-name { color: #fff; font-size: 12px; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+                .file-ext { color: #444; font-size: 9px; font-weight: 800; }
+                .download-icon { color: #222; font-size: 14px; }
+                .file-card:hover .download-icon { color: #F5C400; }
+                .no-files { color: #444; font-size: 13px; text-align: center; padding: 20px; border: 1px dashed #111; border-radius: 12px; }
+                
+                /* User Card */
+                .user-card-premium { display: flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #0a0a0a, #050505); padding: 15px; border-radius: 12px; border: 1px solid #151515; }
+                .user-avatar-premium { width: 48px; height: 48px; background: #F5C400; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; color: #000; border: 3px solid #151515; }
+                .user-details { display: flex; flex-direction: column; }
+                .user-name { color: #fff; font-size: 14px; font-weight: 800; }
+                .user-role { color: #F5C400; font-size: 9px; font-weight: 800; letter-spacing: 1px; }
+                .user-card-premium.unassigned .user-avatar-premium { background: #111; color: #444; border-style: dashed; }
+                
+                /* Status Pill */
+                .status-pill-premium { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 20px; background: rgba(var(--pill-color-rgb), 0.1); border: 1px solid var(--pill-color); color: var(--pill-color); font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+                
                 /* Responsive */
                 @media (max-width: 992px) {
-                    .det-main-grid { grid-template-columns: 1fr; }
+                    .exp-grid { grid-template-columns: 1fr; gap: 20px; padding: 0 15px; }
+                    .workflow-stepper { padding: 20px; overflow-x: auto; justify-content: flex-start; gap: 30px; }
+                    .step-line { display: none; }
+                    .exp-card-header span { font-size: 18px; }
+                }
+                @media (max-width: 600px) {
+                    .data-row { grid-template-columns: 1fr; gap: 10px; }
+                    .exp-container h2 { font-size: 32px !important; }
+                    .workflow-stepper { padding: 15px; }
+                    .exp-card-body { padding: 15px; }
                 }
             </style>
-            
-            <div class="det-container">
-                <!-- 1. HEADER PREMIUM -->
-                <div class="det-header" style="display:flex; justify-content:space-between; align-items:flex-end; padding-bottom:20px; border-bottom:1px solid #1a1a1a; margin-bottom:25px;">
+
+            <div class="exp-container">
+                <!-- 1. HEADER SECCIÓN -->
+                <div style="padding: 40px 30px 20px; display: flex; justify-content: space-between; align-items: flex-end;">
                     <div>
-                        <div style="font-size:10px; color:#F5C400; font-weight:900; letter-spacing:3px; text-transform:uppercase; margin-bottom:6px;">ADMINISTRACIÓN DE REQUERIMIENTO</div>
-                        <h2 style="font-family:'Bebas Neue', sans-serif; font-size:42px; color:#ffffff; letter-spacing:1px; margin:0; line-height:0.9;">${d.titulo || 'SIN TÍTULO'}</h2>
-                        <div style="margin-top:10px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-                            <span style="color:#F5C400; font-size:14px; font-weight:800; display:flex; align-items:center; gap:6px;"><i class="bi bi-building"></i> ${d.nombreempresa}</span>
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                            ${statusPill}
+                            <span style="color:#444; font-size:11px; font-weight:800;">ID: #REQ-${d.idrequerimiento || '---'}</span>
+                        </div>
+                        <h2 style="font-family:'Bebas Neue'; font-size:48px; color:#fff; letter-spacing:1px; margin:0; line-height:0.9;">${d.titulo || 'SIN TÍTULO'}</h2>
+                        <div style="margin-top:15px; display:flex; align-items:center; gap:15px;">
+                            <span style="color:#F5C400; font-weight:800; font-size:14px;"><i class="bi bi-building"></i> ${d.nombreempresa}</span>
                             <span style="color:#222;">|</span>
-                            <span style="color:#fff; font-size:13px; font-weight:800; text-transform:uppercase; background:#111; padding:2px 10px; border-radius:4px;">${d.servicio || 'GENERAL'}</span>
+                            <span style="color:#888; font-size:13px; font-weight:600;">ÁREA: ${d.area_solicitante_nombre || '---'}</span>
                         </div>
                     </div>
-                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                        ${trabajoHtml}
-                        <div style="font-size:12px; color:#F5C400; font-weight:900; letter-spacing:1px;">#REQ-${d.idrequerimiento || '---'}</div>
-                        <div style="font-size:9px; color:#444; font-weight:700;">ATENCIÓN: #${d.id.toString().padStart(5, '0')}</div>
+                    <div style="text-align:right;">
+                        <div style="font-family:'Bebas Neue'; font-size:24px; color:#F5C400;">${d.servicio || 'SERVICIO GENERAL'}</div>
+                        <div style="color:#444; font-size:10px; font-weight:800; letter-spacing:1px; margin-top:5px;">ATENCIÓN #${d.id.toString().padStart(5, '0')}</div>
                     </div>
                 </div>
 
-                <div class="det-main-grid">
-                    
-                    <!-- COLUMNA IZQUIERDA: CONTENIDO -->
-                    <div class="det-content-col">
+                <!-- 2. STEPPER -->
+                ${stepperHtml}
+
+                <div class="exp-grid">
+                    <!-- COLUMNA PRINCIPAL -->
+                    <div class="exp-main-col">
                         
-                        <!-- Brief Estratégico -->
-                        <div class="det-card">
-                            <div class="det-card-header"><i class="bi bi-bullseye"></i> <span>ESTRATEGIA Y OBJETIVOS</span></div>
-                            <div class="det-card-body">
-                                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:20px;">
-                                    <div class="det-data-box">
-                                        <span class="det-data-label">Objetivo de Comunicación</span>
-                                        <div class="det-data-value" style="color:#F5C400;">${d.objetivo_comunicacion || '---'}</div>
+                        <!-- Brief -->
+                        <div class="exp-card">
+                            <div class="exp-card-header"><i class="bi bi-compass"></i> <span>ESTRATEGIA DEL REQUERIMIENTO</span></div>
+                            <div class="exp-card-body">
+                                <div class="data-row">
+                                    <div class="data-box">
+                                        <span class="data-label">Objetivo Principal</span>
+                                        <div class="data-value highlight">${d.objetivo_comunicacion || '---'}</div>
                                     </div>
-                                    <div class="det-data-box">
-                                        <span class="det-data-label">Público Objetivo</span>
-                                        <div class="det-data-value">${d.publico_objetivo || '---'}</div>
+                                    <div class="data-box">
+                                        <span class="data-label">Público Objetivo</span>
+                                        <div class="data-value">${d.publico_objetivo || '---'}</div>
                                     </div>
                                 </div>
-                                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; border-top:1px solid #111; padding-top:15px;">
-                                    <div><span class="det-data-label">Categoría</span><div style="color:#fff; font-weight:800; font-size:12px;">${d.tipo_requerimiento || 'ESTÁNDAR'}</div></div>
-                                    <div><span class="det-data-label">Área Solicitante</span><div style="color:#fff; font-weight:700; font-size:12px;">${d.area_solicitante_nombre || '---'}</div></div>
-                                    <div><span class="det-data-label">Prioridad Cliente</span><div style="color:#F5C400; font-weight:900; font-size:12px;">${d.prioridad_cliente || 'MEDIA'}</div></div>
+                                <div class="data-box">
+                                    <span class="data-label">Descripción Detallada</span>
+                                    <div class="data-value" style="white-space:pre-wrap; font-size:13px; color:#ccc;">${d.descripcion || 'Sin descripción adicional.'}</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Instrucciones -->
-                        <div class="det-card">
-                            <div class="det-card-header"><i class="bi bi-chat-right-text"></i> <span>DESCRIPCIÓN DEL PROYECTO</span></div>
-                            <div class="det-card-body">
-                                <div style="color:#ccc; font-size:14px; line-height:1.7; white-space:pre-wrap; background:#050505; padding:20px; border-radius:8px; border:1px solid #111;">${d.descripcion || 'Sin descripción detallada.'}</div>
+                        <!-- Formatos y Canales -->
+                        <div class="data-row">
+                            <div class="exp-card" style="margin-bottom:0;">
+                                <div class="exp-card-header"><i class="bi bi-broadcast"></i> <span>CANALES</span></div>
+                                <div class="exp-card-body">${renderTags(d.canales_difusion)}</div>
+                            </div>
+                            <div class="exp-card" style="margin-bottom:0;">
+                                <div class="exp-card-header"><i class="bi bi-layers"></i> <span>FORMATOS</span></div>
+                                <div class="exp-card-body">${renderTags(d.formatos_solicitados)}</div>
                             </div>
                         </div>
 
-                        <!-- Canales y Formatos -->
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
-                            <div class="det-card" style="margin-bottom:0;">
-                                <div class="det-card-header"><i class="bi bi-share"></i> <span>CANALES DE DIFUSIÓN</span></div>
-                                <div class="det-card-body" style="padding:15px;">${renderTags(d.canales_difusion)}</div>
-                            </div>
-                            <div class="det-card" style="margin-bottom:0;">
-                                <div class="det-card-header"><i class="bi bi-box"></i> <span>FORMATOS REQUERIDOS</span></div>
-                                <div class="det-card-body" style="padding:15px;">${renderTags(d.formatos_solicitados)}</div>
-                            </div>
-                        </div>
-
-                        <!-- Archivos y Recursos -->
-                        <div class="det-card">
-                            <div class="det-card-header"><i class="bi bi-folder2-open"></i> <span>RECURSOS Y MATERIAL</span></div>
-                            <div class="det-card-body">
+                        <!-- Recursos -->
+                        <div class="exp-card" style="margin-top:25px;">
+                            <div class="exp-card-header"><i class="bi bi-folder-symlink"></i> <span>RECURSOS DEL CLIENTE</span></div>
+                            <div class="exp-card-body">
                                 ${arcClienteHtml}
                                 ${d.url_subida ? `
-                                <div style="margin-top:20px; background:#000; padding:15px; border-radius:8px; border:1px solid #F5C400; text-align:center;">
-                                    <a href="${d.url_subida}" target="_blank" style="color:#F5C400; font-size:12px; font-weight:900; text-decoration:none; display:inline-flex; align-items:center; gap:8px; letter-spacing:1px;">
-                                        <i class="bi bi-cloud-arrow-down" style="font-size:20px;"></i> ABRIR REPOSITORIO DE ARCHIVOS EXTERNO
-                                    </a>
-                                </div>` : ''}
+                                <a href="${d.url_subida}" target="_blank" style="margin-top:20px; display:flex; align-items:center; justify-content:center; gap:10px; background:#F5C400; color:#000; padding:15px; border-radius:12px; font-weight:900; text-decoration:none; font-size:12px; letter-spacing:1px;">
+                                    <i class="bi bi-cloud-arrow-down-fill" style="font-size:20px;"></i> URL DEL CLIENTE
+                                </a>` : ''}
                             </div>
                         </div>
 
-                        ${entregablesHtml}
+                        <!-- Entrega si existe -->
+                        ${(d.estado === 'en_revision' || d.estado === 'finalizado') ? `
+                        <div class="exp-card" style="border-color:#10b981; background:rgba(16,185,129,0.02);">
+                            <div class="exp-card-header" style="background:rgba(16,185,129,0.05); border-bottom-color:rgba(16,185,129,0.1);">
+                                <i class="bi bi-send-check" style="color:#10b981;"></i> <span style="color:#10b981;">ENTREGA Y RESULTADOS</span>
+                            </div>
+                            <div class="exp-card-body">
+                                <div class="data-box" style="margin-bottom:20px; border-color:rgba(16,185,129,0.2);">
+                                    <span class="data-label" style="color:#10b981;">Link de Entrega</span>
+                                    <div class="data-value">
+                                        ${d.url_entrega ? `<a href="${d.url_entrega}" target="_blank" style="color:#fff; text-decoration:underline; font-weight:800;">Abrir Proyecto Final <i class="bi bi-box-arrow-up-right ms-2"></i></a>` : 'No se adjuntó link.'}
+                                    </div>
+                                </div>
+                                <div class="data-box" style="margin-bottom:20px; border-color:rgba(16,185,129,0.2);">
+                                    <span class="data-label" style="color:#10b981;">Notas del Desarrollador</span>
+                                    <div class="data-value" style="font-size:13px; color:#aaa;">${d.observacion_revision || 'Sin notas adicionales.'}</div>
+                                </div>
+                                <span class="data-label" style="color:#10b981; margin-bottom:10px;">Archivos de Entrega</span>
+                                ${arcEmpleadoHtml}
+                            </div>
+                        </div>` : ''}
+
                     </div>
 
-                    <!-- COLUMNA DERECHA: sidebar -->
-                    <div class="det-sidebar-col">
+                    <!-- SIDEBAR -->
+                    <div class="exp-sidebar">
                         
-                        <!-- Ejecutor -->
-                        <div class="det-card">
-                            <div class="det-card-header"><i class="bi bi-person-badge"></i> <span>RESPONSABLE</span></div>
-                            <div class="det-card-body" style="padding:20px 15px;">
+                        <!-- Responsable -->
+                        <div class="exp-card">
+                            <div class="exp-card-header"><i class="bi bi-person-badge"></i> <span>RESPONSABLE</span></div>
+                            <div class="exp-card-body" style="padding:15px;">
                                 ${empleadoHtml}
                             </div>
                         </div>
 
-                        <!-- Tiempos -->
-                        <div class="det-card">
-                            <div class="det-card-header"><i class="bi bi-clock-history"></i> <span>CONTROL DE TIEMPOS</span></div>
-                            <div class="det-card-body">
-                                <div style="display:flex; flex-direction:column; gap:12px;">
-                                    <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:12px; border-radius:8px;">
-                                        <span style="color:#444; font-size:10px; font-weight:900;">SOLICITUD</span>
-                                        <span style="color:#fff; font-size:12px; font-weight:700;">${fSolFmt}</span>
+                        <!-- Cronología -->
+                        <div class="exp-card">
+                            <div class="exp-card-header"><i class="bi bi-calendar3"></i> <span>CRONOLOGÍA</span></div>
+                            <div class="exp-card-body">
+                                <div style="display:flex; flex-direction:column; gap:15px;">
+                                    <div class="data-box">
+                                        <span class="data-label">Fecha de Solicitud</span>
+                                        <div class="data-value">${fSolFmt}</div>
                                     </div>
-                                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(245,196,0,0.05); padding:12px; border-radius:8px; border:1px solid rgba(245,196,0,0.1);">
-                                        <span style="color:#F5C400; font-size:10px; font-weight:900;">ENTREGA LÍMITE</span>
-                                        <span style="color:#fff; font-size:13px; font-weight:900;">${fReq}</span>
+                                    <div class="data-box" style="border-color:#F5C40033; background:rgba(245,196,0,0.02);">
+                                        <span class="data-label" style="color:#F5C400;">Fecha Límite</span>
+                                        <div class="data-value" style="font-weight:900;">${fReq}</div>
                                     </div>
                                     ${d.fechainicio !== '---' && d.fechainicio !== '—' ? `
-                                    <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:12px; border-radius:8px;">
-                                        <span style="color:#444; font-size:10px; font-weight:900;">INICIO REAL</span>
-                                        <span style="color:#fff; font-size:12px; font-weight:700;">${fIni}</span>
+                                    <div class="data-box">
+                                        <span class="data-label">Inicio de Trabajo</span>
+                                        <div class="data-value">${fIni}</div>
+                                    </div>` : ''}
+                                    ${d.fechacompletado !== '---' && d.fechacompletado !== '—' ? `
+                                    <div class="data-box" style="border-color:#10b98133;">
+                                        <span class="data-label" style="color:#10b981;">Completado</span>
+                                        <div class="data-value">${fFin}</div>
                                     </div>` : ''}
                                 </div>
                             </div>
                         </div>
 
                         <!-- Auditoría -->
-                        <div class="det-card">
-                            <div class="det-card-header"><i class="bi bi-arrow-repeat"></i> <span>AUDITORÍA</span></div>
-                            <div class="det-card-body">
-                                <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:12px; border-radius:8px;">
-                                    <span style="color:#444; font-size:11px; font-weight:900;">MODIFICACIONES</span>
-                                    <span style="background:#F5C400; color:#000; padding:2px 12px; border-radius:15px; font-size:13px; font-weight:900;">${d.num_modificaciones || 0}</span>
+                        <div class="exp-card">
+                            <div class="exp-card-header"><i class="bi bi-shield-check"></i> <span>CONTROL</span></div>
+                            <div class="exp-card-body">
+                                <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:15px; border-radius:12px; border:1px solid #111;">
+                                    <span class="data-label" style="margin:0;">MODIFICACIONES</span>
+                                    <span style="background:#F5C400; color:#000; padding:4px 12px; border-radius:8px; font-weight:900; font-size:14px;">${d.num_modificaciones || 0}</span>
                                 </div>
                             </div>
                         </div>
@@ -439,9 +487,11 @@ async function verDetalle(idAtencion) {
                     </div>
                 </div>
 
-                <!-- 3. FOOTER ACCIONES -->
-                <div style="margin-top:20px; padding-top:20px; border-top:1px solid #1a1a1a; display:flex; justify-content:center;">
-                    <button class="btn btn-dark" data-dismiss="modal" style="background:#000; border:1px solid #222; font-family:'Bebas Neue'; font-size:20px; letter-spacing:2px; padding:12px 60px; border-radius:8px; color:#F5C400;">CERRAR EXPEDIENTE</button>
+                <!-- FOOTER ACCIONES -->
+                <div style="margin-top:30px; padding:30px; border-top:1px solid #151515; display:flex; justify-content:center;">
+                    <button class="btn" data-dismiss="modal" style="background:#111; border:1px solid #222; font-family:'Bebas Neue'; font-size:20px; letter-spacing:2px; padding:12px 60px; border-radius:12px; color:#F5C400; transition:all 0.3s;">
+                        CERRAR EXPEDIENTE DIGITAL
+                    </button>
                 </div>
             </div>
         `;
@@ -586,14 +636,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // SOLO SE PUEDE SACAR DE AQUÍ
         new Sortable(colAprobar, {
             group: { name: 'kanban', pull: true, put: false },
-            draggable: '.kb-card',
+            draggable: '.js-draggable',
             animation: 150
         });
 
         // SOLO SE PUEDE SOLTAR AQUÍ (NO REGRESAR)
         new Sortable(colProceso, {
             group: { name: 'kanban', pull: false, put: true },
-            draggable: '.kb-card',
+            draggable: '.js-draggable',
+            sort: false, // Desactivar el reordenamiento interno
             animation: 150,
             onAdd(evt) {
                 const idAtencion = evt.item.getAttribute('data-id');
@@ -607,4 +658,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-

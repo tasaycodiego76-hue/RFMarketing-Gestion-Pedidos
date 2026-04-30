@@ -123,7 +123,6 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
     <div>
-        <p class="seccion-titulo mb-1">Historial de Trabajos</p>
         <p style="font-size: 12px; color: #888; margin: 0;">Registro visual de todos los proyectos finalizados.</p>
     </div>
     

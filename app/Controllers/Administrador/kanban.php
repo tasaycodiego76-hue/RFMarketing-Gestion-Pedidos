@@ -30,7 +30,7 @@ class kanban extends Controller
         $atenciones = $atencionModel->obtenerParaKanban((int) $idEmpresa, (int) $idAreaAgencia);
 
         $columnas = [
-            'pendiente_sin_asignar' => ['label' => 'REVISAR', 'color' => '#eab308', 'items' => []],
+            'pendiente_sin_asignar' => ['label' => 'NUEVAS SOLICITUDES', 'color' => '#eab308', 'items' => []],
             'en_proceso' => ['label' => 'EN PROCESO', 'color' => '#a855f7', 'items' => []],
             'en_revision' => ['label' => 'EN REVISIÓN', 'color' => '#f97316', 'items' => []],
             'finalizado' => ['label' => 'ENTREGADO', 'color' => '#22c55e', 'items' => []],

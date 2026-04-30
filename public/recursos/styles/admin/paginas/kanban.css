@@ -1,160 +1,172 @@
-/* ══════════════════════════════════════
-   KANBAN — TABLERO PREMIUM (BLACK & YELLOW)
-══════════════════════════════════════ */
+﻿/* ======================================================
+   KANBAN ADMIN - PREMIUM DESIGN SYSTEM
+   ====================================================== */
 
-/* ── Bootstrap Modal Overrides ── */
-.modal-content.kb-modal {
-    background: #080808 !important;
-    border: 1px solid #1a1a1a !important;
-    border-radius: 16px !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+:root {
+    --kb-bg: #080808;
+    --kb-card-bg: #0f0f0f;
+    --kb-border: #151515;
+    --kb-accent: #F5C400;
+    --kb-text: #ffffff;
+    --kb-text-muted: #aaaaaa;
 }
 
-.modal-header.kb-modal-header {
-    border-bottom: 1px solid #1a1a1a !important;
-    padding: 20px 25px !important;
-}
-
-.modal-footer.kb-modal-footer {
-    border-top: 1px solid #1a1a1a !important;
-}
-
-.modal-body {
-    background: #080808 !important;
-}
-
-/* ── Cabecera empresa ── */
+/* --- Cabecera --- */
 .kb-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 0 25px;
-    border-bottom: 1px solid #111;
-    margin-bottom: 24px;
+    background: #0a0a0a;
+    padding: 25px 30px;
+    border-radius: 16px;
+    border: 1px solid #151515;
+    margin-bottom: 25px;
+    flex-wrap: wrap; /* Responsivo */
+    gap: 20px;
 }
 
 .kb-head-left {
     display: flex;
-    gap: 18px;
     align-items: center;
+    gap: 20px;
 }
 
 .kb-emp-avatar {
-    width: 56px;
-    height: 56px;
+    width: 60px;
+    height: 60px;
     background: #F5C400;
-    border-radius: 12px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px;
+    font-size: 30px;
     color: #000;
     font-weight: 900;
+    box-shadow: 0 8px 20px rgba(245, 196, 0, 0.2);
 }
 
 .kb-emp-nombre {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 800;
     color: #fff;
-    font-family: 'Inter', sans-serif;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: -0.5px;
 }
 
 .kb-emp-meta {
-    font-size: 12px;
-    color: #555;
-    margin-top: 4px;
+    font-size: 14px;
+    color: #fff;
+    margin-top: 5px;
+    font-weight: 600;
+    opacity: 0.9;
 }
 
-/* ── Stats ── */
+/* --- Stats --- */
 .kb-head-stats {
     display: flex;
-    gap: 32px;
+    gap: 35px;
+    flex-wrap: wrap; /* Responsivo */
 }
 
 .kb-stat {
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-width: 70px;
 }
 
 .kb-stat span {
-    font-size: 32px;
+    font-size: 36px;
     font-weight: 900;
     font-family: 'Bebas Neue', sans-serif;
+    line-height: 1;
 }
 
 .kb-stat small {
-    font-size: 10px;
-    color: #444;
-    font-weight: 800;
-    letter-spacing: 1px;
+    font-size: 11px;
+    color: #777;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 5px;
 }
 
 .st-amarillo { color: #F5C400; }
 .st-morado { color: #a855f7; }
 .st-naranja { color: #f97316; }
 .st-verde { color: #10b981; }
-.st-blanco { color: #ffffff; }
 
-/* ── Tabs áreas ── */
+/* --- Areas Tabs --- */
 .kb-areas {
     display: flex;
     gap: 10px;
     margin-bottom: 25px;
+    padding-bottom: 10px;
+    overflow-x: auto; /* Scroll horizontal en movil */
+    -webkit-overflow-scrolling: touch;
 }
 
+.kb-areas::-webkit-scrollbar { height: 4px; }
+.kb-areas::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+
 .kb-area-tab {
-    padding: 8px 20px;
-    border-radius: 8px;
+    padding: 8px 22px;
+    border-radius: 10px;
     text-decoration: none;
-    color: #555;
-    font-size: 13px;
-    font-weight: 700;
+    color: #888;
+    font-size: 14px;
+    font-weight: 800;
     background: #0f0f0f;
     border: 1px solid #1a1a1a;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.kb-area-tab:hover {
+    color: #fff;
+    border-color: #333;
 }
 
 .kb-area-tab.activo {
     background: #F5C400;
     color: #000;
     border-color: #F5C400;
+    box-shadow: 0 4px 15px rgba(245, 196, 0, 0.3);
 }
 
-/* ══════════════════════════════════════
-   TABLERO — GRID 4 COLUMNAS
-══════════════════════════════════════ */
+/* --- Tablero --- */
 .kb-board {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
+    gap: 15px;
 }
 
 .kb-col {
-    background: #0a0a0a;
+    background: rgba(10, 10, 10, 0.4);
     border: 1px solid #151515;
-    border-radius: 12px;
-    min-height: 80vh;
+    border-radius: 18px;
+    min-height: 75vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .kb-col-head {
-    padding: 15px 18px;
+    padding: 15px 20px;
     border-bottom: 1px solid #151515;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-/* Colores originales refinados */
+/* Bordes Superiores de Columnas */
 .kb-col[data-estado="pendiente_sin_asignar"] { border-top: 3px solid #F5C400; }
 .kb-col[data-estado="en_proceso"] { border-top: 3px solid #a855f7; }
 .kb-col[data-estado="en_revision"] { border-top: 3px solid #f97316; }
-.kb-col[data-estado="finalizado"], 
-.kb-col[data-estado="entregado"] { border-top: 3px solid #10b981; }
+.kb-col[data-estado="finalizado"] { border-top: 3px solid #10b981; }
 
 .kb-col-title {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 900;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -163,199 +175,192 @@
 .kb-col[data-estado="pendiente_sin_asignar"] .kb-col-title { color: #F5C400; }
 .kb-col[data-estado="en_proceso"] .kb-col-title { color: #a855f7; }
 .kb-col[data-estado="en_revision"] .kb-col-title { color: #f97316; }
-.kb-col[data-estado="finalizado"] .kb-col-title,
-.kb-col[data-estado="entregado"] .kb-col-title { color: #10b981; }
+.kb-col[data-estado="finalizado"] .kb-col-title { color: #10b981; }
 
 .kb-col-count {
-    color: #444;
-    font-size: 12px;
+    background: #151515;
+    color: #666;
+    font-size: 11px;
     font-weight: 900;
+    padding: 3px 9px;
+    border-radius: 6px;
 }
 
-.kb-col-body { padding: 12px; }
+.kb-col-body {
+    padding: 12px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
 
-/* ══════════════════════════════════════
-   TARJETAS
-══════════════════════════════════════ */
+/* --- Tarjetas --- */
 .kb-card {
     background: #0f0f0f;
     border: 1px solid #1a1a1a;
-    border-radius: 10px;
-    padding: 16px;
+    border-radius: 12px;
+    padding: 14px;
     margin-bottom: 12px;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    cursor: grab;
 }
 
 .kb-card:hover {
     border-color: #333;
     background: #121212;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
 }
 
-.kb-card-title {
-    font-size: 15px;
-    font-weight: 800;
-    color: #fff;
-    line-height: 1.3;
+.kb-card-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.kb-card-info { flex: 1; min-width: 0; }
+.kb-card-empresa { 
+    font-size: 10px; 
+    color: #F5C400; 
+    font-weight: 900; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    margin-bottom: 3px; 
+    display: block; 
 }
-
-.kb-card-empresa {
-    font-size: 10px;
-    color: #F5C400;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-top: 4px;
+.kb-card-title { 
+    font-size: 16px; 
+    font-weight: 800; 
+    color: #fff; 
+    line-height: 1.25;
     display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.kb-card-id { 
+    font-family: 'Bebas Neue'; 
+    color: #555; 
+    font-size: 14px; 
+    margin-left: 10px;
 }
 
-.kb-card-tags {
-    display: flex;
-    gap: 6px;
-    margin: 12px 0;
-    flex-wrap: wrap;
+.kb-card-progress { margin: 10px 0; }
+.kb-progress-bar { height: 3px; background: #1a1a1a; border-radius: 10px; overflow: hidden; margin-bottom: 5px; }
+.kb-progress-fill { height: 100%; transition: width 0.8s ease; }
+
+.kb-card-tags { display: flex; gap: 6px; margin: 10px 0; flex-wrap: wrap; }
+.kb-tag-servicio { 
+    font-size: 9px; 
+    padding: 3px 8px; 
+    background: #000; 
+    border: 1px solid #222; 
+    color: #fff; 
+    border-radius: 5px; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+}
+.kb-tag-pri { font-size: 9px; padding: 3px 8px; border-radius: 5px; font-weight: 900; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
+.kb-pri-alta { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+.kb-pri-media { background: rgba(245, 196, 0, 0.15); color: #F5C400; border: 1px solid rgba(245, 196, 0, 0.3); }
+.kb-pri-baja { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+.kb-card-fecha { 
+    font-size: 11px; 
+    color: #fff; 
+    margin-bottom: 12px; 
+    display: flex; 
+    align-items: center; 
+    gap: 6px; 
+    font-weight: 700; 
+    opacity: 0.8;
 }
 
-.kb-tag-servicio {
-    font-size: 9px;
-    padding: 3px 8px;
-    background: #000;
-    border: 1px solid #222;
-    color: #888;
-    border-radius: 4px;
+.kb-card-footer { padding-top: 10px; border-top: 1px solid #151515; }
+.kb-card-user { display: flex; align-items: center; gap: 10px; }
+.kb-user-avatar { 
+    width: 32px; height: 32px; border-radius: 9px; background: #F5C400; color: #000; 
+    display: flex; align-items: center; justify-content: center; font-size: 12px; 
+    font-weight: 900; border: 2px solid #0f0f0f; 
+}
+.kb-user-name { font-size: 12px; font-weight: 800; color: #fff; }
+
+.kb-card-actions { margin-top: 10px; }
+.kb-btn { 
+    width: 100%; padding: 8px; border-radius: 7px; font-size: 10px; font-weight: 900; 
+    text-transform: uppercase; letter-spacing: 1px; border: 1px solid #222; 
+    background: #0a0a0a; color: #fff !important; cursor: pointer; transition: all 0.2s;
+}
+.kb-btn:hover { background: #fff; color: #000 !important; border-color: #fff; }
+.kb-btn-primary { border-color: #F5C400; color: #F5C400 !important; }
+.kb-btn-primary:hover { background: #F5C400; color: #000 !important; }
+
+.kb-action-group { display: flex; gap: 6px; }
+.kb-btn-view { width: 38px; border-color: #333; }
+.kb-btn-danger { width: 38px; border-color: #ef4444; color: #ef4444 !important; }
+.kb-btn-success { flex: 1; border-color: #10b981; color: #10b981 !important; }
+
+/* --- Responsive Board --- */
+@media (max-width: 1400px) { .kb-board { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 1100px) { .kb-board { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 650px) { 
+    .kb-board { grid-template-columns: 1fr; } 
+    .kb-head { flex-direction: column; align-items: flex-start; padding: 20px; }
+    .kb-head-stats { width: 100%; justify-content: space-between; gap: 15px; }
+}
+/* --- Empty State --- */
+.kb-empty {
+    padding: 60px 20px;
+    text-align: center;
+    color: #444;
+    font-size: 13px;
     font-weight: 800;
     text-transform: uppercase;
-}
-
-.kb-tag-pri {
-    font-size: 9px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-weight: 900;
-    text-transform: uppercase;
-}
-
-.kb-pri-alta { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-.kb-pri-media { background: rgba(245, 196, 0, 0.1); color: #F5C400; }
-.kb-pri-baja { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-
-.kb-card-fecha {
-    font-size: 11px;
-    color: #444;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 700;
-}
-
-.kb-card-footer {
-    padding-top: 12px;
-    border-top: 1px solid #151515;
-}
-
-.kb-card-user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.kb-user-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: #F5C400;
-    color: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 900;
-}
-
-.kb-user-avatar.sin-asignar {
-    background: #111;
-    color: #444;
-    border: 1px dashed #222;
-}
-
-.kb-user-name {
-    font-size: 11px;
-    font-weight: 700;
-    color: #888;
-}
-
-/* ══════════════════════════════════════
-   ACCIONES
-══════════════════════════════════════ */
-.kb-card-actions {
-    margin-top: 12px;
+    letter-spacing: 1.5px;
+    border: 1px dashed #1a1a1a;
+    border-radius: 16px;
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.01);
+    transition: all 0.3s ease;
 }
 
-.kb-btn {
-    width: 100%;
-    padding: 8px;
-    border-radius: 6px;
-    font-size: 10px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border: 1px solid #222;
-    background: #0a0a0a;
-    color: #fff !important;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
+.kb-empty i {
+    font-size: 32px;
+    color: #222;
+    margin-bottom: 10px;
 }
 
-.kb-btn:hover {
-    background: #111;
-    border-color: #444;
+.kb-empty:hover {
+    border-color: #333;
+    color: #666;
+    background: rgba(255, 255, 255, 0.02);
+}
+/* Ocultar el mensaje de vacío automáticamente cuando hay tarjetas o se está arrastrando una */
+.kb-col-body:has(.kb-card) .kb-empty,
+.kb-col-body:has(.sortable-ghost) .kb-empty {
+    display: none !important;
 }
 
-.kb-btn-asignar { background: #F5C400; color: #000 !important; border: none; }
-.kb-btn-asignar:hover { background: #ffcf1a; }
-
-.kb-btn-detalle { color: #888 !important; }
-.kb-btn-detalle:hover { color: #fff !important; border-color: #F5C400; }
-
-.kb-btn-aprobar { border-color: #10b981; color: #10b981 !important; }
-.kb-btn-aprobar:hover { background: #10b981; color: #fff !important; }
-
-/* ── Estilos para el modal dinámico ── */
-.det-card {
-    background: #0a0a0a !important;
-    border: 1px solid #1a1a1a !important;
+/* Evitar que el mensaje vacío interfiera con el arrastre */
+.kb-empty {
+    pointer-events: none;
+    user-select: none;
+}
+/* Solo permitir el cursor de mano en la columna de solicitudes nuevas */
+.kb-col[data-estado="pendiente_sin_asignar"] .kb-card {
+    cursor: grab;
 }
 
-.det-data-box {
-    background: #050505 !important;
-    border: 1px solid #111 !important;
-}
-�════════════════════════════════════ */
-.kb-card-placeholder {
-    background: rgba(245, 196, 0, 0.05);
-    border: 2px dashed rgba(245, 196, 0, 0.2);
-    border-radius: 14px;
-    height: 120px;
-    margin-bottom: 15px;
-    animation: placeholder-pulse 1.5s infinite;
+.kb-col[data-estado="pendiente_sin_asignar"] .kb-card:active {
+    cursor: grabbing;
 }
 
-@keyframes placeholder-pulse {
-    0%, 100% { opacity: 0.5; transform: scale(0.98); }
-    50% { opacity: 1; transform: scale(1); }
+/* Desactivar el cursor de mano en las demas columnas para indicar que no son movibles */
+.kb-col:not([data-estado="pendiente_sin_asignar"]) .kb-card {
+    cursor: default;
 }
 
-/* Responsive */
-@media (max-width: 1200px) {
-    .kb-board { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 768px) {
-    .kb-board { grid-template-columns: 1fr; }
-    .kb-head { flex-direction: column; align-items: flex-start; gap: 20px; }
-    .kb-head-stats { width: 100%; justify-content: space-between; }
+.kb-col:not([data-estado="pendiente_sin_asignar"]) .kb-card:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: #1a1a1a;
 }

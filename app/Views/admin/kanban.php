@@ -27,9 +27,9 @@
         <div>
             <div class="kb-emp-nombre"><?= esc(strtoupper($empresa['nombreempresa'])) ?></div>
             <div class="kb-emp-meta">
-                RUC <?= esc($empresa['ruc'] ?? '—') ?>
-                <?php if (!empty($empresa['correo'])): ?> · <?= esc($empresa['correo']) ?><?php endif ?>
-                <?php if (!empty($empresa['telefono'])): ?> · <?= esc($empresa['telefono']) ?><?php endif ?>
+                RUC <span style="color:#fff;"><?= esc($empresa['ruc'] ?? '—') ?></span>
+                <?php if (!empty($empresa['correo'])): ?> · <span style="color:#fff;"><?= esc($empresa['correo']) ?></span><?php endif ?>
+                <?php if (!empty($empresa['telefono'])): ?> · <span style="color:#fff;"><?= esc($empresa['telefono']) ?></span><?php endif ?>
             </div>
         </div>
     </div>
@@ -65,7 +65,10 @@
 
             <div class="kb-col-body" data-estado="<?= $estado ?>">
                 <?php if (empty($col['items'])): ?>
-                    <div class="kb-empty">No hay requerimientos en esta etapa</div>
+                    <div class="kb-empty">
+                        <i class="bi bi-inbox"></i>
+                        <span>No hay requerimientos en esta etapa</span>
+                    </div>
                 <?php else: ?>
                     <?php
                     usort($col['items'], function ($a, $b) {
@@ -76,85 +79,99 @@
                     });
                     ?>
                     <?php foreach ($col['items'] as $p): ?>
-                        <div class="kb-card" data-id="<?= $p['id'] ?>">
+                        <div class="kb-card <?= ($estado === 'pendiente_sin_asignar') ? 'js-draggable' : '' ?>" data-id="<?= $p['id'] ?>">
                             <div class="kb-card-top">
-                                <span class="kb-card-title"><?= esc($p['titulo'] ?? 'Sin título') ?></span>
+                                <div class="kb-card-info">
+                                    <span class="kb-card-empresa"><?= esc($p['nombreempresa']) ?></span>
+                                    <span class="kb-card-title"><?= esc($p['titulo'] ?? 'Sin título') ?></span>
+                                </div>
+                                <div class="kb-card-id">#<?= $p['id'] ?></div>
                             </div>
 
-                            <span class="kb-card-empresa"><?= esc($p['nombreempresa']) ?></span>
-
                             <div class="kb-card-tags">
-                                <span class="kb-tag-servicio"><?= esc($p['servicio'] ?? 'General') ?></span>
+                                <span class="kb-tag-servicio">
+                                    <i class="bi bi-tag-fill"></i> <?= esc($p['servicio'] ?? 'General') ?>
+                                </span>
                                 <?php
                                 $prio = $p['prioridad_admin'] ?? ($p['prioridad'] ?? 'Media');
                                 $prioCls = strtolower($prio);
                                 ?>
                                 <span class="kb-tag-pri kb-pri-<?= $prioCls ?>">
-                                    <?= $prio === 'Alta' ? 'Prioridad Alta' : ($prio === 'Baja' ? 'Prioridad Baja' : 'Prioridad Media') ?>
+                                    <i class="bi bi-flag-fill"></i> <?= $prio ?>
                                 </span>
                             </div>
 
-                            <?php if (!empty($p['fecharequerida'])): ?>
-                                <div class="kb-card-fecha">
-                                    <i class="bi bi-clock"></i>
-                                    <span>Límite: <?= date('d M Y', strtotime($p['fecharequerida'])) ?></span>
+                            <div class="kb-card-progress">
+                                <?php 
+                                    $prog = 0;
+                                    if($estado === 'pendiente_sin_asignar') $prog = 25;
+                                    elseif($estado === 'en_proceso') $prog = 50;
+                                    elseif($estado === 'en_revision') $prog = 75;
+                                    elseif($estado === 'finalizado') $prog = 100;
+                                ?>
+                                <div class="kb-progress-bar">
+                                    <div class="kb-progress-fill" style="width: <?= $prog ?>%; background: <?= 
+                                        ($estado === 'finalizado') ? '#10b981' : 
+                                        (($estado === 'en_revision') ? '#f97316' : 
+                                        (($estado === 'en_proceso') ? '#a855f7' : '#F5C400')) ?>"></div>
                                 </div>
-                            <?php endif ?>
+                            </div>
 
                             <div class="kb-card-footer">
-                                <?php if ($p['idempleado']): ?>
-                                    <div class="kb-card-user">
-                                        <?php $empIni = mb_strtoupper(mb_substr($p['empleado_nombre'], 0, 1) . (mb_substr($p['empleado_apellidos'] ?? '', 0, 1))); ?>
-                                        <span class="kb-user-avatar"><?= $empIni ?></span>
-                                        <div style="display:flex; flex-direction:column;">
-                                            <?php if ($estado === 'finalizado'): ?>
-                                                <span class="kb-user-name"
-                                                    style="color:#10b981; font-size:10px; text-transform:uppercase; letter-spacing:1px;">Completado
-                                                    por</span>
-                                                <span class="kb-user-name"><?= esc($p['empleado_nombre']) ?></span>
-                                            <?php elseif ($p['estado'] === 'en_proceso'): ?>
-                                                <span class="kb-user-name"
-                                                    style="color:#a855f7; font-size:10px; text-transform:uppercase; letter-spacing:1px;">Desarrollando</span>
-                                                <span class="kb-user-name"><?= esc($p['empleado_nombre']) ?></span>
-                                            <?php else: ?>
-                                                <span class="kb-user-name"
-                                                    style="color:#F5C400; font-size:10px; text-transform:uppercase; letter-spacing:1px;">Asignado
-                                                    a</span>
-                                                <span class="kb-user-name"><?= esc($p['empleado_nombre']) ?></span>
-                                            <?php endif ?>
+                                <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                                    <?php if ($p['idempleado']): ?>
+                                        <div class="kb-card-user">
+                                            <?php 
+                                                $nombreComp = $p['empleado_nombre'] . ' ' . ($p['empleado_apellidos'] ?? '');
+                                                $empIni = mb_strtoupper(mb_substr($p['empleado_nombre'], 0, 1) . (mb_substr($p['empleado_apellidos'] ?? '', 0, 1))); 
+                                            ?>
+                                            <div class="kb-user-avatar-wrapper">
+                                                <span class="kb-user-avatar" title="<?= esc($nombreComp) ?>"><?= $empIni ?></span>
+                                            </div>
+                                            <span class="kb-user-name"><?= esc($p['empleado_nombre']) ?></span>
                                         </div>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="kb-card-user">
-                                        <span class="kb-user-avatar sin-asignar"><i class="bi bi-person-exclamation"></i></span>
-                                        <span class="kb-user-name sin-asignar-text">Pendiente de asignación</span>
-                                    </div>
-                                <?php endif ?>
+                                    <?php else: ?>
+                                        <div class="kb-card-user">
+                                            <div class="kb-user-avatar-wrapper sin-asignar">
+                                                <span class="kb-user-avatar"><i class="bi bi-person-dash"></i></span>
+                                            </div>
+                                            <span class="kb-user-name sin-asignar-text">Pendiente</span>
+                                        </div>
+                                    <?php endif ?>
+
+                                    <?php if (!empty($p['fecharequerida'])): ?>
+                                        <div class="kb-card-fecha" style="margin-bottom:0; font-size:10px;">
+                                            <i class="bi bi-clock"></i> Límite: <?= date('d/m', strtotime($p['fecharequerida'])) ?>
+                                        </div>
+                                    <?php endif ?>
+                                </div>
                             </div>
 
                             <div class="kb-card-actions">
                                 <?php if ($estado === 'pendiente_sin_asignar'): ?>
-                                    <button class="kb-btn kb-btn-asignar" onclick="verDetalle(<?= $p['id'] ?>)">REVISAR</button>
-                                <?php elseif ($estado === 'en_proceso'): ?>
-                                    <button class="kb-btn kb-btn-detalle" onclick="verDetalle(<?= $p['id'] ?>)">DETALLES DEL
-                                        PROGRESO</button>
-                                <?php elseif ($estado === 'en_revision'): ?>
-                                    <button class="kb-btn kb-btn-detalle" 
-                                        style="margin-bottom:8px; border-color:#F5C400; color:#F5C400 !important; background:rgba(245,196,0,0.05);" 
-                                        onclick="verDetalle(<?= $p['id'] ?>)">
-                                        <i class="bi bi-eye"></i> VER RECURSOS Y BRIEF
+                                    <button class="kb-btn kb-btn-primary" onclick="verDetalle(<?= $p['id'] ?>)">
+                                        <i class="bi bi-search"></i> REVISAR
                                     </button>
-                                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                                        <button class="kb-btn kb-btn-regresar"
-                                            style="background:rgba(239, 68, 68, 0.1); color:#ef4444 !important; border-color:rgba(239, 68, 68, 0.2);"
-                                            onclick="solicitarRetroalimentacion(<?= $p['id'] ?>)">REGRESAR</button>
-                                        <button class="kb-btn kb-btn-aprobar"
-                                            style="background:rgba(16,185,129,0.1); color:#10b981 !important; border-color:rgba(16,185,129,0.2);"
-                                            onclick="cambiarEstado(<?= $p['id'] ?>, 'finalizado', 'Completado satisfatoriamente')">APROBAR</button>
+                                <?php elseif ($estado === 'en_proceso'): ?>
+                                    <button class="kb-btn kb-btn-secondary" onclick="verDetalle(<?= $p['id'] ?>)">
+                                        <i class="bi bi-info-circle"></i> DETALLES
+                                    </button>
+                                <?php elseif ($estado === 'en_revision'): ?>
+                                    <div class="kb-action-group">
+                                        <button class="kb-btn kb-btn-view" onclick="verDetalle(<?= $p['id'] ?>)" title="Ver">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="kb-btn kb-btn-danger" onclick="solicitarRetroalimentacion(<?= $p['id'] ?>)" title="Regresar">
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                        </button>
+                                        <button class="kb-btn kb-btn-success" onclick="cambiarEstado(<?= $p['id'] ?>, 'finalizado', 'Aprobar')" title="Aprobar">
+                                            <i class="bi bi-check-lg"></i> OK
+                                        </button>
                                     </div>
                                 <?php else: ?>
-                                    <button class="kb-btn kb-btn-detalle" onclick="verDetalle(<?= $p['id'] ?>)">VER EXPEDIENTE
-                                        FINAL</button>
+                                    <button class="kb-btn kb-btn-info" onclick="verDetalle(<?= $p['id'] ?>)">
+                                        <i class="bi bi-folder-check"></i> EXPEDIENTE
+                                    </button>
                                 <?php endif ?>
                             </div>
                         </div>
