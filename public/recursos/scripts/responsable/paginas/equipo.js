@@ -240,11 +240,11 @@ function verDetalleMiembro(idEmpleado) {
                 const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
                 modal.show();
             } else {
-                alert(data.message || 'Error al obtener detalles');
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Error al obtener detalles', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400', allowOutsideClick: false, allowEscapeKey: false });
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error de conexión');
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400', allowOutsideClick: false, allowEscapeKey: false });
         });
 }

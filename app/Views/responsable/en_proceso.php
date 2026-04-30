@@ -59,7 +59,7 @@
 </div>
 
 <!-- Modal para ver detalles de tarea -->
-<div class="modal fade" id="modal-detalle-tarea" tabindex="-1">
+<div class="modal fade" id="modal-detalle-tarea" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content modal-detalle-content">
             <div class="modal-header modal-detalle-header">

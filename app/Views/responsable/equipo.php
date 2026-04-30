@@ -31,7 +31,7 @@
 </div>
 
 <!-- Modal Detalle Miembro -->
-<div class="modal fade" id="modalDetalleMiembro" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalDetalleMiembro" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" style="background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: #f5f5f5;">
             <div class="modal-header" style="border-bottom: 1px solid #333;">

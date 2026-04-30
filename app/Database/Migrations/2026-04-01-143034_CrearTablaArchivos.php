@@ -58,5 +58,6 @@ class CrearTablaArchivos extends Migration
         helper('filesystem');
         delete_files(FCPATH . 'uploads/materiales-referencia/');
         delete_files(FCPATH . 'uploads/entregables/');
+        delete_files(FCPATH . 'uploads/requerimientos/');
     }
 }

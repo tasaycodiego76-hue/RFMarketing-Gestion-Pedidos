@@ -59,37 +59,44 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('empresas/toggleEstado', 'Administrador\EmpresasController::toggleEstado');
 });
 
-//Rutas para el Responsable (Jefe de Área)
+// Rutas para el Responsable (Jefe de Área)
 $routes->group('responsable', ['filter' => 'auth'], function ($routes) {
-    //Dashboar de Metricas - Plantilla (Prueba)
+    // DASHBOARD
     $routes->get('dashboard', 'Responsable\PedidosAreaController::index');
 
+    // BANDEJA DE ENTRADA
     // Vistas
     $routes->get('bandeja', 'Responsable\PedidosAreaController::vistaBandeja');
-    $routes->get('equipo', 'Responsable\PedidosAreaController::vistaEquipo');
-    $routes->get('en-proceso', 'Responsable\PedidosAreaController::vistaTareasEnProceso');
-
-    // Endpoints JSON
+    // Datos(JSON)
     $routes->get('pedidos/bandeja-json', 'Responsable\PedidosAreaController::bandeja');
-    $routes->get('empleados/mi-area-json', 'Responsable\PedidosAreaController::empleadosMiAreaJson');
-    $routes->post('pedidos/asignar', 'Responsable\PedidosAreaController::asignarPedido');
     $routes->get('pedidos/detalle', 'Responsable\PedidosAreaController::obtenerDetalleRequerimiento');
-    $routes->get('tareas/en-proceso', 'Responsable\PedidosAreaController::tareasEnProceso');
-    $routes->get('tareas/empleado/(:num)', 'Responsable\PedidosAreaController::tareasPorEmpleado/$1');
-    $routes->get('archivos/vista-previa/(:num)', 'Responsable\PedidosAreaController::vistaPrevia/$1');
-    $routes->post('pedidos/actualizar', 'Responsable\PedidosAreaController::actualizarRequerimiento');
 
-    // NUEVAS RUTAS PARA EL RESPONSABLE (Similares a Empleado)
-    $routes->get('historial', 'Responsable\PedidosAreaController::historial');
-    $routes->get('retroalimentacion', 'Responsable\PedidosAreaController::vistaRetroalimentacion');
+    // GESTIÓN DE EQUIPO 
+    // Vistas
+    $routes->get('equipo', 'Responsable\EquipoController::index');
+    $routes->get('en-proceso', 'Responsable\EquipoController::vistaTareasEnProceso');
+    // Datos (JSON)
+    $routes->get('empleados/mi-area-json', 'Responsable\EquipoController::empleadosMiAreaJson');
+    $routes->get('tareas/en-proceso', 'Responsable\EquipoController::tareasEnProceso');
+    $routes->get('tareas/empleado/(:num)', 'Responsable\EquipoController::tareasPorEmpleado/$1');
+    $routes->get('equipo/miembro/(:num)', 'Responsable\EquipoController::detalleMiembro/$1');
+
+    // GESTIÓN OPERATIVA (TAREAS)
+    $routes->post('pedidos/asignar', 'Responsable\PedidosAreaController::asignarPedido');
+    $routes->post('pedidos/actualizar', 'Responsable\PedidosAreaController::actualizarRequerimiento');
     $routes->post('pedido-iniciar/(:num)', 'Responsable\PedidosAreaController::iniciarPedido/$1');
     $routes->post('pedido-entregar/(:num)', 'Responsable\PedidosAreaController::entregarPedido/$1');
 
-    // Miembros del equipo
-    $routes->get('equipo/miembro/(:num)', 'Responsable\EquipoController::detalleMiembro/$1');
+    // SEGUIMIENTO Y RETROALIMENTACIÓN
+    $routes->get('historial', 'Responsable\GestionController::historial');
+    $routes->get('retroalimentacion', 'Responsable\GestionController::retroalimentacion');
+
+    // RECURSOS
+    $routes->get('archivos/vista-previa/(:num)', 'Responsable\PedidosAreaController::vistaPrevia/$1');
+    $routes->get('servicios/listar', 'Responsable\PedidosAreaController::listarServicios');
 });
 
-//Rutas para el Empleado
+// Rutas para el Empleado
 $routes->group('empleado', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'Empleado\MisPedidosController::dashboard');
     $routes->get('mis_pedidos', 'Empleado\MisPedidosController::index');
@@ -99,29 +106,30 @@ $routes->group('empleado', ['filter' => 'auth'], function ($routes) {
     $routes->get('pedido-detalle/(:num)', 'Empleado\MisPedidosController::detalle/$1');
 });
 
-//Rutas para el Cliente
+// Rutas para el Cliente
 $routes->group('cliente', ['filter' => 'auth'], function ($routes) {
-    //Plantilla
+    // DASHBOARD / MIS SOLICITUDES
+    // Vistas
     $routes->get('mis_solicitudes', 'Cliente\MisPedidosController::index');
-    // API / Datos
+    // Datos (JSON)
     $routes->get('pedidos/listar', 'Cliente\MisPedidosController::listar');
-    $routes->get('nuevo-pedido/servicios', 'Cliente\MisPedidosController::servicios');
-    //Prueba de Registro de Requerimiento (Servicio_Personalizado) Por Ahora sin Carga de Archivos
-    $routes->post('requerimiento/guardar', 'Cliente\RequerimientoController::guardar');
-    // Ruta para obtener el JSON con toda la info (EndPoint)
-    $routes->get('requerimiento/detalle/(:num)', 'Cliente\RequerimientoController::detalle/$1');
-    // Ruta para la Pagina de Visualizacion del Requerimiento
+
+    // REQUERIMIENTOS
+    // Vistas
     $routes->get('detalle_requerimiento/(:num)', 'Cliente\RequerimientoController::vistaDetalle/$1');
-    //Ruta Para Guardar el Requerimiento (Vista + Backend Logica)
+    // Datos (JSON/POST)
     $routes->post('requerimiento/guardar', 'Cliente\RequerimientoController::guardar');
-    // Ruta especial para VER los archivos desde la Vista Detalle
-    $routes->get('archivos/(:segment)', 'Cliente\RequerimientoController::verArchivo/$1');
-    // Ruta para ver notificaciones (Vista)
+    $routes->get('requerimiento/detalle/(:num)', 'Cliente\RequerimientoController::detalle/$1');
+    $routes->get('nuevo-pedido/servicios', 'Cliente\MisPedidosController::servicios');
+
+    // SEGUIMIENTO Y NOTIFICACIONES
+    // Vistas
     $routes->get('notificaciones', 'Cliente\TrackingController::notificaciones');
-    // Ruta para obtener notificaciones en JSON (AJAX)
-    $routes->get('notificaciones-json', 'Cliente\TrackingController::notificacionesJson');
-    // Ruta para Seguimiento de un Requerimiento (Específico) / Endpoint
-    $routes->get('requerimiento/seguimiento/(:num)', 'Cliente\TrackingController::seguimiento/$1');
-    //Vista para el Seguimiento del Requerimiento
     $routes->get('seguimiento/(:num)', 'Cliente\TrackingController::vistaSeguimiento/$1');
+    // Datos (JSON)
+    $routes->get('notificaciones-json', 'Cliente\TrackingController::notificacionesJson');
+    $routes->get('requerimiento/seguimiento/(:num)', 'Cliente\TrackingController::seguimiento/$1');
+
+    // RECURSOS
+    $routes->get('archivos/(:segment)', 'Cliente\RequerimientoController::verArchivo/$1');
 });

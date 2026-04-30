@@ -395,21 +395,23 @@ function guardarEdicionRetroalimentacion() {
                 background: '#161616',
                 color: '#fff',
                 timer: 2000,
-                showConfirmButton: false
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                allowEscapeKey: false
             });
             // Recargar detalles
             verDetalle(req.idatencion || req.id);
             // Recargar lista si existe la función
             if (typeof listarRetroalimentacion === 'function') listarRetroalimentacion();
         } else {
-            Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#161616', color: '#fff' });
+            Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#161616', color: '#fff', allowOutsideClick: false, allowEscapeKey: false });
             btn.disabled = false;
             btn.innerHTML = originalHtml;
         }
     })
     .catch(err => {
         console.error(err);
-        Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión', background: '#161616', color: '#fff' });
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión', background: '#161616', color: '#fff', allowOutsideClick: false, allowEscapeKey: false });
         btn.disabled = false;
         btn.innerHTML = originalHtml;
     });

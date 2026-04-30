@@ -137,9 +137,8 @@ class kanban extends Controller
         }
 
         // 3. Procesamiento de datos adicionales
-        $data['canales_difusion'] = json_decode($data['canales_difusion'] ?? '[]', true);
-        $data['formatos_solicitados'] = json_decode($data['formatos_solicitados'] ?? '[]', true);
-
+        // NO decodificar JSON aquí, dejar que el JS lo maneje con _parseList
+        
         foreach (['fecharequerida', 'fechainicio', 'fechafin', 'fechacompletado'] as $campo) {
             $data[$campo] = !empty($data[$campo]) ? date('d M Y', strtotime($data[$campo])) : '—';
         }
@@ -308,9 +307,14 @@ class kanban extends Controller
                 WHERE id = ?
             ", [$nuevoEstado, $idAreaAgencia, $idAtencion]);
         } elseif ($nuevoEstado === 'finalizado') {
-            $db->query("UPDATE atencion SET estado = ?, fechacompletado = NOW() WHERE id = ?", [$nuevoEstado, $idAtencion]);
+            $db->query("UPDATE atencion SET estado = ?, fechacompletado = NOW(), observacion_revision = NULL WHERE id = ?", [$nuevoEstado, $idAtencion]);
         } else {
-            $db->query("UPDATE atencion SET estado = ? WHERE id = ?", [$nuevoEstado, $idAtencion]);
+            // Si el Admin regresa el pedido, le ponemos un mensaje por defecto para que aparezca en Retroalimentación
+            $obs = null;
+            if ($nuevoEstado === 'en_proceso') {
+                $obs = 'Corrección solicitada por Administración';
+            }
+            $db->query("UPDATE atencion SET estado = ?, observacion_revision = ? WHERE id = ?", [$nuevoEstado, $obs, $idAtencion]);
         }
 
         $db->query("

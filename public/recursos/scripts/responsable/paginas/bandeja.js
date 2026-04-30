@@ -1,5 +1,5 @@
 // Variables globales
-let empleadosBandejaData  = [];
+let empleadosBandejaData = [];
 let requerimientosData = [];
 let revisionData = [];
 let empleadoSeleccionado = null;
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function cargarBandeja() {
   const tbody = document.getElementById("contenido-bandeja");
   const tbodyRev = document.getElementById("contenido-revision");
-  
+
   if (tbody) tbody.innerHTML = generarSkeletonFilas(3);
   if (tbodyRev) tbodyRev.innerHTML = generarSkeletonFilas(2);
 
@@ -57,8 +57,8 @@ function cargarBandeja() {
 
         // 2. Tareas en revisión
         if (data.data_revision) {
-            revisionData = data.data_revision;
-            renderizarRevision(revisionData);
+          revisionData = data.data_revision;
+          renderizarRevision(revisionData);
         }
       } else {
         mostrarError(data.message || "Error al cargar la bandeja");
@@ -71,36 +71,36 @@ function cargarBandeja() {
 }
 
 function formatearFechaLimpia(fechaStr) {
-    if (!fechaStr) return "---";
-    try {
-        const fecha = new Date(fechaStr);
-        if (isNaN(fecha)) return fechaStr;
-        const dia = fecha.getDate().toString().padStart(2, '0');
-        const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
-        const anio = fecha.getFullYear();
-        return `${dia}/${mes}/${anio}`;
-    } catch (e) {
-        return fechaStr;
-    }
+  if (!fechaStr) return "---";
+  try {
+    const fecha = new Date(fechaStr);
+    if (isNaN(fecha)) return fechaStr;
+    const dia = fecha.getDate().toString().padStart(2, '0');
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    const anio = fecha.getFullYear();
+    return `${dia}/${mes}/${anio}`;
+  } catch (e) {
+    return fechaStr;
+  }
 }
 
 /**
  * Renderizar tabla de revisión
  */
 function renderizarRevision(data) {
-    const tbody = document.getElementById("contenido-revision");
-    const estadoVacio = document.getElementById("estado-vacio-revision");
-    
-    if (!tbody) return;
+  const tbody = document.getElementById("contenido-revision");
+  const estadoVacio = document.getElementById("estado-vacio-revision");
 
-    if (data.length === 0) {
-        tbody.innerHTML = "";
-        estadoVacio?.classList.remove("d-none");
-        return;
-    }
+  if (!tbody) return;
 
-    estadoVacio?.classList.add("d-none");
-    tbody.innerHTML = data.map(item => `
+  if (data.length === 0) {
+    tbody.innerHTML = "";
+    estadoVacio?.classList.remove("d-none");
+    return;
+  }
+
+  estadoVacio?.classList.add("d-none");
+  tbody.innerHTML = data.map(item => `
         <tr>
             <td>
                 <div style="font-weight:600;">${escaparHtml(item.titulo || "Sin título")}</div>
@@ -118,11 +118,12 @@ function renderizarRevision(data) {
             <td>${escaparHtml(item.nombre_area || "General")}</td>
             <td>${escaparHtml(item.cliente_nombre || "Usuario")}</td>
             <td>${escaparHtml(item.servicio_nombre || "N/A")}</td>
-            <td>${formatearFechaLimpia(item.fechafin)}</td>
             <td>
-                <button class="btn-ver-detalle" onclick="verDetalleRequerimiento(${item.id})" style="background:rgba(34,197,94,0.1); color:#22c55e; border-color:rgba(34,197,94,0.2);">
-                    <i class="bi bi-eye"></i> Revisa Trabajo
-                </button>
+                <div class="d-flex gap-1">
+                    <button class="btn-ver-detalle" onclick="verDetalleRequerimiento(${item.id})" style="background:rgba(34,197,94,0.1); color:#22c55e; border-color:rgba(34,197,94,0.2);">
+                        <i class="bi bi-eye"></i> Ver Trabajo
+                    </button>
+                </div>
             </td>
         </tr>
     `).join("");
@@ -209,6 +210,8 @@ function abrirModalAsignar(idAtencion) {
       background: "#161616",
       color: "#fff",
       confirmButtonColor: "#f5c400",
+      allowOutsideClick: false,
+      allowEscapeKey: false
     });
     return;
   }
@@ -268,10 +271,10 @@ function renderizarListaEmpleados() {
                     ${emp.esresponsable ? '<span class="badge-jefe">Jefe de Área</span>' : '<span class="badge-miembro">Miembro del Equipo</span>'}
                 </div>
                 <div class="empleado-workload" style="margin-top:4px;">
-                    ${emp.en_proceso > 0 
-                        ? `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(245,196,0,0.15);color:#F5C400;border:1px solid rgba(245,196,0,0.3);padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;">${emp.en_proceso} tarea${emp.en_proceso > 1 ? 's' : ''} activa${emp.en_proceso > 1 ? 's' : ''}</span>`
-                        : `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(34,197,94,0.1);color:#22c55e;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;">Disponible</span>`
-                    }
+                    ${emp.en_proceso > 0
+          ? `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(245,196,0,0.15);color:#F5C400;border:1px solid rgba(245,196,0,0.3);padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;">${emp.en_proceso} tarea${emp.en_proceso > 1 ? 's' : ''} activa${emp.en_proceso > 1 ? 's' : ''}</span>`
+          : `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(34,197,94,0.1);color:#22c55e;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;">Disponible</span>`
+        }
                 </div>
             </div>
             <div class="empleado-check">
@@ -303,8 +306,8 @@ function seleccionarEmpleado(idEmpleado) {
 /**
  * Confirmar asignación
  */
-function confirmarAsignacion(){
-  if(!empleadoSeleccionado||!requerimientoSeleccionado){
+function confirmarAsignacion() {
+  if (!empleadoSeleccionado || !requerimientoSeleccionado) {
     console.error("Faltan datos para asignar");
     return;
   }
@@ -316,56 +319,62 @@ function confirmarAsignacion(){
   formData.append("idusuario_asignado", empleadoSeleccionado);
   const csrfTokenName = "csrf_test_name";
   const csrfHash = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
-  if(csrfHash){
+  if (csrfHash) {
     formData.append(csrfTokenName, csrfHash);
   }
   fetch(`${base_url}responsable/pedidos/asignar`, {
-    method:"POST",
-    body:formData,
-    headers:{
-      "X-Requested-With":"XMLHttpRequest"
+    method: "POST",
+    body: formData,
+    headers: {
+      "X-Requested-With": "XMLHttpRequest"
     }
   })
-    .then(response=>response.json())
-    .then(data=>{
+    .then(response => response.json())
+    .then(data => {
       console.log("Respuesta de asignación:", data);
-      if(data.success){
+      if (data.success) {
         // Cerrar modal
         bootstrap.Modal.getInstance(document.getElementById("modal-asignar")).hide();
         Swal.fire({
-          icon:"success",
-          title:"¡Asignado!",
-          text:data.message,
-          background:"#161616",
-          color:"#fff",
-          confirmButtonColor:"#f5c400",
-          timer:2000,
-          showConfirmButton:false
+          icon: "success",
+          title: "¡Asignado!",
+          text: data.message,
+          background: "#161616",
+          color: "#fff",
+          confirmButtonColor: "#f5c400",
+          timer: 2000,
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          allowEscapeKey: false
         });
         // Recargar bandeja
-        setTimeout(()=>cargarBandeja(), 500);
-      }else{
+        setTimeout(() => cargarBandeja(), 500);
+      } else {
         Swal.fire({
-          icon:"error",
-          title:"Error",
-          text:data.message||"No se pudo asignar el requerimiento",
-          background:"#161616",
-          color:"#fff",
-          confirmButtonColor:"#f5c400"
+          icon: "error",
+          title: "Error",
+          text: data.message || "No se pudo asignar el requerimiento",
+          background: "#161616",
+          color: "#fff",
+          confirmButtonColor: "#f5c400",
+          allowOutsideClick: false,
+          allowEscapeKey: false
         });
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-check-lg"></i> Confirmar Asignación';
       }
     })
-    .catch(error=>{
+    .catch(error => {
       console.error("Error:", error);
       Swal.fire({
-        icon:"error",
-        title:"Error",
-        text:"Error de conexión al asignar",
-        background:"#161616",
-        color:"#fff",
-        confirmButtonColor:"#f5c400"
+        icon: "error",
+        title: "Error",
+        text: "Error de conexión al asignar",
+        background: "#161616",
+        color: "#fff",
+        confirmButtonColor: "#f5c400",
+        allowOutsideClick: false,
+        allowEscapeKey: false
       });
       btn.disabled = false;
       btn.innerHTML = '<i class="bi bi-check-lg"></i> Confirmar Asignación';
@@ -374,17 +383,17 @@ function confirmarAsignacion(){
 /*
  * Filtrar bandeja
  */
-function filtrarBandeja(){
+function filtrarBandeja() {
   const busqueda = document.getElementById("buscador-bandeja").value.toLowerCase().trim();
-  if(!busqueda){
+  if (!busqueda) {
     renderizarBandeja(requerimientosData);
     return;
   }
-  const filtrados = requerimientosData.filter(item=>
-    (item.titulo||"").toLowerCase().includes(busqueda)||
-    (item.servicio||"").toLowerCase().includes(busqueda)||
-    (item.nombreempresa||"").toLowerCase().includes(busqueda)||
-    (item.cliente_nombre||"").toLowerCase().includes(busqueda)||
+  const filtrados = requerimientosData.filter(item =>
+    (item.titulo || "").toLowerCase().includes(busqueda) ||
+    (item.servicio || "").toLowerCase().includes(busqueda) ||
+    (item.nombreempresa || "").toLowerCase().includes(busqueda) ||
+    (item.cliente_nombre || "").toLowerCase().includes(busqueda) ||
     String(item.idatencion).includes(busqueda)
   );
   renderizarBandeja(filtrados);
@@ -393,7 +402,7 @@ function filtrarBandeja(){
 /**
  * Mostrar estado vacío
  */
-function mostrarEstadoVacio(){
+function mostrarEstadoVacio() {
   document.getElementById("contenido-bandeja").innerHTML = "";
   document.getElementById("estado-vacio").classList.remove("d-none");
   actualizarContador(0);
@@ -402,19 +411,19 @@ function mostrarEstadoVacio(){
 /**
  * Actualizar contador
  */
-function actualizarContador(cantidad){
+function actualizarContador(cantidad) {
   const contador = document.getElementById("contador-pendientes");
-  if(contador){
-    contador.innerHTML = `<i class="bi bi-inbox"></i> ${cantidad} pendiente${cantidad!==1?"s":""}`;
+  if (contador) {
+    contador.innerHTML = `<i class="bi bi-inbox"></i> ${cantidad} pendiente${cantidad !== 1 ? "s" : ""}`;
   }
 }
 
 /**
  * Mostrar error
  */
-function mostrarError(mensaje){
+function mostrarError(mensaje) {
   const tbody = document.getElementById("contenido-bandeja");
-  tbody.innerHTML=`
+  tbody.innerHTML = `
         <tr>
             <td colspan="7" class="text-center py-4" style="color:#ef4444;">
                 <i class="bi bi-exclamation-triangle-fill mb-2" style="font-size:24px;display:block;"></i>
@@ -429,8 +438,8 @@ function mostrarError(mensaje){
 /**
  * Generar skeleton loading
  */
-function generarSkeletonFilas(cantidad){
-  return Array(cantidad).fill(0).map(()=>`
+function generarSkeletonFilas(cantidad) {
+  return Array(cantidad).fill(0).map(() => `
         <tr>
             <td><div class="skeleton" style="width:150px;height:16px;margin-bottom:4px;"></div><div class="skeleton" style="width:80px;height:12px;"></div></td>
             <td><div class="skeleton" style="width:100px;height:16px;"></div></td>
@@ -446,20 +455,20 @@ function generarSkeletonFilas(cantidad){
 /**
  * Utilidades
  */
-function formatearFecha(fecha){
-  if(!fecha) return "N/A";
+function formatearFecha(fecha) {
+  if (!fecha) return "N/A";
   const date = new Date(fecha);
-  if(isNaN(date.getTime())) return fecha;
-  return date.toLocaleDateString("es-PE",{
-    day:"2-digit",
-    month:"short",
-    year:"numeric"
+  if (isNaN(date.getTime())) return fecha;
+  return date.toLocaleDateString("es-PE", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
   });
 }
 
 
-function escaparHtml(texto){
-  if(!texto) return "";
+function escaparHtml(texto) {
+  if (!texto) return "";
   const div = document.createElement("div");
   div.textContent = texto;
   return div.innerHTML;
@@ -492,7 +501,7 @@ function verDetalleRequerimiento(idAtencion) {
   // Buscar el requerimiento en ambos datasets
   let requerimiento = requerimientosData.find(r => parseInt(r.idatencion) === parseInt(idAtencion));
   if (!requerimiento) {
-      requerimiento = revisionData.find(r => parseInt(r.id) === parseInt(idAtencion));
+    requerimiento = revisionData.find(r => parseInt(r.id) === parseInt(idAtencion));
   }
 
   if (!requerimiento) {
@@ -503,6 +512,8 @@ function verDetalleRequerimiento(idAtencion) {
       background: "#161616",
       color: "#fff",
       confirmButtonColor: "#f5c400",
+      allowOutsideClick: false,
+      allowEscapeKey: false
     });
     return;
   }
@@ -599,7 +610,7 @@ function renderizarDetalleRequerimiento(req, archivos) {
             <span class="hp-label">ARCHIVOS ADJUNTOS</span>
             <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
               ${archivosEmpleado.length > 0 ? archivosEmpleado.map(a => `
-                <a href="${window.base_url}${a.ruta}" target="_blank" style="display:flex; align-items:center; background:#111; border:1px solid #22c55e44; padding:8px 12px; border-radius:8px; color:#ddd; text-decoration:none; font-size:12px; gap:8px;">
+                <a href="${base_url}responsable/archivos/vista-previa/${a.id}" target="_blank" style="display:flex; align-items:center; background:#111; border:1px solid #22c55e44; padding:8px 12px; border-radius:8px; color:#ddd; text-decoration:none; font-size:12px; gap:8px;">
                   <i class="bi bi-file-earmark-check-fill" style="color:#22c55e;"></i>
                   <span>${escaparHtml(a.nombre)}</span>
                 </a>
@@ -662,12 +673,23 @@ function renderizarDetalleRequerimiento(req, archivos) {
               <span class="hp-label">Archivos del Cliente</span>
               <div class="d-flex flex-wrap gap-2 mt-1">
                 ${archivosCliente.length > 0 ? archivosCliente.map(a => `
-                  <a href="${window.base_url}${a.ruta}" target="_blank" class="badge bg-dark border border-secondary text-secondary p-2 text-decoration-none" style="font-weight:400; font-size:10px;">
+                  <a href="${base_url}responsable/archivos/vista-previa/${a.id}" target="_blank" class="badge bg-dark border border-secondary text-secondary p-2 text-decoration-none" style="font-weight:400; font-size:10px;">
                     <i class="bi bi-paperclip me-1"></i> ${escaparHtml(a.nombre)}
                   </a>
                 `).join('') : '<span style="color:#444; font-size:12px; font-style:italic;">Sin adjuntos.</span>'}
               </div>
             </div>
+
+            ${req.url_subida ? `
+            <div class="col-12 mt-3">
+              <span class="hp-label">Materiales de Referencia (Link)</span>
+              <div class="hp-val">
+                <a href="${req.url_subida}" target="_blank" class="text-info" style="font-size:13px; text-decoration:underline; word-break:break-all;">
+                  <i class="bi bi-link-45deg"></i> ${escaparHtml(req.url_subida)}
+                </a>
+              </div>
+            </div>
+            ` : ''}
           </div>
         </div>
       </div>
@@ -675,22 +697,21 @@ function renderizarDetalleRequerimiento(req, archivos) {
       <div class="col-lg-4">
         <div class="hp-sec" style="background:#0a0a0a;">
           <div class="hp-sec-title">RESUMEN DEL PEDIDO</div>
-          
           <div class="mb-3">
+            <span class="hp-label">Solicitado por</span>
+            <div style="font-weight:700; color:#fff;">${escaparHtml(req.nombre_cliente || '---')}</div>
+          </div>
+          <div class="mb-3">
+            <span class="hp-label">Área</span>
+            <div style="font-weight:700; color:#fff;">${escaparHtml(req.nombre_area || '---')}</div>
+          </div>
+           <div class="mb-3">
             <span class="hp-label">Empresa</span>
             <div style="font-weight:700; color:#fff; word-break: break-word;">${escaparHtml(req.nombre_empresa)}</div>
           </div>
           <div class="mb-3">
-            <span class="hp-label">Área / Departamento</span>
-            <div style="font-weight:700; color:#fff;">${escaparHtml(req.nombre_area || '---')}</div>
-          </div>
-          <div class="mb-3">
             <span class="hp-label">Servicio</span>
             <div style="font-weight:700; color:#fff; word-break: break-word;">${escaparHtml(req.nombre_servicio || req.servicio)}</div>
-          </div>
-          <div class="mb-3">
-            <span class="hp-label">Solicitado por</span>
-            <div style="font-weight:700; color:#fff;">${escaparHtml(req.nombre_cliente || '---')}</div>
           </div>
           <div class="mb-3">
             <span class="hp-label">Especialista Asignado</span>
@@ -746,13 +767,13 @@ function formatearFecha(fecha) {
   if (!fecha) return '---';
   const d = new Date(fecha);
   if (isNaN(d.getTime())) return fecha;
-  
+
   const day = String(d.getDate()).padStart(2, '0');
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const year = d.getFullYear();
   const hours = String(d.getHours()).padStart(2, '0');
   const minutes = String(d.getMinutes()).padStart(2, '0');
-  
+
   return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
 
@@ -772,12 +793,12 @@ window.seleccionarEmpleado = seleccionarEmpleado;
  * Activa el modo edición en el modal
  */
 function activarEdicionRequerimiento() {
-    const req = window.requerimientoActual;
-    if (!req) return;
+  const req = window.requerimientoActual;
+  if (!req) return;
 
-    // Cambiar el botón de Editar por Guardar y Cancelar
-    const headerBtns = document.querySelector('.hp-sec div[style*="display:flex; flex-wrap:wrap; gap:8px"]');
-    headerBtns.innerHTML = `
+  // Cambiar el botón de Editar por Guardar y Cancelar
+  const headerBtns = document.querySelector('.hp-sec div[style*="display:flex; flex-wrap:wrap; gap:8px"]');
+  headerBtns.innerHTML = `
         <span class="hp-pill" style="border-color:#F5C40044; color:#F5C400;"><i class="bi bi-pencil-square me-1"></i>MODO EDICIÓN</span>
         <button class="btn btn-sm btn-success ms-auto" id="btn-guardar-edicion" onclick="guardarEdicionRequerimiento()" style="font-weight:700; font-size:11px; height:24px; display:flex; align-items:center; gap:5px;">
             <i class="bi bi-check-lg"></i> GUARDAR CAMBIOS
@@ -787,26 +808,26 @@ function activarEdicionRequerimiento() {
         </button>
     `;
 
-    // Preparar Checkboxes
-    const canalesLista = ['Facebook', 'Instagram', 'LinkedIn', 'TikTok', 'WhatsApp', 'Web', 'Correo Electrónico', 'Publicidad Digital (Ads)', 'Impreso', 'Otros'];
-    const formatosLista = ['Imagen (Post/Story)', 'Video (Reel/TikTok)', 'Carrusel', 'PDF / Documento', 'GIF Animado', 'Motion Graphics', 'Fotografía', 'Ilustración', 'Texto / Copywriting', 'Otros'];
+  // Preparar Checkboxes
+  const canalesLista = ['Facebook', 'Instagram', 'LinkedIn', 'TikTok', 'WhatsApp', 'Web', 'Correo Electrónico', 'Publicidad Digital (Ads)', 'Impreso', 'Otros'];
+  const formatosLista = ['Imagen (Post/Story)', 'Video (Reel/TikTok)', 'Carrusel', 'PDF / Documento', 'GIF Animado', 'Motion Graphics', 'Fotografía', 'Ilustración', 'Texto / Copywriting', 'Otros'];
 
-    const canalesActuales = (req.canales_difusion || '').split(',').map(s => s.trim());
-    const formatosActuales = (req.formatos_solicitados || '').split(',').map(s => s.trim());
+  const canalesActuales = (req.canales_difusion || '').split(',').map(s => s.trim());
+  const formatosActuales = (req.formatos_solicitados || '').split(',').map(s => s.trim());
 
-    const renderCheckboxes = (lista, actuales, name) => {
-        return lista.map(item => `
+  const renderCheckboxes = (lista, actuales, name) => {
+    return lista.map(item => `
             <div class="form-check form-check-inline" style="margin-bottom: 5px;">
                 <input class="form-check-input check-premium" type="checkbox" name="${name}" value="${item}" id="chk-${name}-${item.replace(/\s+/g, '-')}" ${actuales.includes(item) ? 'checked' : ''}>
                 <label class="form-check-label text-white" for="chk-${name}-${item.replace(/\s+/g, '-')}" style="font-size: 12px; cursor: pointer;">${item}</label>
             </div>
         `).join('');
-    };
+  };
 
-    // Transformar campos en inputs
-    const container = document.querySelector('.hp-sec .row.g-4');
-    
-    container.innerHTML = `
+  // Transformar campos en inputs
+  const container = document.querySelector('.hp-sec .row.g-4');
+
+  container.innerHTML = `
         <div class="col-12">
             <span class="hp-label">Título del Requerimiento</span>
             <input type="text" id="edit-titulo" class="form-control form-control-sm bg-dark text-white border-secondary" value="${escaparHtml(req.titulo)}">
@@ -842,84 +863,90 @@ function activarEdicionRequerimiento() {
             <span class="hp-label">Fecha Requerida</span>
             <input type="date" id="edit-fecha" class="form-control form-control-sm bg-dark text-white border-secondary" value="${req.fecharequerida ? req.fecharequerida.split(' ')[0] : ''}">
         </div>
+        <div class="col-md-6">
+            <span class="hp-label">URL / Enlace de Materiales</span>
+            <input type="text" id="edit-url-subida" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Drive, Canva, etc." value="${req.url_subida || ''}">
+        </div>
     `;
 
-    // Estilo para los checkboxes
-    if (!document.getElementById('style-edicion-premium')) {
-        const style = document.createElement('style');
-        style.id = 'style-edicion-premium';
-        style.textContent = `
+  // Estilo para los checkboxes
+  if (!document.getElementById('style-edicion-premium')) {
+    const style = document.createElement('style');
+    style.id = 'style-edicion-premium';
+    style.textContent = `
             .bg-black-opacity { background: rgba(0,0,0,0.3); }
             .bg-warning-opacity { background: rgba(245, 196, 0, 0.05); }
             .check-premium:checked { background-color: #F5C400; border-color: #F5C400; }
             .check-premium { background-color: #111; border-color: #444; }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 }
 
 /**
  * Guarda los cambios realizados en el modo edición
  */
 function guardarEdicionRequerimiento() {
-    const req = window.requerimientoActual;
-    const btn = document.getElementById('btn-guardar-edicion');
-    const originalHtml = btn.innerHTML;
-    
-    btn.disabled = true;
-    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
+  const req = window.requerimientoActual;
+  const btn = document.getElementById('btn-guardar-edicion');
+  const originalHtml = btn.innerHTML;
 
-    // Obtener canales seleccionados
-    const canales = Array.from(document.querySelectorAll('input[name="canales"]:checked')).map(el => el.value).join(', ');
-    // Obtener formatos seleccionados
-    const formatos = Array.from(document.querySelectorAll('input[name="formatos"]:checked')).map(el => el.value).join(', ');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
 
-    const formData = new FormData();
-    formData.append('idrequerimiento', req.id);
-    formData.append('titulo', document.getElementById('edit-titulo').value);
-    formData.append('descripcion', document.getElementById('edit-descripcion').value);
-    formData.append('objetivo_comunicacion', document.getElementById('edit-objetivo').value);
-    formData.append('publico_objetivo', document.getElementById('edit-publico').value);
-    formData.append('canales_difusion', canales);
-    formData.append('formatos_solicitados', formatos);
-    formData.append('fecharequerida', document.getElementById('edit-fecha').value);
+  // Obtener canales seleccionados
+  const canales = Array.from(document.querySelectorAll('input[name="canales"]:checked')).map(el => el.value).join(', ');
+  // Obtener formatos seleccionados
+  const formatos = Array.from(document.querySelectorAll('input[name="formatos"]:checked')).map(el => el.value).join(', ');
 
-    fetch(`${window.base_url}responsable/pedidos/actualizar`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-        }
-    })
+  const formData = new FormData();
+  formData.append('idrequerimiento', req.id);
+  formData.append('titulo', document.getElementById('edit-titulo').value);
+  formData.append('descripcion', document.getElementById('edit-descripcion').value);
+  formData.append('objetivo_comunicacion', document.getElementById('edit-objetivo').value);
+  formData.append('publico_objetivo', document.getElementById('edit-publico').value);
+  formData.append('canales_difusion', canales);
+  formData.append('formatos_solicitados', formatos);
+  formData.append('fecharequerida', document.getElementById('edit-fecha').value);
+  formData.append('url_subida', document.getElementById('edit-url-subida').value);
+
+  fetch(`${base_url}responsable/pedidos/actualizar`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+    }
+  })
     .then(r => r.json())
     .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: '¡Actualizado!',
-                text: data.message,
-                background: '#161616',
-                color: '#fff',
-                timer: 2000,
-                showConfirmButton: false
-            });
-            // Recargar detalles en el modal
-            verDetalleRequerimiento(req.idatencion || req.id);
-            // Si hay una función de refresco de tabla, llamarla
-            if (typeof listarBandeja === 'function') listarBandeja();
-            if (typeof cargarTareasEmpleado === 'function') cargarTareasEmpleado();
-        } else {
-            Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#161616', color: '#fff' });
-            btn.disabled = false;
-            btn.innerHTML = originalHtml;
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión', background: '#161616', color: '#fff' });
+      if (data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Actualizado!',
+          text: data.message,
+          background: '#161616',
+          color: '#fff',
+          timer: 2000,
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          allowEscapeKey: false
+        });
+        // Recargar detalles en el modal
+        verDetalleRequerimiento(req.idatencion || req.id);
+        // Si hay una función de refresco de tabla, llamarla
+        if (typeof listarBandeja === 'function') listarBandeja();
+        if (typeof cargarTareasEmpleado === 'function') cargarTareasEmpleado();
+      } else {
+        Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#161616', color: '#fff', allowOutsideClick: false, allowEscapeKey: false });
         btn.disabled = false;
         btn.innerHTML = originalHtml;
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión', background: '#161616', color: '#fff', allowOutsideClick: false, allowEscapeKey: false });
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
     });
 }
-window.verDetalleRequerimiento = verDetalleRequerimiento;

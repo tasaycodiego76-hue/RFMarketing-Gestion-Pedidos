@@ -133,7 +133,7 @@
 </div>
 
 <!-- Modal Detalle Historial -->
-<div class="modal fade" id="modalHistorial" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="modalHistorial" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content modal-historial-content">
             <div class="modal-header" style="border-bottom: 1px solid #1e1e1e; padding: 20px 25px;">

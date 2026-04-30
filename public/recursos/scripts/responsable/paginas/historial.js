@@ -16,6 +16,8 @@ function verDetalleHistorial(idAtencion) {
         title: 'Obteniendo detalles...',
         background: '#0d0d0d',
         color: '#fff',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
         didOpen: () => {
             Swal.showLoading();
         }
@@ -37,7 +39,9 @@ function verDetalleHistorial(idAtencion) {
                     title: 'Error',
                     text: res.message || 'No se pudieron cargar los detalles',
                     background: '#0d0d0d',
-                    color: '#fff'
+                    color: '#fff',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
                 });
             }
         })
@@ -48,7 +52,9 @@ function verDetalleHistorial(idAtencion) {
                 title: 'Error',
                 text: 'Error de conexión al servidor',
                 background: '#0d0d0d',
-                color: '#fff'
+                color: '#fff',
+                allowOutsideClick: false,
+                allowEscapeKey: false
             });
         });
 }
@@ -154,97 +160,97 @@ function renderizarDetalleHistorialPremium(req, archivos, tracking) {
         `;
     }
 
-    let html = `
-        <style>
-            .hp-label { font-size: 11px; font-weight: 800; letter-spacing: 1px; color: #555; text-transform: uppercase; display: block; margin-bottom: 5px; }
-            .hp-val { color: #eee; font-size: 14px; line-height: 1.6; word-break: break-word; }
-            .hp-sec { background: #0d0d0d; border: 1px solid #1e1e1e; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
-            .hp-sec-title { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 1px; color: #666; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-            .hp-pill { background: #111; border: 1px solid #333; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #aaa; }
-        </style>
-
+    const html = `
         <div class="row g-4">
             <div class="col-lg-8">
                 <!-- Entrega Primero -->
                 ${entregaHtml}
 
-                <!-- Detalles de la Solicitud -->
-                <div class="hp-sec">
+                <div class="kd-sec">
                     <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
-                        <span class="hp-pill" style="border-color:${es.c}44; color:${es.c};"><i class="bi ${es.i} me-1"></i>${es.label}</span>
-                        <span class="hp-pill" style="border-color:${pri.c}44; color:${pri.c};"><i class="bi ${pri.i} me-1"></i>PRIORIDAD ${pri.label}</span>
+                        <span class="kd-pill" style="border-color:${es.c}44; color:${es.c};"><i class="bi ${es.i} me-1"></i>${es.label}</span>
+                        <span class="kd-pill" style="border-color:${pri.c}44; color:${pri.c};"><i class="bi ${pri.i} me-1"></i>PRIORIDAD ${pri.label}</span>
                     </div>
-
-                    <div class="hp-sec-title">SOLICITUD ORIGINAL</div>
+ 
+                    <div class="kd-sec-title">SOLICITUD ORIGINAL</div>
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <span class="hp-label">Objetivo de Comunicación</span>
-                            <div class="hp-val" style="max-height:100px; overflow-y:auto; padding-right:5px; white-space:pre-wrap;">${escaparHtml(req.objetivo_comunicacion || '---')}</div>
+                            <span class="kd-label">Objetivo de Comunicación</span>
+                            <div class="kd-val" style="max-height:100px; overflow-y:auto; padding-right:5px; white-space:pre-wrap;">${escaparHtml(req.objetivo_comunicacion || '---')}</div>
                         </div>
                         <div class="col-md-6">
-                            <span class="hp-label">Público Objetivo</span>
-                            <div class="hp-val" style="max-height:100px; overflow-y:auto; padding-right:5px; white-space:pre-wrap;">${escaparHtml(req.publico_objetivo || '---')}</div>
+                            <span class="kd-label">Público Objetivo</span>
+                            <div class="kd-val" style="max-height:100px; overflow-y:auto; padding-right:5px; white-space:pre-wrap;">${escaparHtml(req.publico_objetivo || '---')}</div>
                         </div>
                         <div class="col-12">
                             <hr style="border-color:#1e1e1e; margin:10px 0;">
-                            <span class="hp-label">Descripción Detallada</span>
-                            <div class="hp-val" style="white-space:pre-wrap; max-height:200px; overflow-y:auto; padding-right:10px; word-break: break-word; background: #050505; padding: 10px; border-radius: 6px;">${escaparHtml(req.descripcion || 'Sin descripción.')}</div>
+                            <span class="kd-label">Descripción Detallada</span>
+                            <div class="kd-val" style="white-space:pre-wrap; max-height:200px; overflow-y:auto; padding-right:10px; word-break: break-word; background: #050505; padding: 10px; border-radius: 6px;">${escaparHtml(req.descripcion || 'Sin descripción.')}</div>
                         </div>
                         <div class="col-md-6">
-                            <span class="hp-label">Canales de Difusión</span>
+                            <span class="kd-label">Canales de Difusión</span>
                             <div class="d-flex flex-wrap gap-2 mt-2">${formatearLista(req.canales_difusion)}</div>
                         </div>
                         <div class="col-md-6">
-                            <span class="hp-label">Formatos Solicitados</span>
+                            <span class="kd-label">Formatos Solicitados</span>
                             <div class="d-flex flex-wrap gap-2 mt-2">${formatearLista(req.formatos_solicitados)}</div>
                         </div>
+                        ${req.url_subida ? `
                         <div class="col-12">
-                            <span class="hp-label">Materiales de Referencia (Cliente)</span>
+                            <hr style="border-color:#1e1e1e; margin:10px 0;">
+                            <span class="kd-label">URL de Subida (Cliente)</span>
+                            <div class="kd-val" style="margin-top:5px;">
+                                <a href="${escaparHtml(req.url_subida)}" target="_blank" style="color:#60a5fa; text-decoration:underline; font-size:13px;">${escaparHtml(req.url_subida)}</a>
+                            </div>
+                        </div>
+                        ` : ''}
+                        <div class="col-12">
+                            <span class="kd-label">Materiales de Referencia (Cliente)</span>
                             <div class="d-flex flex-wrap gap-2 mt-2">
                                 ${archivosCliente.length > 0 ? archivosCliente.map(a => `
                                     <a href="${window.BASE_URL}${a.ruta}" target="_blank" class="badge bg-dark border border-secondary text-secondary p-2 text-decoration-none" style="font-size:10px; font-weight:400; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                         <i class="bi bi-paperclip me-1"></i> ${escaparHtml(a.nombre)}
                                     </a>
-                                `).join('') : '<span style="color:#444; font-size:12px; font-style:italic;">No hay adjuntos.</span>'}
+                                 `).join('') : '<span style="color:#444; font-size:12px; font-style:italic;">No hay adjuntos.</span>'}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
+ 
             <div class="col-lg-4">
-                <div class="hp-sec" style="background:#0a0a0a;">
-                    <div class="hp-sec-title">RESUMEN DEL PEDIDO</div>
+                <div class="kd-sec" style="background:#0a0a0a; margin-bottom: 20px;">
+                    <div class="kd-sec-title">RESUMEN DEL PEDIDO</div>
                     
                     <div class="mb-3">
-                        <span class="hp-label">Empresa</span>
+                        <span class="kd-label">Empresa</span>
                         <div style="font-weight:700; color:#fff; word-break: break-word;">${escaparHtml(req.nombre_empresa)}</div>
                     </div>
                     <div class="mb-3">
-                        <span class="hp-label">Área / Departamento</span>
+                        <span class="kd-label">Área / Departamento</span>
                         <div style="font-weight:700; color:#fff;">${escaparHtml(req.nombre_area || '---')}</div>
                     </div>
                     <div class="mb-3">
-                        <span class="hp-label">Servicio</span>
+                        <span class="kd-label">Servicio</span>
                         <div style="font-weight:700; color:#fff; word-break: break-word;">${escaparHtml(req.nombre_servicio || req.servicio)}</div>
                     </div>
                     <div class="mb-3">
-                        <span class="hp-label">Solicitado por</span>
+                        <span class="kd-label">Solicitado por</span>
                         <div style="font-weight:700; color:#fff;">${escaparHtml(req.nombre_cliente || '---')}</div>
                     </div>
                     <div class="mb-3">
-                        <span class="hp-label">Ejecutor / Especialista</span>
+                        <span class="kd-label">Ejecutor / Especialista</span>
                         <div style="font-weight:700; color:var(--amarillo); word-break: break-word;">${escaparHtml(req.empleado_nombre || '---')}</div>
                     </div>
                     
                     <hr style="border-color:#1e1e1e; margin:15px 0;">
                     
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="hp-label" style="margin:0;">Solicitado el:</span>
+                        <span class="kd-label" style="margin:0;">Solicitado el:</span>
                         <span style="font-size:12px; color:#aaa;">${formatearFechaLimpia(fSol)}</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="hp-label" style="margin:0;">Completado el:</span>
+                        <span class="kd-label" style="margin:0;">Completado el:</span>
                         <span style="font-size:12px; color:#22c55e; font-weight:700;">${formatearFechaLimpia(fCom)}</span>
                     </div>
                 </div>

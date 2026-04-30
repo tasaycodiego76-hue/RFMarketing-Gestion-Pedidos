@@ -183,7 +183,11 @@
             <label class="label-tiny mb-3 d-block">CANALES DE DIFUSIÓN</label>
             <div class="d-flex flex-wrap gap-2">
                 <?php
-                $canales = json_decode($requerimiento['canales_difusion'] ?? '[]', true) ?: [];
+                $canalesRaw = $requerimiento['canales_difusion'] ?? '[]';
+                $canales = json_decode($canalesRaw, true);
+                if (!is_array($canales)) {
+                    $canales = array_filter(array_map('trim', explode(',', $canalesRaw)));
+                }
                 foreach ($canales as $canal):
                     ?>
                     <span class="tag-outline"><?= esc($canal) ?></span>
@@ -196,7 +200,11 @@
             <label class="label-tiny mb-3 d-block">FORMATOS SOLICITADOS</label>
             <div class="d-flex flex-wrap gap-2">
                 <?php
-                $formatos = json_decode($requerimiento['formatos_solicitados'] ?? '[]', true) ?: [];
+                $formatosRaw = $requerimiento['formatos_solicitados'] ?? '[]';
+                $formatos = json_decode($formatosRaw, true);
+                if (!is_array($formatos)) {
+                    $formatos = array_filter(array_map('trim', explode(',', $formatosRaw)));
+                }
                 foreach ($formatos as $formato):
                     ?>
                     <span class="tag-outline"><?= esc($formato) ?></span>

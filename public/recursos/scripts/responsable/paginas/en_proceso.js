@@ -51,11 +51,11 @@ function renderizarEmpleados(empleados) {
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div class="d-flex align-items-center">
                         <div class="empleado-avatar ${empleado.esresponsable ? 'responsable' : ''} ${isMe ? 'me' : ''}">
-                            ${empleado.esresponsable ? '<i class="bi bi-shield-check"></i>' : obtenerIniciales(empleado.nombre)}
+                            ${empleado.esresponsable ? '<i class="bi bi-shield-check"></i>' : obtenerIniciales(empleado.nombre_completo)}
                         </div>
                         <div class="ms-3">
                             <h6 class="text-white mb-1" style="font-size: 15px;">
-                                ${escaparHtml(empleado.nombre)} ${escaparHtml(empleado.apellidos)} 
+                                ${escaparHtml(empleado.nombre_completo)} 
                                 ${isMe ? '<span class="badge bg-warning text-dark ms-2" style="font-size: 9px; vertical-align: middle;">TÚ</span>' : ''}
                             </h6>
                             <span style="font-size: 11px; color: ${empleado.esresponsable ? '#f5c400' : '#888'};">
@@ -122,8 +122,9 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
     }
 
     container.innerHTML = tareas.map(tarea => {
-        const isMe = idEmpleado == window.currentUserId;
-        const canDeliver = isMe && tarea.estado === 'en_proceso';
+        const isMe = (parseInt(idEmpleado) === parseInt(window.currentUserId));
+        const hasStarted = (tarea.fechainicio && tarea.fechainicio !== '0000-00-00 00:00:00' && tarea.fechainicio !== '0000-00-00');
+        const canDeliver = isMe && hasStarted && tarea.estado === 'en_proceso';
 
         return `
         <div class="tarea-item mb-2" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 12px;">
@@ -136,25 +137,39 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
                     ` : ''}
                 </div>
                 <div class="d-flex gap-1">
-                    ${canDeliver ? `
-                        <button class="btn btn-sm btn-success" onclick="abrirModalEntregar(${tarea.id})" title="Entregar mi trabajo" style="padding: 2px 8px; font-size: 11px;">
-                            <i class="bi bi-send-fill me-1"></i> ENTREGAR
+                    ${(isMe && !hasStarted) ? `
+                        <button class="btn btn-sm btn-warning" onclick="iniciarTrabajo(${tarea.id})" title="Registrar inicio de trabajo" style="padding: 4px 15px; font-size: 11px; font-weight: 800; background: #f5c400; color: #000; border: none; letter-spacing: 0.5px;">
+                            <i class="bi bi-play-fill me-1"></i> INICIAR TRABAJO
                         </button>
-                    ` : ''}
-                    <button class="btn btn-sm btn-outline-warning" onclick="verDetalleTarea(${tarea.id})" title="Ver detalles" style="border-color: #444; color: #fff; padding: 2px 8px;">
-                        <i class="bi bi-eye" style="font-size: 13px;"></i>
-                    </button>
+                    ` : `
+                        ${canDeliver ? `
+                            <button class="btn btn-sm btn-success" onclick="abrirModalEntregar(${tarea.id})" title="Entregar mi trabajo" style="padding: 2px 8px; font-size: 11px;">
+                                <i class="bi bi-send-fill me-1"></i> ENTREGAR
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-sm btn-outline-warning" onclick="verDetalleTarea(${tarea.id})" title="Ver detalles" style="border-color: #444; color: #fff; padding: 2px 8px;">
+                            <i class="bi bi-eye" style="font-size: 13px;"></i>
+                        </button>
+                    `}
                 </div>
             </div>
-            <div class="d-flex align-items-center gap-2" style="font-size: 11px; color: #777;">
-                <span style="color: #aaa;">${escaparHtml(tarea.nombre_empresa || tarea.empresa || '')}</span>
-                <span class="mx-1">•</span>
-                <span style="color: #555;">${escaparHtml(tarea.nombre_area || 'Área')}</span>
-                <span class="mx-1">•</span>
-                <span style="color: #555;">${escaparHtml(tarea.nombre_cliente || 'Usuario')}</span>
+            <div class="d-flex align-items-center justify-content-between mt-1">
+                <div style="font-size: 11px; color: #777; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span style="color: #aaa; font-weight: 600; text-transform: uppercase; font-size: 10px;">${escaparHtml(tarea.nombre_servicio || 'Servicio')}</span>
+                    
+
+                    ${hasStarted ? `
+                        <span style="color: #22c55e; background: rgba(34, 197, 94, 0.1); padding: 1px 6px; border-radius: 4px; font-size: 10px; border: 1px solid rgba(34, 197, 94, 0.2);">
+                            <i class="bi bi-calendar-check me-1"></i> Iniciado: ${formatearFechaLimpia(tarea.fechainicio)}
+                        </span>
+                    ` : ''}
+                </div>
+                <div style="font-size: 10px; color: #444; font-style: italic;">
+                    #REQ-${tarea.id_requerimiento || tarea.id}
+                </div>
             </div>
-        </div>
-    `}).join('');
+        </div>`;
+    }).join('');
 }
 
 /**
@@ -168,11 +183,11 @@ function verDetalleTarea(idAtencion) {
                 window.requerimientoActualEnProceso = data.data; // Guardar globalmente
                 mostrarModalDetalle(data.data, data.archivos, data.tracking);
             } else {
-                Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'No se pudieron cargar los detalles', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400' });
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'No se pudieron cargar los detalles', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400', allowOutsideClick: false, allowEscapeKey: false });
             }
         })
         .catch(() => {
-            Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400' });
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400', allowOutsideClick: false, allowEscapeKey: false });
         });
 }
 
@@ -354,18 +369,6 @@ function mostrarModalDetalle(req, archivos, tracking) {
 
     // ── HTML ──
     const html = `
-    <style>
-        .kd-sec { background: #0a0a0a; border: 1px solid #1e1e1e; border-left-width: 3px; border-radius: 8px; padding: 18px 20px; margin-bottom: 14px; }
-        .kd-sec-title { font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 7px; }
-        .kd-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #666; display: block; margin-bottom: 5px; }
-        .kd-val { color: #e0e0e0; font-size: 15px; line-height: 1.7; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; }
-        .kd-hr { border: none; border-top: 1px solid #1a1a1a; margin: 14px 0; }
-        .kd-info-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #111; }
-        .kd-info-row:last-child { border-bottom: none; }
-        .kd-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        @media(max-width:640px) { .kd-2col { grid-template-columns: 1fr; } .kd-main { grid-template-columns: 1fr !important; } }
-    </style>
-
     <div class="modal-ver-detalle" style="font-family:'Segoe UI',system-ui,sans-serif;color:#c8c8c8;padding-top:10px;">
         <!-- ══ CABECERA ══ -->
         <div style="margin-bottom:18px;">
@@ -389,6 +392,10 @@ function mostrarModalDetalle(req, archivos, tracking) {
             <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
                 
                 ${entregaHtml}
+
+                ${_seccion('', 'Tipo de Requerimiento', '#3b82f6', `
+                    <div class="kd-val" style="font-weight:700; color:#fff;">${escaparHtml(req.tipo_requerimiento || 'Sin especificar')}</div>
+                `)}
 
                 ${_seccion('', 'Objetivo de Comunicación', '#F5C400', `
                     <div class="kd-val" style="white-space:pre-wrap;">${escaparHtml(req.objetivo_comunicacion || '---')}</div>
@@ -487,30 +494,49 @@ function mostrarModalDetalle(req, archivos, tracking) {
     </div>`;
 
     cuerpo.innerHTML = html;
-    
-    // ── Gestionar Botón de Formalización en la Cabecera ──
+
+    // ── Gestionar Botones en la Cabecera ──
     const modalHeader = document.querySelector('.modal-detalle-header');
     const existingBtn = document.getElementById('btn-formalizar-header');
     if (existingBtn) existingBtn.remove();
+    const existingStartBtn = document.getElementById('btn-iniciar-header');
+    if (existingStartBtn) existingStartBtn.remove();
     const existingEditBtns = document.getElementById('container-botones-edicion');
     if (existingEditBtns) existingEditBtns.remove();
 
-    const esServicioEditable = (req.nombre_servicio && req.nombre_servicio.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes('creacion de contenido') && (req.estado === 'pendiente_asignado' || req.estado === 'en_proceso' || req.estado === 'pendiente'));
-    
-    if (esServicioEditable) {
+    const isContentArea = (parseInt(req.idarea_agencia) === 3);
+    const esServicioEditable = isContentArea && (req.estado === 'pendiente_asignado' || req.estado === 'en_proceso' || req.estado === 'pendiente');
+    const isMeTask = (req.idempleado == window.currentUserId);
+    const needsStartHeader = isMeTask && !req.fechainicio;
+
+    if (needsStartHeader) {
+        const btnStart = document.createElement('button');
+        btnStart.id = 'btn-iniciar-header';
+        btnStart.className = 'btn btn-sm btn-success ms-auto me-3';
+        btnStart.style.cssText = 'font-weight:800; font-size:11px; letter-spacing:1px; padding:6px 16px; border-radius:6px; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2); transition: all 0.2s; border:none; background: #22c55e; color: #fff;';
+        btnStart.innerHTML = '<i class="bi bi-play-fill me-2"></i> INICIAR TRABAJO';
+        btnStart.onclick = () => {
+            iniciarTrabajo(req.idatencion || req.id);
+        };
+
+        // Insertar antes del botón de cerrar
+        const closeBtn = modalHeader.querySelector('.btn-close');
+        modalHeader.insertBefore(btnStart, closeBtn);
+    } else if (esServicioEditable) {
         const btn = document.createElement('button');
         btn.id = 'btn-formalizar-header';
         btn.className = 'btn btn-sm btn-warning ms-auto me-3';
         btn.style.cssText = 'font-weight:800; font-size:11px; letter-spacing:1px; padding:6px 16px; border-radius:6px; box-shadow: 0 4px 15px rgba(245, 196, 0, 0.2); transition: all 0.2s; border:none;';
         btn.innerHTML = '<i class="bi bi-pencil-square me-2"></i> EDITAR REQUERIMIENTO';
         btn.onclick = () => activarEdicionRequerimientoEnProceso();
-        
+
         // Insertar antes del botón de cerrar
         const closeBtn = modalHeader.querySelector('.btn-close');
         modalHeader.insertBefore(btn, closeBtn);
     }
 
-    const modal = new bootstrap.Modal(document.getElementById('modal-detalle-tarea'));
+    const modalElement = document.getElementById('modal-detalle-tarea');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
     modal.show();
 }
 
@@ -627,6 +653,8 @@ function abrirModalEntregar(idAtencion) {
         cancelButtonText: 'CANCELAR',
         confirmButtonColor: '#22c55e',
         cancelButtonColor: '#333',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
         preConfirm: () => {
             const url = document.getElementById('swal-url-entrega').value;
             const files = document.getElementById('swal-archivos-entrega').files;
@@ -670,60 +698,130 @@ function ejecutarEntrega(idAtencion, data) {
         .then(r => r.json())
         .then(res => {
             if (res.status === 'success') {
-                Swal.fire({ icon: 'success', title: '¡Éxito!', text: res.message, background: '#161616', color: '#fff', confirmButtonColor: '#f5c400' })
+                Swal.fire({ icon: 'success', title: '¡Éxito!', text: res.message, background: '#161616', color: '#fff', confirmButtonColor: '#f5c400', allowOutsideClick: false, allowEscapeKey: false })
                     .then(() => { location.reload(); });
             } else {
-                Swal.fire({ icon: 'error', title: 'Error', text: res.message, background: '#161616', color: '#fff', confirmButtonColor: '#f5c400' });
+                Swal.fire({ icon: 'error', title: 'Error', text: res.message, background: '#161616', color: '#fff', confirmButtonColor: '#f5c400', allowOutsideClick: false, allowEscapeKey: false });
             }
         })
         .catch(() => {
-            Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión al servidor', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400' });
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión al servidor', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400', allowOutsideClick: false, allowEscapeKey: false });
         });
 }
 
-    /**
-     * Activa el modo edición en el modal de en proceso
-     */
-    function activarEdicionRequerimientoEnProceso() {
-        const req = window.requerimientoActualEnProceso;
-        if (!req) return;
+/**
+ * Activa el modo edición en el modal de en proceso
+ */
+function activarEdicionRequerimientoEnProceso() {
+    const req = window.requerimientoActualEnProceso;
+    if (!req) return;
 
-        // Cambiar botones en la cabecera
-        const modalHeader = document.querySelector('.modal-detalle-header');
-        const formalizarBtn = document.getElementById('btn-formalizar-header');
-        if (formalizarBtn) formalizarBtn.remove();
+    // Cargar servicios si no están disponibles
+    if (!window.serviciosList) {
+        fetch(`${window.base_url}responsable/servicios/listar`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    window.serviciosList = data.data;
+                    activarEdicionRequerimientoEnProceso(); // Re-ejecutar ahora con datos
+                }
+            });
+        return;
+    }
 
-        const containerBotones = document.createElement('div');
-        containerBotones.id = 'container-botones-edicion';
-        containerBotones.className = 'ms-auto me-3 d-flex gap-2';
-        containerBotones.innerHTML = `
+    // Cambiar botones en la cabecera
+    const modalHeader = document.querySelector('.modal-detalle-header');
+    const formalizarBtn = document.getElementById('btn-formalizar-header');
+    if (formalizarBtn) formalizarBtn.remove();
+
+    const containerBotones = document.createElement('div');
+    containerBotones.id = 'container-botones-edicion';
+    containerBotones.className = 'ms-auto me-3 d-flex gap-2';
+    containerBotones.innerHTML = `
             <button class="btn btn-sm btn-success" onclick="guardarEdicionRequerimientoEnProceso()" style="font-weight:800; font-size:11px; padding:6px 16px;">GUARDAR CAMBIOS</button>
             <button class="btn btn-sm btn-outline-light" onclick="verDetalleTarea(${req.idatencion || req.id})" style="font-weight:800; font-size:11px; padding:6px 16px; border-color:#444;">CANCELAR</button>
         `;
-        const closeBtn = modalHeader.querySelector('.btn-close');
-        modalHeader.insertBefore(containerBotones, closeBtn);
+    const closeBtn = modalHeader.querySelector('.btn-close');
+    modalHeader.insertBefore(containerBotones, closeBtn);
 
-        // Mensaje de Modo Edición en el cuerpo
-        const headerH2 = document.querySelector('.modal-ver-detalle h2');
-        headerH2.innerHTML = `<span style="color:#F5C400; font-family:'Bebas Neue'; letter-spacing:2px;">MODO FORMALIZACIÓN DE REQUERIMIENTO</span>`;
+    // Mensaje de Modo Edición en el cuerpo
+    const headerH2 = document.querySelector('.modal-ver-detalle h2');
+    headerH2.innerHTML = `<span style="color:#F5C400; font-family:'Bebas Neue'; letter-spacing:2px;">MODO FORMALIZACIÓN DE REQUERIMIENTO</span>`;
 
-        // Transformar campos de la izquierda
-        const leftContainer = document.querySelector('.kd-main > div:first-child');
+    // Transformar campos de la izquierda
+    const leftContainer = document.querySelector('.kd-main > div:first-child');
 
-        // Listas para checkboxes
-        const canalesLista = ['Facebook', 'Instagram', 'TikTok', 'YouTube', 'LinkedIn', 'WhatsApp', 'Página Web', 'Email Marketing', 'Publicidad Exterior', 'Otros'];
-        const formatosLista = ['Diseño Estático (Post)', 'Story / Reel (Video)', 'Carrusel', 'Video Editado', 'Banner Web', 'Diseño Impreso', 'Logo / Identidad', 'Otros'];
+    // Listas para checkboxes (Estándar - Actualizadas)
+    const canalesStandard = [
+        'Por correo',
+        'Página web',
+        'Redes sociales',
+        'SIGU o Aula Virtual Estudiantes',
+        'SIGU o Aula Virtual Docentes',
+        'Impresión física de folletos',
+        'Banner físico',
+        'Letreros',
+        'Merch para eventos específicos'
+    ];
+    const formatosStandard = [
+        'Emailing (pieza para correo)',
+        'Post de Facebook/Instagram',
+        'Historia Facebook/Instagram',
+        'Historia de Whatsapp',
+        'Post de LinkedIn',
+        'SIGU (comunicado)',
+        'Aula Virtual (Pop up)',
+        'Wallpaper – Computadoras',
+        'Banner Web Portada',
+        'Volante A5',
+        'Afiche A4',
+        'Afiche A3',
+        'Credenciales',
+        'Banner 2x1',
+        'Tarjeta Personal',
+        'Tríptico',
+        'Díptico',
+        'Folder A4',
+        'Brochure',
+        'Cartilla',
+        'Banderola',
+        'Módulos',
+        'SMS',
+        'IVR',
+        'Marcos Selfie',
+        'Boletín',
+        'Guías (para proceso, trámites, pagos, etc)',
+        'Imagen JPG - PNG'
+    ];
 
-        const canalesActuales = (req.canales_difusion || '').split(',').map(s => s.trim());
-        const formatosActuales = (req.formatos_solicitados || '').split(',').map(s => s.trim());
+    const canalesActuales = (req.canales_difusion || '').split(',').map(s => s.trim()).filter(s => s !== '');
+    const formatosActuales = (req.formatos_solicitados || '').split(',').map(s => s.trim()).filter(s => s !== '');
 
-        leftContainer.innerHTML = `
+    // Detectar si hay valores "Otros"
+    const canalesOtrosValues = []; // Canales ya no tiene "Otros"
+    const formatosOtrosValues = formatosActuales.filter(f => !formatosStandard.includes(f));
+
+    const tieneOtrosFormatos = formatosOtrosValues.length > 0;
+
+    leftContainer.innerHTML = `
         <div class="kd-sec" style="border-left-color:#F5C400; background: #0e0e0e;">
             <div class="kd-sec-title"><i class="bi bi-pencil-square"></i> EDITAR DATOS DEL REQUERIMIENTO</div>
             <div class="row g-3">
-                <div class="col-12">
+                <div class="col-md-6">
                     <label class="kd-label">Título del Requerimiento</label>
                     <input type="text" id="edit-pro-titulo" class="form-control form-control-sm bg-dark text-white border-secondary" value="${escaparHtml(req.titulo)}">
+                </div>
+                <input type="hidden" id="edit-pro-servicio" value="${req.idservicio}">
+                <div class="col-md-6">
+                    <label class="kd-label">Tipo de Requerimiento</label>
+                    <select id="edit-pro-tipo-req" class="form-select form-select-sm bg-dark text-white border-secondary">
+                        <option value="" ${!req.tipo_requerimiento ? 'selected' : ''}>Seleccionar...</option>
+                        <option value="Adaptación de Arte" ${req.tipo_requerimiento === 'Adaptación de Arte' ? 'selected' : ''}>Adaptación de Arte — 2 días hábiles</option>
+                        <option value="Creación de Arte" ${req.tipo_requerimiento === 'Creación de Arte' ? 'selected' : ''}>Creación de Arte — 4 días hábiles</option>
+                        <option value="Creación de editorial" ${req.tipo_requerimiento?.includes('editorial') && req.tipo_requerimiento?.includes('Creación') ? 'selected' : ''}>Creación de editorial (revistas, boletines, guías, similares) — 7 días hábiles</option>
+                        <option value="Adaptación de editorial" ${req.tipo_requerimiento?.includes('editorial') && req.tipo_requerimiento?.includes('Adaptación') ? 'selected' : ''}>Adaptación de editorial (revistas, boletines, guías, similares) — 7 días hábiles</option>
+                        <option value="Creación de Videos" ${req.tipo_requerimiento?.includes('Videos') ? 'selected' : ''}>Creación de Vídeos (institucionales, reels, etc) — 7 días hábiles</option>
+                    </select>
                 </div>
                 <div class="col-md-6">
                     <label class="kd-label">Objetivo de Comunicación</label>
@@ -740,11 +838,11 @@ function ejecutarEntrega(idAtencion, data) {
                 
                 <div class="col-12">
                     <label class="kd-label mb-2">Canales de Difusión</label>
-                    <div class="d-flex flex-wrap gap-3 p-2 border border-dark rounded bg-black">
-                        ${canalesLista.map(c => `
-                            <div class="form-check">
-                                <input class="form-check-input check-canal" type="checkbox" value="${c}" id="canal-${c}" ${canalesActuales.includes(c) ? 'checked' : ''}>
-                                <label class="form-check-label small" for="canal-${c}">${c}</label>
+                    <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded bg-black" style="background-color: #050505 !important;">
+                        ${canalesStandard.map(c => `
+                            <div class="form-check custom-check">
+                                <input class="form-check-input check-canal" type="checkbox" value="${c}" id="canal-${c.replace(/\s+/g, '')}" ${canalesActuales.includes(c) ? 'checked' : ''} onchange="validarMaxCanales(this)">
+                                <label class="form-check-label" for="canal-${c.replace(/\s+/g, '')}">${c}</label>
                             </div>
                         `).join('')}
                     </div>
@@ -752,100 +850,195 @@ function ejecutarEntrega(idAtencion, data) {
 
                 <div class="col-12">
                     <label class="kd-label mb-2">Formatos Solicitados</label>
-                    <div class="d-flex flex-wrap gap-3 p-2 border border-dark rounded bg-black">
-                        ${formatosLista.map(f => `
-                            <div class="form-check">
-                                <input class="form-check-input check-formato" type="checkbox" value="${f}" id="formato-${f}" ${formatosActuales.includes(f) ? 'checked' : ''}>
-                                <label class="form-check-label small" for="formato-${f}">${f}</label>
+                    <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded bg-black" style="background-color: #050505 !important;">
+                        ${formatosStandard.map(f => `
+                            <div class="form-check custom-check">
+                                <input class="form-check-input check-formato" type="checkbox" value="${f}" id="formato-${f.replace(/\s+/g, '')}" ${formatosActuales.includes(f) ? 'checked' : ''}>
+                                <label class="form-check-label" for="formato-${f.replace(/\s+/g, '')}">${f}</label>
                             </div>
                         `).join('')}
+                        <div class="form-check custom-check">
+                            <input class="form-check-input check-formato-otros" type="checkbox" value="Otros" id="formato-Otros" onchange="document.getElementById('container-otros-formatos').classList.toggle('d-none', !this.checked)">
+                            <label class="form-check-label" for="formato-Otros">Otros</label>
+                        </div>
+                        <div id="container-otros-formatos" class="w-100 mt-2 ${tieneOtrosFormatos ? '' : 'd-none'}">
+                            <input type="text" id="edit-pro-otros-formatos" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Especifique otros formatos separados por coma..." value="${formatosOtrosValues.join(', ')}">
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-md-6">
-                    <label class="kd-label">Fecha Requerida</label>
-                    <input type="date" id="edit-pro-fecha" class="form-control form-control-sm bg-dark text-white border-secondary" value="${req.fecharequerida ? req.fecharequerida.split(' ')[0] : ''}">
-                </div>
-                <div class="col-md-6">
-                    <label class="kd-label">URL de Materiales Externos</label>
-                    <input type="url" id="edit-pro-url" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Google Drive, Canva, etc." value="${req.url_subida || ''}">
-                </div>
-
-                <div class="col-12 mt-2">
-                    <div class="alert alert-dark border-secondary" style="background: rgba(255,255,255,0.03); color: #888; font-size: 11px;">
-                        <i class="bi bi-info-circle me-1"></i> Los archivos originales del cliente no pueden ser modificados. Si necesitas añadir materiales, usa el campo "URL de Materiales Externos".
+                <div class="col-12 mt-3">
+                    <div class="alert alert-dark border-warning" style="background: rgba(245, 196, 0, 0.05); color: #F5C400; font-size: 14px; padding: 20px; border-left: 5px solid #F5C400;">
+                        <i class="bi bi-exclamation-triangle-fill me-2" style="font-size: 18px;"></i> 
+                        <strong>AVISO DE SEGURIDAD:</strong> Los archivos originales, la fecha de entrega y el URL proporcionado por el cliente no pueden ser modificados.
                     </div>
                 </div>
             </div>
         </div>
     `;
+}
+
+/**
+ * Valida que no se seleccionen más de 3 canales
+ */
+window.validarMaxCanales = function (checkbox) {
+    const seleccionados = document.querySelectorAll('.check-canal:checked');
+    if (seleccionados.length > 3) {
+        checkbox.checked = false;
+        Swal.fire({
+            icon: 'warning',
+            title: 'Límite alcanzado',
+            text: 'Solo puedes seleccionar un máximo de 3 canales de difusión.',
+            background: '#161616',
+            color: '#fff',
+            confirmButtonColor: '#f5c400',
+            timer: 2000,
+            showConfirmButton: false
+        });
     }
+}
 
-    /**
-     * Guarda los cambios desde el panel de en proceso
-     */
-    function guardarEdicionRequerimientoEnProceso() {
-        const req = window.requerimientoActualEnProceso;
-        const btn = event.currentTarget;
-        const originalHtml = btn.innerHTML;
+/**
+ * Guarda los cambios desde el panel de en proceso
+ */
+function guardarEdicionRequerimientoEnProceso() {
+    const req = window.requerimientoActualEnProceso;
+    const btn = event.currentTarget;
+    const originalHtml = btn.innerHTML;
 
-        btn.disabled = true;
-        btn.innerHTML = 'GUARDANDO...';
+    btn.disabled = true;
+    btn.innerHTML = 'GUARDANDO...';
 
-        const formData = new FormData();
-        formData.append('idrequerimiento', req.idrequerimiento || req.id); // Asegurar ID correcto
-        formData.append('titulo', document.getElementById('edit-pro-titulo').value);
-        formData.append('descripcion', document.getElementById('edit-pro-descripcion').value);
-        formData.append('objetivo_comunicacion', document.getElementById('edit-pro-objetivo').value);
-        formData.append('publico_objetivo', document.getElementById('edit-pro-publico').value);
-        formData.append('fecharequerida', document.getElementById('edit-pro-fecha').value);
-        formData.append('url_subida', document.getElementById('edit-pro-url').value);
+    const formData = new FormData();
+    formData.append('idrequerimiento', req.idrequerimiento || req.id); // Asegurar ID correcto
+    formData.append('idservicio', document.getElementById('edit-pro-servicio').value);
+    formData.append('tipo_requerimiento', document.getElementById('edit-pro-tipo-req').value);
+    formData.append('titulo', document.getElementById('edit-pro-titulo').value);
+    formData.append('descripcion', document.getElementById('edit-pro-descripcion').value);
+    formData.append('objetivo_comunicacion', document.getElementById('edit-pro-objetivo').value);
+    formData.append('publico_objetivo', document.getElementById('edit-pro-publico').value);
 
-        // Canales seleccionados
-        const canales = Array.from(document.querySelectorAll('.check-canal:checked')).map(c => c.value).join(', ');
-        formData.append('canales_difusion', canales);
+    // Usar valores originales ya que no se editan
+    formData.append('fecharequerida', req.fecharequerida ? req.fecharequerida.split(' ')[0] : '');
+    formData.append('url_subida', req.url_subida || '');
 
-        // Formatos seleccionados
-        const formatos = Array.from(document.querySelectorAll('.check-formato:checked')).map(f => f.value).join(', ');
-        formData.append('formatos_solicitados', formatos);
+    // Canales seleccionados (Máximo 3)
+    let canales = Array.from(document.querySelectorAll('.check-canal:checked')).map(c => c.value);
+    formData.append('canales_difusion', canales.join(', '));
 
-        // Envío sin archivos (Deshabilitado por seguridad)
+    // Formatos seleccionados
+    let formatos = Array.from(document.querySelectorAll('.check-formato:checked')).map(f => f.value);
+    const checkOtrosFormatos = document.querySelector('.check-formato-otros');
+    if (checkOtrosFormatos && checkOtrosFormatos.checked) {
+        const otrosVal = document.getElementById('edit-pro-otros-formatos').value;
+        const otrosArray = otrosVal.split(',').map(s => s.trim()).filter(s => s !== '');
+        otrosArray.forEach(val => {
+            if (!formatos.includes(val)) formatos.push(val);
+        });
+    }
+    formData.append('formatos_solicitados', formatos.join(', '));
 
-        fetch(`${window.base_url}responsable/pedidos/actualizar`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-            }
-        })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Actualizado!',
-                        text: data.message,
-                        background: '#161616',
-                        color: '#fff',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                    // Recargar detalles
-                    verDetalleTarea(req.idatencion || req.id);
-                    // Recargar listas de fondo
-                    if (typeof cargarTareasEmpleado === 'function') cargarTareasEmpleado(req.idempleado);
-                    if (typeof listarPedidosEnProceso === 'function') listarPedidosEnProceso();
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#161616', color: '#fff' });
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión', background: '#161616', color: '#fff' });
+    // Envío sin archivos (Deshabilitado por seguridad)
+
+    fetch(`${window.base_url}responsable/pedidos/actualizar`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+        }
+    })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Actualizado!',
+                    text: data.message,
+                    background: '#161616',
+                    color: '#fff',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                });
+                // Recargar detalles
+                verDetalleTarea(req.idatencion || req.id);
+                // Recargar listas de fondo
+                if (typeof cargarTareasEmpleado === 'function') cargarTareasEmpleado(req.idempleado);
+                if (typeof listarPedidosEnProceso === 'function') listarPedidosEnProceso();
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#161616', color: '#fff', allowOutsideClick: false, allowEscapeKey: false });
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
-            });
-    }
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión', background: '#161616', color: '#fff', allowOutsideClick: false, allowEscapeKey: false });
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        });
+}
+
+/**
+ * Función para iniciar oficialmente el trabajo en un requerimiento
+ */
+function iniciarTrabajo(idAtencion) {
+    Swal.fire({
+        title: '¿Iniciar trabajo?',
+        text: "Se registrará la fecha y hora oficial de inicio para este requerimiento.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#f5c400',
+        cancelButtonColor: '#333',
+        confirmButtonText: 'Sí, ¡empezar!',
+        cancelButtonText: 'Cancelar',
+        background: '#161616',
+        color: '#fff'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`${window.base_url}responsable/pedido-iniciar/${idAtencion}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                }
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Trabajo Iniciado!',
+                            text: data.message,
+                            background: '#161616',
+                            color: '#fff',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        // Recargar tareas para actualizar la UI (quitar botón iniciar, poner entregar)
+                        cargarTareasEmpleado(window.currentUserId);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message,
+                            background: '#161616',
+                            color: '#fff'
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo conectar con el servidor',
+                        background: '#161616',
+                        color: '#fff'
+                    });
+                });
+        }
+    });
+}

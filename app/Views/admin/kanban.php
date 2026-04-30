@@ -6,7 +6,6 @@
 
 <?= $this->section('scripts') ?>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-<script>const AREA_ACTUAL = <?= $idAreaAgencia ?>;</script>
 <script src="<?= base_url('recursos/scripts/admin/kanban.js') ?>"></script>
 <?= $this->endSection() ?>
 

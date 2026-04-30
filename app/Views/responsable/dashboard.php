@@ -63,7 +63,7 @@
 <div class="card-rf">
     <h5 style="margin-bottom:16px">¡Bienvenido <?= esc($user['nombre']) ?>!</h5>
     <p style="color:#a1a1aa">
-        Área: <strong style="color:#F5C400"><?= esc($user['nombre_area'] ?? 'Sin área') ?></strong>
+        Área: <strong style="color:#F5C400"><?= esc($user['nombre_area'] ?? $user['nombre_areaagencia'] ?? 'Sin área') ?></strong>
     </p>
     <hr style="border-color:#27272a;margin:16px 0">
     <p style="color:#71717a;font-size:14px">
@@ -76,7 +76,7 @@
     const BASE_URL = "<?= base_url() ?>";
     const RESPONSABLE_ID = "<?= esc($user['id']) ?>";
     const RESPONSABLE_NOMBRE = "<?= esc($user['nombre'] . ' ' . $user['apellidos']) ?>";
-    const RESPONSABLE_AREA = "<?= esc($user['nombre_area'] ?? 'Sin área') ?>";
+    const RESPONSABLE_AREA = "<?= esc($user['nombre_area'] ?? $user['nombre_areaagencia'] ?? 'Sin área') ?>";
     const RESPONSABLE_ROL = "<?= esc($user['rol']) ?>";
 </script>
 

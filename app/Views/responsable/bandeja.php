@@ -74,7 +74,6 @@
                     <th>Área</th>
                     <th>Usuario</th>
                     <th>Servicio</th>
-                    <th>Fecha Entrega</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -141,7 +140,7 @@
 </div>
 
 <!-- Modal Ver Detalle Requerimiento -->
-<div class="modal fade" id="modal-ver-detalle" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modal-ver-detalle" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content modal-rf">
             <div class="modal-header modal-rf-header">
@@ -163,6 +162,7 @@
 
 <script>
     const base_url = "<?= base_url() ?>";
+    window.base_url = base_url;
 </script>
 
 <?= $this->endSection() ?>
