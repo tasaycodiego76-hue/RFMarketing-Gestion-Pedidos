@@ -1,647 +1,366 @@
-/* ══════════════════════════════════════
-   KANBAN — TABLERO OSCURO PREMIUM
-══════════════════════════════════════ */
+﻿/* ======================================================
+   KANBAN ADMIN - PREMIUM DESIGN SYSTEM
+   ====================================================== */
 
-/* ── Cabecera empresa ── */
+:root {
+    --kb-bg: #080808;
+    --kb-card-bg: #0f0f0f;
+    --kb-border: #151515;
+    --kb-accent: #F5C400;
+    --kb-text: #ffffff;
+    --kb-text-muted: #aaaaaa;
+}
+
+/* --- Cabecera --- */
 .kb-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 0 20px;
-    border-bottom: 1px solid #1a1a1a;
-    margin-bottom: 18px;
+    background: #0a0a0a;
+    padding: 25px 30px;
+    border-radius: 16px;
+    border: 1px solid #151515;
+    margin-bottom: 25px;
+    flex-wrap: wrap; /* Responsivo */
+    gap: 20px;
 }
 
 .kb-head-left {
     display: flex;
-    gap: 14px;
     align-items: center;
+    gap: 20px;
 }
 
 .kb-emp-avatar {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #F5C400 0%, #e6a800 100%);
-    border-radius: 10px;
+    width: 60px;
+    height: 60px;
+    background: #F5C400;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 24px;
+    font-size: 30px;
     color: #000;
-    font-weight: 700;
+    font-weight: 900;
+    box-shadow: 0 8px 20px rgba(245, 196, 0, 0.2);
 }
 
 .kb-emp-nombre {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    color: #f0f0f0;
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: -0.5px;
 }
 
 .kb-emp-meta {
-    font-size: 11px;
-    color: #666;
-    margin-top: 2px;
+    font-size: 14px;
+    color: #fff;
+    margin-top: 5px;
+    font-weight: 600;
+    opacity: 0.9;
 }
 
-/* ── Stats ── */
+/* --- Stats --- */
 .kb-head-stats {
     display: flex;
-    gap: 28px;
+    gap: 35px;
+    flex-wrap: wrap; /* Responsivo */
 }
 
 .kb-stat {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    min-width: 70px;
 }
 
 .kb-stat span {
-    font-size: 26px;
-    font-weight: 700;
+    font-size: 36px;
+    font-weight: 900;
     font-family: 'Bebas Neue', sans-serif;
+    line-height: 1;
 }
 
 .kb-stat small {
-    font-size: 9px;
-    color: #d1d1d1;
+    font-size: 11px;
+    color: #777;
+    font-weight: 900;
     letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 5px;
 }
 
-.st-amarillo {
-    color: #eab308;
-}
+.st-amarillo { color: #F5C400; }
+.st-morado { color: #a855f7; }
+.st-naranja { color: #f97316; }
+.st-verde { color: #10b981; }
 
-.st-morado {
-    color: #c084fc;
-}
-
-.st-verde {
-    color: #22c55e;
-}
-.st-blanco{
-     color: #ffffff; 
-}
-
-/* ── Tabs áreas agencia ── */
+/* --- Areas Tabs --- */
 .kb-areas {
     display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    overflow-x: auto; /* Scroll horizontal en movil */
+    -webkit-overflow-scrolling: touch;
 }
 
+.kb-areas::-webkit-scrollbar { height: 4px; }
+.kb-areas::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+
 .kb-area-tab {
-    padding: 7px 20px;
-    border: 1px solid #2a2a2a;
-    border-radius: 20px;
+    padding: 8px 22px;
+    border-radius: 10px;
     text-decoration: none;
     color: #888;
-    font-size: 12px;
-    font-weight: 500;
-    transition: all 0.25s;
-    letter-spacing: 0.5px;
+    font-size: 14px;
+    font-weight: 800;
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+    transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .kb-area-tab:hover {
-    color: #ccc;
-    border-color: #444;
-    text-decoration: none;
+    color: #fff;
+    border-color: #333;
 }
 
 .kb-area-tab.activo {
-    background: #fff;
+    background: #F5C400;
     color: #000;
-    border-color: #fff;
-    font-weight: 600;
+    border-color: #F5C400;
+    box-shadow: 0 4px 15px rgba(245, 196, 0, 0.3);
 }
 
-/* ══════════════════════════════════════
-   TABLERO — GRID 4 COLUMNAS
-══════════════════════════════════════ */
+/* --- Tablero --- */
 .kb-board {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    align-items: start;
+    gap: 15px;
 }
 
 .kb-col {
-    background: #0f0f0f;
-    border: 1px solid #1a1a1a;
-    border-radius: 12px;
-    min-height: 70vh;
+    background: rgba(10, 10, 10, 0.4);
+    border: 1px solid #151515;
+    border-radius: 18px;
+    min-height: 75vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .kb-col-head {
+    padding: 15px 20px;
+    border-bottom: 1px solid #151515;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 16px;
-    background: #111;
-    border-radius: 12px 12px 0 0;
 }
+
+/* Bordes Superiores de Columnas */
+.kb-col[data-estado="pendiente_sin_asignar"] { border-top: 3px solid #F5C400; }
+.kb-col[data-estado="en_proceso"] { border-top: 3px solid #a855f7; }
+.kb-col[data-estado="en_revision"] { border-top: 3px solid #f97316; }
+.kb-col[data-estado="finalizado"] { border-top: 3px solid #10b981; }
 
 .kb-col-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
 }
 
+.kb-col[data-estado="pendiente_sin_asignar"] .kb-col-title { color: #F5C400; }
+.kb-col[data-estado="en_proceso"] .kb-col-title { color: #a855f7; }
+.kb-col[data-estado="en_revision"] .kb-col-title { color: #f97316; }
+.kb-col[data-estado="finalizado"] .kb-col-title { color: #10b981; }
+
 .kb-col-count {
-    background: #1e1e1e;
-    color: #aaa;
-    padding: 2px 10px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 600;
+    background: #151515;
+    color: #666;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 3px 9px;
+    border-radius: 6px;
 }
 
 .kb-col-body {
-    padding: 8px;
+    padding: 12px;
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
-.kb-empty {
-    text-align: center;
-    padding: 40px 10px;
-    color: #333;
-    font-size: 12px;
-    font-style: italic;
-}
-
-/* ══════════════════════════════════════
-   TARJETAS
-══════════════════════════════════════ */
+/* --- Tarjetas --- */
 .kb-card {
-    background: #161616;
-    border: 1px solid #222;
-    border-radius: 10px;
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
     padding: 14px;
-    margin-bottom: 10px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    margin-bottom: 12px;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    cursor: grab;
 }
 
 .kb-card:hover {
     border-color: #333;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    background: #121212;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
 }
 
-.kb-card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 6px;
+.kb-card-top { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.kb-card-info { flex: 1; min-width: 0; }
+.kb-card-empresa { 
+    font-size: 10px; 
+    color: #F5C400; 
+    font-weight: 900; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    margin-bottom: 3px; 
+    display: block; 
 }
-
-.kb-card-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: #e8e8e8;
-    line-height: 1.3;
-}
-
-/* ── Badges ── */
-.kb-badge {
-    font-size: 9px;
-    padding: 3px 8px;
-    border-radius: 10px;
-    font-weight: 600;
+.kb-card-title { 
+    font-size: 16px; 
+    font-weight: 800; 
+    color: #fff; 
+    line-height: 1.25;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
-    flex-shrink: 0;
+}
+.kb-card-id { 
+    font-family: 'Bebas Neue'; 
+    color: #555; 
+    font-size: 14px; 
+    margin-left: 10px;
 }
 
-.kb-badge-pendiente_sin_asignar {
-    background: rgba(234, 179, 8, 0.15);
-    color: #eab308;
-    border: 1px solid rgba(234, 179, 8, 0.3);
+.kb-card-progress { margin: 10px 0; }
+.kb-progress-bar { height: 3px; background: #1a1a1a; border-radius: 10px; overflow: hidden; margin-bottom: 5px; }
+.kb-progress-fill { height: 100%; transition: width 0.8s ease; }
+
+.kb-card-tags { display: flex; gap: 6px; margin: 10px 0; flex-wrap: wrap; }
+.kb-tag-servicio { 
+    font-size: 9px; 
+    padding: 3px 8px; 
+    background: #000; 
+    border: 1px solid #222; 
+    color: #fff; 
+    border-radius: 5px; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+}
+.kb-tag-pri { font-size: 9px; padding: 3px 8px; border-radius: 5px; font-weight: 900; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
+.kb-pri-alta { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+.kb-pri-media { background: rgba(245, 196, 0, 0.15); color: #F5C400; border: 1px solid rgba(245, 196, 0, 0.3); }
+.kb-pri-baja { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+.kb-card-fecha { 
+    font-size: 11px; 
+    color: #fff; 
+    margin-bottom: 12px; 
+    display: flex; 
+    align-items: center; 
+    gap: 6px; 
+    font-weight: 700; 
+    opacity: 0.8;
 }
 
-.kb-badge-en_proceso {
-    background: rgba(168, 85, 247, 0.15);
-    color: #a855f7;
-    border: 1px solid rgba(168, 85, 247, 0.3);
+.kb-card-footer { padding-top: 10px; border-top: 1px solid #151515; }
+.kb-card-user { display: flex; align-items: center; gap: 10px; }
+.kb-user-avatar { 
+    width: 32px; height: 32px; border-radius: 9px; background: #F5C400; color: #000; 
+    display: flex; align-items: center; justify-content: center; font-size: 12px; 
+    font-weight: 900; border: 2px solid #0f0f0f; 
 }
+.kb-user-name { font-size: 12px; font-weight: 800; color: #fff; }
 
-.kb-badge-en_revision {
-    background: rgba(249, 115, 22, 0.15);
-    color: #f97316;
-    border: 1px solid rgba(249, 115, 22, 0.3);
+.kb-card-actions { margin-top: 10px; }
+.kb-btn { 
+    width: 100%; padding: 8px; border-radius: 7px; font-size: 10px; font-weight: 900; 
+    text-transform: uppercase; letter-spacing: 1px; border: 1px solid #222; 
+    background: #0a0a0a; color: #fff !important; cursor: pointer; transition: all 0.2s;
 }
+.kb-btn:hover { background: #fff; color: #000 !important; border-color: #fff; }
+.kb-btn-primary { border-color: #F5C400; color: #F5C400 !important; }
+.kb-btn-primary:hover { background: #F5C400; color: #000 !important; }
 
-.kb-badge-entregado,
-.kb-badge-finalizado {
-    background: rgba(34, 197, 94, 0.15);
-    color: #22c55e;
-    border: 1px solid rgba(34, 197, 94, 0.3);
+.kb-action-group { display: flex; gap: 6px; }
+.kb-btn-view { width: 38px; border-color: #333; }
+.kb-btn-danger { width: 38px; border-color: #ef4444; color: #ef4444 !important; }
+.kb-btn-success { flex: 1; border-color: #10b981; color: #10b981 !important; }
+
+/* --- Responsive Board --- */
+@media (max-width: 1400px) { .kb-board { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 1100px) { .kb-board { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 650px) { 
+    .kb-board { grid-template-columns: 1fr; } 
+    .kb-head { flex-direction: column; align-items: flex-start; padding: 20px; }
+    .kb-head-stats { width: 100%; justify-content: space-between; gap: 15px; }
 }
-
-/* ── Info card ── */
-.kb-card-empresa {
-    font-size: 11px;
-    color: #555;
-    margin-bottom: 10px;
-}
-
-.kb-card-tags {
+/* --- Empty State --- */
+.kb-empty {
+    padding: 60px 20px;
+    text-align: center;
+    color: #444;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border: 1px dashed #1a1a1a;
+    border-radius: 16px;
+    margin-top: 10px;
     display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-}
-
-.kb-tag-servicio {
-    font-size: 10px;
-    padding: 3px 8px;
-    background: #1e1e1e;
-    border: 1px solid #2a2a2a;
-    border-radius: 6px;
-    color: #aaa;
-}
-
-.kb-tag-pri {
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-weight: 600;
-}
-
-.kb-pri-alta {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.kb-pri-media {
-    background: rgba(234, 179, 8, 0.15);
-    color: #eab308;
-    border: 1px solid rgba(234, 179, 8, 0.3);
-}
-
-.kb-pri-baja {
-    background: rgba(34, 197, 94, 0.15);
-    color: #22c55e;
-    border: 1px solid rgba(34, 197, 94, 0.3);
-}
-
-.kb-card-fecha {
-    font-size: 10px;
-    color: #555;
-    margin-bottom: 10px;
-}
-
-/* ── Footer: usuario asignado ── */
-.kb-card-footer {
-    margin-bottom: 10px;
-}
-
-.kb-card-user {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.kb-user-avatar {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 9px;
-    font-weight: 700;
-    color: #fff;
-    flex-shrink: 0;
-}
-
-.kb-user-avatar.sin-asignar {
-    background: #2a2a2a;
-    color: #555;
-}
-
-.kb-user-name {
-    font-size: 11px;
-    color: #999;
-}
-
-.kb-user-name.sin-asignar-text {
-    color: #444;
-    font-style: italic;
-}
-
-/* ══════════════════════════════════════
-   ACCIONES — BOTONES
-══════════════════════════════════════ */
-.kb-card-actions {
-    display: flex;
-    gap: 5px;
-}
-
-.kb-btn {
-    flex: 1;
-    padding: 6px 0;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1px solid #2a2a2a;
-    background: transparent;
-    color: #888;
-    transition: all 0.2s;
-}
-
-.kb-btn:hover {
-    background: #222;
-    color: #e0e0e0;
-}
-
-.kb-btn-asignar {
-    border-color: #eab308;
-    color: #eab308;
-}
-
-.kb-btn-asignar:hover {
-    background: rgba(234, 179, 8, 0.1);
-}
-
-.kb-btn-cancel {
-    flex: 0 0 36px;
-    border-color: #ef4444;
-    color: #ef4444;
-}
-
-.kb-btn-cancel:hover {
-    background: rgba(239, 68, 68, 0.1);
-}
-
-.kb-btn-aprobar {
-    border-color: #22c55e;
-    color: #22c55e;
-    background: rgba(34, 197, 94, 0.08);
-}
-
-.kb-btn-aprobar:hover {
-    background: rgba(34, 197, 94, 0.18);
-}
-
-.kb-btn-regresar {
-    border-color: #ef4444;
-    color: #ef4444;
-    background: rgba(239, 68, 68, 0.08);
-}
-
-.kb-btn-regresar:hover {
-    background: rgba(239, 68, 68, 0.18);
-}
-
-.kb-btn-detalle {
-    border-color: #a855f7;
-    color: #a855f7;
-}
-
-.kb-btn-detalle:hover {
-    background: rgba(168, 85, 247, 0.1);
-}
-
-.kb-btn-entregado {
-    border-color: #22c55e;
-    color: #22c55e;
-}
-
-.kb-btn-ver-sm {
-    flex: 0 0 50px;
-}
-
-/* ══════════════════════════════════════
-   MODALES KANBAN
-══════════════════════════════════════ */
-.kb-modal {
-    background: #161616;
-    border: 1px solid #333;
-    color: #ccc;
-}
-
-.kb-modal-header {
-    border-bottom: 1px solid #222;
-}
-
-.kb-modal-footer {
-    border-top: 1px solid #222;
-}
-
-.kb-modal-close {
-    color: #888;
-    text-shadow: none;
-    opacity: 0.7;
-}
-
-.kb-modal-close:hover {
-    color: #fff;
-    opacity: 1;
-}
-
-.kb-modal-title-asignar {
-    color: #eab308;
-}
-
-.kb-modal-label {
-    font-size: 12px;
-    color: #888;
-}
-
-.kb-modal-select {
-    background: #111;
-    color: #fff;
-    border: 1px solid #333;
-    margin-top: 8px;
-}
-
-.kb-btn-confirmar-asignar {
-    background: #eab308;
-    color: #000;
-    font-weight: 600;
-    font-size: 13px;
-    padding: 6px 20px;
-    border: none;
-    border-radius: 5px;
-}
-
-.kb-btn-confirmar-asignar:hover {
-    background: #d4a207;
-}
-
-/* ── Detalle modal ── */
-.kb-detalle-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
     gap: 15px;
+    background: rgba(255, 255, 255, 0.01);
+    transition: all 0.3s ease;
 }
 
-.kb-detalle-grid strong {
-    color: #888;
+.kb-empty i {
+    font-size: 32px;
+    color: #222;
+    margin-bottom: 10px;
 }
 
-.kb-detalle-hr {
-    border-color: #222;
-    margin: 15px 0;
+.kb-empty:hover {
+    border-color: #333;
+    color: #666;
+    background: rgba(255, 255, 255, 0.02);
+}
+/* Ocultar el mensaje de vacío automáticamente cuando hay tarjetas o se está arrastrando una */
+.kb-col-body:has(.kb-card) .kb-empty,
+.kb-col-body:has(.sortable-ghost) .kb-empty {
+    display: none !important;
 }
 
-.kb-detalle-archivos {
-    margin-top: 8px;
+/* Evitar que el mensaje vacío interfiera con el arrastre */
+.kb-empty {
+    pointer-events: none;
+    user-select: none;
 }
-
-.kb-detalle-archivos a {
-    color: #eab308;
-}
-
-.kb-detalle-archivos a:hover {
-    color: #ffd54f;
-}
-
-/* ══════════════════════════════════════
-   DRAG & DROP INTERACTIVO
-══════════════════════════════════════ */
-
-/* Tarjeta arrastrable */
-.kb-card[draggable="true"] {
+/* Solo permitir el cursor de mano en la columna de solicitudes nuevas */
+.kb-col[data-estado="pendiente_sin_asignar"] .kb-card {
     cursor: grab;
-    transition: transform 0.2s, opacity 0.2s;
 }
 
-.kb-card[draggable="true"]:active {
+.kb-col[data-estado="pendiente_sin_asignar"] .kb-card:active {
     cursor: grabbing;
 }
 
-/* Efecto al arrastrar */
-.kb-card.dragging {
-    opacity: 0.6;
-    transform: scale(0.98);
+/* Desactivar el cursor de mano en las demas columnas para indicar que no son movibles */
+.kb-col:not([data-estado="pendiente_sin_asignar"]) .kb-card {
+    cursor: default;
 }
 
-/* Columna lista para recibir */
-.kb-col-body.drop-ready {
-    background: rgba(168, 85, 247, 0.08);
-    box-shadow: inset 0 0 20px rgba(168, 85, 247, 0.1);
-}
-
-/* Los botones deben seguir funcionando */
-.kb-card .kb-btn {
-    cursor: pointer;
-}
-
-/* Efecto visual al arrastrar */
-.kb-card.dragging {
-    opacity: 0.9;
-    transform: rotate(2deg) scale(1.02);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-    z-index: 1000;
-}
-
-/* Marcador de posición al arrastrar */
-.kb-card-placeholder {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%);
-    border: 2px dashed #a855f7;
-    border-radius: 10px;
-    height: 100px;
-    margin-bottom: 10px;
-    animation: placeholder-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes placeholder-pulse {
-    0%, 100% {
-        border-color: #a855f7;
-        background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%);
-    }
-    50% {
-        border-color: #c084fc;
-        background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(168, 85, 247, 0.1) 100%);
-    }
-}
-
-/* Área válida para soltar - columna En Proceso */
-.kb-col-body[data-estado="en_proceso"].drag-target {
-    background: rgba(168, 85, 247, 0.05);
-    border-radius: 12px;
-}
-
-/* Posición relativa para el ::before */
-.kb-col {
-    position: relative;
-}
-
-/* ══════════════════════════════════════
-   RESPONSIVE
-══════════════════════════════════════ */
-@media (max-width: 1200px) {
-    .kb-board {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .kb-board {
-        grid-template-columns: 1fr;
-    }
-
-    .kb-head {
-        flex-direction: column;
-        gap: 15px;
-        align-items: flex-start;
-    }
-}
-
-/* ═══ ENHANCED DETAIL MODAL ═══ */
-.det-sec-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 14px;
-    letter-spacing: 1px;
-    color: #eab308;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-}
-
-.det-panel {
-    background: #0d0d0d;
-    border: 1px solid #1e1e1e;
-    border-radius: 8px;
-    padding: 12px 15px;
-}
-
-.det-panel small {
-    display: block;
-    font-size: 9px;
-    font-weight: 700;
-    color: #555;
-    text-transform: uppercase;
-    margin-bottom: 2px;
-}
-
-.det-panel p {
-    margin: 0;
-    font-size: 13px;
-    color: #eee;
-    font-weight: 500;
-}
-
-.det-select {
-    background: #000 !important;
-    border: 1px solid #333 !important;
-    color: #fff !important;
-    font-size: 11px !important;
-    height: 30px !important;
-}
-
-.kb-btn-assign-emp {
-    border-color: #eab308;
-    color: #eab308;
-    background: rgba(234, 179, 8, 0.05);
-}
-
-.kb-btn-assign-emp:hover {
-    background: rgba(234, 179, 8, 0.15);
-    color: #fff;
-    border-color: #fff;
+.kb-col:not([data-estado="pendiente_sin_asignar"]) .kb-card:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: #1a1a1a;
 }

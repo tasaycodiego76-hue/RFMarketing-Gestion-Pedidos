@@ -1,156 +1,206 @@
-/* Botón nueva empresa */                                                                                              
- .btn-nuevo {
-      background: #F5C400;
-      color: #000;
-      border: none;
-      border-radius: 6px;
-      padding: 7px 16px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: opacity .15s;
-      margin-bottom: 16px;
-      display: inline-block;
-  }
-  .btn-nuevo:hover { opacity: .85; }
+/* public/recursos/styles/admin/paginas/empresas.css */
+/* DISEÑO PREMIUM UNIFICADO - RÉPLICA DE USUARIOS */
 
-  /* Tabla - funciona con tabla-usuarios o tabla-empresas */
-  .tabla-empresas,
-  .tabla-usuarios {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-  }
-  .tabla-empresas thead tr,
-  .tabla-usuarios thead tr {
-      border-bottom: 1px solid #1e1e1e;
-  }
-  .tabla-empresas thead th,
-  .tabla-usuarios thead th {
-      font-size: 9px;
-      font-weight: 700;
-      color: #555;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 8px 14px;
-      white-space: nowrap;
-  }
-  .tabla-empresas tbody tr,
-  .tabla-usuarios tbody tr {
-      border-bottom: 1px solid #111;
-      transition: background .15s;
-  }
-  .tabla-empresas tbody tr:hover,
-  .tabla-usuarios tbody tr:hover { background: #0f0f0f; }
-  .tabla-empresas tbody td,
-  .tabla-usuarios tbody td {
-      padding: 11px 14px;
-      color: #ccc;
-      vertical-align: middle;
-      white-space: nowrap;
-  }
+.btn-nuevo {
+    background: #F5C400;
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 20px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all .25s ease;
+    margin-bottom: 16px;
+    display: inline-block;
+}
 
-  /* Badges de estado */
-  .badge-activo {
-      background: rgba(34,197,94,.1);
-      color: #22c55e;
-      border: 1px solid rgba(34,197,94,.2);
-      border-radius: 20px;
-      padding: 3px 10px;
-      font-size: 10px;
-      font-weight: 700;
-  }
-  .badge-inactivo {
-      background: rgba(100,100,100,.1);
-      color: #555;
-      border: 1px solid #1e1e1e;
-      border-radius: 20px;
-      padding: 3px 10px;
-      font-size: 10px;
-      font-weight: 700;
-  }
+.btn-nuevo:hover {
+    background: #d4a900;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 196, 0, 0.2);
+}
 
-  /* Modal estilo dark */
-  .modal-content {
-      background: #111;
-      border: 1px solid #1e1e1e;
-      color: #f0f0f0;
-      border-radius: 10px;
-  }
-  .modal-header {
-      background: #0a0a0a;
-      border-bottom: 1px solid #1e1e1e;
-      border-radius: 10px 10px 0 0;
-  }
-  .modal-footer {
-      background: #0a0a0a;
-      border-top: 1px solid #1e1e1e;
-      border-radius: 0 0 10px 10px;
-  }
-  .modal-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 20px;
-      letter-spacing: 2px;
-      color: #F5C400;
-  }
-  .close { color: #f0f0f0; }
-  .close:hover { color: #F5C400; }
+/* ─── TABLA RESPONSIVA ────────────────────────────── */
+.tabla-contenedor {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    background: #0a0a0a;
+}
 
-  .modal-body label {
-      font-size: 10px;
-      color: #fff;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 4px;
-      display: block;
-      font-weight: 600;
-  }
-  .modal-body .form-control {
-      background: #0a0a0a;
-      border: 1px solid #1e1e1e;
-      color: #f0f0f0;
-      border-radius: 6px;
-      font-size: 13px;
-  }
-  .modal-body .form-control::placeholder { color: #444; }
-  .modal-body .form-control:focus {
-      border-color: #F5C400;
-      box-shadow: 0 0 0 2px rgba(245,196,0,.1);
-      background: #0a0a0a;
-      color: #fff;
-      outline: none;
-  }
+.tabla-usuarios {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: #0a0a0a;
+    min-width: 700px;
+}
 
-  /* Botón guardar */
-  #btn-guardar {
-      background: #F5C400;
-      border: none;
-      color: #000;
-      font-weight: 700;
-      letter-spacing: 1px;
-  }
-  #btn-guardar:hover { background: #d4a900; }
+.tabla-usuarios thead tr {
+    background: linear-gradient(to right, #111, #0a0a0a);
+    border-bottom: 3px solid #F5C400;
+}
 
-  /* Botones de acción */
-  .btn-sm {
-      padding: 4px 10px;
-      font-size: 11px;
-      border-radius: 4px;
-      border: none;
-      cursor: pointer;
-      margin-right: 5px;
-  }
-  .btn-primary {
-      background: #4D96FF;
-      color: #fff;
-  }
-  .btn-warning {
-      background: #FF9F43;
-      color: #000;
-  }
-  .btn-success {
-      background: #22c55e;
-      color: #fff;
-  }
+.tabla-usuarios thead th {
+    font-size: 11px;
+    font-weight: 800;
+    color: #F5C400 !important;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 14px 16px;
+    text-align: left;
+    border-right: 1px solid #1e1e1e;
+}
+
+.tabla-usuarios tbody tr {
+    border-bottom: 1px solid #0f0f0f;
+    transition: all .2s ease;
+}
+
+.tabla-usuarios tbody tr:hover {
+    background: rgba(245, 196, 0, 0.03);
+    border-bottom: 1px solid rgba(245, 196, 0, 0.2);
+}
+
+.tabla-usuarios tbody td {
+    padding: 15px 16px;
+    color: #d1d1d1;
+    vertical-align: middle;
+    border-right: 1px solid #0f0f0f;
+}
+
+/* ─── COLUMNAS ESPECÍFICAS ─────────────────────────── */
+.td-nombre {
+    color: #fff !important;
+    font-weight: 800;
+    font-size: 15px;
+}
+
+.td-usuario {
+    color: #F5C400 !important;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+}
+
+.td-correo {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.td-area-empresa {
+    font-size: 12px;
+    color: #d1d1d1;
+}
+
+/* ─── BADGES ───────────────────────────────────────── */
+.badge-activo {
+    background: rgba(34, 197, 94, .12);
+    color: #2dd65f;
+    border: 1px solid rgba(34, 197, 94, .3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.badge-inactivo {
+    background: rgba(100, 100, 100, .1);
+    color: #888;
+    border: 1px solid #444;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-block;
+}
+
+/* ─── BOTONES ICONOS ───────────────────────────────── */
+.acciones-contenedor {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .25s ease;
+    font-size: 15px;
+    font-weight: 700;
+    background: transparent !important;
+}
+
+.btn-icon-editar {
+    border-color: #F5C400;
+    color: #F5C400;
+}
+
+.btn-icon-editar:hover {
+    background: rgba(245, 196, 0, 0.12) !important;
+    transform: translateY(-2px);
+}
+
+.btn-icon-toggle.activo {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.btn-icon-toggle.inactivo {
+    border-color: #22c55e;
+    color: #22c55e;
+}
+
+.btn-icon-toggle:hover {
+    transform: translateY(-2px);
+}
+
+/* ─── MODAL ────────────────────────────────────────── */
+.modal-content {
+    background: #111;
+    border: 1px solid #1e1e1e;
+    color: #f0f0f0;
+    border-radius: 10px;
+}
+
+.modal-header {
+    background: #0a0a0a;
+    border-bottom: 1px solid #1e1e1e;
+    border-radius: 10px 10px 0 0;
+}
+
+.modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: #F5C400;
+}
+
+.modal-body label {
+    font-size: 11px;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.modal-body .form-control {
+    background: #0a0a0a;
+    border: 1px solid #1e1e1e;
+    color: #f0f0f0;
+}
+
+.modal-body .form-control:focus {
+    border-color: #F5C400;
+    background: #0a0a0a;
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(245, 196, 0, .15);
+}

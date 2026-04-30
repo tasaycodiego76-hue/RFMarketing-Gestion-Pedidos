@@ -11,13 +11,13 @@
 <script src="<?= base_url('recursos/scripts/admin/usuarios.js') ?>"></script>
 <?= $this->endSection() ?>
 <?= $this->section('contenido') ?>
-  <div class="d-flex justify-content-between align-items-center mb-3">
+   <div class="d-flex justify-content-between align-items-center mb-3" style="flex-wrap: wrap; gap: 10px;">
        <div class="dropdown">
            <button class="btn-nuevo mb-0 dropdown-toggle" id="btn-nuevo" data-toggle="dropdown" aria-haspopup="true"
    aria-expanded="false">+ Nuevo</button>
            <div class="dropdown-menu" aria-labelledby="btn-nuevo">
-               <a class="dropdown-item" href="#" id="opcion-empleado">Crear Empleado</a>
-               <a class="dropdown-item" href="#" id="opcion-area">Crear Área con Responsable</a>
+               <a class="dropdown-item" href="#" id="opcion-empleado">Nuevo Colaborador</a>
+               <a class="dropdown-item" href="#" id="opcion-area">Crear Área de Empresa + Responsable</a>
            </div>
        </div>
        <div class="busqueda-contenedor">
@@ -25,21 +25,22 @@
        </div>
    </div>
 
-
-<table class="tabla-usuarios">
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Usuario</th>
-            <th>Correo</th>
-            <th>Rol</th>
-            <th>Área/Empresa</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody id="tabla-usuarios"></tbody>
-</table>
+<div class="tabla-contenedor">
+    <table class="tabla-usuarios">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Usuario</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Área / Empresa</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-usuarios"></tbody>
+    </table>
+</div>
 <div class="modal fade" id="modal-usuario" data-backdrop="static" tabindex="-1">
       <div class="modal-dialog modal-lg">
           <div class="modal-content">
@@ -170,5 +171,162 @@
           </div>
       </div>
   </div>
+
+  <!-- MODAL REASIGNAR (REDiseño Premium) -->
+  <div class="modal fade" id="modal-reasignar" data-backdrop="static" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content" style="border: 1px solid #333; box-shadow: 0 10px 40px rgba(0,0,0,0.7);">
+              <div class="modal-header" style="background: #0a0a0a; border-bottom: 2px solid #F5C400;">
+                  <h5 class="modal-title" style="color: #F5C400; font-weight: 800; letter-spacing: 1px; display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-person-up" style="font-size: 1.4rem;"></i>
+                    REASIGNAR RESPONSABILIDAD
+                  </h5>
+                  <button type="button" class="close" data-dismiss="modal" style="color: #fff; opacity: 1;">&times;</button>
+              </div>
+              <div class="modal-body" style="background: #111; padding: 25px;">
+                  
+                  <!-- Resumen Superior -->
+                  <div id="info-reasignar-actual" class="mb-4">
+                      <!-- Cargado vía JS -->
+                  </div>
+
+                  <div class="tabs-reasignar">
+                      <!-- Formulario Reasignar Cliente -->
+                      <form id="form-reasignar-cliente" style="display:none;">
+                          <div class="d-flex align-items-center gap-2 mb-3">
+                              <div style="width: 4px; height: 20px; background: #F5C400;"></div>
+                              <h6 class="mb-0 text-white font-weight-bold" style="text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">Nuevo Responsable de Empresa</h6>
+                          </div>
+
+                          <input type="hidden" id="rea-id-registro-actual">
+                          <input type="hidden" id="rea-id-empresa">
+                          <input type="hidden" id="rea-id-usuario-anterior">
+                          <input type="hidden" id="rea-id-area"> <!-- ID del área de la empresa -->
+                          
+                          <div class="row">
+                              <div class="col-md-4">
+                                  <div class="form-group mb-3">
+                                      <label class="text-white-50 small mb-1">Tipo Doc.</label>
+                                      <select class="form-control bg-black border-secondary text-white" id="rea-tipodoc" required style="background-color: #050505 !important;">
+                                          <option value="DNI">DNI</option>
+                                          <option value="CE">C.E.</option>
+                                      </select>
+                                  </div>
+                              </div>
+                              <div class="col-md-8">
+                                  <div class="form-group mb-3">
+                                      <label class="text-white-50 small mb-1">N° Documento</label>
+                                      <input type="text" class="form-control bg-black border-secondary text-white" id="rea-numerodoc" required placeholder="Número" style="background-color: #050505 !important;">
+                                  </div>
+                              </div>
+                          </div>
+
+                          <div class="row">
+                              <div class="col-md-6">
+                                  <div class="form-group mb-3">
+                                      <label class="text-white-50 small mb-1">Nombre</label>
+                                      <input type="text" class="form-control bg-black border-secondary text-white" id="rea-nombre" required placeholder="Nombres" style="background-color: #050505 !important;">
+                                  </div>
+                              </div>
+                              <div class="col-md-6">
+                                  <div class="form-group mb-3">
+                                      <label class="text-white-50 small mb-1">Apellidos</label>
+                                      <input type="text" class="form-control bg-black border-secondary text-white" id="rea-apellidos" required placeholder="Apellidos" style="background-color: #050505 !important;">
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="row">
+                              <div class="col-md-6">
+                                  <div class="form-group mb-3">
+                                      <label class="text-white-50 small mb-1">Correo Electrónico</label>
+                                      <input type="email" class="form-control bg-black border-secondary text-white" id="rea-correo" required placeholder="ejemplo@correo.com" style="background-color: #050505 !important;">
+                                  </div>
+                              </div>
+                              <div class="col-md-6">
+                                  <div class="form-group mb-3">
+                                      <label class="text-white-50 small mb-1">Teléfono</label>
+                                      <input type="text" class="form-control bg-black border-secondary text-white" id="rea-telefono" placeholder="+51 900 000 000" style="background-color: #050505 !important;">
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="row">
+                              <div class="col-md-6">
+                                  <div class="form-group mb-3">
+                                      <label class="text-white-50 small mb-1">Usuario</label>
+                                      <input type="text" class="form-control bg-black border-secondary text-white" id="rea-usuario" required placeholder="Nombre de usuario" style="background-color: #050505 !important;">
+                                  </div>
+                              </div>
+                              <div class="col-md-6">
+                                  <div class="form-group mb-3">
+                                      <label class="text-white-50 small mb-1">Contraseña</label>
+                                      <input type="password" class="form-control bg-black border-secondary text-white" id="rea-clave" placeholder="Seguridad mínima 6 caracteres" style="background-color: #050505 !important;">
+                                  </div>
+                              </div>
+                          </div>
+                          
+                          <div class="p-3 mb-3" style="background: rgba(245, 196, 0, 0.05); border-left: 4px solid #F5C400; border-radius: 4px;">
+                              <p class="mb-0 text-muted" style="font-size: 11.5px; line-height: 1.4;">
+                                <i class="bi bi-info-circle-fill text-warning mr-1"></i>
+                                <strong>IMPORTANTE:</strong> Al realizar la reasignación, el acceso de la persona actual será revocado y sus credenciales pasarán al historial. El nuevo responsable recibirá los permisos de inmediato.
+                              </p>
+                          </div>
+                      </form>
+
+                      <!-- Formulario Reasignar Empleado Área -->
+                      <form id="form-reasignar-empleado" style="display:none;">
+                          <div class="d-flex align-items-center gap-2 mb-3">
+                              <div style="width: 4px; height: 20px; background: #a78bfa;"></div>
+                              <h6 class="mb-0 text-white font-weight-bold" style="text-transform: uppercase; letter-spacing: 0.5px; font-size: 13px;">Nuevo Responsable del Área</h6>
+                          </div>
+
+                          <input type="hidden" id="rea-emp-id-actual">
+                          <div class="form-group mb-4">
+                              <label class="text-muted small mb-2">Seleccionar Colaborador del Equipo</label>
+                              <select class="form-control bg-dark border-secondary text-white" id="rea-emp-nuevo" required style="height: 45px; font-weight: 600;">
+                                  <!-- Opciones -->
+                              </select>
+                          </div>
+
+                          <div class="p-3 mb-3" style="background: rgba(167, 139, 250, 0.05); border-left: 4px solid #a78bfa; border-radius: 4px;">
+                              <p class="mb-0 text-muted" style="font-size: 11.5px; line-height: 1.4;">
+                                <i class="bi bi-shield-lock-fill style='color: #a78bfa;' mr-1"></i>
+                                El sistema transferirá automáticamente los privilegios de administración del área al colaborador seleccionado. No se requiere crear nuevas credenciales.
+                              </p>
+                          </div>
+                      </form>
+                  </div>
+
+                  <!-- Historial (Colapsable o siempre visible con scroll) -->
+                  <div id="historial-reasignaciones" class="mt-4" style="display:none;">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="text-muted small font-weight-bold uppercase mb-0"><i class="bi bi-clock-history mr-1"></i> LÍNEA DE TIEMPO DE RESPONSABLES</h6>
+                      </div>
+                      <div class="table-responsive" style="max-height: 160px; overflow-y: auto; border: 1px solid #222; border-radius: 6px;">
+                          <table class="table table-dark table-hover table-sm mb-0" style="font-size: 11px;">
+                              <thead class="bg-black" style="position: sticky; top: 0;">
+                                  <tr>
+                                      <th class="py-2 border-0">Responsable</th>
+                                      <th class="py-2 border-0">Desde</th>
+                                      <th class="py-2 border-0">Hasta</th>
+                                      <th class="py-2 border-0 text-center">Estado</th>
+                                  </tr>
+                              </thead>
+                              <tbody id="lista-historial-reasignar">
+                                  <!-- Dinámico -->
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer" style="background: #0a0a0a; border-top: 1px solid #222; padding: 15px 25px;">
+                  <button type="button" class="btn btn-outline-light px-4 py-2" data-dismiss="modal" style="font-size: 12px; font-weight: 700;">CANCELAR</button>
+                  <button type="button" class="btn btn-primary px-4 py-2" id="btn-procesar-reasignar" style="background: #F5C400; border: none; color: #000; font-weight: 800; font-size: 12px; letter-spacing: 0.5px;">
+                    CONFIRMAR CAMBIO
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
+
 </div>
 <?= $this->endSection() ?>

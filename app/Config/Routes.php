@@ -25,6 +25,9 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('usuarios/registrar', 'Administrador\UsuarioController::registrar');
     $routes->put('usuarios/editar/(:num)', 'Administrador\UsuarioController::editar/$1');
     $routes->post('usuarios/toggleEstado', 'Administrador\UsuarioController::toggleEstado');
+    $routes->get('usuarios/infoReasignar/(:num)', 'Administrador\UsuarioController::infoReasignar/$1');
+    $routes->post('usuarios/reasignarCliente', 'Administrador\UsuarioController::reasignarCliente');
+    $routes->post('usuarios/reasignarEmpleadoArea', 'Administrador\UsuarioController::reasignarEmpleadoArea');
 
     $routes->get('areas', 'Administrador\AreasController::index');
     $routes->get('areas/listar', 'Administrador\AreasController::listar');
@@ -37,17 +40,16 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 
     $routes->get('kanban/(:num)/(:num)', 'Administrador\Kanban::index/$1/$2');
     // Kanban acciones
-    $routes->post('kanban/asignar', 'Administrador\Kanban::asignar');
     $routes->post('kanban/asignarArea', 'Administrador\Kanban::asignarArea');
     $routes->post('kanban/cambiarEstado', 'Administrador\Kanban::cambiarEstado');
     $routes->post('kanban/cancelar', 'Administrador\Kanban::cancelar');
     $routes->get('kanban/empleados/(:num)', 'Administrador\Kanban::empleadosPorArea/$1');
     $routes->get('kanban/detalle/(:num)', 'Administrador\Kanban::detalle/$1');
     $routes->get('kanban/areas', 'Administrador\Kanban::areasAgencia');
-    $routes->get('responsable/kanban', 'Administrador\Kanban::responsable');
     $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
     $routes->post('kanban/asignarEmpleado', 'Administrador\Kanban::asignarEmpleado');
     $routes->post('kanban/iniciarTrabajo', 'Administrador\kanban::iniciarTrabajo');
+    $routes->post('kanban/regresarAProceso', 'Administrador\kanban::regresarAProceso');
 
     //EMPRESAS 
     $routes->get('empresas', 'Administrador\EmpresasController::index');
@@ -56,6 +58,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('empresas/registrar', 'Administrador\EmpresasController::registrar');
     $routes->put('empresas/editar/(:num)', 'Administrador\EmpresasController::editar/$1');
     $routes->post('empresas/toggleEstado', 'Administrador\EmpresasController::toggleEstado');
+
+    $routes->get('historial', 'Administrador\HistorialController::index');
 });
 
 // Rutas para el Responsable (Jefe de Área)
@@ -100,6 +104,7 @@ $routes->group('empleado', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'Empleado\MisPedidosController::dashboard');
     $routes->get('mis_pedidos', 'Empleado\MisPedidosController::index');
     $routes->get('historial', 'Empleado\MisPedidosController::historial');
+    $routes->get('retroalimentacion', 'Empleado\MisPedidosController::retroalimentacion');
     $routes->post('pedido-iniciar/(:num)', 'Empleado\MisPedidosController::iniciarPedido/$1');
     $routes->post('pedido-entregar/(:num)', 'Empleado\MisPedidosController::entregarPedido/$1');
     $routes->get('pedido-detalle/(:num)', 'Empleado\MisPedidosController::detalle/$1');

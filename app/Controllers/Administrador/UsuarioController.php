@@ -162,11 +162,6 @@ if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agen
     }
 
     /**
-     * Actualiza los datos de un usuario.
-     * @param mixed $id
-     * @return \CodeIgniter\HTTP\ResponseInterface
-     */
-    /**
    * Actualiza los datos de un usuario.
    * @param mixed $id
    * @return \CodeIgniter\HTTP\ResponseInterface
@@ -363,6 +358,157 @@ if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agen
           'Á' => 'a', 'É' => 'e', 'Í' => 'i', 'Ó' => 'o', 'Ú' => 'u',
       ]);
       return $texto;
+  }
+
+  /* ─── REASIGNACIÓN ─── */
+
+  public function infoReasignar($id)
+  {
+      $userModel = new UsuarioModel();
+      // Usar obtenerConArea para tener info de empresa/área de una vez
+      $u = $userModel->obtenerConArea((int) $id);
+      
+      if (!$u) return $this->response->setJSON(['success' => false, 'message' => 'No encontrado']);
+
+      $respModel = new ResponsablesEmpresaModel();
+      
+      // CASO A: CLIENTE (Responsable de Empresa)
+      if ($u['rol'] === 'cliente') {
+          $activo = $respModel->obtenerActivoPorUsuario((int) $id);
+          
+          // Si no tiene registro en responsables_empresa, intentamos deducirlo de su idarea
+          if (!$activo && !empty($u['idarea'])) {
+              $areasModel = new \App\Models\AreasModel();
+              $area = $areasModel->find($u['idarea']);
+              if ($area) {
+                  // Crear un objeto "activo" virtual para no romper el flujo
+                  $empModel = new EmpresaModel();
+                  $emp = $empModel->find($area['idempresa']);
+                  $activo = [
+                      'id' => null, // No tiene registro en responsables_empresa
+                      'idusuario' => $id,
+                      'idempresa' => $area['idempresa'],
+                      'nombreempresa' => $emp['nombreempresa'] ?? 'Empresa Desconocida',
+                      'ruc' => $emp['ruc'] ?? '',
+                      'fecha_inicio' => $u['created_at'] ?? date('Y-m-d H:i:s'),
+                      'estado' => 'activo'
+                  ];
+              }
+          }
+
+          if (!$activo) {
+              return $this->response->setJSON([
+                  'success' => false, 
+                  'message' => 'Este cliente no tiene una empresa asignada vinculada como responsable.'
+              ]);
+          }
+
+          $historial = $respModel->historialPorEmpresa((int) $activo['idempresa']);
+          return $this->response->setJSON([
+              'success' => true,
+              'tipo' => 'cliente',
+              'actual' => $activo,
+              'historial' => $historial,
+              'usuario' => $u
+          ]);
+      }
+
+      // CASO B: EMPLEADO (Responsable de Área de la Agencia)
+      // Nota: También verificamos si el rol es 'responsable_area' por si acaso
+      $esResponsable = ($u['rol'] === 'empleado' && ($u['esresponsable'] === true || $u['esresponsable'] === 't' || $u['esresponsable'] == 1))
+                    || ($u['rol'] === 'responsable_area');
+
+      if ($esResponsable) {
+          if (empty($u['idarea_agencia'])) {
+              return $this->response->setJSON(['success' => false, 'message' => 'El responsable no tiene un área de agencia asignada']);
+          }
+
+          $areaAgenciaModel = new AreasAgenciaModel();
+          $area = $areaAgenciaModel->find($u['idarea_agencia']);
+          
+          $asignables = $userModel->obtenerAsignablesPorAreaAgencia((int) $u['idarea_agencia']);
+          return $this->response->setJSON([
+              'success' => true,
+              'tipo' => 'empleado',
+              'actual' => $u,
+              'area' => $area,
+              'asignables' => $asignables
+          ]);
+      }
+
+      return $this->response->setJSON(['success' => false, 'message' => 'El usuario seleccionado no cumple con los requisitos para ser reasignado (debe ser Responsable de Empresa o de Área)']);
+  }
+
+  public function reasignarCliente()
+  {
+      $datos = $this->request->getJSON(true);
+      $respModel = new ResponsablesEmpresaModel();
+      $userModel = new UsuarioModel();
+
+      $nuevoUsuario = $userModel->where('correo', $datos['correo'])->first();
+      
+      $idArea = !empty($datos['id_area']) ? (int)$datos['id_area'] : null;
+
+      if ($nuevoUsuario) {
+          $idNuevo = $nuevoUsuario['id'];
+          // Actualizar sus datos para que coincidan con la empresa/area actual
+          $userModel->update($idNuevo, [
+              'rol' => 'cliente',
+              'idarea' => $idArea,
+              'esresponsable' => true,
+              'estado' => true
+          ]);
+      } else {
+          $idNuevo = $userModel->insert([
+              'nombre' => $datos['nombre'],
+              'apellidos' => $datos['apellidos'],
+              'correo' => $datos['correo'],
+              'telefono' => $datos['telefono'] ?? null,
+              'tipodoc' => $datos['tipodoc'] ?? 'DNI',
+              'numerodoc' => $datos['numerodoc'] ?? '',
+              'usuario' => $datos['usuario'],
+              'clave' => password_hash($datos['clave'], PASSWORD_DEFAULT),
+              'rol' => 'cliente',
+              'idarea' => $idArea,
+              'esresponsable' => true,
+              'estado' => true
+          ], true);
+      }
+
+      $idActual = !empty($datos['id_registro_actual']) ? (int)$datos['id_registro_actual'] : null;
+      $idUsuarioAnterior = (int)$datos['id_usuario_anterior'];
+      
+      $ok = $respModel->reasignar($idActual, $idNuevo, (int)$datos['id_empresa'], $idUsuarioAnterior);
+      
+      if ($ok) {
+          // Desactivar al usuario anterior automáticamente
+          $userModel->update($idUsuarioAnterior, ['estado' => false]);
+      }
+      
+      return $this->response->setJSON([
+          'success' => $ok, 
+          'message' => $ok ? 'Reasignación exitosa. El responsable anterior ha sido desactivado.' : 'Error al procesar la reasignación en el servidor'
+      ]);
+  }
+
+  public function reasignarEmpleadoArea()
+  {
+      $datos = $this->request->getJSON(true);
+      $userModel = new UsuarioModel();
+
+      $db = \Config\Database::connect();
+      $db->transBegin();
+
+      try {
+          $userModel->update($datos['id_actual'], ['esresponsable' => false]);
+          $userModel->update($datos['id_nuevo'], ['esresponsable' => true]);
+
+          $db->transCommit();
+          return $this->response->setJSON(['success' => true, 'message' => 'Responsable de área actualizado']);
+      } catch (\Exception $e) {
+          $db->transRollback();
+          return $this->response->setJSON(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+      }
   }
 
 }

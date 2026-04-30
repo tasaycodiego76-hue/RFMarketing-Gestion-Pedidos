@@ -5,6 +5,7 @@ namespace App\Controllers\Empleado;
 use App\Controllers\BaseController;
 use App\Models\ArchivoModel;
 use App\Models\AtencionModel;
+use App\Models\RetroalimentacionModel;
 use App\Models\TrackingModel;
 use App\Models\UsuarioModel;
 
@@ -30,6 +31,7 @@ class MisPedidosController extends BaseController
             'proceso' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_proceso'])->countAllResults(),
             'revision' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_revision'])->countAllResults(),
             'historial' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'finalizado'])->countAllResults(),
+            'retro_count' => (new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id']) ? count((new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id'])) : 0,
         ];
 
         $pedidos = $atencionModel->obtenerDetalladoPorEmpleado((int) $user['id'], ['pendiente_asignado', 'en_proceso', 'en_revision']);
@@ -59,6 +61,7 @@ class MisPedidosController extends BaseController
             'proceso' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_proceso'])->countAllResults(),
             'revision' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_revision'])->countAllResults(),
             'historial' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'finalizado'])->countAllResults(),
+            'retro_count' => (new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id']) ? count((new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id'])) : 0,
         ];
 
         return view('empleado/dashboard', [
@@ -87,6 +90,7 @@ class MisPedidosController extends BaseController
             'proceso' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_proceso'])->countAllResults(),
             'revision' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_revision'])->countAllResults(),
             'historial' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'finalizado'])->countAllResults(),
+            'retro_count' => (new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id']) ? count((new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id'])) : 0,
         ];
 
         return view('empleado/historial', [
@@ -319,5 +323,36 @@ class MisPedidosController extends BaseController
             // Eliminar registro de la base de datos
             $archivoModel->delete($archivo['id']);
         }
+    }
+
+    public function retroalimentacion()
+    {
+        $user = $this->getActiveUser();
+        if (!$user || $user['rol'] !== 'empleado')
+            return redirect()->to(base_url('login'));
+
+        $userModel = new UsuarioModel();
+        $userData = $userModel->getDetalleUsuario($user['id']);
+
+        $atencionModel = new AtencionModel();
+        $stats = [
+            'nuevos' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'pendiente_asignado'])->countAllResults(),
+            'proceso' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_proceso'])->countAllResults(),
+            'revision' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'en_revision'])->countAllResults(),
+            'historial' => $atencionModel->where(['idempleado' => $user['id'], 'estado' => 'finalizado'])->countAllResults(),
+            'retro_count' => (new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id']) ? count((new RetroalimentacionModel())->getRetroalimentacionPorEmpleado($user['id'])) : 0,
+        ];
+
+        $retroModel = new RetroalimentacionModel();
+        $retroalimentacion = $retroModel->getRetroalimentacionPorEmpleado($user['id']);
+
+        return view('empleado/retroalimentacion', [
+            'titulo' => 'Retroalimentación',
+            'tituloPagina' => 'RETROALIMENTACIÓN',
+            'paginaActual' => 'retroalimentacion',
+            'user' => $userData,
+            'stats' => $stats,
+            'retroalimentacion' => $retroalimentacion
+        ]);
     }
 }

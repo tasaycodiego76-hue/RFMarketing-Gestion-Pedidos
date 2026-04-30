@@ -4,6 +4,7 @@
 
   use CodeIgniter\Controller;
   use App\Models\AreasAgenciaModel;
+  use App\Models\EmpresaModel;
 
   class AreasController extends Controller
   {
@@ -13,10 +14,13 @@
        */
       public function index(): string
       {
+          $empresaModel = new EmpresaModel();
+
           return view('admin/areas', [
               'titulo'       => 'Áreas',
               'tituloPagina' => 'ÁREAS',
               'paginaActual' => 'areas',
+              'empresas'     => $empresaModel->findAll(),
           ]);
       }
 

@@ -7,6 +7,8 @@ use App\Models\EmpresaModel;
 use App\Models\AreasAgenciaModel;
 use App\Models\AtencionModel;
 use App\Models\ArchivoModel;
+use App\Models\RetroalimentacionModel;
+use App\Models\TrackingModel;
 
 class kanban extends Controller
 {
@@ -28,7 +30,7 @@ class kanban extends Controller
         $atenciones = $atencionModel->obtenerParaKanban((int) $idEmpresa, (int) $idAreaAgencia);
 
         $columnas = [
-            'pendiente_sin_asignar' => ['label' => 'POR APROBAR', 'color' => '#eab308', 'items' => []],
+            'pendiente_sin_asignar' => ['label' => 'NUEVAS SOLICITUDES', 'color' => '#eab308', 'items' => []],
             'en_proceso' => ['label' => 'EN PROCESO', 'color' => '#a855f7', 'items' => []],
             'en_revision' => ['label' => 'EN REVISIÓN', 'color' => '#f97316', 'items' => []],
             'finalizado' => ['label' => 'ENTREGADO', 'color' => '#22c55e', 'items' => []],
@@ -85,7 +87,7 @@ class kanban extends Controller
     {
         $db = \Config\Database::connect();
 
-        // 1. Consulta principal (sin cambios aquí)
+        // 1. Consulta principal 
         $data = $db->query("
             SELECT
                 a.id, a.titulo, a.estado, a.num_modificaciones,
@@ -120,19 +122,25 @@ class kanban extends Controller
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Atención no encontrada']);
         }
 
-        // 2. Consulta de archivos
-        $archivos = $db->table('archivos')
+        // 2. Consulta de archivos separados
+        $archivosCliente = $db->table('archivos')
             ->select('nombre, ruta')
-            ->where('idatencion', $idAtencion)
-            ->orWhere('idrequerimiento', $data['idrequerimiento'])
+            ->where('idrequerimiento', $data['idrequerimiento'])
+            ->where('idatencion IS NULL') // Los archivos del cliente no tienen idatencion vinculada inicialmente
             ->get()
             ->getResultArray();
 
-        // --- SOLUCIÓN PARA LA CARPETA PUBLIC/UPLOADS ---
-        // Recorremos los archivos para generar la URL pública
-        foreach ($archivos as &$archivo) {
-            // base_url() generará: http://localhost/proyecto/public/uploads/nombre.ext
-            // Esto asume que en tu DB la ruta se guarda como: uploads/archivo.jpg
+        $archivosEmpleado = $db->table('archivos')
+            ->select('nombre, ruta')
+            ->where('idatencion', $idAtencion)
+            ->get()
+            ->getResultArray();
+
+        // Generar URL completa para ambos
+        foreach ($archivosCliente as &$archivo) {
+            $archivo['url_completa'] = base_url($archivo['ruta']);
+        }
+        foreach ($archivosEmpleado as &$archivo) {
             $archivo['url_completa'] = base_url($archivo['ruta']);
         }
 
@@ -149,7 +157,8 @@ class kanban extends Controller
         return $this->response->setJSON([
             'status' => 'success',
             'data' => $data,
-            'archivos' => $archivos,
+            'archivos_cliente' => $archivosCliente,
+            'archivos_empleado' => $archivosEmpleado,
         ]);
     }
 
@@ -195,7 +204,7 @@ class kanban extends Controller
 
         // Crear tracking para servicios personalizados
         if ($esServicioPersonalizado) {
-            $trackingModel = new \App\Models\TrackingModel();
+            $trackingModel = new TrackingModel();
             $trackingModel->insert([
                 'idatencion' => $idAtencion,
                 'idusuario' => $idAdmin,
@@ -354,74 +363,6 @@ class kanban extends Controller
         return $this->response->setJSON($areasAgenciaModel->listarActivas());
     }
 
-    public function responsable()
-    {
-        $session = session();
-        $idResponsable = $session->get('id') ?? 1;
-
-        $db = \Config\Database::connect();
-        $responsable = $db->query("
-            SELECT idarea_agencia, nombre_areaagencia
-            FROM usuarios_detalle_vw
-            WHERE id = ?
-        ", [$idResponsable])->getRowArray();
-
-        if (!$responsable || !$responsable['idarea_agencia']) {
-            return "No tienes área asignada como responsable.";
-        }
-
-        $idAreaAgencia = $responsable['idarea_agencia'];
-
-        $sql = "
-            SELECT
-                a.id, a.titulo, a.estado, a.prioridad, a.fechafin,
-                a.fechainicio, a.fechacreacion, a.idempleado, a.idrequerimiento,
-                COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
-                r.fecharequerida,
-                e.nombreempresa,
-                u.nombre AS empleado_nombre,
-                u.apellidos AS empleado_apellidos
-            FROM atencion a
-            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
-            INNER JOIN usuarios u_sol ON u_sol.id = r.idusuarioempresa
-            INNER JOIN areas ar ON ar.id = u_sol.idarea
-            INNER JOIN empresas e ON e.id = ar.idempresa
-            LEFT JOIN servicios s ON s.id = a.idservicio
-            LEFT JOIN usuarios u ON u.id = a.idempleado
-            WHERE a.idarea_agencia = ?
-              AND a.estado IN ('en_proceso', 'pendiente_asignado', 'en_revision', 'finalizado')
-            ORDER BY a.fechacreacion DESC
-        ";
-
-        $atenciones = $db->query($sql, [$idAreaAgencia])->getResultArray();
-
-        $columnas = [
-            'pendiente_asignado' => ['label' => 'POR ASIGNAR', 'color' => '#eab308', 'items' => []],
-            'en_proceso' => ['label' => 'DESARROLLANDO', 'color' => '#a855f7', 'items' => []],
-            'en_revision' => ['label' => 'PARA REVISIÓN', 'color' => '#f97316', 'items' => []],
-            'finalizado' => ['label' => 'ENTREGADOS', 'color' => '#22c55e', 'items' => []],
-        ];
-
-        foreach ($atenciones as $a) {
-            $estado = $a['estado'];
-            // Para el responsable, 'en_proceso' pero sin empleado es 'pendiente_asignado'
-            if ($estado === 'en_proceso' && !$a['idempleado']) {
-                $estado = 'pendiente_asignado';
-            }
-            if (isset($columnas[$estado])) {
-                $columnas[$estado]['items'][] = $a;
-            }
-        }
-
-        return view('responsable/kanban', [
-            'titulo' => 'Kanban Área - ' . ($responsable['nombre_areaagencia'] ?? 'Agencia'),
-            'tituloPagina' => 'GESTIÓN DE ÁREA',
-            'paginaActual' => 'kanban',
-            'idArea' => $idAreaAgencia,
-            'areaNombre' => $responsable['nombre_areaagencia'],
-            'columnas' => $columnas
-        ]);
-    }
 
     public function cambiarPrioridad()
     {
@@ -433,5 +374,45 @@ class kanban extends Controller
 
         $db->query("UPDATE atencion SET prioridad = ? WHERE id = ?", [$prioridad, $idAtencion]);
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Prioridad actualizada']);
+    }
+
+    public function regresarAProceso()
+    {
+        $json = $this->request->getJSON(true);
+        $idAtencion = $json['idatencion'];
+        $mensaje = $json['mensaje'];
+        $idAdmin = session()->get('id') ?? 1;
+
+        $db = \Config\Database::connect();
+        $atencionModel = new AtencionModel();
+        $retroModel = new RetroalimentacionModel();
+        $trackingModel = new TrackingModel();
+
+        $atencion = $atencionModel->find($idAtencion);
+        if (!$atencion) {
+            return $this->response->setJSON(['status' => 'error', 'msg' => 'Pedido no encontrado']);
+        }
+
+        // 1. Actualizar estado del pedido a 'en_proceso' e incrementar modificaciones
+        $db->query("UPDATE atencion SET estado = 'en_proceso', num_modificaciones = num_modificaciones + 1 WHERE id = ?", [$idAtencion]);
+
+        // 2. Registrar en la tabla de retroalimentación
+        $retroModel->insert([
+            'idatencion' => $idAtencion,
+            'idevaluador' => $idAdmin,
+            'contenido' => $mensaje,
+            'fecha' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
+        ]);
+
+        // 3. Registrar en tracking
+        $trackingModel->insert([
+            'idatencion' => $idAtencion,
+            'idusuario' => $idAdmin,
+            'accion' => "Pedido regresado a proceso con observaciones: " . $mensaje,
+            'estado' => 'en_proceso',
+            'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
+        ]);
+
+        return $this->response->setJSON(['status' => 'success', 'msg' => 'Pedido regresado correctamente con retroalimentación']);
     }
 }

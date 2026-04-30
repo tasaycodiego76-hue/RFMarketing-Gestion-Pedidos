@@ -168,7 +168,7 @@ class AtencionModel extends Model
             LEFT JOIN usuarios u ON u.id = a.idempleado
             WHERE ar.idempresa = ?
               AND a.estado != 'cancelado'
-              AND (a.idarea_agencia = ? OR a.servicio_personalizado IS NOT NULL)
+              AND (a.idarea_agencia = ? OR (a.idarea_agencia IS NULL AND a.servicio_personalizado IS NOT NULL))
             ORDER BY es_servicio_personalizado ASC, a.fechainicio DESC
         ";
 
@@ -345,6 +345,7 @@ class AtencionModel extends Model
             ->join('servicios s', 's.id = a.idservicio', 'left')
             ->where('a.idarea_agencia', $idAreaAgencia);
 
+
         if (!empty($estados)) {
             $builder->whereIn('a.estado', $estados);
         }
@@ -353,6 +354,9 @@ class AtencionModel extends Model
             ->orderBy('a.fechacreacion', 'DESC')
             ->get()->getResultArray();
     }
+
+
+
 
     /**
      * Obtener tareas de un empleado por estado específico

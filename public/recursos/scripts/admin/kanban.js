@@ -102,7 +102,7 @@ async function abrirModalAsignarEmpleado(idAtencion, idArea) {
 
         // Auto-asignación del responsable
         if (typeof EMPLEADO_ACTUAL_ID !== 'undefined' && EMPLEADO_ACTUAL_ID) {
-            select.innerHTML += `<option value="${EMPLEADO_ACTUAL_ID}" style="font-weight:700;color:#F5C400;">⭐ Asignarme a mí mismo</option>`;
+            select.innerHTML += `<option value="${EMPLEADO_ACTUAL_ID}" style="font-weight:700;color:#F5C400;"> Asignarme a mí mismo</option>`;
         }
 
         data.forEach(u => {
@@ -120,33 +120,22 @@ async function confirmarAsignacionEmpleado() {
     const idEmpleado = document.getElementById('asignar-empleado').value;
     if (!idEmpleado) { alert('Selecciona un empleado'); return; }
 
-    // Solo asigna el empleado. El estado sigue siendo pendiente_asignado.
-    // fechainicio se pone cuando alguien pulsa "Iniciar Trabajo".
     const data = await _post('admin/kanban/asignarEmpleado', { idatencion: idAtencion, idempleado: idEmpleado });
     if (data.status === 'success') location.reload();
     else alert(data.msg);
 }
 
-// ══════════════════════════════════════════════════════════════════
-// ═══ INICIAR TRABAJO — pone fechainicio + estado = en_proceso  ═══
-// ══════════════════════════════════════════════════════════════════
-async function iniciarTrabajo(idAtencion) {
-    if (!confirm('¿Confirmar inicio de trabajo en este pedido?')) return;
-    const data = await _post('admin/kanban/iniciarTrabajo', { idatencion: idAtencion });
-    if (data.status === 'success') location.reload();
-    else alert(data.msg);
-}
-
-// ══════════════════════════════════════════════════════
-// ═══ VER DETALLE — modal con estilo del sistema     ═══
-// ══════════════════════════════════════════════════════
 async function verDetalle(idAtencion) {
     const cuerpo = document.getElementById('detalle-cuerpo');
+    if (!cuerpo) return;
+
+    // Loader inicial con estilo premium
     cuerpo.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;gap:14px;">
-            <div class="spinner-border" style="color:#F5C400;width:2rem;height:2rem;border-width:3px;"></div>
-            <span style="color:#555;font-size:10px;letter-spacing:2px;font-weight:700;text-transform:uppercase;">Cargando expediente...</span>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:450px;background:#080808;border-radius:0 0 16px 16px;">
+            <div class="spinner-border" style="color:#F5C400;width:3.5rem;height:3.5rem;border-width:3px;margin-bottom:24px;"></div>
+            <span style="color:#F5C400;font-size:11px;letter-spacing:4px;font-weight:900;text-transform:uppercase;animation:pulse 2s infinite;">Preparando expediente digital...</span>
         </div>`;
+
     $('#modalDetalle').modal('show');
 
     try {
@@ -154,439 +143,362 @@ async function verDetalle(idAtencion) {
         const res = await r.json();
 
         if (res.status !== 'success') {
-            cuerpo.innerHTML = _errorHtml('No se pudo cargar el expediente.');
+            cuerpo.innerHTML = _errorHtml('No se pudo obtener la información detallada.');
             return;
         }
 
         const d = res.data;
-        const archivos = res.archivos || [];
+        const archivosCliente = res.archivos_cliente || [];
+        const archivosEmpleado = res.archivos_empleado || [];
 
-        // ── Fechas formateadas ──────────────────────────────────
-        const fmt = s => s ? s.substring(0, 10).split('-').reverse().join('/') : null;
-        const fReq = d.fecharequerida ? d.fecharequerida.substring(0, 10).split('-').reverse().join('/') : null;
-        const fSol = fmt(d.r_fechacreacion);
-        const fIni = fmt(d.fechainicio);
-        const fFin = fmt(d.fechacompletado);
+        // ── Fechas y Tiempos ─────
+        const fReq = d.fecharequerida || '---';
+        const fSol = d.r_fechacreacion || '---';
+        const fIni = d.fechainicio || '---';
+        const fFin = d.fechacompletado || '---';
+        const fmtRaw = s => (s && s.length > 10) ? s.substring(0, 10).split('-').reverse().join('/') : s;
+        const fSolFmt = fmtRaw(fSol);
 
-        // ── Estado del trabajo (según flujo real del sistema) ───
-        //
-        //   pendiente_asignado (sin empleado)     → "Pendiente de asignación"
-        //   pendiente_asignado (con empleado)     → "Asignado — aún no iniciado"
-        //   en_proceso (con empleado)             → "Desarrollando"
-        //   finalizado                             → "Completado"
-        let trabajoHtml;
-        if (d.estado === 'finalizado') {
-            trabajoHtml = _pill('bi-check2-circle', 'Completado', '#22c55e', '#052e16');
-        } else if (!d.idempleado) {
-            trabajoHtml = _pill('bi-hourglass-split', 'Pendiente de asignación', '#6b7280', '#111');
-        } else if (d.estado === 'pendiente_asignado') {
-            trabajoHtml = _pill('bi-person-check-fill', 'Asignado — aún no iniciado', '#F5C400', '#1a1500');
-        } else {
-            trabajoHtml = _pill('bi-lightning-charge-fill', 'Desarrollando', '#10b981', '#001a0f');
-        }
+        // ── Lógica de Pasos (Stepper) ──────────────────────────
+        const estados = ['pendiente_sin_asignar', 'pendiente_asignado', 'en_proceso', 'en_revision', 'finalizado'];
+        const actualIdx = estados.indexOf(d.estado);
 
-        // ── Mapa de estados ─────────────────────────────────────
-        const estadoMap = {
-            pendiente_sin_asignar: { c: '#f59e0b', label: '📋 Nuevo requerimiento', i: 'bi-hourglass-split' },
-            pendiente_asignado: { c: '#F5C400', label: '✅ Asignado al diseñador', i: 'bi-send-check-fill' },
-            en_proceso: { c: '#10b981', label: '🚀 Trabajando en tu diseño', i: 'bi-lightning-charge-fill' },
-            en_revision: { c: '#3b82f6', label: '👀 Listo para revisar', i: 'bi-eye-fill' },
-            finalizado: { c: '#22c55e', label: '🎉 Entregado con éxito', i: 'bi-check2-circle' },
-            cancelado: { c: '#ef4444', label: '❌ Cancelado', i: 'bi-x-circle-fill' },
+        const renderStep = (idx, icon, label) => {
+            const isDone = actualIdx >= idx;
+            const isCurrent = actualIdx === idx;
+            const color = isDone ? '#F5C400' : '#222';
+            const iconColor = isDone ? '#000' : '#444';
+            const bgColor = isDone ? '#F5C400' : '#0f0f0f';
+
+            return `
+                <div class="step-item ${isCurrent ? 'current' : ''} ${isDone ? 'done' : ''}">
+                    <div class="step-icon" style="background:${bgColor}; color:${iconColor}; border:1px solid ${isDone ? '#F5C400' : '#222'};">
+                        <i class="bi ${icon}"></i>
+                    </div>
+                    <div class="step-label" style="color:${isDone ? '#fff' : '#444'};">${label}</div>
+                </div>
+            `;
         };
-        const es = estadoMap[d.estado] ?? { c: '#aaa', label: d.estado.replace(/_/g, ' '), i: 'bi-circle' };
-        const priC = d.prioridad_admin === 'Alta' ? '#ef4444' : (d.prioridad_admin === 'Media' ? '#F5C400' : '#3b82f6');
-        const priI = d.prioridad_admin === 'Alta' ? 'bi-arrow-up-circle-fill' : (d.prioridad_admin === 'Media' ? 'bi-dash-circle-fill' : 'bi-arrow-down-circle-fill');
 
-        // ── Bloque empleado asignado ────────────────────────────
+        const stepperHtml = `
+            <div class="workflow-stepper">
+                ${renderStep(0, 'bi-plus-lg', 'SOLICITUD')}
+                <div class="step-line ${actualIdx > 0 ? 'active' : ''}"></div>
+                ${renderStep(2, 'bi-play-fill', 'PROCESO')}
+                <div class="step-line ${actualIdx > 2 ? 'active' : ''}"></div>
+                ${renderStep(3, 'bi-eye-fill', 'REVISIÓN')}
+                <div class="step-line ${actualIdx > 3 ? 'active' : ''}"></div>
+                ${renderStep(4, 'bi-check-all', 'ENTREGA')}
+            </div>
+        `;
+
+        // ── Pill de Estado ──────────────────────────────────────
+        let statusConfig = { label: 'ESTADO DESCONOCIDO', color: '#888', icon: 'bi-question-circle' };
+        if (d.estado === 'finalizado') statusConfig = { label: 'COMPLETADO', color: '#10b981', icon: 'bi-check2-all' };
+        else if (!d.idempleado) statusConfig = { label: 'SIN ASIGNAR', color: '#F5C400', icon: 'bi-person-exclamation' };
+        else if (d.estado === 'pendiente_asignado') statusConfig = { label: 'ASIGNADO', color: '#a855f7', icon: 'bi-person-check' };
+        else if (d.estado === 'en_proceso') statusConfig = { label: 'EN DESARROLLO', color: '#3b82f6', icon: 'bi-lightning-charge' };
+        else if (d.estado === 'en_revision') statusConfig = { label: 'EN REVISIÓN', color: '#f97316', icon: 'bi-eye' };
+
+        const statusPill = `
+            <div class="status-pill-premium" style="--pill-color: ${statusConfig.color}">
+                <i class="bi ${statusConfig.icon}"></i>
+                <span>${statusConfig.label}</span>
+            </div>
+        `;
+
+        // ── Renderizado de Archivos ──────────────────────────────
+        const renderArchivos = (lista, color = '#F5C400') => {
+            if (!lista.length) return '<div class="no-files">No se encontraron archivos adjuntos.</div>';
+            return `<div class="files-grid">` +
+                lista.map(a => {
+                    const ext = a.nombre.split('.').pop().toLowerCase();
+                    const icon = KB_ICONS[ext] ?? KB_ICONS.default;
+                    return `
+                        <a href="${a.url_completa}" target="_blank" class="file-card">
+                            <div class="file-icon" style="color:${color}"><i class="bi ${icon}"></i></div>
+                            <div class="file-info">
+                                <span class="file-name">${a.nombre}</span>
+                                <span class="file-ext">${ext.toUpperCase()}</span>
+                            </div>
+                            <i class="bi bi-download download-icon"></i>
+                        </a>`;
+                }).join('') + '</div>';
+        };
+
+        const arcClienteHtml = renderArchivos(archivosCliente);
+        const arcEmpleadoHtml = renderArchivos(archivosEmpleado, '#10b981');
+
+        // ── Tags ───────────────────────────────────────────────
+        const renderTags = json => {
+            const list = _parseList(json);
+            if (!list.length) return '<span class="tag-empty">SIN ESPECIFICAR</span>';
+            return `<div class="tags-container">` +
+                list.map(t => `<span class="tag-item">${String(t).toUpperCase()}</span>`).join('') +
+                `</div>`;
+        };
+
+        // ── Bloque del Empleado ──────────────────────────────────
         let empleadoHtml;
         if (d.empleado_nombre) {
             const ini = (d.empleado_nombre[0] + (d.empleado_apellidos?.[0] ?? '')).toUpperCase();
             empleadoHtml = `
-                <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
-                    <div style="width:36px;height:36px;border-radius:50%;
-                        background:linear-gradient(135deg,#F5C400,#b45309);
-                        color:#000;font-weight:800;font-size:13px;
-                        display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ini}</div>
-                    <div>
-                        <div style="color:#f0f0f0;font-weight:700;font-size:13px;">${d.empleado_nombre} ${d.empleado_apellidos}</div>
-                        <div style="color:#555;font-size:10px;text-transform:uppercase;letter-spacing:.5px;">
-                            ${d.estado === 'en_proceso' ? 'En desarrollo' : (d.estado === 'finalizado' ? 'Finalizado' : 'Asignado — sin iniciar')}
-                        </div>
+                <div class="user-card-premium">
+                    <div class="user-avatar-premium">${ini}</div>
+                    <div class="user-details">
+                        <span class="user-name">${d.empleado_nombre} ${d.empleado_apellidos}</span>
+                        <span class="user-role">RESPONSABLE ASIGNADO</span>
                     </div>
                 </div>`;
         } else {
             empleadoHtml = `
-                <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
-                    <div style="width:36px;height:36px;border-radius:50%;background:#111;
-                        border:2px dashed #222;display:flex;align-items:center;justify-content:center;">
-                        <i class="bi bi-person-dash" style="color:#444;font-size:16px;"></i>
-                    </div>
-                    <div>
-                        <div style="color:#F5C400;font-weight:700;font-size:13px;">Sin asignar</div>
-                        <div style="color:#555;font-size:10px;letter-spacing:.5px;">Esperando al responsable del área</div>
+                <div class="user-card-premium unassigned">
+                    <div class="user-avatar-premium"><i class="bi bi-person-dash"></i></div>
+                    <div class="user-details">
+                        <span class="user-name">PENDIENTE</span>
+                        <span class="user-role">ESPERANDO RESPONSABLE</span>
                     </div>
                 </div>`;
         }
 
-        // ── Archivos adjuntos ───────────────────────────────────
-        // ── Archivos adjuntos ───────────────────────────────────
-        let arcHtml = '';
-        if (archivos.length) {
-            // Se agregó un max-height y overflow para hacer scroll si hay muchas evidencias, y grid-template dinámico
-            arcHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:8px;margin-top:8px;max-height:200px;overflow-y:auto;padding-right:4px;">`;
-            archivos.forEach(a => {
-                const ext = a.nombre.split('.').pop().toLowerCase();
-                const icon = KB_ICONS[ext] ?? KB_ICONS.default;
-                arcHtml += `
-                    <a href="${BASE_URL}/cliente/archivos/${a.ruta.split('/').pop()}" target="_blank"
-                       style="display:flex;align-items:center;gap:8px;padding:9px 12px;
-                              background:#0a0a0a;border:1px solid #1e1e1e;border-radius:7px;
-                              color:#aaa;text-decoration:none;font-size:11px;transition:border-color .15s;
-                              min-width:0; overflow:hidden;"
-                       onmouseover="this.style.borderColor='#F5C400'"
-                       onmouseout="this.style.borderColor='#1e1e1e'">
-                        <i class="bi ${icon}" style="color:#F5C400;font-size:16px;flex-shrink:0;"></i>
-                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">${a.nombre}</span>
-                    </a>`;
-            });
-            arcHtml += '</div>';
-        } else {
-            arcHtml = '<p style="color:#333;font-size:12px;font-style:italic;margin:8px 0 0;">No se adjuntaron archivos.</p>';
-        }
+        // ── Título del Modal ────────────────────────────────────
+        document.getElementById('detalle-titulo').innerText = (d.nombreempresa || 'DETALLE DE PEDIDO').toUpperCase();
 
+        cuerpo.innerHTML = `
+            <style>
+                .exp-container { background: #080808; color: #fff; font-family: 'DM Sans', sans-serif; padding-bottom: 40px; }
+                
+                /* Stepper */
+                .workflow-stepper { display: flex; align-items: center; justify-content: space-between; padding: 30px 60px; background: #0a0a0a; border-bottom: 1px solid #151515; margin-bottom: 30px; }
+                .step-item { display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; z-index: 2; }
+                .step-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; }
+                .step-label { font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+                .step-line { flex-grow: 1; height: 2px; background: #151515; margin: 0 -20px; position: relative; top: -12px; z-index: 1; }
+                .step-line.active { background: #F5C400; }
+                .step-item.current .step-icon { box-shadow: 0 0 20px rgba(245, 196, 0, 0.3); transform: scale(1.1); }
+                
+                /* Layout */
+                .exp-grid { display: grid; grid-template-columns: 1fr 340px; gap: 30px; padding: 0 30px; }
+                
+                /* Cards */
+                .exp-card { background: #0a0a0a; border: 1px solid #151515; border-radius: 16px; overflow: hidden; margin-bottom: 25px; transition: border-color 0.3s; }
+                .exp-card:hover { border-color: #222; }
+                .exp-card-header { padding: 16px 20px; background: #0c0c0c; border-bottom: 1px solid #151515; display: flex; align-items: center; gap: 12px; }
+                .exp-card-header i { color: #F5C400; font-size: 18px; }
+                .exp-card-header span { font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 1px; color: #fff; }
+                .exp-card-body { padding: 25px; }
+                
+                /* Data Boxes */
+                .data-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+                .data-box { background: #050505; border: 1px solid #111; padding: 15px; border-radius: 12px; }
+                .data-label { color: #fff; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; display: block; opacity: 0.8; }
+                .data-value { color: #fff; font-size: 14px; font-weight: 600; line-height: 1.5; }
+                .data-value.highlight { color: #F5C400; }
+                
+                /* Tags */
+                .tags-container { display: flex; flex-wrap: wrap; gap: 8px; }
+                .tag-item { background: #111; color: #fff; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 700; border: 1px solid #222; }
+                .tag-empty { color: #444; font-size: 11px; font-style: italic; }
+                
+                /* Files */
+                .files-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+                .file-card { background: #050505; border: 1px solid #111; padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 12px; text-decoration: none; transition: all 0.2s; }
+                .file-card:hover { border-color: #F5C400; background: #0a0a0a; transform: translateY(-2px); }
+                .file-icon { font-size: 20px; }
+                .file-info { flex-grow: 1; min-width: 0; }
+                .file-name { color: #fff; font-size: 12px; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+                .file-ext { color: #444; font-size: 9px; font-weight: 800; }
+                .download-icon { color: #222; font-size: 14px; }
+                .file-card:hover .download-icon { color: #F5C400; }
+                .no-files { color: #444; font-size: 13px; text-align: center; padding: 20px; border: 1px dashed #111; border-radius: 12px; }
+                
+                /* User Card */
+                .user-card-premium { display: flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #0a0a0a, #050505); padding: 15px; border-radius: 12px; border: 1px solid #151515; }
+                .user-avatar-premium { width: 48px; height: 48px; background: #F5C400; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; color: #000; border: 3px solid #151515; }
+                .user-details { display: flex; flex-direction: column; }
+                .user-name { color: #fff; font-size: 14px; font-weight: 800; }
+                .user-role { color: #F5C400; font-size: 9px; font-weight: 800; letter-spacing: 1px; }
+                .user-card-premium.unassigned .user-avatar-premium { background: #111; color: #444; border-style: dashed; }
+                
+                /* Status Pill */
+                .status-pill-premium { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 20px; background: rgba(var(--pill-color-rgb), 0.1); border: 1px solid var(--pill-color); color: var(--pill-color); font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+                
+                /* Responsive */
+                @media (max-width: 992px) {
+                    .exp-grid { grid-template-columns: 1fr; gap: 20px; padding: 0 15px; }
+                    .workflow-stepper { padding: 20px; overflow-x: auto; justify-content: flex-start; gap: 30px; }
+                    .step-line { display: none; }
+                    .exp-card-header span { font-size: 18px; }
+                }
+                @media (max-width: 600px) {
+                    .data-row { grid-template-columns: 1fr; gap: 10px; }
+                    .exp-container h2 { font-size: 32px !important; }
+                    .workflow-stepper { padding: 15px; }
+                    .exp-card-body { padding: 15px; }
+                }
+            </style>
 
-        // ── Canales / Formatos como tags ────────────────────────
-
-        const renderTags = json => {
-            if (!json) return '<span style="color:#555;font-size:12px;font-style:italic;">No especificado</span>';
-            return _parseList(json)
-                .map(t => `<span style="display:inline-block;background:#1e1e1e;color:#e8e8e8;border:1px solid #333;padding:5px 10px;border-radius:6px;font-size:11px;margin-bottom:6px;box-shadow:0 2px 4px rgba(0,0,0,0.2);">${t}</span>`)
-                .join(' ');
-        };
-
-        // ── URLs enviadas por el cliente (por aprobar / aprobado / en proceso) ─────
-        let urlsClienteHtml = '';
-        if (d.estado === 'pendiente_sin_asignar' || d.estado === 'pendiente_asignado' || d.estado === 'en_proceso') {
-            const link = d.url_subida
-                ? `<a href="${d.url_subida}" target="_blank" style="color:#60a5fa;text-decoration:underline;font-size:13px;word-break:break-all;">${d.url_subida}</a>`
-                : '<span style="color:#333;font-size:12px;font-style:italic;">No se adjuntó enlace</span>';
-
-            urlsClienteHtml = _seccion('bi-link-45deg', 'URLs enviadas por el Cliente', '#60a5fa', `
-                <div>
-                    ${_label('Enlace / URLs')}
-                    <div style="margin-top:5px;">${link}</div>
+            <div class="exp-container">
+                <!-- 1. HEADER SECCIÓN -->
+                <div style="padding: 40px 30px 20px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                            ${statusPill}
+                            <span style="color:#444; font-size:11px; font-weight:800;">ID: #REQ-${d.idrequerimiento || '---'}</span>
+                        </div>
+                        <h2 style="font-family:'Bebas Neue'; font-size:48px; color:#fff; letter-spacing:1px; margin:0; line-height:0.9;">${d.titulo || 'SIN TÍTULO'}</h2>
+                        <div style="margin-top:15px; display:flex; align-items:center; gap:15px;">
+                            <span style="color:#F5C400; font-weight:800; font-size:14px;"><i class="bi bi-building"></i> ${d.nombreempresa}</span>
+                            <span style="color:#222;">|</span>
+                            <span style="color:#888; font-size:13px; font-weight:600;">ÁREA: ${d.area_solicitante_nombre || '---'}</span>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-family:'Bebas Neue'; font-size:24px; color:#F5C400;">${d.servicio || 'SERVICIO GENERAL'}</div>
+                        <div style="color:#444; font-size:10px; font-weight:800; letter-spacing:1px; margin-top:5px;">ATENCIÓN #${d.id.toString().padStart(5, '0')}</div>
+                    </div>
                 </div>
-            `);
-        }
 
-        // ── Entregables (en_revision / finalizado) ──────────────
-        let entregablesHtml = '';
-        if (d.estado === 'en_revision' || d.estado === 'finalizado') {
-            const link = d.url_entrega
-                ? `<a href="${d.url_entrega}" target="_blank" style="color:#60a5fa;text-decoration:underline;font-size:13px;word-break:break-all;">${d.url_entrega}</a>`
-                : '<span style="color:#333;font-size:12px;font-style:italic;">No se adjuntó enlace</span>';
-            const msg = d.observacion_revision
-                ? `<div style="color:#ccc;font-size:13px;line-height:1.7;">${d.observacion_revision}</div>`
-                : '<span style="color:#333;font-size:12px;font-style:italic;">Sin mensaje adicional</span>';
+                <!-- 2. STEPPER -->
+                ${stepperHtml}
 
-            entregablesHtml = _seccion('bi-box-arrow-up-right', 'Entregables del Área', '#3b82f6', `
-                <div style="margin-bottom:14px;">
-                    ${_label('Enlace / Archivo de entrega')}
-                    <div style="margin-top:5px;">${link}</div>
-                </div>
-                <div>
-                    ${_label('Mensaje del desarrollador')}
-                    <div style="margin-top:5px;">${msg}</div>
-                </div>
-            `);
-        }
-
-        // ── Panel cambio prioridad (solo admin en pendiente_sin_asignar) ──
-        let prioridadPanel = '';
-        if (d.estado === 'pendiente_sin_asignar') {
-            prioridadPanel = _seccion('bi-flag-fill', 'Cambiar Prioridad', '#F5C400', `
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <select id="detalle-prioridad"
-                        style="background:#0a0a0a;border:1px solid #1e1e1e;color:#f0f0f0;
-                               padding:6px 10px;border-radius:6px;font-size:12px;outline:none;
-                               cursor:pointer;">
-                        <option value="Baja"  ${d.prioridad_admin === 'Baja' ? 'selected' : ''}>Baja</option>
-                        <option value="Media" ${d.prioridad_admin === 'Media' ? 'selected' : ''}>Media</option>
-                        <option value="Alta"  ${d.prioridad_admin === 'Alta' ? 'selected' : ''}>Alta</option>
-                    </select>
-                    <button onclick="cambiarPrioridad(${d.id})"
-                        style="background:#F5C400;color:#000;border:none;padding:7px 20px;
-                               border-radius:6px;font-family:'Bebas Neue',sans-serif;
-                               font-size:15px;letter-spacing:2px;cursor:pointer;">
-                        GUARDAR
-                    </button>
-                </div>
-            `);
-        }
-
-        // ══════════════════════════════════
-        // ══  HTML FINAL DEL MODAL        ══
-        // ══════════════════════════════════
-        const html = `
-        <style>
-            .kd-sec {
-                background: #0a0a0a;
-                border: 1px solid #1e1e1e;
-                border-left-width: 3px;
-                border-radius: 8px;
-                padding: 16px 18px;
-                margin-bottom: 12px;
-            }
-            .kd-sec-title {
-                font-family: 'Bebas Neue', sans-serif;
-                font-size: 14px;
-                letter-spacing: 2px;
-                text-transform: uppercase;
-                margin-bottom: 14px;
-                display: flex;
-                align-items: center;
-                gap: 7px;
-            }
-            .kd-label {
-                font-size: 9px;
-                font-weight: 700;
-                letter-spacing: 1px;
-                text-transform: uppercase;
-                color: #444;
-                display: block;
-                margin-bottom: 4px;
-            }
-            .kd-val {
-                color: #d0d0d0;
-                font-size: 13px;
-                line-height: 1.65;
-                word-wrap: break-word;
-                overflow-wrap: break-word;
-                word-break: break-word;
-            }
-            .kd-hr { border: none; border-top: 1px solid #1a1a1a; margin: 12px 0; }
-            .kd-info-row {
-                display: flex; align-items: flex-start;
-                gap: 10px; padding: 9px 0;
-                border-bottom: 1px solid #111;
-            }
-            .kd-info-row:last-child { border-bottom: none; }
-            .kd-icon {
-                width: 28px; height: 28px; border-radius: 6px;
-                background: #111; display: flex; align-items: center;
-                justify-content: center; flex-shrink: 0;
-                font-size: 13px; color: #444;
-            }
-            .kd-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-            @media(max-width:640px) {
-                .kd-2col { grid-template-columns: 1fr; }
-                .kd-main { grid-template-columns: 1fr !important; }
-            }
-        </style>
-
-        <div style="font-family:'Segoe UI',system-ui,sans-serif;color:#c8c8c8;">
-
-                       <!-- ══ CABECERA ══ -->
-            <div style="margin-bottom:18px;">
-                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:12px;">
-                    ${_pill(es.i, es.label, es.c, es.c + '18')}
-                    ${_pill(priI, (d.prioridad_admin || 'Baja'), priC, priC + '18')}
-                    ${d.servicio ? `<span style="background:#111;color:#888;border:1px solid #222;padding:4px 12px;border-radius:20px;font-size:11px;">${d.servicio}</span>` : ''}
-                    ${d.tipo_requerimiento ? `<span style="background:#111;color:#555;border:1px solid #1e1e1e;padding:4px 12px;border-radius:20px;font-size:10px;">${d.tipo_requerimiento}</span>` : ''}
-                </div>
-                <h2 style="font-family:'Bebas Neue',sans-serif;color:#fff;font-size:26px;letter-spacing:2px;margin:0 0 2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;hyphens:auto;">${d.titulo || 'Sin Título'}</h2>
-                <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;">
-                    ${d.nombreempresa || ''} ${d.area_solicitante_nombre ? '· ' + d.area_solicitante_nombre : ''}
-                </p>
-                ${trabajoHtml}
-            </div>
-
-
-            <!-- ══ GRID PRINCIPAL ══ -->
-            <div class="kd-main" style="display:grid;grid-template-columns:1fr 285px;gap:18px;align-items:start;">
-
-                <!-- ══ IZQUIERDA ══ -->
-                <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
-
-                    <!-- Brief -->
-                    ${_seccion('bi-bullseye', 'Brief del Pedido', '#F5C400', `
-                        <div style="max-height: 400px; overflow-y: auto; padding-right: 8px; text-align: center; display: flex; flex-direction: column; gap: 14px;">
-                            
-                            <div style="background:#111; padding:16px; border-radius:8px; border:1px solid #1e1e1e;">
-                                ${_label('Objetivo de comunicación')}
-                                <div class="kd-val" style="width:100%; margin-top:8px;">${d.objetivo_comunicacion || '---'}</div>
-                            </div>
-
-                            <div style="background:#111; padding:16px; border-radius:8px; border:1px solid #1e1e1e;">
-                                ${_label('Público objetivo')}
-                                <div class="kd-val" style="width:100%; margin-top:8px;">${d.publico_objetivo || '---'}</div>
-                            </div>
-
-                            <div class="kd-2col">
-                                <div style="background:#111; padding:12px; border-radius:8px; border:1px solid #1e1e1e; display:flex;flex-direction:column;align-items:center;">
-                                    ${_label('Tipo de requerimiento')}
-                                    <div class="kd-val" style="margin-top:4px;">${d.tipo_requerimiento || 'Estándar'}</div>
+                <div class="exp-grid">
+                    <!-- COLUMNA PRINCIPAL -->
+                    <div class="exp-main-col">
+                        
+                        <!-- Brief -->
+                        <div class="exp-card">
+                            <div class="exp-card-header"><i class="bi bi-compass"></i> <span>ESTRATEGIA DEL REQUERIMIENTO</span></div>
+                            <div class="exp-card-body">
+                                <div class="data-row">
+                                    <div class="data-box">
+                                        <span class="data-label">Objetivo Principal</span>
+                                        <div class="data-value highlight">${d.objetivo_comunicacion || '---'}</div>
+                                    </div>
+                                    <div class="data-box">
+                                        <span class="data-label">Público Objetivo</span>
+                                        <div class="data-value">${d.publico_objetivo || '---'}</div>
+                                    </div>
                                 </div>
-                                <div style="background:#111; padding:12px; border-radius:8px; border:1px solid #1e1e1e; display:flex;flex-direction:column;align-items:center;">
-                                    ${_label('Área solicitante')}
-                                    <div class="kd-val" style="margin-top:4px;text-transform:uppercase;color:#F5C400;font-weight:700;">${d.area_solicitante_nombre || '---'}</div>
-                                </div>
-                            </div>
-                        </div>
-                    `)}
-
-
-                    <!-- Descripción -->
-                    ${_seccion('bi-card-text', 'Descripción', '#374151', `
-                        <div class="kd-val" style="line-height:1.75;white-space:pre-wrap;word-break:break-word;max-height:250px;overflow-y:auto;padding-right:5px;">${d.descripcion || 'Sin descripción.'}</div>
-                    `)}
-
-
-                    <!-- Canales y formatos -->
-                    ${_seccion('bi-broadcast', 'Canales y Formatos', '#374151', `
-                        <div class="kd-2col" style="gap:10px;">
-                            <div style="background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:12px;">
-                                <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;border-bottom:1px solid #222;padding-bottom:6px;">
-                                    <i class="bi bi-megaphone" style="color:#F5C400;font-size:12px;"></i>
-                                    ${_label('Canales de difusión')}
-                                </div>
-                                <div style="display:flex;flex-wrap:wrap;gap:5px;">${renderTags(d.canales_difusion)}</div>
-                            </div>
-                            
-                            <div style="background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:12px;">
-                                <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;border-bottom:1px solid #222;padding-bottom:6px;">
-                                    <i class="bi bi-aspect-ratio" style="color:#F5C400;font-size:12px;"></i>
-                                    ${_label('Formatos solicitados')}
-                                </div>
-                                <div style="display:flex;flex-wrap:wrap;gap:5px;">${renderTags(d.formatos_solicitados)}</div>
-                            </div>
-                        </div>
-                    `)}
-
-
-                    <!-- Archivos adjuntos -->
-                    ${_seccion('bi-paperclip', 'Archivos Adjuntos', '#374151', arcHtml)}
-
-                    <!-- URLs del cliente si aplica -->
-                    ${urlsClienteHtml}
-
-                    <!-- Entregables si aplica -->
-                    ${entregablesHtml}
-
-                    <!-- Panel prioridad admin -->
-                    ${prioridadPanel}
-
-                </div>
-
-                <!-- ══ DERECHA: resumen sticky ══ -->
-                <div style="min-width:285px;">
-                    <div style="background:#0a0a0a;border:1px solid #1e1e1e;border-radius:8px;padding:16px;position:sticky;top:0;">
-
-                        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:#2a2a2a;margin-bottom:14px;">
-                            Información del Pedido
-                        </div>
-
-                        <!-- Empleado -->
-                        <div style="margin-bottom:14px;">
-                            ${_label('Empleado asignado')}
-                            ${empleadoHtml}
-                        </div>
-
-                        <hr class="kd-hr">
-
-                        <!-- Fecha requerida -->
-                        <div class="kd-info-row">
-                            <div class="kd-icon"><i class="bi bi-calendar-event"></i></div>
-                            <div>
-                                ${_label('Fecha requerida')}
-                                <div style="color:${fReq ? '#f0f0f0' : '#444'};font-size:13px;font-weight:700;">${fReq ?? 'No definida'}</div>
-                            </div>
-                        </div>
-
-                        <!-- Fecha solicitud -->
-                        <div class="kd-info-row">
-                            <div class="kd-icon"><i class="bi bi-calendar-plus"></i></div>
-                            <div>
-                                ${_label('Fecha de solicitud')}
-                                <div style="color:#f0f0f0;font-size:13px;font-weight:700;">${fSol ?? '---'}</div>
-                            </div>
-                        </div>
-
-                        <!-- Inicio de trabajo -->
-                        <div class="kd-info-row">
-                            <div class="kd-icon"><i class="bi bi-play-circle" style="color:${fIni ? '#10b981' : '#333'};"></i></div>
-                            <div>
-                                ${_label('Inicio de trabajo')}
-                                <div style="color:${fIni ? '#10b981' : '#444'};font-size:13px;font-weight:700;">
-                                    ${fIni ?? 'Aún no iniciado'}
+                                <div class="data-box">
+                                    <span class="data-label">Descripción Detallada</span>
+                                    <div class="data-value" style="white-space:pre-wrap; font-size:13px; color:#ccc;">${d.descripcion || 'Sin descripción adicional.'}</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Completado (si aplica) -->
-                        ${fFin ? `
-                        <div class="kd-info-row">
-                            <div class="kd-icon"><i class="bi bi-check2-all" style="color:#22c55e;"></i></div>
-                            <div>
-                                ${_label('Completado el')}
-                                <div style="color:#22c55e;font-size:13px;font-weight:700;">${fFin}</div>
+                        <!-- Formatos y Canales -->
+                        <div class="data-row">
+                            <div class="exp-card" style="margin-bottom:0;">
+                                <div class="exp-card-header"><i class="bi bi-broadcast"></i> <span>CANALES</span></div>
+                                <div class="exp-card-body">${renderTags(d.canales_difusion)}</div>
+                            </div>
+                            <div class="exp-card" style="margin-bottom:0;">
+                                <div class="exp-card-header"><i class="bi bi-layers"></i> <span>FORMATOS</span></div>
+                                <div class="exp-card-body">${renderTags(d.formatos_solicitados)}</div>
+                            </div>
+                        </div>
+
+                        <!-- Recursos -->
+                        <div class="exp-card" style="margin-top:25px;">
+                            <div class="exp-card-header"><i class="bi bi-folder-symlink"></i> <span>RECURSOS DEL CLIENTE</span></div>
+                            <div class="exp-card-body">
+                                ${arcClienteHtml}
+                                ${d.url_subida ? `
+                                <a href="${d.url_subida}" target="_blank" style="margin-top:20px; display:flex; align-items:center; justify-content:center; gap:10px; background:#F5C400; color:#000; padding:15px; border-radius:12px; font-weight:900; text-decoration:none; font-size:12px; letter-spacing:1px;">
+                                    <i class="bi bi-cloud-arrow-down-fill" style="font-size:20px;"></i> URL DEL CLIENTE
+                                </a>` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Entrega si existe -->
+                        ${(d.estado === 'en_revision' || d.estado === 'finalizado') ? `
+                        <div class="exp-card" style="border-color:#10b981; background:rgba(16,185,129,0.02);">
+                            <div class="exp-card-header" style="background:rgba(16,185,129,0.05); border-bottom-color:rgba(16,185,129,0.1);">
+                                <i class="bi bi-send-check" style="color:#10b981;"></i> <span style="color:#10b981;">ENTREGA Y RESULTADOS</span>
+                            </div>
+                            <div class="exp-card-body">
+                                <div class="data-box" style="margin-bottom:20px; border-color:rgba(16,185,129,0.2);">
+                                    <span class="data-label" style="color:#10b981;">Link de Entrega</span>
+                                    <div class="data-value">
+                                        ${d.url_entrega ? `<a href="${d.url_entrega}" target="_blank" style="color:#fff; text-decoration:underline; font-weight:800;">Abrir Proyecto Final <i class="bi bi-box-arrow-up-right ms-2"></i></a>` : 'No se adjuntó link.'}
+                                    </div>
+                                </div>
+                                <div class="data-box" style="margin-bottom:20px; border-color:rgba(16,185,129,0.2);">
+                                    <span class="data-label" style="color:#10b981;">Notas del Desarrollador</span>
+                                    <div class="data-value" style="font-size:13px; color:#aaa;">${d.observacion_revision || 'Sin notas adicionales.'}</div>
+                                </div>
+                                <span class="data-label" style="color:#10b981; margin-bottom:10px;">Archivos de Entrega</span>
+                                ${arcEmpleadoHtml}
                             </div>
                         </div>` : ''}
 
-                        <!-- Área de agencia -->
-                        <div class="kd-info-row">
-                            <div class="kd-icon"><i class="bi bi-building"></i></div>
-                            <div>
-                                ${_label('Área de agencia')}
-                                <div style="color:#f0f0f0;font-size:12px;font-weight:700;text-transform:uppercase;">${d.area_nombre || '---'}</div>
+                    </div>
+
+                    <!-- SIDEBAR -->
+                    <div class="exp-sidebar">
+                        
+                        <!-- Responsable -->
+                        <div class="exp-card">
+                            <div class="exp-card-header"><i class="bi bi-person-badge"></i> <span>RESPONSABLE</span></div>
+                            <div class="exp-card-body" style="padding:15px;">
+                                ${empleadoHtml}
                             </div>
                         </div>
 
-                        <!-- Modificaciones -->
-                        <div class="kd-info-row">
-                            <div class="kd-icon"><i class="bi bi-arrow-repeat"></i></div>
-                            <div>
-                                ${_label('Modificaciones')}
-                                <div style="color:#f0f0f0;font-size:13px;font-weight:700;">${d.num_modificaciones || 0}</div>
+                        <!-- Cronología -->
+                        <div class="exp-card">
+                            <div class="exp-card-header"><i class="bi bi-calendar3"></i> <span>CRONOLOGÍA</span></div>
+                            <div class="exp-card-body">
+                                <div style="display:flex; flex-direction:column; gap:15px;">
+                                    <div class="data-box">
+                                        <span class="data-label">Fecha de Solicitud</span>
+                                        <div class="data-value">${fSolFmt}</div>
+                                    </div>
+                                    <div class="data-box" style="border-color:#F5C40033; background:rgba(245,196,0,0.02);">
+                                        <span class="data-label" style="color:#F5C400;">Fecha Límite</span>
+                                        <div class="data-value" style="font-weight:900;">${fReq}</div>
+                                    </div>
+                                    ${d.fechainicio !== '---' && d.fechainicio !== '—' ? `
+                                    <div class="data-box">
+                                        <span class="data-label">Inicio de Trabajo</span>
+                                        <div class="data-value">${fIni}</div>
+                                    </div>` : ''}
+                                    ${d.fechacompletado !== '---' && d.fechacompletado !== '—' ? `
+                                    <div class="data-box" style="border-color:#10b98133;">
+                                        <span class="data-label" style="color:#10b981;">Completado</span>
+                                        <div class="data-value">${fFin}</div>
+                                    </div>` : ''}
+                                </div>
                             </div>
                         </div>
 
-                        <hr class="kd-hr">
-
-                        <!-- Estado actual -->
-                        <div>
-                            ${_label('Estado actual')}
-                            <div style="margin-top:6px;">${_pill(es.i, es.label, es.c, es.c + '18')}</div>
+                        <!-- Auditoría -->
+                        <div class="exp-card">
+                            <div class="exp-card-header"><i class="bi bi-shield-check"></i> <span>CONTROL</span></div>
+                            <div class="exp-card-body">
+                                <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:15px; border-radius:12px; border:1px solid #111;">
+                                    <span class="data-label" style="margin:0;">MODIFICACIONES</span>
+                                    <span style="background:#F5C400; color:#000; padding:4px 12px; border-radius:8px; font-weight:900; font-size:14px;">${d.num_modificaciones || 0}</span>
+                                </div>
+                            </div>
                         </div>
-
-                        <!-- Botón INICIAR TRABAJO:
-                             Solo aparece si hay empleado asignado y aún no inicia -->
-                        ${(d.idempleado && d.estado === 'pendiente_asignado') ? `
-                        <hr class="kd-hr">
-                        <button onclick="iniciarTrabajo(${d.id})"
-                            style="width:100%;margin-top:10px;background:#F5C400;color:#000;border:none;
-                                   padding:10px;border-radius:7px;font-family:'Bebas Neue',sans-serif;
-                                   font-size:16px;letter-spacing:2px;cursor:pointer;
-                                   display:flex;align-items:center;justify-content:center;gap:6px;">
-                            <i class="bi bi-play-fill"></i> INICIAR TRABAJO
-                        </button>` : ''}
 
                     </div>
                 </div>
 
+                <!-- FOOTER ACCIONES -->
+                <div style="margin-top:30px; padding:30px; border-top:1px solid #151515; display:flex; justify-content:center;">
+                    <button class="btn" data-dismiss="modal" style="background:#111; border:1px solid #222; font-family:'Bebas Neue'; font-size:20px; letter-spacing:2px; padding:12px 60px; border-radius:12px; color:#F5C400; transition:all 0.3s;">
+                        CERRAR EXPEDIENTE DIGITAL
+                    </button>
+                </div>
             </div>
-        </div>`;
-
-        // Título del modal
-        document.getElementById('detalle-titulo').innerHTML =
-            d.cliente_nombre ? d.cliente_nombre.toUpperCase() : 'CLIENTE';
-
-        cuerpo.innerHTML = html;
+        `;
 
     } catch (e) {
-        console.error(e);
-        cuerpo.innerHTML = _errorHtml('Error fatal al cargar los datos. Intente nuevamente.');
+        console.error("ERROR EN DETALLE:", e);
+        cuerpo.innerHTML = _errorHtml('Hubo un error al procesar el expediente. Por favor, intenta de nuevo.');
     }
 }
 
@@ -605,6 +517,34 @@ async function cambiarEstado(id, est, acc) {
     const data = await _post('admin/kanban/cambiarEstado', { idatencion: id, estado: est, accion: acc });
     if (data.status === 'success') location.reload();
     else alert(data.msg);
+}
+
+// ── SOLICITAR RETROALIMENTACIÓN AL REGRESAR A PROCESO ──
+function solicitarRetroalimentacion(id) {
+    document.getElementById('retro-idatencion').value = id;
+    document.getElementById('retro-mensaje').value = '';
+    $('#modalRetro').modal('show');
+}
+
+async function enviarRetroalimentacion() {
+    const id = document.getElementById('retro-idatencion').value;
+    const msg = document.getElementById('retro-mensaje').value;
+
+    if (!msg.trim()) {
+        alert('Por favor, escribe un mensaje de mejora.');
+        return;
+    }
+
+    const data = await _post('admin/kanban/regresarAProceso', {
+        idatencion: id,
+        mensaje: msg
+    });
+
+    if (data.status === 'success') {
+        location.reload();
+    } else {
+        alert(data.msg);
+    }
 }
 
 async function cancelarAtencion(id) {
@@ -637,8 +577,8 @@ function _resetModal(titulo, btnTexto, btnOnclick) {
 
 function _pill(icon, label, color, bg) {
     return `<span style="background:${bg};color:${color};border:1px solid ${color}33;
-        padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px;
-        text-transform:uppercase;display:inline-flex;align-items:center;gap:5px;">
+        padding:6px 14px;border-radius:20px;font-size:12px;font-weight:800;letter-spacing:0.5px;
+        text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;">
         <i class="bi ${icon}"></i>${label}</span>`;
 }
 
@@ -652,7 +592,7 @@ function _seccion(icon, titulo, color, innerHtml) {
 }
 
 function _label(texto) {
-    return `<span class="kd-label">${texto}</span>`;
+    return `<span style="color:#F5C400; font-size:12px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; display:block; margin-bottom:8px; border-bottom:2px solid #F5C400; padding-bottom:4px; display:inline-block; font-family:'Bebas Neue', sans-serif;">${texto}</span>`;
 }
 
 function _errorHtml(msg) {
@@ -685,42 +625,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const colProceso = document.querySelector('.kb-col-body[data-estado="en_proceso"]');
 
     if (colAprobar && colProceso) {
+        // Estilos para asegurar que toda la columna sea área de soltado
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .kb-col { display: flex !important; flex-direction: column !important; }
+            .kb-col-body { flex-grow: 1 !important; min-height: 500px !important; }
+        `;
+        document.head.appendChild(style);
+
+        // SOLO SE PUEDE SACAR DE AQUÍ
         new Sortable(colAprobar, {
-            // Permite mover la tarjeta a la columna destino (sin duplicar),
-            // manteniendo el flujo: al soltar, se actualiza el estado en backend.
             group: { name: 'kanban', pull: true, put: false },
-            sort: false,
-            draggable: '.kb-card',
-            animation: 150,
-            // Más estable en algunos navegadores/Windows
-            forceFallback: true,
-            fallbackOnBody: true
+            draggable: '.js-draggable',
+            animation: 150
         });
 
+        // SOLO SE PUEDE SOLTAR AQUÍ (NO REGRESAR)
         new Sortable(colProceso, {
             group: { name: 'kanban', pull: false, put: true },
-            draggable: '.kb-card',
+            draggable: '.js-draggable',
+            sort: false, // Desactivar el reordenamiento interno
             animation: 150,
-            // En "EN PROCESO" no se permite mover tarjetas
-            sort: false,
-            forceFallback: true,
-            fallbackOnBody: true,
             onAdd(evt) {
-                const card = evt.item;
-                const idAtencion = card.getAttribute('data-id');
-                card.style.opacity = '0.4';
-
+                const idAtencion = evt.item.getAttribute('data-id');
                 _post('admin/kanban/cambiarEstado', {
                     idatencion: idAtencion,
                     estado: 'pendiente_asignado',
-                    accion: `Requerimiento asignado al área: ${AREA_NOMBRE}.\nSu solicitud ha sido aprobada y derivada al departamento correspondiente para su gestión.`,
+                    accion: 'Aprobado vía arrastre',
                     idareaagencia: AREA_ACTUAL
-                }).then(data => {
-                    if (data.status === 'success') location.reload();
-                    else { alert(data.msg); location.reload(); }
-                }).catch(() => { alert('Error procesando solicitud'); location.reload(); });
+                }).then(() => location.reload()).catch(() => location.reload());
             }
         });
     }
 });
-

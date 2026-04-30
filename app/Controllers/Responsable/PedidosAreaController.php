@@ -125,7 +125,62 @@ class PedidosAreaController extends BaseResponsableController
     }
 
     /**
-     * Asignar un pedido a un empleado del área
+     * Lista de los Empleados, que se pueden asignar solicitudes del Area
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function empleadosMiAreaJson()
+    {
+        $user = $this->ValidarSesion_DatosUser();
+        if (!$user['ok']) {
+            return $this->response->setJSON(['success' => false, 'message' => $user['message']]);
+        }
+
+        $usuarioModel = new UsuarioModel();
+        $atencionModel = new AtencionModel();
+
+        $lista = $usuarioModel->obtenerAsignablesPorAreaAgencia((int) $user['user']['idarea_agencia']);
+
+        $data = array_map(function ($u) use ($atencionModel) {
+            $esResponsable = ($u['esresponsable'] === true || $u['esresponsable'] === 't' || $u['esresponsable'] == 1);
+
+            // Obtener todas las tareas del empleado
+            $tareas = $atencionModel->obtenerDetalladoPorEmpleado((int) $u['id']);
+
+            $enProceso = 0;
+            $completados = 0;
+            $pendientes = 0;
+
+            foreach ($tareas as $t) {
+                if ($t['estado'] === 'en_proceso') {
+                    $enProceso++;
+                } elseif ($t['estado'] === 'finalizado' || $t['estado'] === 'completado') {
+                    $completados++;
+                } else {
+                    $pendientes++;
+                }
+            }
+
+            return [
+                'id' => (int) $u['id'],
+                'nombre_completo' => trim(($u['nombre'] ?? '') . ' ' . ($u['apellidos'] ?? '')),
+                'esresponsable' => $esResponsable,
+                'en_proceso' => $enProceso,
+                'completados' => $completados,
+                'pendientes' => $pendientes
+            ];
+        }, $lista);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'total' => count($data),
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * Asignar la Solicitud Requerimiento (Atencion) a un Empleado
+     * @throws \RuntimeException
+     * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function asignarPedido()
     {
@@ -158,12 +213,21 @@ class PedidosAreaController extends BaseResponsableController
         $db = \Config\Database::connect();
         $db->transBegin();
         try {
-            $atencionModel->update($idAtencion, ['idempleado' => $idUsuarioAsignado, 'estado' => 'en_proceso']);
+
+            // 3) Solo asignar empleado. El estado sigue pendiente_asignado.
+            //    El empleado debe pulsar "Iniciar Trabajo" para pasar a en_proceso.
+            $ok = $atencionModel->update($idAtencion, [
+                'idempleado' => $idUsuarioAsignado,
+            ]);
+            if (!$ok) {
+                throw new \RuntimeException('No se pudo actualizar la atención.');
+            }
+            // 4) Tracking
             $trackingModel->insert([
                 'idatencion' => $idAtencion,
-                'idusuario' => $userS['user']['id'],
-                'accion' => "Proyecto en desarrollo.\nEl especialista " . trim($empleado['nombre'] . ' ' . $empleado['apellidos']) . " ha sido asignado.",
-                'estado' => 'en_proceso',
+                'idusuario' => $idResponsable,
+                'accion' => "Empleado asignado al pedido.\nEl especialista " . trim($empleado['nombre'] . ' ' . $empleado['apellidos']) . " ha sido designado para este requerimiento. Pendiente de inicio.",
+                'estado' => 'pendiente_asignado',
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
             $db->transCommit();
