@@ -35,10 +35,11 @@
         <table class="tabla-rf-responsable" id="tablaBandeja">
             <thead>
                 <tr>
-                    <th>#</th>
                     <th>Título</th>
                     <th>Servicio</th>
-                    <th>Empresa/Cliente</th>
+                    <th>Empresa</th>
+                    <th>Área</th>
+                    <th>Usuario</th>
                     <th>Prioridad</th>
                     <th>Fecha Solicitud</th>
                     <th>Estado</th>
@@ -53,6 +54,37 @@
     <div id="estado-vacio" class="estado-vacio d-none">
         <i class="bi bi-inbox"></i>
         <p>No hay solicitudes pendientes en tu bandeja</p>
+    </div>
+</div>
+
+<!-- NUEVA SECCIÓN: PENDIENTES DE REVISIÓN -->
+<div class="mt-5 mb-4">
+    <div class="seccion-titulo">TAREAS ENVIADAS (ESPERANDO REVISIÓN)</div>
+    <p class="mb-0" style="color:#a1a1aa; font-size:14px;">Trabajos completados por el equipo que esperan aprobación final</p>
+</div>
+
+<div class="card-rf" style="overflow:hidden;">
+    <div class="table-responsive">
+        <table class="tabla-rf-responsable" id="tablaRevision">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Ejecutor</th>
+                    <th>Empresa</th>
+                    <th>Área</th>
+                    <th>Usuario</th>
+                    <th>Servicio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="contenido-revision">
+                <!-- Contenido cargado dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+    <div id="estado-vacio-revision" class="estado-vacio d-none">
+        <i class="bi bi-send-check"></i>
+        <p>No hay tareas pendientes de revisión en este momento</p>
     </div>
 </div>
 
@@ -107,8 +139,30 @@
     </div>
 </div>
 
+<!-- Modal Ver Detalle Requerimiento -->
+<div class="modal fade" id="modal-ver-detalle" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content modal-rf">
+            <div class="modal-header modal-rf-header">
+                <div>
+                    <p class="campo-label mb-1">DETALLE DEL REQUERIMIENTO</p>
+                    <h5 class="modal-title mb-0" id="detalle-titulo-requerimiento">Detalles completos</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body modal-rf-body p-4" id="detalle-contenido">
+                <!-- Contenido cargado dinámicamente -->
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     const base_url = "<?= base_url() ?>";
+    window.base_url = base_url;
 </script>
 
 <?= $this->endSection() ?>

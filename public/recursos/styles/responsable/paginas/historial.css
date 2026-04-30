@@ -1,0 +1,225 @@
+/* 
+    RF MARKETING - Dashboard Responsable
+    Historial View Styles
+*/
+
+:root {
+    --bg-dark: #070707;
+    --panel: #0d0d0d;
+    --borde: #1e1e1e;
+    --amarillo: #F5C400;
+    --amarillo-glow: rgba(245, 196, 0, 0.15);
+    --texto: #f0f0f0;
+    --texto-dim: #a1a1aa;
+    --verde: #22c55e;
+    --verde-glow: rgba(34, 197, 94, 0.1);
+}
+
+.historial-container {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tabs Styling */
+.historial-tabs {
+    background: var(--panel);
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid var(--borde);
+    display: flex;
+    gap: 5px;
+    margin-bottom: 25px;
+}
+
+.historial-tabs .nav-item {
+    flex: 1;
+}
+
+.historial-tabs .nav-link {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: var(--texto-dim);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 1px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.historial-tabs .nav-link.active {
+    background: var(--amarillo);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(245, 196, 0, 0.2);
+}
+
+.historial-tabs .nav-link:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--texto);
+}
+
+/* Card Styling */
+.pedido-card-historial {
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.pedido-card-historial:hover {
+    border-color: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.pedido-card-historial::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--verde);
+    opacity: 0.7;
+}
+
+.historial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.historial-empresa {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--texto-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.historial-titulo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: #fff;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.historial-status {
+    background: var(--verde-glow);
+    color: var(--verde);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.historial-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    padding: 15px 0;
+    border-top: 1px solid rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.historial-info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.historial-info-label {
+    font-size: 9px;
+    color: var(--texto-dim);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.historial-info-value {
+    font-size: 13px;
+    color: #ddd;
+    font-weight: 500;
+}
+
+.historial-info-value i {
+    color: var(--amarillo);
+    margin-right: 5px;
+}
+
+.historial-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 15px;
+}
+
+.btn-historial-detalle {
+    background: transparent;
+    border: 1px solid #333;
+    color: #eee;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-historial-detalle:hover {
+    background: #fff;
+    color: #000;
+    border-color: #fff;
+}
+
+/* Empty State */
+.historial-empty {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--panel);
+    border: 1px dashed var(--borde);
+    border-radius: 20px;
+    margin-top: 20px;
+}
+
+.historial-empty i {
+    font-size: 40px;
+    color: var(--texto-dim);
+    margin-bottom: 15px;
+    display: block;
+    opacity: 0.5;
+}
+
+.historial-empty p {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--texto-dim);
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+/* Modal Enhancements (reuse from en_proceso if possible, but keep specific ones here) */
+.modal-historial-content {
+    background: #0a0a0a !important;
+    border: 1px solid #1e1e1e !important;
+    border-radius: 18px !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}

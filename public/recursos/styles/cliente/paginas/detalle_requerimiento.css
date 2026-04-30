@@ -212,12 +212,18 @@
   font-weight: 700;
   letter-spacing: 1px;
   margin-bottom: 8px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 
 .info-block p {
   color: #eee;
   font-size: 16px;
   margin-bottom: 0;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 .full-width {
   grid-column: span 2;
@@ -555,6 +561,7 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
+  min-height: auto;
 }
 
 .content-box .content-text {
@@ -564,6 +571,7 @@
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Para títulos largos - MEJORADO */

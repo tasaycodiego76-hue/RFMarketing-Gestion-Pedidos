@@ -1,0 +1,228 @@
+/* ===== ESTADÍSTICAS ===== */
+.stat-card {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    transition: border-color 0.3s ease;
+}
+
+.stat-card:hover {
+    border-color: #f5c400;
+}
+
+.stat-label {
+    color: #888;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.stat-value {
+    color: #fff;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.stat-icon {
+    font-size: 1.8rem;
+    color: #f5c400;
+    opacity: 0.7;
+}
+
+/* ===== EMPLEADO CARD ===== */
+.card-dark-main {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.empleado-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #2a2a2a;
+    border: 2px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.empleado-avatar.responsable {
+    border-color: #f5c400;
+    background: rgba(245, 196, 0, 0.15);
+    color: #f5c400;
+}
+
+.empleado-avatar.me {
+    box-shadow: 0 0 10px rgba(245, 196, 0, 0.4);
+}
+
+.card-dark-main.border-me {
+    border: 1px solid #f5c400;
+    background: linear-gradient(180deg, #1d1d1d 0%, #1a1a1a 100%);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== TARJETAS DE TAREAS ===== */
+.tarea-item {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid #2a2a2a;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+.tarea-item:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: #444;
+}
+
+.tarea-titulo {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 0;
+    line-height: 1.4;
+}
+
+/* ===== MODAL DETALLE ===== */
+.modal-detalle-content {
+    background: #111 !important;
+    border: 1px solid #2a2a2a;
+    color: #fff;
+}
+
+.modal-detalle-header {
+    background: #161616;
+    border-bottom: 1px solid #2a2a2a !important;
+    padding: 16px 24px;
+}
+
+.modal-detalle-header .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.modal-detalle-body {
+    padding: 24px;
+    background: #111;
+}
+
+.modal-detalle-footer {
+    background: #161616;
+    border-top: 1px solid #2a2a2a !important;
+    padding: 12px 24px;
+}
+
+/* Secciones dentro del modal */
+.detalle-section {
+    margin-bottom: 24px;
+}
+
+.detalle-section-title {
+    color: #f5c400;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.detalle-field {
+    margin-bottom: 14px;
+}
+
+.detalle-label {
+    color: #666;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.detalle-value {
+    color: #e0e0e0;
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+.content-box {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 10px 14px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.content-text {
+    color: #ccc;
+    font-size: 13px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+/* Archivo items en modal */
+.archivo-item {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: border-color 0.2s;
+}
+
+.archivo-item:hover {
+    border-color: #f5c400;
+}
+
+/* URL item en modal */
+.url-item {
+    background: rgba(245, 196, 0, 0.05);
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+.url-item a {
+    color: #f5c400 !important;
+}
+
+/* Badges limpios */
+.badge-prio {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-prio.alta { background: #dc3545; color: #fff; }
+.badge-prio.media { background: #f5c400; color: #000; }
+.badge-prio.baja { background: #444; color: #ccc; }
+
+.badge-estado {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 4px;
+}
+
+.badge-list-item {
+    background: #2a2a2a;
+    color: #ccc;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 400;
+}

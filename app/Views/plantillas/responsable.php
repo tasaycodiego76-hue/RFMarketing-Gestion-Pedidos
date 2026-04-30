@@ -50,7 +50,7 @@
             // Calculamos iniciales del responsable
             $nombre = $user['nombre'] ?? 'Responsable';
             $apellidos = $user['apellidos'] ?? '';
-            $nombre_area = $user['area_nombre'] ?? $user['nombre_area'] ?? 'Área no asignada';
+            $nombre_area = $user['area_nombre'] ?? $user['nombre_area'] ?? $user['nombre_areaagencia'] ?? 'Área no asignada';
             $n_ini = substr($nombre, 0, 1);
             $a_ini = substr($apellidos, 0, 1);
             $iniciales = strtoupper($n_ini . $a_ini);
@@ -109,7 +109,7 @@
                     <a href="<?= base_url('responsable/en-proceso') . '?test_user=' . ($user['id'] ?? '') ?>"
                         class="nav-link-item <?= (uri_string() == 'responsable/en-proceso') ? 'active' : '' ?>">
                         <span class="nav-icon"><i class="bi bi-kanban-fill"></i></span>
-                        <span class="nav-text">En Proceso</span>
+                        <span class="nav-text">Gestión de Área</span>
                         <?php if (isset($en_proceso) && $en_proceso > 0): ?>
                             <span class="nav-badge accent">
                                 <?= $en_proceso ?>
@@ -117,6 +117,7 @@
                         <?php endif; ?>
                     </a>
                 </li>
+
 
                 <!-- Historial - Completados / devueltos -->
                 <li>
@@ -149,24 +150,6 @@
                         <?php if (isset($devoluciones) && $devoluciones > 0): ?>
                             <span class="nav-badge warning">
                                 <?= $devoluciones ?>
-                            </span>
-                        <?php endif; ?>
-                    </a>
-                </li>
-            </ul>
-
-            <!-- Seccion: Alertas -->
-            <p class="nav-section-label mt-3">ALERTAS</p>
-            <ul>
-                <!-- Notificaciones -->
-                <li>
-                    <a href="<?= base_url('responsable/notificaciones') ?>"
-                        class="nav-link-item <?= (uri_string() == 'responsable/notificaciones') ? 'active' : '' ?>">
-                        <span class="nav-icon"><i class="bi bi-bell-fill"></i></span>
-                        <span class="nav-text">Notificaciones</span>
-                        <?php if (isset($notif_no_leidas) && $notif_no_leidas > 0): ?>
-                            <span class="nav-badge notif">
-                                <?= $notif_no_leidas ?>
                             </span>
                         <?php endif; ?>
                     </a>
