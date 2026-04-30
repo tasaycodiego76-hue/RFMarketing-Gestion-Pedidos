@@ -156,7 +156,9 @@ class EquipoController extends BaseResponsableController
         $tareasPorEmpleado = [];
 
         foreach ($empleados as $empleado) {
-            $tareas = $atencionModel->obtenerTareasPorEmpleadoEstado($empleado['id'], 'en_proceso');
+            $tareas = $atencionModel->where('idempleado', $empleado['id'])
+                                    ->whereIn('estado', ['en_proceso', 'pendiente_asignado'])
+                                    ->findAll();
             $tareasDetalladas = [];
             foreach ($tareas as $tarea) {
                 $detalle = $requerimientoModel->getDetalleCompleto($tarea['idrequerimiento']);
@@ -206,7 +208,9 @@ class EquipoController extends BaseResponsableController
 
         $atencionModel = new AtencionModel();
         $requerimientoModel = new RequerimientoModel();
-        $tareas = $atencionModel->obtenerTareasPorEmpleadoEstado($idEmpleado, 'en_proceso');
+        $tareas = $atencionModel->where('idempleado', $idEmpleado)
+                                ->whereIn('estado', ['en_proceso', 'pendiente_asignado'])
+                                ->findAll();
 
         $tareasDetalladas = [];
         foreach ($tareas as $tarea) {

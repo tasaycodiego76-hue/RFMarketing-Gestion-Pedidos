@@ -225,7 +225,7 @@ class PedidosAreaController extends BaseResponsableController
             // 4) Tracking
             $trackingModel->insert([
                 'idatencion' => $idAtencion,
-                'idusuario' => $idResponsable,
+                'idusuario' => $userS['user']['id'],
                 'accion' => "Empleado asignado al pedido.\nEl especialista " . trim($empleado['nombre'] . ' ' . $empleado['apellidos']) . " ha sido designado para este requerimiento. Pendiente de inicio.",
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')

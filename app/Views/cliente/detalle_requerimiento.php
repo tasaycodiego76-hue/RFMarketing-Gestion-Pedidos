@@ -277,7 +277,7 @@
                             $kb = number_format(($archivo['tamano'] ?? 0) / 1024, 1);
                             $nombreArchivo = basename($archivo['ruta'] ?? '');
                             ?>
-                            <a href="<?= base_url('cliente/archivos/' . $nombreArchivo) ?>" target="_blank"
+                            <a href="<?= base_url('cliente/archivos/' . ($archivo['id'] ?? '')) ?>" target="_blank"
                                 class="archivo-adjunto-card cliente-file" title="<?= esc($archivo['nombre']) ?>">
                                 <i class="bi <?= $icono ?>"></i>
                                 <div class="archivo-info">

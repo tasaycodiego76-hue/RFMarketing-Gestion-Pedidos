@@ -135,5 +135,5 @@ $routes->group('cliente', ['filter' => 'auth'], function ($routes) {
     $routes->get('requerimiento/seguimiento/(:num)', 'Cliente\TrackingController::seguimiento/$1');
 
     // RECURSOS
-    $routes->get('archivos/(:segment)', 'Cliente\RequerimientoController::verArchivo/$1');
+    $routes->get('archivos/(:num)', 'Cliente\RequerimientoController::verArchivo/$1');
 });

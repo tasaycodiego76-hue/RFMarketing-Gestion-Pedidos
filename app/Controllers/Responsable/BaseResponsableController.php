@@ -54,7 +54,7 @@ class BaseResponsableController extends BaseController
 
         return [
             'pendientes_asignar' => count($atencionModel->obtenerBandejaResponsable($idAreaAgencia)),
-            'en_proceso' => $atencionModel->where('idarea_agencia', $idAreaAgencia)->where('estado', 'en_proceso')->countAllResults(),
+            'en_proceso' => $atencionModel->where('idarea_agencia', $idAreaAgencia)->whereIn('estado', ['en_proceso', 'pendiente_asignado'])->where('idempleado >', 0)->countAllResults(),
             'enRevision' => $atencionModel->where('idarea_agencia', $idAreaAgencia)->where('estado', 'en_revision')->countAllResults(),
             'completados' => $atencionModel->where('idarea_agencia', $idAreaAgencia)->where('estado', 'finalizado')->countAllResults(),
             'totalMiembros' => count($usuarioModel->obtenerAsignablesPorAreaAgencia($idAreaAgencia)),

@@ -1,23 +1,27 @@
 function verDetalleSolicitud(id) {
-    const modal = $('#modal');
-    const titulo = $('#modal-titulo');
-    const cuerpo = $('#modal-cuerpo');
-    const pie = $('#modal-pie');
+  const modal = $("#modal");
+  const titulo = $("#modal-titulo");
+  const cuerpo = $("#modal-cuerpo");
+  const pie = $("#modal-pie");
 
-    Swal.fire({ 
-        title: 'Cargando expediente...', 
-        background: '#0a0a0a', 
-        color: '#fff', 
-        didOpen: () => { Swal.showLoading(); } 
-    });
+  Swal.fire({
+    title: "Cargando expediente...",
+    background: "#0a0a0a",
+    color: "#fff",
+    didOpen: () => {
+      Swal.showLoading();
+    },
+  });
 
-    $.get(`${BASE_URL}/empleado/pedido-detalle/${id}`, function(res) {
-        Swal.close();
-        if(res.status === 'success') {
-            const d = res.data;
-            titulo.html(`<i class="bi bi-file-earmark-text mr-2" style="color:var(--amarillo);"></i> EXPEDIENTE: #REQ-${d.idrequerimiento}`);
-            
-            let html = `
+  $.get(`${BASE_URL}/empleado/pedido-detalle/${id}`, function (res) {
+    Swal.close();
+    if (res.status === "success") {
+      const d = res.data;
+      titulo.html(
+        `<i class="bi bi-file-earmark-text mr-2" style="color:var(--amarillo);"></i> EXPEDIENTE: #REQ-${d.idrequerimiento}`,
+      );
+
+      let html = `
                 <div style="font-family:'DM Sans', sans-serif;">
                     <!-- CABECERA RÁPIDA -->
                     <div class="mb-4" style="background:rgba(245, 196, 0, 0.03); border:1px solid rgba(245, 196, 0, 0.1); border-radius:12px; padding:20px;">
@@ -28,7 +32,7 @@ function verDetalleSolicitud(id) {
                                 <p style="color:var(--amarillo); font-weight:600; margin:5px 0 0; font-size:13px; text-transform:uppercase;">${d.nombreempresa} — ${d.servicio}</p>
                             </div>
                             <div class="col-md-4 text-md-right mt-3 mt-md-0">
-                                <span class="task-status-pill pill-process" style="padding:6px 12px; font-size:11px;">${d.estado.replace('_', ' ')}</span>
+                                <span class="task-status-pill pill-process" style="padding:6px 12px; font-size:11px;">${d.estado.replace("_", " ")}</span>
                             </div>
                         </div>
                     </div>
@@ -40,12 +44,12 @@ function verDetalleSolicitud(id) {
                             <div style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e;">
                                 <div class="mb-4">
                                     <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:8px;">Lo que el cliente busca:</small>
-                                    <p style="color:#eee; font-size:14px; line-height:1.6; margin:0;">${d.objetivo_comunicacion || 'No especificado'}</p>
+                                    <p style="color:#eee; font-size:14px; line-height:1.6; margin:0;">${d.objetivo_comunicacion || "No especificado"}</p>
                                 </div>
                                 <hr style="border-top:1px solid #1a1a1a; margin:15px 0;">
                                 <div>
                                     <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:8px;">Instrucciones / Brief:</small>
-                                    <div style="color:#bbb; font-size:13px; line-height:1.7; white-space:pre-wrap;">${d.descripcion || 'Sin descripción detallada.'}</div>
+                                    <div style="color:#bbb; font-size:13px; line-height:1.7; white-space:pre-wrap;">${d.descripcion || "Sin descripción detallada."}</div>
                                 </div>
                             </div>
                         </div>
@@ -55,15 +59,15 @@ function verDetalleSolicitud(id) {
                             <div style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e; height:calc(100% - 31px);">
                                 <div class="mb-3">
                                     <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:4px;">Canales:</small>
-                                    <p style="color:#eee; font-size:13px; margin:0;">${d.canales_difusion ? JSON.parse(d.canales_difusion).join(', ') : '---'}</p>
+                                    <p style="color:#eee; font-size:13px; margin:0;">${d.canales_difusion ? JSON.parse(d.canales_difusion).join(", ") : "---"}</p>
                                 </div>
                                 <div class="mb-3">
                                     <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:4px;">Formatos:</small>
-                                    <p style="color:#eee; font-size:13px; margin:0;">${d.formatos_solicitados ? JSON.parse(d.formatos_solicitados).join(', ') : '---'}</p>
+                                    <p style="color:#eee; font-size:13px; margin:0;">${d.formatos_solicitados ? JSON.parse(d.formatos_solicitados).join(", ") : "---"}</p>
                                 </div>
                                 <div>
                                     <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:4px;">Público:</small>
-                                    <p style="color:#eee; font-size:13px; margin:0;">${d.publico_objetivo || '---'}</p>
+                                    <p style="color:#eee; font-size:13px; margin:0;">${d.publico_objetivo || "---"}</p>
                                 </div>
                             </div>
                         </div>
@@ -79,54 +83,79 @@ function verDetalleSolicitud(id) {
                 </div>
             `;
 
-            cuerpo.html(html);
-            pie.html('<button class="task-primary-btn btn-view" data-dismiss="modal">ENTENDIDO, VOLVER</button>');
-            
-            // Archivos
-            if(res.archivos && res.archivos.length > 0) {
-                let arcHtml = '<div style="display:flex; flex-direction:column; gap:8px;">';
-                res.archivos.forEach(a => {
-                    arcHtml += `
+      cuerpo.html(html);
+      pie.html(
+        '<button class="task-primary-btn btn-view" data-dismiss="modal">ENTENDIDO, VOLVER</button>',
+      );
+
+      // Archivos
+      if (res.archivos && res.archivos.length > 0) {
+        let arcHtml =
+          '<div style="display:flex; flex-direction:column; gap:8px;">';
+        res.archivos.forEach((a) => {
+          arcHtml += `
                         <a href="${BASE_URL}/${a.ruta}" target="_blank" style="display:flex; align-items:center; gap:10px; padding:10px; background:#161616; border:1px solid #222; border-radius:8px; color:#aaa; text-decoration:none; font-size:12px; transition:border-color .2s;" onmouseover="this.style.borderColor='var(--amarillo)'" onmouseout="this.style.borderColor='#222'">
                             <i class="bi bi-cloud-arrow-down" style="color:var(--amarillo); font-size:16px;"></i>
                             <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${a.nombre}</span>
                         </a>`;
-                });
-                arcHtml += '</div>';
-                $('#lista-archivos-requerimiento').html(arcHtml);
-            } else {
-                $('#lista-archivos-requerimiento').html('<p style="font-size:11px; color:#444; font-style:italic;">No hay archivos adjuntos.</p>');
-            }
+        });
+        arcHtml += "</div>";
+        $("#lista-archivos-requerimiento").html(arcHtml);
+      } else {
+        $("#lista-archivos-requerimiento").html(
+          '<p style="font-size:11px; color:#444; font-style:italic;">No hay archivos adjuntos.</p>',
+        );
+      }
 
-            // Enlaces
-            let linkHtml = '';
-            if(d.url_subida) {
-                linkHtml += `
+      // Enlaces
+      let linkHtml = "";
+      if (d.url_subida) {
+        linkHtml += `
                     <div style="margin-top:10px;">
                         <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:9px; display:block; margin-bottom:5px;">Link de referencia:</small>
                         <a href="${d.url_subida}" target="_blank" style="color:var(--amarillo); font-size:12px; text-decoration:underline; word-break:break-all;">${d.url_subida}</a>
                     </div>`;
-            }
-            $('#lista-enlaces-requerimiento').html(linkHtml || '<p style="font-size:11px; color:#444; font-style:italic;">No hay enlaces externos.</p>');
+      }
+      if (d.url_entrega) {
+        linkHtml += `
+                    <div style="margin-top:10px;">
+                        <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:9px; display:block; margin-bottom:5px;">Link de entrega:</small>
+                        <a href="${d.url_entrega}" target="_blank" style="color:#10b981; font-size:12px; text-decoration:underline; word-break:break-all;">${d.url_entrega}</a>
+                    </div>`;
+      }
+      $("#lista-enlaces-requerimiento").html(
+        linkHtml ||
+          '<p style="font-size:11px; color:#444; font-style:italic;">No hay enlaces externos.</p>',
+      );
 
-            modal.modal('show');
-        } else {
-            Swal.fire({ icon: 'error', title: 'Error', text: res.message, background: '#0a0a0a', color: '#fff' });
-        }
-    });
+      modal.modal("show");
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: res.message,
+        background: "#0a0a0a",
+        color: "#fff",
+      });
+    }
+  });
 }
 
 function abrirModalAccion(id, tipo) {
-    const modal = $('#modal');
-    const titulo = $('#modal-titulo');
-    const cuerpo = $('#modal-cuerpo');
-    const pie = $('#modal-pie');
+  const modal = $("#modal");
+  const titulo = $("#modal-titulo");
+  const cuerpo = $("#modal-cuerpo");
+  const pie = $("#modal-pie");
 
-    pie.html('<button class="task-primary-btn btn-view" data-dismiss="modal">CANCELAR</button>');
+  pie.html(
+    '<button class="task-primary-btn btn-view" data-dismiss="modal">CANCELAR</button>',
+  );
 
-    if(tipo === 'iniciar') {
-        titulo.html('<i class="bi bi-play-circle mr-2"></i> Confirmar Inicio de Trabajo');
-        cuerpo.html(`
+  if (tipo === "iniciar") {
+    titulo.html(
+      '<i class="bi bi-play-circle mr-2"></i> Confirmar Inicio de Trabajo',
+    );
+    cuerpo.html(`
             <div class="text-center py-4">
                 <div style="width:60px; height:60px; background:rgba(245, 196, 0, 0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
                     <i class="bi bi-lightning-charge-fill" style="color:var(--amarillo); font-size:24px;"></i>
@@ -135,10 +164,14 @@ function abrirModalAccion(id, tipo) {
                 <p style="color:var(--texto-3); font-size:13px;">Se notificará al administrador que has tomado este pedido y comenzarás a trabajar en él ahora mismo.</p>
             </div>
         `);
-        pie.append(`<button class="task-primary-btn btn-start" onclick="ejecutarAccion(${id}, 'iniciar')">SÍ, EMPEZAR AHORA</button>`);
-    } else if(tipo === 'entregar') {
-        titulo.html('<i class="bi bi-cloud-arrow-up mr-2"></i> Enviar Trabajo Terminado');
-        cuerpo.html(`
+    pie.append(
+      `<button class="task-primary-btn btn-start" onclick="ejecutarAccion(${id}, 'iniciar')">SÍ, EMPEZAR AHORA</button>`,
+    );
+  } else if (tipo === "entregar") {
+    titulo.html(
+      '<i class="bi bi-cloud-arrow-up mr-2"></i> Enviar Trabajo Terminado',
+    );
+    cuerpo.html(`
             <div class="p-2">
                 <form id="form-entrega">
                     <div class="form-group mb-4">
@@ -167,66 +200,103 @@ function abrirModalAccion(id, tipo) {
                 </form>
             </div>
         `);
-        pie.append(`<button class="task-primary-btn btn-deliver" onclick="ejecutarAccion(${id}, 'entregar')">FINALIZAR Y ENTREGAR</button>`);
-    }
+    pie.append(
+      `<button class="task-primary-btn btn-deliver" onclick="ejecutarAccion(${id}, 'entregar')">FINALIZAR Y ENTREGAR</button>`,
+    );
+  }
 
-    modal.modal('show');
+  modal.modal("show");
 }
 
 function ejecutarAccion(id, tipo) {
-    let url = tipo === 'iniciar' ? `${BASE_URL}/empleado/pedido-iniciar/${id}` : `${BASE_URL}/empleado/pedido-entregar/${id}`;
-    let formData = new FormData();
+  let url =
+    tipo === "iniciar"
+      ? `${BASE_URL}/empleado/pedido-iniciar/${id}`
+      : `${BASE_URL}/empleado/pedido-entregar/${id}`;
+  let formData = new FormData();
 
-    if(tipo === 'entregar') {
-        const link = $('#url_entrega').val();
-        const files = $('#archivos_entrega')[0].files;
-        const notas = $('#notas').val();
+  if (tipo === "entregar") {
+    const link = $("#url_entrega").val();
+    const files = $("#archivos_entrega")[0].files;
+    const notas = $("#notas").val();
 
-        if(!link && files.length === 0) {
-            Swal.fire({ icon: 'warning', title: 'Falta información', text: 'Por favor, proporciona un enlace o adjunta los archivos de tu trabajo.', background: '#0a0a0a', color: '#fff' });
-            return;
-        }
-
-        formData.append('url_entrega', link);
-        formData.append('notas', notas);
-        for(let i=0; i<files.length; i++) {
-            formData.append('archivos_entrega[]', files[i]);
-        }
+    if (!link && files.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Falta información",
+        text: "Por favor, proporciona un enlace o adjunta los archivos de tu trabajo.",
+        background: "#0a0a0a",
+        color: "#fff",
+      });
+      return;
     }
 
-    Swal.fire({
-        title: '¿Confirmar envío?',
-        text: 'Asegúrate de que todo esté correcto.',
-        background: '#0a0a0a',
-        color: '#fff',
-        confirmButtonColor: '#F5C400',
-        confirmButtonText: 'SÍ, CONFIRMAR',
-        cancelButtonText: 'CANCELAR',
-        showCancelButton: true
-    }).then((result) => {
-        if(result.isConfirmed) {
-            Swal.fire({ title: 'Procesando...', background: '#0a0a0a', color: '#fff', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+    formData.append("url_entrega", link);
+    formData.append("notas", notas);
+    for (let i = 0; i < files.length; i++) {
+      formData.append("archivos_entrega[]", files[i]);
+    }
+  }
 
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                success: function(res) {
-                    if(res.status === 'success') {
-                        Swal.fire({ icon: 'success', title: '¡Hecho!', text: res.message, background: '#0a0a0a', color: '#fff' }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: res.message, background: '#0a0a0a', color: '#fff' });
-                    }
-                },
-                error: function() {
-                    Swal.fire({ icon: 'error', title: 'Error fatal', text: 'No se pudo procesar la solicitud.', background: '#0a0a0a', color: '#fff' });
-                }
+  Swal.fire({
+    title: "¿Confirmar envío?",
+    text: "Asegúrate de que todo esté correcto.",
+    background: "#0a0a0a",
+    color: "#fff",
+    confirmButtonColor: "#F5C400",
+    confirmButtonText: "SÍ, CONFIRMAR",
+    cancelButtonText: "CANCELAR",
+    showCancelButton: true,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "Procesando...",
+        background: "#0a0a0a",
+        color: "#fff",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      $.ajax({
+        url: url,
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: "json",
+        success: function (res) {
+          if (res.status === "success") {
+            Swal.fire({
+              icon: "success",
+              title: "¡Hecho!",
+              text: res.message,
+              background: "#0a0a0a",
+              color: "#fff",
+            }).then(() => {
+              location.reload();
             });
-        }
-    });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: res.message,
+              background: "#0a0a0a",
+              color: "#fff",
+            });
+          }
+        },
+        error: function () {
+          Swal.fire({
+            icon: "error",
+            title: "Error fatal",
+            text: "No se pudo procesar la solicitud.",
+            background: "#0a0a0a",
+            color: "#fff",
+          });
+        },
+      });
+    }
+  });
 }

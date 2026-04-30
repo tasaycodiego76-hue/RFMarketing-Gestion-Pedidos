@@ -146,7 +146,7 @@ class kanban extends Controller
 
         // 3. Procesamiento de datos adicionales
         // NO decodificar JSON aquí, dejar que el JS lo maneje con _parseList
-        
+
         foreach (['fecharequerida', 'fechainicio', 'fechafin', 'fechacompletado'] as $campo) {
             $data[$campo] = !empty($data[$campo]) ? date('d M Y', strtotime($data[$campo])) : '—';
         }
@@ -322,8 +322,21 @@ class kanban extends Controller
             $obs = null;
             if ($nuevoEstado === 'en_proceso') {
                 $obs = 'Corrección solicitada por Administración';
+                // Limpiar la entrega anterior
+                $db->query("UPDATE atencion SET estado = ?, observacion_revision = ?, url_entrega = NULL WHERE id = ?", [$nuevoEstado, $obs, $idAtencion]);
+
+                $archivoModel = new ArchivoModel();
+                $archivosAnteriores = $archivoModel->where('idatencion', $idAtencion)->findAll();
+                foreach ($archivosAnteriores as $archivo) {
+                    $rutaCompleta = FCPATH . $archivo['ruta'];
+                    if (file_exists($rutaCompleta)) {
+                        unlink($rutaCompleta);
+                    }
+                    $archivoModel->delete($archivo['id']);
+                }
+            } else {
+                $db->query("UPDATE atencion SET estado = ?, observacion_revision = ? WHERE id = ?", [$nuevoEstado, $obs, $idAtencion]);
             }
-            $db->query("UPDATE atencion SET estado = ?, observacion_revision = ? WHERE id = ?", [$nuevoEstado, $obs, $idAtencion]);
         }
 
         $db->query("
@@ -394,7 +407,18 @@ class kanban extends Controller
         }
 
         // 1. Actualizar estado del pedido a 'en_proceso' e incrementar modificaciones
-        $db->query("UPDATE atencion SET estado = 'en_proceso', num_modificaciones = num_modificaciones + 1 WHERE id = ?", [$idAtencion]);
+        $db->query("UPDATE atencion SET estado = 'en_proceso', num_modificaciones = num_modificaciones + 1, url_entrega = NULL, observacion_revision = NULL WHERE id = ?", [$idAtencion]);
+
+        // 1.5. Limpiar los archivos entregados anteriormente (para no mostrarlos de nuevo)
+        $archivoModel = new ArchivoModel();
+        $archivosAnteriores = $archivoModel->where('idatencion', $idAtencion)->findAll();
+        foreach ($archivosAnteriores as $archivo) {
+            $rutaCompleta = FCPATH . $archivo['ruta'];
+            if (file_exists($rutaCompleta)) {
+                unlink($rutaCompleta);
+            }
+            $archivoModel->delete($archivo['id']);
+        }
 
         // 2. Registrar en la tabla de retroalimentación
         $retroModel->insert([

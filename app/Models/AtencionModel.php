@@ -146,7 +146,7 @@ class AtencionModel extends Model
     {
         $sql = "
             SELECT
-                a.id, a.titulo, a.estado, a.prioridad, a.fechafin,
+                a.id, a.titulo, a.estado, a.prioridad, a.fechafin, a.num_modificaciones,
                 a.fechainicio, a.fechacreacion, a.idempleado, a.idrequerimiento,
                 a.idarea_agencia,
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
@@ -299,7 +299,7 @@ class AtencionModel extends Model
     public function obtenerDetalladoPorEmpleado(int $idEmpleado, array $estados = []): array
     {
         $builder = $this->db->table('atencion a')
-            ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, 
+            ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, r.fecharequerida, 
                           e.nombreempresa as empresa_nombre, 
                           u_emp.nombre as empleado_nombre,
                           u_cliente.nombre as cliente_nombre,
@@ -331,7 +331,7 @@ class AtencionModel extends Model
     public function obtenerDetalladoPorArea(int $idAreaAgencia, array $estados = []): array
     {
         $builder = $this->db->table('atencion a')
-            ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, 
+            ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, r.fecharequerida,
                           e.nombreempresa as empresa_nombre, 
                           u_emp.nombre as empleado_nombre,
                           u_cliente.nombre as cliente_nombre,
@@ -354,9 +354,6 @@ class AtencionModel extends Model
             ->orderBy('a.fechacreacion', 'DESC')
             ->get()->getResultArray();
     }
-
-
-
 
     /**
      * Obtener tareas de un empleado por estado específico
@@ -381,7 +378,7 @@ class AtencionModel extends Model
     public function obtenerRetroalimentacionPorArea(int $idAreaAgencia): array
     {
         return $this->db->table('atencion a')
-            ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, 
+            ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, r.fecharequerida,
                           e.nombreempresa as empresa_nombre, 
                           u_emp.nombre as empleado_nombre,
                           u_emp.apellidos as empleado_apellidos,

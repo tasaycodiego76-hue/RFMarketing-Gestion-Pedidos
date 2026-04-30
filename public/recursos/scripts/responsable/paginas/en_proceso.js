@@ -391,6 +391,18 @@ function mostrarModalDetalle(req, archivos, tracking) {
             <!-- ══ IZQUIERDA ══ -->
             <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
                 
+                <!-- ── Retroalimentación (si es devuelto) ── -->
+                ${req.observacion_revision && (req.estado === 'en_proceso' || req.estado === 'pendiente_asignado') ? `
+                    <div class="feedback-box">
+                        <div class="feedback-title">
+                            <i class="bi bi-exclamation-triangle-fill"></i> CORRECCIÓN SOLICITADA POR ADMINISTRACIÓN
+                        </div>
+                        <div class="feedback-content">
+                            "${escaparHtml(req.observacion_revision)}"
+                        </div>
+                    </div>
+                ` : ''}
+
                 ${entregaHtml}
 
                 ${_seccion('', 'Tipo de Requerimiento', '#3b82f6', `

@@ -90,6 +90,12 @@
                                 <div class="kb-card-id">#<?= $p['id'] ?></div>
                             </div>
 
+                            <?php if (($p['num_modificaciones'] ?? 0) > 0): ?>
+                                <div class="kb-returned-banner">
+                                    <i class="bi bi-arrow-counterclockwise"></i> CORRECCIÓN SOLICITADA
+                                </div>
+                            <?php endif ?>
+
                             <div class="kb-card-tags">
                                 <span class="kb-tag-servicio">
                                     <i class="bi bi-tag-fill"></i> <?= esc($p['servicio'] ?? 'General') ?>

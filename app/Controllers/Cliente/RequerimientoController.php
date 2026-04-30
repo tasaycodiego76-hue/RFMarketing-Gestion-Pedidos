@@ -352,7 +352,7 @@ class RequerimientoController extends BaseController
         }
 
         $archivoModel = new ArchivoModel();
-        $carpeta = FCPATH . 'uploads/materiales-referencia';
+        $carpeta = FCPATH . 'uploads/requerimientos/' . $idReq . '/materiales-referencia';
 
         // Crear la carpeta si no existe
         if (!is_dir($carpeta)) {
@@ -374,7 +374,7 @@ class RequerimientoController extends BaseController
                     'idrequerimiento' => $idReq,
                     'idatencion' => null,  // Los archivos del cliente no tienen idatencion
                     'nombre' => $file->getClientName(),          // Nombre original
-                    'ruta' => 'uploads/materiales-referencia/' . $nombreNuevo,  // Ruta relativa
+                    'ruta' => 'uploads/requerimientos/' . $idReq . '/materiales-referencia/' . $nombreNuevo,  // Ruta relativa
                     'tipo' => $file->getClientMimeType(),      // Ej: image/png, application/pdf
                     'tamano' => $file->getSize(),                // Tamaño en bytes
                 ]);
@@ -480,34 +480,31 @@ class RequerimientoController extends BaseController
 
     /**
      * Visualiza/Descarga un archivo de requerimiento de forma segura
-     * @param mixed $nombreArchivo
+     * @param mixed $idArchivo
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
-    public function verArchivo($nombreArchivo)
+    public function verArchivo($idArchivo)
     {
-        // LIMPIEZA: se elimina cualquier ruta (ej: "uploads/archivo.pdf" → "archivo.pdf")
-        $nombreArchivo = basename($nombreArchivo);
-        // Construir la ruta completa del archivo en el servidor
-        $rutaCompleta = FCPATH . 'uploads/materiales-referencia/' . $nombreArchivo;
+        $archivoModel = new ArchivoModel();
+        $archivo = $archivoModel->find($idArchivo);
 
-        // Validar que el archivo existe y es un archivo (no una carpeta)
-        if (!is_file($rutaCompleta)) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("El archivo no existe o no puede ser accedido.");
+        if (!$archivo) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("El archivo no existe.");
         }
 
-        // Obtener información del archivo
-        $mimeType = mime_content_type($rutaCompleta);
-        $size = filesize($rutaCompleta);
+        // Construir la ruta completa del archivo en el servidor usando la ruta guardada en la BD
+        $rutaCompleta = FCPATH . $archivo['ruta'];
+
+        // Validar que el archivo existe en disco
+        if (!is_file($rutaCompleta)) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("El archivo físico no se encuentra.");
+        }
 
         // Servir el archivo con headers HTTP apropiados
         return $this->response
-            ->setHeader('Content-Type', $mimeType) //Tipo de Contenido (PDF, imagen, DOCX, etc)
-            // Controla como mostrar el archivo:
-            //  - 'inline' → Muestra en el navegador si es posible (PDFs, imágenes)
-            ->setHeader('Content-Disposition', 'inline; filename="' . $nombreArchivo . '"')
-            ->setHeader('Cache-Control', 'max-age=31536000')// Instrucción de CACHÉ 
-            // setBody(): Inserta el contenido binario del archivo en la respuesta HTTP
-            // file_get_contents() lee TODO el archivo en memoria
+            ->setHeader('Content-Type', $archivo['tipo'])
+            ->setHeader('Content-Disposition', 'inline; filename="' . $archivo['nombre'] . '"')
+            ->setHeader('Cache-Control', 'max-age=31536000')
             ->setBody(file_get_contents($rutaCompleta));
     }
 }

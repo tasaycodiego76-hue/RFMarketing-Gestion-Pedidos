@@ -99,7 +99,7 @@
                                 <i class="bi bi-tag-fill"></i> <?= esc($pedido['servicio_nombre']) ?>
                             </div>
                             <div class="task-meta-item">
-                                <i class="bi bi-calendar-event"></i> <?= isset($pedido['fechafin']) ? date('d M Y', strtotime($pedido['fechafin'])) : '---' ?>
+                               <i class="bi bi-calendar-event"></i> <?= !empty($pedido['fecharequerida']) ? date('d M Y', strtotime($pedido['fecharequerida'])) : '---' ?>
                             </div>
                             <div class="task-meta-item">
                                 <i class="bi bi-hash"></i> REQ-<?= $pedido['id_requerimiento'] ?>
