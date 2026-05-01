@@ -13,6 +13,8 @@ $routes->get('/', 'AuthController::login');                      //RUTA RAIZ
 $routes->get('/auth/login', 'AuthController::login');            //Intento de Inicio Sesion
 $routes->post('/auth/login', 'AuthController::verificar');    //Verificar la Sesion
 $routes->get('/auth/logout', 'AuthController::logout');          //Cerrar Sesion
+$routes->get('logout', 'AuthController::logout');
+
 
 
 //Rutas para el Administrador

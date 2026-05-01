@@ -503,7 +503,7 @@ async function verDetalle(idAtencion) {
                                 <div class="data-box" style="margin-bottom:20px; border-color:rgba(16,185,129,0.2);">
                                     <span class="data-label" style="color:#10b981;">Link de Entrega</span>
                                     <div class="data-value">
-                                        ${d.url_entrega ? <a href="${d.url_entrega}" target="_blank" style="color:#fff; text-decoration:underline; font-weight:800; word-break:break-all;">${d.url_entrega} <i class="bi bi-box-arrow-up-right ms-2"></i></a> : 'No se adjuntó link.'}
+                                        ${d.url_entrega ? `<a href="${d.url_entrega}" target="_blank" style="color:#fff; text-decoration:underline; font-weight:800; word-break:break-all;">${d.url_entrega} <i class="bi bi-box-arrow-up-right ms-2"></i></a>` : 'No se adjuntó link.'}
                                     </div>
                                 </div>
                                 <div class="data-box" style="margin-bottom:20px; border-color:rgba(16,185,129,0.2);">

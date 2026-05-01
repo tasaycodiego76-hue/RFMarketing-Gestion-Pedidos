@@ -12,6 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- SweetAlert2 -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="<?= base_url('recursos/styles/admin/paginas/admin.css') ?>" rel="stylesheet">
     <?= $this->renderSection('styles') ?>
 </head>
@@ -92,7 +93,7 @@
                 <div class="usuario-rol">Admin</div>
             </div>
 
-            <a href="<?= site_url('logout') ?>" class="ms-auto"
+            <a href="<?= site_url('logout') ?>" class="ms-auto logout-link"
                 style="color:#999; font-size: 18px; transition: color .2s;" title="Salir">
 
                 <i class="bi bi-box-arrow-right"></i>
@@ -268,7 +269,6 @@
                 });
             });
         }
-    }) ();
     </script>
 
 </body>

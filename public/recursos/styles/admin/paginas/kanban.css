@@ -299,13 +299,74 @@
 }
 
 .kb-card-footer { padding-top: 10px; border-top: 1px solid #151515; }
-.kb-card-user { display: flex; align-items: center; gap: 10px; }
+.kb-user-avatar-wrapper { position: relative; }
 .kb-user-avatar { 
     width: 32px; height: 32px; border-radius: 9px; background: #F5C400; color: #000; 
     display: flex; align-items: center; justify-content: center; font-size: 12px; 
     font-weight: 900; border: 2px solid #0f0f0f; 
 }
-.kb-user-name { font-size: 12px; font-weight: 800; color: #fff; }
+
+/* Diseño Grid de Alta Precisión con más espacio */
+.kb-card-user { 
+    display: grid; 
+    grid-template-columns: auto 1fr; 
+    grid-template-rows: 1fr 1fr; 
+    column-gap: 12px; 
+    row-gap: 1px;
+    align-items: center;
+}
+
+.kb-user-avatar-wrapper { 
+    grid-row: 1 / span 2; 
+}
+
+.kb-user-info-col {
+    display: contents;
+}
+
+/* Badge TRABAJANDO - Misma fuente que el nombre */
+.kb-badge-developing {
+    grid-column: 2;
+    grid-row: 1;
+    color: #a855f7;
+    font-size: 9px;
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.kb-user-name { 
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 10px; 
+    font-weight: 800; 
+    color: #fff; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    max-width: 110px; 
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    opacity: 0.9;
+    line-height: 1;
+}
+
+.kb-dot-pulse {
+    width: 5px;
+    height: 5px;
+    background: #a855f7;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.kb-card-user.en-desarrollo .kb-user-avatar {
+    border-color: #a855f7;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+}
 
 .kb-card-actions { margin-top: 10px; }
 .kb-btn { 

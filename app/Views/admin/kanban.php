@@ -128,15 +128,28 @@
                             <div class="kb-card-footer">
                                 <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                                     <?php if ($p['idempleado']): ?>
-                                        <div class="kb-card-user">
-                                            <?php 
-                                                $nombreComp = $p['empleado_nombre'] . ' ' . ($p['empleado_apellidos'] ?? '');
-                                                $empIni = mb_strtoupper(mb_substr($p['empleado_nombre'], 0, 1) . (mb_substr($p['empleado_apellidos'] ?? '', 0, 1))); 
-                                            ?>
+                                        <?php 
+                                            $nombreComp = $p['empleado_nombre'] . ' ' . ($p['empleado_apellidos'] ?? '');
+                                            $empIni = mb_strtoupper(mb_substr($p['empleado_nombre'], 0, 1) . (mb_substr($p['empleado_apellidos'] ?? '', 0, 1))); 
+                                            $enDesarrolloReal = (!empty($p['fechainicio']) && $estado === 'en_proceso');
+                                        ?>
+                                        <div class="kb-card-user <?= $enDesarrolloReal ? 'en-desarrollo' : '' ?>">
                                             <div class="kb-user-avatar-wrapper">
                                                 <span class="kb-user-avatar" title="<?= esc($nombreComp) ?>"><?= $empIni ?></span>
                                             </div>
-                                            <span class="kb-user-name"><?= esc($p['empleado_nombre']) ?></span>
+                                            <div class="kb-user-info-col">
+                                                <?php if ($enDesarrolloReal): ?>
+                                                    <span class="kb-badge-developing">
+                                                        <span class="kb-dot-pulse"></span> TRABAJANDO
+                                                    </span>
+                                                <?php endif ?>
+                                                <span class="kb-user-name">
+                                                    <?php 
+                                                        $primerApellido = explode(' ', trim($p['empleado_apellidos'] ?? ''))[0];
+                                                        echo esc($p['empleado_nombre'] . ' ' . $primerApellido);
+                                                    ?>
+                                                </span>
+                                            </div>
                                         </div>
                                     <?php else: ?>
                                         <div class="kb-card-user">
