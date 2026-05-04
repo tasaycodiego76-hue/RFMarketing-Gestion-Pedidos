@@ -10,13 +10,13 @@
 <div class="seccion-titulo">MIS PEDIDOS</div>
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-        <h2 class="mb-0" style="font-size:2rem; font-weight:800;">
+        <h2 class="mb-0 cliente-nombre">
             <?= esc($user['nombre'] . ' ' . $user['apellidos']) ?>
         </h2>
-        <p class="small mb-0" style="color:#ccc; font-size:15px;">Cliente — Historial de requerimientos</p>
+        <p class="small mb-0 cliente-subtitulo">Cliente — Historial de requerimientos</p>
     </div>
     <button class="btn-rf" data-bs-toggle="modal" data-bs-target="#modal-nuevo-pedido">
-        <i class="bi bi-plus-lg"></i> Nuevo Pedido  
+        <i class="bi bi-plus-lg"></i> Nuevo Pedido
     </button>
 </div>
 
@@ -47,7 +47,7 @@
     <div class="col-6 col-md-3">
         <div class="card p-3">
             <div class="met-label">Total</div>
-            <div class="met-num" style="color:#f0f0f0" id="cnt-total">—</div>
+            <div class="met-num met-num-total" id="cnt-total">—</div>
             <div class="met-sub">Todos los pedidos</div>
         </div>
     </div>
@@ -55,7 +55,7 @@
 
 <!-- Tabla de pedidos -->
 <div class="seccion-titulo">TODOS LOS PEDIDOS</div>
-<div class="card" style="overflow:hidden;">
+<div class="card card-tabla-pedidos">
     <div class="tabla-header">
         <div class="buscador-wrap">
             <i class="bi bi-search"></i>
@@ -64,6 +64,7 @@
     </div>
     <div class="table-responsive">
         <table class="tabla-rf" id="tablaPedidos">
+            <!-- Encabezado de la Tabla -->
             <thead>
                 <tr>
                     <th>#</th>
@@ -113,8 +114,8 @@
                 <input type="hidden" name="idservicio" id="form-idservicio">
                 <!-- Pasos Formulario Wizard -->
                 <div class="modal-header modal-rf-header">
-                    <div style="width:100%">
-                        <h5 id="form-titulo-servicio" style="margin-bottom:20px; font-size:18px;">Paso 1: Info básica
+                    <div class="wizard-header-full">
+                        <h5 id="form-titulo-servicio" class="wizard-step-titulo">Paso 1: Info básica
                         </h5>
                         <div class="wizard-steps">
                             <div class="step-wrapper">
@@ -134,13 +135,19 @@
                         </div>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
-    <i class="bi bi-x-lg"></i>
-</button>
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
-                <!-- Cuerpo Modal -->
                 <div class="modal-body modal-rf-body p-4">
                     <!-- SECTION 1: Datos Iniciales -->
                     <div class="wizard-section" id="section-1">
+                        <div class="modo-flexible-aviso alert alert-info mb-3 alerta-flexible">
+                            <i class="bi bi-info-circle-fill"></i>
+                            <strong>Modo Flexible Activado</strong><br>
+                            Para <em>Creación de Contenido</em>, estos campos son <strong>opcionales</strong>.
+                            Puedes enviar solo tu idea básica y nuestro equipo creativo te ayudará a completar los
+                            detalles.
+                        </div>
                         <div class="autofill mb-4">
                             <div class="autofill-title"><span>&#10003;</span> DATOS DE TU CUENTA</div>
                             <div class="autofill-row">
@@ -160,34 +167,40 @@
                                 </span>
                             </div>
                         </div>
-                        <div id="contenedor-nombre-personalizado" class="field mb-3" style="display:none;">
+                        <div id="contenedor-nombre-personalizado" class="field mb-3 d-none">
                             <label>NOMBRE DEL SERVICIO REQUERIDO</label>
                             <input type="text" name="titulo" id="titulo_personalizado" class="field-input"
                                 placeholder="Ej: Gestion de Redes Sociales (Social Media)">
                         </div>
                         <div class="field mb-3">
                             <label>SERVICIO SELECCIONADO</label>
-                            <div class="d-flex align-items-center"
-                                style="background:#111; padding:8px 12px; border-radius:6px; border:1px solid #1e1e1e;">
+                            <div class="d-flex align-items-center servicio-badge-container">
                                 <span id="wbadge-container"></span> <span id="txt-servicio-seleccionado"
-                                    class="ms-2 fw-bold text-white" style="font-size:11px;"></span>
+                                    class="ms-2 fw-bold text-white servicio-badge-texto"></span>
                             </div>
                         </div>
                         <div class="field mb-3">
-                            <label>PRIORIDAD</label>
-                            <div class="prioridad-opciones">
-                                <label class="prio-opcion">
-                                    <input type="radio" name="prioridad" value="Baja">
-                                    <span class="prio-badge prio-baja">Baja</span>
-                                </label>
-                                <label class="prio-opcion">
-                                    <input type="radio" name="prioridad" value="Media" checked>
-                                    <span class="prio-badge prio-media">Media</span>
-                                </label>
-                                <label class="prio-opcion">
-                                    <input type="radio" name="prioridad" value="Alta">
-                                    <span class="prio-badge prio-alta">Alta</span>
-                                </label>
+                            <label class="mb-3">PRIORIDAD DEL REQUERIMIENTO</label>
+                            <div class="d-flex align-items-center gap-4 flex-wrap">
+                                <div class="prioridad-opciones">
+                                    <label class="prio-opcion">
+                                        <input type="radio" name="prioridad" value="Baja">
+                                        <span class="prio-badge prio-baja">Baja</span>
+                                    </label>
+                                    <label class="prio-opcion">
+                                        <input type="radio" name="prioridad" value="Media" checked>
+                                        <span class="prio-badge prio-media">Media</span>
+                                    </label>
+                                    <label class="prio-opcion">
+                                        <input type="radio" name="prioridad" value="Alta">
+                                        <span class="prio-badge prio-alta">Alta</span>
+                                    </label>
+                                </div>
+                                <div class="prio-consejo-box">
+                                    <i class="bi bi-info-circle-fill text-warning"></i>
+                                    <p class="m-0">Referencial según criterio del cliente. Sujeto a cambios por el
+                                        administrador.</p>
+                                </div>
                             </div>
                         </div>
                         <div class="field mb-3">
@@ -197,18 +210,18 @@
                         </div>
                         <div class="field mb-3">
                             <label>OBJETIVO DE COMUNICACIÓN</label>
-                            <textarea name="objetivo" class="field-input" style="height:60px;"
+                            <textarea name="objetivo" class="field-input input-grande textarea-objetivo"
                                 placeholder="¿Cuál es el objetivo? ¿A quién va dirigido?" required></textarea>
                         </div>
                         <div class="field mb-3">
                             <label>TIPO DE REQUERIMIENTO</label>
                             <p class="campo-sublabel">Selecciona según la complejidad de tu proyecto</p>
 
-                            <select name="tipo_requerimiento" class="form-select select-estilizado" id="tipo_req"
-                                required onchange="mostrarInfoTipo(this.value)">
+                            <select name="tipo_requerimiento" class="form-select select-estilizado select-grande"
+                                id="tipo_req" required>
                                 <option value="" selected disabled>Selecciona un servicio primero...</option>
                             </select>
-                            <div id="info-tipo-container" class="info-tipo-box" style="display:none;">
+                            <div id="info-tipo-container" class="info-tipo-box d-none">
                                 <div class="info-tipo-header">
                                     <i class="bi bi-info-circle-fill"></i>
                                     <span id="info-tipo-titulo">Título</span>
@@ -223,7 +236,7 @@
                             </div>
                         </div>
                         <div class="field mb-3">
-                            <label class="text-uppercase fw-bold" style="font-size: 12px; color: #bbb;">FECHA EN QUE SE
+                            <label class="text-uppercase fw-bold fecha-label">FECHA EN QUE SE
                                 NECESITA</label>
                             <div class="date-input-container">
                                 <input type="date" id="fecha_entrega_input" name="fecha_entrega"
@@ -235,28 +248,32 @@
                     <!-- SECTION 2: Detalles y Formatos  -->
                     <div class="wizard-section d-none" id="section-2">
                         <!-- Mensaje informativo para Creación de Contenido -->
-                        <div id="info-creacion-contenido" class="alert alert-info mb-3" style="display:none; background:#1a3a4a; border:1px solid #2d5a6b; color:#b0d4e3;">
+                        <div class="modo-flexible-aviso alert alert-info mb-3 alerta-flexible">
                             <i class="bi bi-info-circle-fill"></i>
                             <strong>Modo Flexible Activado</strong><br>
                             Para <em>Creación de Contenido</em>, estos campos son <strong>opcionales</strong>.
-                            Puedes enviar solo tu idea básica y nuestro equipo creativo te ayudará a completar los detalles.
+                            Puedes enviar solo tu idea básica y nuestro equipo creativo te ayudará a completar los
+                            detalles.
                         </div>
 
                         <div class="field mb-3">
                             <label>DESCRIPCIÓN DETALLADA</label>
-                            <textarea name="descripcion" class="field-input" style="height:80px;"
+                            <textarea name="descripcion" class="field-input input-grande textarea-descripcion"
                                 placeholder="Describe con detalle lo que necesitas..." required></textarea>
                         </div>
                         <div class="field mb-3">
                             <label>PÚBLICO OBJETIVO</label>
-                            <textarea name="publico" class="field-input" style="height:50px;"
+                            <textarea name="publico" class="field-input input-grande textarea-publico"
                                 placeholder="¿A quién va dirigido? Tono del mensaje..." required></textarea>
                         </div>
                         <div class="field mb-3">
-                            <label class="section-title">
-                                <i class="bi bi-broadcast"></i> Canales de Difusión
-                            </label>
-                            <p class="campo-sublabel">Selecciona máximo 3 opciones</p>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <label class="section-title m-0">
+                                    <i class="bi bi-broadcast"></i> Canales de Difusión
+                                </label>
+                                <span class="badge bg-dark text-warning border border-warning canales-badge">Máximo 3
+                                    opciones</span>
+                            </div>
                             <div class="checks-grid compact" id="canales-checks"></div>
                         </div>
                         <hr class="section-divider">
@@ -266,7 +283,7 @@
                             </label>
                             <div class="checks-grid compact" id="formatos-checks"></div>
                         </div>
-                        <div class="field mb-2" id="contenedor-formato-otros" style="display:none;">
+                        <div class="field mb-2 d-none" id="contenedor-formato-otros">
                             <label>SOLO SI MENCIONASTE OTROS — MENCIONA EL FORMATO Y MEDIDAS</label>
                             <input type="text" name="formato_otros" class="field-input"
                                 placeholder="Ej: Banner 3x2 metros, formato PNG">
@@ -281,26 +298,26 @@
                             </select>
                         </div>
                         <!-- Contenedor de archivos (se muestra al seleccionar "Sí") -->
-                        <div id="contenedor-materiales" style="display:none;">
+                        <div id="contenedor-materiales" class="d-none">
                             <div class="field mb-3">
                                 <label>ADJUNTA TUS ARCHIVOS</label>
-                                <p class="campo-sublabel">Máximo 100MB por archivo. PDF, imágenes, videos, documentos.
+                                <p class="campo-sublabel-grande">
+                                    <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i> Máximo 100MB por
+                                    archivo. PDF, imágenes, videos, documentos.
                                 </p>
-                                <div class="upload-area-simple"
-                                    onclick="document.getElementById('input-archivos').click()">
+                                <div class="upload-area-simple" id="area-subida-archivos">
                                     <i class="bi bi-plus-lg"></i>
                                     <span>Agregar archivos</span>
                                 </div>
-                                <input type="file" name="documentos[]" id="input-archivos" multiple
-                                    style="display:none;"
+                                <input type="file" name="documentos[]" id="input-archivos" multiple class="d-none"
                                     accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.zip">
 
                                 <div id="lista-archivos"></div>
                             </div>
                             <div class="field mb-3">
                                 <label>LINK DE REFERENCIA (Google Drive, WeTransfer, etc.)</label>
-                                <input type="text" name="url_referencia" class="field-input"
-                                    placeholder="https://drive.google.com/...">
+                                <input type="url" name="url_referencia" id="url_referencia"
+                                    class="field-input input-grande" placeholder="https://drive.google.com/...">
                             </div>
                         </div>
                     </div>
@@ -347,6 +364,10 @@
                             </div>
                             <div class="resumen-card-body">
                                 <div class="resumen-fila vertical">
+                                    <span class="resumen-label">Descripción Detallada</span>
+                                    <span class="resumen-valor descripcion" id="res-descripcion">—</span>
+                                </div>
+                                <div class="resumen-fila vertical">
                                     <span class="resumen-label">Público Objetivo</span>
                                     <span class="resumen-valor descripcion" id="res-publico">—</span>
                                 </div>
@@ -366,15 +387,14 @@
                         </div>
                         <div class="resumen-aviso">
                             <i class="bi bi-info-circle-fill"></i>
-                            <span>Una vez enviado, el equipo de RF Marketing revisará tu requerimiento y te notificará
-                                por correo.</span>
+                            <span>Una vez enviado, el equipo de RF Marketing revisará tu requerimiento y recibirás las
+                                notificaciones directamente por esta plataforma.</span>
                         </div>
                     </div>
                 </div>
                 <!-- Modal Footer -->
-                <div class="modal-footer border-0" style="gap: 10px; justify-content: flex-end;">
-                    <button type="button" class="btn btn-outline-light d-none" id="btn-atras"
-                        onclick="window.retrocederPaso()">
+                <div class="modal-footer border-0 modal-footer-wizard">
+                    <button type="button" class="btn btn-outline-light d-none" id="btn-atras">
                         <i class="bi bi-arrow-left"></i> Atrás
                     </button>
                     <button type="button" class="btn-rf" id="btn-siguiente">Siguiente Paso <i

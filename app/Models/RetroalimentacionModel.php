@@ -15,11 +15,14 @@ class RetroalimentacionModel extends Model
     protected $allowedFields    = ['idatencion', 'idevaluador', 'contenido', 'fecha'];
 
     // Dates
-    protected $useTimestamps = false; // The migration uses a default CURRENT_TIMESTAMP for 'fecha'
+    protected $useTimestamps = false; 
+
+    /* EMPLEADO */
 
     /**
-     * Obtiene la retroalimentación para un empleado específico.
-     * Se une con 'atencion' y 'requerimientos' para filtrar por el empleado asignado.
+     * Obtiene los comentarios de retroalimentación dirigidos a un empleado específico
+     * @param mixed $idEmpleado
+     * @return array<array<bool|float|int|object|string|null>|object>
      */
     public function getRetroalimentacionPorEmpleado($idEmpleado)
     {
@@ -28,7 +31,7 @@ class RetroalimentacionModel extends Model
             ->join('requerimiento', 'requerimiento.id = atencion.idrequerimiento')
             ->join('usuarios', 'usuarios.id = retroalimentacion.idevaluador')
             ->where('atencion.idempleado', $idEmpleado)
-            ->where('atencion.estado', 'en_proceso') // Solo mostrar si sigue en proceso
+            ->where('atencion.estado', 'en_proceso') 
             ->orderBy('retroalimentacion.fecha', 'DESC')
             ->findAll();
     }

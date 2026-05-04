@@ -19,8 +19,10 @@ class EmpresaModel extends Model
         'estado',
     ];
 
+    /* ADMINISTRADOR */
+
     /**
-     * Funcion que devuelve todas las empresas activas
+     * Obtiene todas las empresas marcadas como activas
      * @return array<array<bool|float|int|object|string|null>|object>
      */
     public function listarActivas(): array
@@ -29,21 +31,20 @@ class EmpresaModel extends Model
     }
 
     /**
-     * Funcion que devuelve los colores personalizables que se utilizan para mostrar cada empresa (KANBAN)
+     * Paleta de colores predefinida para identificar visualmente a las empresas
      * @var array
      */
     private array $colores = [
-        '#FF6B6B',
-        '#FFD93D',
-        '#6BCB77',
-        '#4D96FF',
-        '#C77DFF',
-        '#FF9F43',
+        '#FF6B6B', // Rojo suave
+        '#FFD93D', // Amarillo
+        '#6BCB77', // Verde
+        '#4D96FF', // Azul
+        '#C77DFF', // Púrpura
+        '#FF9F43', // Naranja
     ];
 
-
     /**
-     * Funcion que Obtiene las Empresas Activas y con Atencion Model, calcula las Estadisticas de cada empresa (Requerimientos)
+     * Obtiene empresas activas junto con sus métricas de pedidos en tiempo real
      * @return array<array<bool|float|int|object|string|null>|object>
      */
     public function obtenerConStatsActivas(): array
@@ -52,20 +53,18 @@ class EmpresaModel extends Model
         $atencionModel = new AtencionModel();
 
         foreach ($empresas as $i => &$empresa) {
+            // Asignación de color estético
             $color = $this->colores[$i % count($this->colores)];
             $empresa['color'] = $color;
-            $empresa['inicial'] =
-                strtoupper(substr($empresa['nombreempresa'], 0, 1));
-            $empresa['por_aprobar'] =
-                $atencionModel->contarPorEstadoEmpresa(
-                    'pendiente_sin_asignar',
-                    $empresa['id']
-                );
-            $empresa['activos'] =
-                $atencionModel->contarActivosEmpresa($empresa['id']);
+            
+            // Inicial para el logo/avatar
+            $empresa['inicial'] = strtoupper(substr($empresa['nombreempresa'], 0, 1));
+            
+            // Conteos de estados (Lógica cruzada con AtencionModel)
+            $empresa['por_aprobar'] = $atencionModel->contarPorEstadoEmpresa('pendiente_sin_asignar', $empresa['id']);
+            $empresa['activos'] = $atencionModel->contarActivosEmpresa($empresa['id']);
             $empresa['en_revision'] = $atencionModel->contarPorEstadoEmpresa('en_revision', $empresa['id']);
-            $empresa['completados'] =
-                $atencionModel->contarPorEstadoEmpresa('finalizado', $empresa['id']);
+            $empresa['completados'] = $atencionModel->contarPorEstadoEmpresa('finalizado', $empresa['id']);
         }
 
         return $empresas;

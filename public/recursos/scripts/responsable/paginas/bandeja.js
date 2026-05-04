@@ -625,7 +625,18 @@ function renderizarDetalleRequerimiento(req, archivos) {
   cuerpo.innerHTML = `
     <style>
       .hp-label { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: #555; text-transform: uppercase; display: block; margin-bottom: 5px; }
-      .hp-val { color: #eee; font-size: 14px; line-height: 1.6; word-break: break-word; }
+      .hp-val { 
+        color: #eee; 
+        font-size: 14px; 
+        line-height: 1.6; 
+        word-break: break-word; 
+        max-height: 300px; 
+        overflow: auto; 
+        resize: vertical; 
+        background: rgba(255,255,255,0.02);
+        padding: 8px;
+        border-radius: 6px;
+      }
       .hp-sec { background: #0d0d0d; border: 1px solid #1e1e1e; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
       .hp-sec-title { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 1px; color: #666; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
       .hp-pill { background: #111; border: 1px solid #333; padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; color: #aaa; }
@@ -659,7 +670,7 @@ function renderizarDetalleRequerimiento(req, archivos) {
             </div>
             <div class="col-12">
               <span class="hp-label">Descripción Detallada</span>
-              <div class="hp-val" style="white-space:pre-wrap; max-height:200px; overflow-y:auto;">${escaparHtml(req.descripcion || 'Sin descripción.')}</div>
+              <div class="hp-val" style="white-space:pre-wrap; max-height:400px;">${escaparHtml(req.descripcion || 'Sin descripción.')}</div>
             </div>
             <div class="col-md-6">
               <span class="hp-label">Canales de Difusión</span>

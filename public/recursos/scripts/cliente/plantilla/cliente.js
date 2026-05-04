@@ -40,3 +40,31 @@ overlay.addEventListener("click", cerrarSidebar);
 if (sidebarCloseBtn) {
   sidebarCloseBtn.addEventListener("click", cerrarSidebar);
 }
+
+// Confirmación de cierre de sesión
+document.addEventListener("DOMContentLoaded", function() {
+  const logoutBtn = document.querySelector(".logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      const url = this.getAttribute("href");
+
+      Swal.fire({
+        title: "¿Estás seguro?",
+        text: "Se cerrará tu sesión actual.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#f5c400",
+        cancelButtonColor: "#333",
+        confirmButtonText: "Sí, salir",
+        cancelButtonText: "Cancelar",
+        background: "#111",
+        color: "#fff"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = url;
+        }
+      });
+    });
+  }
+});

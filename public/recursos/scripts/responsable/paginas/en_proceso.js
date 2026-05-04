@@ -672,6 +672,15 @@ function abrirModalEntregar(idAtencion) {
             const files = document.getElementById('swal-archivos-entrega').files;
             const notas = document.getElementById('swal-notas-entrega').value;
 
+            if (url) {
+                try {
+                    new URL(url);
+                } catch (e) {
+                    Swal.showValidationMessage('Por favor ingresa una URL válida (ej: https://...)');
+                    return false;
+                }
+            }
+
             if (!url && files.length === 0) {
                 Swal.showValidationMessage('Debes proporcionar al menos un link o un archivo');
                 return false;

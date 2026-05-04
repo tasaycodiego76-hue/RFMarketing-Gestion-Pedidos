@@ -10,8 +10,10 @@ class ServicioModel extends Model
     protected $primaryKey = 'id';
     protected $allowedFields = ['nombre', 'descripcion', 'activo'];
 
+    /* CLIENTE */
+
     /**
-     * Funcion que devuelve todos los Servicios Activos 
+     * Funcion que obtiene la lista de servicios disponibles para los clientes
      * @return array<array<bool|float|int|object|string|null>|object>
      */
     public function getServiciosActivos()
@@ -20,8 +22,7 @@ class ServicioModel extends Model
     }
 
     /**
-     * Diccionario de Mapeo, el cual relaciona un servicio con su área de agencia. 
-     * Si se crea un nuevo servicio lo Vincula con la nueva Area de la Agencia
+     * Funcion que determina qué área de la agencia debe atender un servicio específico
      * @param int $idServicio
      * @return int
      */
@@ -39,7 +40,7 @@ class ServicioModel extends Model
             return $mapeoServicioArea[$idServicio];
         }
 
-        // Si no, asumir que es un servicio/área (Creadas al Mismo tiempo) e usar el mismo ID del servicio como ID de área
+        // Si no está mapeado, se asume correspondencia directa por ID
         return $idServicio;
     }
 }

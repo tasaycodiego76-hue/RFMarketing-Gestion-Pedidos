@@ -44,17 +44,20 @@
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 2px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: #ccc;
+  color: #f5c400;
   display: block;
   margin-bottom: 6px;
 }
 .campo-sublabel {
-  font-size: 13px;
+  font-size: 17px;
   color: #ccc;
-  margin: 6px 0 0 0;
+  margin-bottom: 10px;
+  font-style: italic;
 }
-/* Separador visual entre secciones */
 .section-divider {
   border: 0;
   height: 1px;
@@ -304,6 +307,9 @@
   background: #f5c400;
   border-color: #f5c400;
   color: #000;
+}
+.btn-ver i {
+  font-size: 18px;
 }
 
 /* MODALES */
@@ -568,32 +574,33 @@
 }
 .field label {
   display: block;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700; /* Original weight */
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: #d0d0d0;
-  margin-bottom: 10px;
+  color: #f0f0f0; /* Original color */
+  margin-bottom: 12px;
 }
 /* Inputs estilizados */
 .field-input {
   width: 100%;
   background: #0a0a0a !important;
-  border: 1px solid #1e1e1e !important;
+  border: 2px solid #444 !important;
   color: #fff !important;
-  padding: 12px 15px;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 16px;
   outline: none;
   transition: all 0.2s ease;
-  min-height: 50px;
+  min-height: 60px;
 }
 
 /* Campo especial para título del requerimiento */
 #campo-titulo {
   min-height: 60px;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
+  border: 2px solid #444 !important; /* Back to standard border */
 }
 .field-input:focus {
   border-color: #f5c400 !important;
@@ -625,12 +632,17 @@
 
 .select-estilizado {
   background: #111 !important;
-  border: 1px solid #1e1e1e;
-  color: #c0c0c0;
-  font-size: 11px;
-  height: 50px;
+  border: 1px solid #333;
+  color: #fff;
+  font-size: 14px; /* Aumentado de 11px */
+  height: 55px;
   padding: 0 20px;
-  border-radius: 6px;
+  border-radius: 8px;
+}
+.select-grande {
+  font-size: 16px !important;
+  font-weight: 600;
+  border: 2px solid #444 !important;
 }
 .select-estilizado:focus {
   border-color: #f5c400;
@@ -852,15 +864,15 @@ textarea.form-control:focus {
 }
 /* Info tipo requerimiento (dinámico) */
 .info-tipo-box {
-  margin-top: 12px;
+  margin-top: 15px;
   background: linear-gradient(
     135deg,
-    rgba(245, 196, 0, 0.08),
-    rgba(245, 196, 0, 0.02)
+    rgba(245, 196, 0, 0.12),
+    rgba(245, 196, 0, 0.05)
   );
-  border: 1px solid rgba(245, 196, 0, 0.25);
-  border-radius: 10px;
-  padding: 14px;
+  border: 2px solid rgba(245, 196, 0, 0.4);
+  border-radius: 12px;
+  padding: 20px;
   animation: fadeIn 0.3s ease;
 }
 @keyframes fadeIn {
@@ -884,23 +896,24 @@ textarea.form-control:focus {
   font-size: 16px;
 }
 .info-tipo-header span {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 18px; /* Aumentado para proyector */
+  font-weight: 800;
   color: #f5c400;
 }
 .info-tipo-desc {
-  font-size: 13px;
-  color: #d0d0d0;
-  line-height: 1.5;
-  margin: 0 0 10px 0;
+  font-size: 16px; /* Aumentado para proyector */
+  color: #fff;
+  line-height: 1.6;
+  margin: 10px 0 15px 0;
 }
 .info-tipo-meta {
   display: flex;
   gap: 16px;
 }
 .info-tipo-meta span {
-  font-size: 12px;
-  color: #ccc;
+  font-size: 15px; /* Aumentado */
+  color: #f5c400;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -1005,15 +1018,15 @@ textarea.form-control:focus {
   color: #0a0a0a;
 }
 .resumen-titulo {
-  font-size: 18px;
-  font-weight: 700;
-  color: #f0f0f0;
+  font-size: 22px; /* Aumentado */
+  font-weight: 800;
+  color: #f5c400;
   margin: 0;
 }
 .resumen-sub {
-  font-size: 13px;
+  font-size: 15px; /* Aumentado */
   color: #ccc;
-  margin: 2px 0 0 0;
+  margin: 4px 0 0 0;
 }
 /* Cards del resumen */
 .resumen-card {
@@ -1068,23 +1081,27 @@ textarea.form-control:focus {
   gap: 6px;
 }
 .resumen-label {
-  font-size: 13px;
-  color: #ccc;
+  font-size: 16px;
+  color: #aaa;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  font-weight: 700;
 }
 .resumen-valor {
-  font-size: 14px;
-  color: #f0f0f0;
-  font-weight: 500;
+  font-size: 16px;
+  color: #fff;
+  font-weight: 600;
   text-align: right;
   max-width: 60%;
 }
 .resumen-valor.descripcion {
   text-align: left;
   max-width: 100%;
-  line-height: 1.5;
+  line-height: 1.6;
   color: #d5d5d5;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 .resumen-valor.link {
   color: #f5c400;
@@ -1129,7 +1146,7 @@ textarea.form-control:focus {
   font-size: 14px;
 }
 .resumen-archivo-item span {
-  font-size: 11px;
+  font-size: 16px;
   color: #d0d0d0;
   white-space: nowrap;
   overflow: hidden;
@@ -1139,21 +1156,22 @@ textarea.form-control:focus {
 .resumen-aviso {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 14px;
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 8px;
-  margin-top: 16px;
+  gap: 15px;
+  background: rgba(245, 196, 0, 0.1);
+  border: 1px solid rgba(245, 196, 0, 0.25);
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 25px;
 }
 .resumen-aviso i {
-  color: #3b82f6;
-  font-size: 16px;
-  margin-top: 2px;
+  color: #f5c400;
+  font-size: 24px;
+  flex-shrink: 0;
 }
 .resumen-aviso span {
-  font-size: 13px;
-  color: #ccc;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
   line-height: 1.5;
 }
 
@@ -1164,25 +1182,57 @@ textarea.form-control:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  background: #111;
-  border: 1px dashed #333;
-  border-radius: 8px;
-  padding: 16px;
+  gap: 12px;
+  background: #0a0a0a;
+  border: 2px dashed #444;
+  border-radius: 10px;
+  padding: 25px;
   cursor: pointer;
   transition: all 0.2s;
 }
 .upload-area-simple:hover {
   border-color: #f5c400;
-  background: rgba(245, 196, 0, 0.03);
+  background: rgba(245, 196, 0, 0.05);
 }
 .upload-area-simple i {
-  font-size: 20px;
+  font-size: 28px;
   color: #f5c400;
 }
 .upload-area-simple span {
-  font-size: 12px;
-  color: #d0d0d0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+.input-grande {
+  font-size: 16px !important;
+  height: auto;
+  min-height: 60px;
+  border: 2px solid #444 !important;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.campo-sublabel-grande {
+  font-size: 17px;
+  color: #f5c400;
+  margin-top: 8px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.prio-consejo-box {
+  flex: 1;
+  background: rgba(245, 196, 0, 0.08);
+  border: 1px solid rgba(245, 196, 0, 0.3);
+  border-radius: 12px;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  color: #fff;
+  min-width: 300px;
+}
+.prio-consejo-box i {
+  font-size: 20px;
 }
 /* Archivos adjuntos en lista */
 #lista-archivos .archivo-item-simple {
@@ -1197,15 +1247,16 @@ textarea.form-control:focus {
 }
 #lista-archivos .archivo-item-simple i {
   color: #f5c400;
-  font-size: 18px;
+  font-size: 30px;
 }
 #lista-archivos .archivo-info {
   flex: 1;
   min-width: 0;
 }
 #lista-archivos .archivo-nombre {
-  font-size: 11px;
-  color: #f0f0f0;
+  font-size: 30px;
+  color: #f5c400;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1308,4 +1359,66 @@ textarea.form-control:focus {
   .checks-grid.compact {
     grid-template-columns: repeat(2, 1fr) !important;
   }
+}
+
+/* Encabezado Cliente */
+.cliente-nombre {
+  font-size: 2rem;
+  font-weight: 800;
+}
+.cliente-subtitulo {
+  color: #ccc;
+  font-size: 15px;
+}
+
+/* Métricas */
+.met-num-total {
+  color: #f0f0f0;
+}
+
+/* Wizard / Modales */
+.wizard-header-full {
+  width: 100%;
+}
+.wizard-step-titulo {
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+.alerta-flexible {
+  display: none;
+  background: #1a3a4a;
+  border: 1px solid #2d5a6b;
+  color: #b0d4e3;
+}
+.servicio-badge-container {
+  background: #111;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #1e1e1e;
+}
+.servicio-badge-texto {
+  font-size: 11px;
+}
+.fecha-label {
+  font-size: 12px;
+  color: #bbb;
+}
+.textarea-objetivo,
+.textarea-publico {
+  height: 80px;
+}
+.textarea-descripcion {
+  height: 100px;
+}
+.canales-badge {
+  font-size: 14px;
+}
+.modal-footer-wizard {
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Utilidades de visibilidad */
+.d-none {
+  display: none !important;
 }

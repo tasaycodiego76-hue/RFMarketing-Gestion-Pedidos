@@ -31,11 +31,13 @@ class UsuarioModel extends Model
     protected $createdField = 'fechacreacion';
     protected $updatedField = '';
 
+    /* TODAS LAS VISTAS (LGOIN) */
+
     /**
-     * Verifica las credenciales del usuario
+     * Valida si las credenciales ingresadas son correctas
      * @param string $usuario
      * @param string $clave
-     * @return array<bool|float|int|object|string|null>|object|null
+     * @return object|null
      */
     public function verificarCredenciales(string $usuario, string $clave): ?object
     {
@@ -44,17 +46,18 @@ class UsuarioModel extends Model
 
         //Asumimos que el usuario existe... entonces validamos la clave
         if ($row && password_verify($clave, $row['clave'])) {
-            //Acceso es Correcto
             return (object) $row;
         }
-
         //El usuario NO existe, retornamos null
         return null;
     }
 
+    /* ADMINISTRADOR */
+
     /**
      * Devuelve todos los usuarios con el nombre de su área resuelta
      * y la empresa para responsables de áreas de clientes
+     * @param mixed $search
      * @return array
      */
     public function listarConArea(?string $search = null): array
@@ -88,13 +91,14 @@ class UsuarioModel extends Model
 
 
         foreach ($result as &$u) {
+            // Lógica para etiquetas visuales de rol
             if ($u['rol'] === 'cliente' && !empty($u['idarea'])) {
                 $u['rol_visual'] = 'Responsable';
             } else {
                 $u['rol_visual'] = ucfirst($u['rol']);
             }
 
-            // Formatear área/empresa para mostrar
+            // Formatear área/empresa para mostrar en la tabla
             if (!empty($u['area_nombre']) && $u['area_nombre'] !== '-') {
                 if (!empty($u['empresa_nombre'])) {
                     // Es área de cliente - mostrar: Área (Empresa)
@@ -107,12 +111,11 @@ class UsuarioModel extends Model
                 $u['area_completa'] = '-';
             }
         }
-
         return $result;
     }
 
     /**
-     * Devuelve un usuario por ID junto con el nombre de su área de agencia
+     * Funcion que obtiene un usuario específico resolviendo su área de la agencia
      * @param int $id
      * @return array|null
      */
@@ -126,9 +129,9 @@ class UsuarioModel extends Model
     }
 
     /**
-     * Funcion que Busca los Detalles de un Usuario para Mostrar su Info en la PLantilla
-     * @param mixed $idUsuario ID Filtra Datos
-     * @return array
+     * Busca los detalles completos de un usuario para mostrarlos en la plantilla (Header/Sidebar)
+     * @param mixed $idUsuario
+     * @return array<bool|float|int|object|string|null>|object|null
      */
     public function getDetalleUsuario($idUsuario)
     {
@@ -139,10 +142,9 @@ class UsuarioModel extends Model
             ->where('usuarios.id', $idUsuario)
             ->first(); // Retorna una sola fila como array
     }
-
+    
     /**
-     * Obtiene la empresa vinculada al usuario a través de su área
-     * Puede ser Usada para Procesos de Guardado (Insert / POST)
+     * Funcion que Obtiene solo el ID de la empresa a la que pertenece un usuario cliente.
      * @param mixed $usuarioId
      * @return array|null
      */
@@ -160,8 +162,10 @@ class UsuarioModel extends Model
         return $this->db->query($sql, [$usuarioId])->getRowArray();
     }
 
+    /* RESPONSABLE_AREA */
+
     /**
-     * Devuelve usuarios asignables del área (empleados activos)
+     * Funcion que Filtra empleados activos que pertenecen a un área específica de la agencia.
      * @param int $idAreaAgencia
      * @return array
      */
@@ -182,7 +186,7 @@ class UsuarioModel extends Model
     }
 
     /**
-     * Busca un empleado específico activo que pertenezca a un área determinada
+     * Funcion que Busca un empleado específico validando que esté activo y en su área.
      * @param int $idUsuario
      * @param int $idAreaAgencia
      * @return array|null

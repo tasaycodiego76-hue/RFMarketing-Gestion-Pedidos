@@ -30,9 +30,10 @@ class RequerimientoModel extends Model
         'prioridad'
     ];
 
+    /* CLIENTE, EMPLEADO */
+
     /**
-     * Obtiene toda la información relacionada de un requerimiento.
-     * uniendo datos de atención, servicio y el personal asignado
+     * Obtiene el detalle Completo de un requerimiento cruzando todas las tablas relacionadas.
      * @param mixed $RequerimientoID
      * @return array|null
      */
@@ -67,6 +68,13 @@ class RequerimientoModel extends Model
         return $this->db->query($sql, [$RequerimientoID])->getRowArray();
     }
 
+    /* RESPONSABLE_AREA */
+
+    /**
+     * Variante de detalle completo que requiere obligatoriamente que exista una atención
+     * @param mixed $RequerimientoID
+     * @return array|null
+     */
     public function DetalleCompletoget($RequerimientoID)
     {
         $sql = "
@@ -93,5 +101,4 @@ class RequerimientoModel extends Model
         ";
         return $this->db->query($sql, [$RequerimientoID])->getRowArray();
     }
-
 }

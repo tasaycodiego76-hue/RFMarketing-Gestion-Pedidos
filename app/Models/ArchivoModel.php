@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class ArchivoModel extends Model
 {
     protected $table = 'archivos';
-    protected $primaryKey = 'id';   
+    protected $primaryKey = 'id';
     protected $returnType = 'array';
     protected $allowedFields = [
         'idatencion',

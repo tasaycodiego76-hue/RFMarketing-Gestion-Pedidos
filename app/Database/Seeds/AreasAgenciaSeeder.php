@@ -28,7 +28,7 @@ class AreasAgenciaSeeder extends Seeder
                 'activo' => true,
             ],
             [
-                'nombre' => 'Fotografia',
+                'nombre' => 'Fotografía',
                 'descripcion' => 'Servicio de captura y retoque de imagen profesional',
                 'activo' => true,
             ],

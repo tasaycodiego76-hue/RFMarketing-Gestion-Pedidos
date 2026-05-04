@@ -37,6 +37,9 @@
   font-weight: 700;
   color: var(--text-main);
   margin: 10px 0 5px 0;
+  white-space: normal;
+  word-break: break-word;
+  max-width: 100%;
 }
 .cliente-rol-sub {
   font-size: 15px;
@@ -249,6 +252,7 @@
   color: #fff;
   margin-top: 2px;
   font-weight: 500;
+  word-break: break-all;
 }
 
 /* BOTONES */
@@ -347,4 +351,31 @@
     margin-top: 0;
     margin-left: 10px;
   }
+}
+
+/* Clases de utilidad para evitar estilos inline */
+.text-accent-yellow {
+  color: var(--accent-yellow) !important;
+}
+
+.text-muted-timeline {
+  color: #888 !important;
+}
+
+.text-white-timeline {
+  color: #f0f0f0 !important;
+}
+
+.text-grey-timeline {
+  color: #666 !important;
+}
+
+.empty-icon {
+  font-size: 64px !important;
+  color: #333 !important;
+}
+
+.text-uppercase-accent {
+  text-transform: uppercase !important;
+  color: var(--accent-yellow) !important;
 }

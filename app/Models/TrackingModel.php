@@ -10,11 +10,12 @@ class TrackingModel extends Model
     protected $primaryKey = 'id';
     protected $returnType = 'array';
 
-    // Definimos los campos permitidos para inserción masiva
     protected $allowedFields = ['idatencion', 'idusuario', 'accion', 'estado', 'fecha_registro'];
 
+    /* ADMINISTRADOR | EMPLEADO */
+
     /**
-     * Obtiene el historial completo de una atención con datos de usuario y requerimiento
+     * Obtiene la línea de tiempo completa de una atención específica.
      * @param mixed $idAtencion
      * @return array
      */
@@ -37,8 +38,10 @@ class TrackingModel extends Model
         return $this->db->query($sql, [$idAtencion])->getResultArray();
     }
 
+    /* CLIENTE */
+
     /**
-     * Obtiene el Historial Completo (Requerimiento los Ultimos 20 Notificaciones)
+     * Obtiene las últimas acciones relevantes para un cliente (notificaciones virtuales).
      * @param mixed $idUsuario
      * @return array
      */
@@ -62,5 +65,4 @@ class TrackingModel extends Model
 
         return $this->db->query($sql, [$idUsuario])->getResultArray();
     }
-
 }

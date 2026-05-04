@@ -30,9 +30,11 @@ class AtencionModel extends Model
         'url_entrega',
         'idarea_agencia'
     ];
+    
+    /* CLIENTE */
 
     /**
-     * Obtiene una lista de requerimientos / Pedidos asociados a un cliente específico
+     * Obtiene una lista de requerimientos / Pedidos asociados a un cliente específico.
      * @param mixed $usuarioId
      * @return array
      */
@@ -62,26 +64,7 @@ class AtencionModel extends Model
     }
 
     /**
-     * Devuelve el número total de registros en un estado específico (Dashboard)
-     * @param string $estado
-     * @return int|string
-     */
-    public function contarPorEstado(string $estado): int
-    {
-        return $this->where('estado', $estado)->countAllResults();
-    }
-
-    /**
-     * Devuelve la cantidad total de requerimientos que tienen actualmente la agencia
-     * @return int|string
-     */
-    public function contarActivos(): int
-    {
-        return $this->whereIn('estado', ['pendiente_asignado', 'en_proceso'])->countAllResults();
-    }
-
-    /**
-     * Devuelve el número total de registros en un estado específico, filtrando por usuario y area (Empresa)
+     * Cuenta registros por estado filtrando por una empresa específica.
      * @param string $estado
      * @param int $idEmpresa
      * @return int|string
@@ -98,7 +81,7 @@ class AtencionModel extends Model
     }
 
     /**
-     * Calcula la Carga de  
+     * Cuenta requerimientos activos para una empresa específica.
      * @param int $idEmpresa
      * @return int|string
      */
@@ -113,8 +96,29 @@ class AtencionModel extends Model
             ->countAllResults();
     }
 
+    /* ADMINISTRADOR */
+
     /**
-     * Estadísticas para el kanban por Empresa
+     * Devuelve el número total de registros en un estado específico (Dashboard Global).
+     * @param string $estado
+     * @return int|string
+     */
+    public function contarPorEstado(string $estado): int
+    {
+        return $this->where('estado', $estado)->countAllResults();
+    }
+
+    /**
+     * Devuelve la cantidad total de requerimientos activos (en proceso o asignados).
+     * @return int|string
+     */
+    public function contarActivos(): int
+    {
+        return $this->whereIn('estado', ['pendiente_asignado', 'en_proceso'])->countAllResults();
+    }
+
+    /**
+     * Genera estadísticas agrupadas para el Kanban de una empresa
      * @param int $idEmpresa
      * @return array|array{activos: int, completados: int, en_revision: int, por_aprobar: int|null}
      */
@@ -137,7 +141,7 @@ class AtencionModel extends Model
     }
 
     /**
-     * Obtener Requerimiento y su Atencion para mostrar en el kanban
+     * Obtiene los datos necesarios para renderizar las tarjetas en el tablero Kanban.
      * @param int $idEmpresa
      * @param int $idAreaAgencia
      * @return array
@@ -176,7 +180,7 @@ class AtencionModel extends Model
     }
 
     /**
-     * Asignar un Area vinculada al Requerimiento para su Atencion (Ejecucion de la Solicitud)
+     * Asigna un área de la agencia a una atención y registra el primer hito en el tracking.
      * @param int $idAtencion
      * @param int $idAreaAgencia
      * @param int $idAdmin
@@ -185,8 +189,6 @@ class AtencionModel extends Model
     public function asignarArea(int $idAtencion, int $idAreaAgencia, int $idAdmin): bool
     {
         $this->db->query("
-
-
             UPDATE atencion
             SET idarea_agencia = ?, estado = 'pendiente_asignado'
             WHERE id = ?
@@ -200,8 +202,10 @@ class AtencionModel extends Model
         return true;
     }
 
+    /* RESPONSABLE_AREA */
+    
     /**
-     * Obtener pedidos para el responsable de un área específica
+     * Obtiene pedidos para la vista de resumen del Responsable de Área.
      * @param int $idAreaAgencia
      * @return array
      */
@@ -233,7 +237,8 @@ class AtencionModel extends Model
     }
 
     /**
-     * Obtiene los pedidos asignados a su área y que aun este sin asignar (Empleado)
+     * Obtiene los pedidos que han sido asignados al área,
+     * pero que aún no tienen un empleado asignado.
      * @param int $idAreaAgencia
      * @return array
      */
@@ -246,7 +251,8 @@ class AtencionModel extends Model
             r.fecharequerida,
             COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
             CONCAT(u.nombre, ' ', u.apellidos) AS cliente_nombre,
-            e.nombreempresa
+            e.nombreempresa,
+            ar.nombre AS nombre_area
         FROM atencion a
         INNER JOIN requerimiento r ON r.id = a.idrequerimiento
         INNER JOIN usuarios u ON u.id = r.idusuarioempresa
@@ -269,7 +275,7 @@ class AtencionModel extends Model
     }
 
     /**
-     * Valida que una atención pertenezca al área del responsable
+     * Verifica si una atención específica pertenece realmente al área del responsable.
      * @param int $idAtencion
      * @param int $idAreaAgencia
      * @return bool
@@ -283,15 +289,77 @@ class AtencionModel extends Model
               AND idarea_agencia = ? 
             LIMIT 1";
 
-        // Ejecutamos la consulta pasando los parámetros en un array
         $query = $this->db->query($sql, [$idAtencion, $idAreaAgencia]);
 
-        // Retornamos true si encontró al menos una fila, false si no
         return $query->getNumRows() > 0;
     }
 
     /**
-     * Obtener pedidos detallados para un empleado específico
+     * Obtiene todos los pedidos detallados de un área específica.
+     * @param int $idAreaAgencia
+     * @param array $estados
+     * @return array
+     */
+    public function obtenerDetalladoPorArea(int $idAreaAgencia, array $estados = []): array
+    {
+        $builder = $this->db->table('atencion a')
+            ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, r.fecharequerida,
+                          e.nombreempresa as empresa_nombre, 
+                          u_emp.nombre as empleado_nombre,
+                          u_cliente.nombre as cliente_nombre,
+                          ar_cliente.nombre as nombre_area,
+                          COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre')
+            ->join('requerimiento r', 'r.id = a.idrequerimiento')
+            ->join('usuarios u_cliente', 'u_cliente.id = r.idusuarioempresa')
+            ->join('areas ar_cliente', 'ar_cliente.id = u_cliente.idarea')
+            ->join('empresas e', 'e.id = ar_cliente.idempresa')
+            ->join('usuarios u_emp', 'u_emp.id = a.idempleado', 'left')
+            ->join('servicios s', 's.id = a.idservicio', 'left')
+            ->where('a.idarea_agencia', $idAreaAgencia);
+
+
+        if (!empty($estados)) {
+            $builder->whereIn('a.estado', $estados);
+        }
+
+        return $builder->orderBy('a.prioridad', 'DESC')
+            ->orderBy('a.fechacreacion', 'DESC')
+            ->get()->getResultArray();
+    }
+
+    /**
+     *  Obtiene las tareas que han sido devueltas por el Admin u Observadas en Revisión.
+     * @param int $idAreaAgencia
+     * @return array
+     */
+    public function obtenerRetroalimentacionPorArea(int $idAreaAgencia): array
+    {
+        return $this->db->table('atencion a')
+            ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, r.fecharequerida,
+                          e.nombreempresa as empresa_nombre, 
+                          u_emp.nombre as empleado_nombre,
+                          u_emp.apellidos as empleado_apellidos,
+                          u_cliente.nombre as cliente_nombre,
+                          ar_cliente.nombre as area_nombre,
+                          COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre')
+            ->join('requerimiento r', 'r.id = a.idrequerimiento')
+            ->join('usuarios u_cliente', 'u_cliente.id = r.idusuarioempresa')
+            ->join('areas ar_cliente', 'ar_cliente.id = u_cliente.idarea')
+            ->join('empresas e', 'e.id = ar_cliente.idempresa')
+            ->join('usuarios u_emp', 'u_emp.id = a.idempleado', 'left')
+            ->join('servicios s', 's.id = a.idservicio', 'left')
+            ->where('a.idarea_agencia', $idAreaAgencia)
+            ->where('a.observacion_revision IS NOT NULL')
+            ->where("a.observacion_revision != ''")
+            ->whereIn('a.estado', ['en_proceso', 'pendiente_asignado', 'en_revision'])
+            ->orderBy('a.fechacreacion', 'DESC')
+            ->get()->getResultArray();
+    }
+
+    /* EMPLEADO */
+
+    /**
+     * Obtiene pedidos detallados para un empleado, permitiendo filtrar por estado.
      * @param int $idEmpleado
      * @param array $estados
      * @return array
@@ -323,43 +391,10 @@ class AtencionModel extends Model
     }
 
     /**
-     * Obtener pedidos detallados para un área específica
-     * @param int $idAreaAgencia
-     * @param array $estados
-     * @return array
-     */
-    public function obtenerDetalladoPorArea(int $idAreaAgencia, array $estados = []): array
-    {
-        $builder = $this->db->table('atencion a')
-            ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, r.fecharequerida,
-                          e.nombreempresa as empresa_nombre, 
-                          u_emp.nombre as empleado_nombre,
-                          u_cliente.nombre as cliente_nombre,
-                          ar_cliente.nombre as area_nombre,
-                          COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre')
-            ->join('requerimiento r', 'r.id = a.idrequerimiento')
-            ->join('usuarios u_cliente', 'u_cliente.id = r.idusuarioempresa')
-            ->join('areas ar_cliente', 'ar_cliente.id = u_cliente.idarea')
-            ->join('empresas e', 'e.id = ar_cliente.idempresa')
-            ->join('usuarios u_emp', 'u_emp.id = a.idempleado', 'left')
-            ->join('servicios s', 's.id = a.idservicio', 'left')
-            ->where('a.idarea_agencia', $idAreaAgencia);
-
-
-        if (!empty($estados)) {
-            $builder->whereIn('a.estado', $estados);
-        }
-
-        return $builder->orderBy('a.prioridad', 'DESC')
-            ->orderBy('a.fechacreacion', 'DESC')
-            ->get()->getResultArray();
-    }
-
-    /**
-     * Obtener tareas de un empleado por estado específico
+     * Obtiene tareas de un empleado filtradas por un estado exacto.
      * @param int $idEmpleado
      * @param string $estado
-     * @return array
+     * @return array<array<bool|float|int|object|string|null>|object>
      */
     public function obtenerTareasPorEmpleadoEstado(int $idEmpleado, string $estado): array
     {
@@ -368,34 +403,5 @@ class AtencionModel extends Model
             ->orderBy('prioridad', 'DESC')
             ->orderBy('fechainicio', 'DESC')
             ->findAll();
-    }
-
-    /**
-     * Obtener tareas devueltas (con observaciones) para un área específica
-     * @param int $idAreaAgencia
-     * @return array
-     */
-    public function obtenerRetroalimentacionPorArea(int $idAreaAgencia): array
-    {
-        return $this->db->table('atencion a')
-            ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, r.fecharequerida,
-                          e.nombreempresa as empresa_nombre, 
-                          u_emp.nombre as empleado_nombre,
-                          u_emp.apellidos as empleado_apellidos,
-                          u_cliente.nombre as cliente_nombre,
-                          ar_cliente.nombre as area_nombre,
-                          COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre')
-            ->join('requerimiento r', 'r.id = a.idrequerimiento')
-            ->join('usuarios u_cliente', 'u_cliente.id = r.idusuarioempresa')
-            ->join('areas ar_cliente', 'ar_cliente.id = u_cliente.idarea')
-            ->join('empresas e', 'e.id = ar_cliente.idempresa')
-            ->join('usuarios u_emp', 'u_emp.id = a.idempleado', 'left')
-            ->join('servicios s', 's.id = a.idservicio', 'left')
-            ->where('a.idarea_agencia', $idAreaAgencia)
-            ->where('a.observacion_revision IS NOT NULL')
-            ->where("a.observacion_revision != ''")
-            ->whereIn('a.estado', ['en_proceso', 'pendiente_asignado', 'en_revision'])
-            ->orderBy('a.fechacreacion', 'DESC')
-            ->get()->getResultArray();
     }
 }

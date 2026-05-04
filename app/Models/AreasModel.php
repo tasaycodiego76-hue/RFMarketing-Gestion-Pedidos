@@ -12,8 +12,10 @@ class AreasModel extends Model
 
     protected $allowedFields = ['idempresa', 'nombre', 'descripcion', 'activo'];
 
+    /* CLIENTE | RESPONSABLE_AREA */
+
     /**
-     * Funcion que trae todas las areas activas de una empresa
+     * Obtiene las áreas activas vinculadas a una empresa específica
      * @param int $idEmpresa
      * @return array<array<bool|float|int|object|string|null>|object>
      */
@@ -24,8 +26,10 @@ class AreasModel extends Model
             ->findAll();
     }
 
+    /* ADMINISTRADOR */
+
     /**
-     * Funcion que devuelve todas las áreas (activas e inactivas) de una empresa.
+     * Funcion que obtiene todas las áreas de una empresa, sin importar su estado
      * @param int $idEmpresa
      * @return array<array<bool|float|int|object|string|null>|object>
      */
@@ -35,7 +39,7 @@ class AreasModel extends Model
     }
 
     /**
-     * Funcion que trae todas las areas activas sin importar la empresa
+     * Funcion que obtiene todas las áreas marcadas como activas de todo el sistema
      * @return array<array<bool|float|int|object|string|null>|object>
      */
     public function obtenerActivas(): array

@@ -12,8 +12,10 @@ class AreasAgenciaModel extends Model
 
     protected $allowedFields = ['nombre', 'descripcion', 'activo'];
 
+    /* ADMINISTRADOR */
+
     /**
-     * Trae todas las Areas de la Agencia de Marketing, Activas
+     * Funcion que obtiene una lista de áreas que están marcadas como activas.
      * @return array<array<bool|float|int|object|string|null>|object>
      */
     public function listarActivas(): array
@@ -22,8 +24,8 @@ class AreasAgenciaModel extends Model
     }
 
     /**
-     * Trae todas las Areas de la Agencia de Marketing, con su responsable
-     * @return array<array<bool|float|int|object|string|null>|object>
+     * Funcion que obtiene todas las áreas incluyendo el nombre del responsable asignado.
+     * @return array
      */
     public function listarConResponsable(): array
     {

@@ -151,7 +151,7 @@ class PedidosAreaController extends BaseResponsableController
             $pendientes = 0;
 
             foreach ($tareas as $t) {
-                if ($t['estado'] === 'en_proceso') {
+                if ($t['estado'] === 'en_proceso' || $t['estado'] === 'pendiente_asignado') {
                     $enProceso++;
                 } elseif ($t['estado'] === 'finalizado' || $t['estado'] === 'completado') {
                     $completados++;

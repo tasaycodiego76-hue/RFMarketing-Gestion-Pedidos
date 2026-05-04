@@ -355,7 +355,7 @@
 }
 
 .main-project-title {
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   font-weight: 800;
   color: var(--text-main);
   margin: 0;
@@ -370,19 +370,27 @@
 }
 
 .content-text {
-  color: #ddd;
-  font-size: 16px;
+  color: #eee;
+  font-size: 15px;
   margin-top: 5px;
+  font-weight: 500;
+  word-break: break-all;
 }
 
 .brief-container {
   background: #0d0d0d;
   border: 1px solid #1a1a1a;
-  padding: 16px;
+  padding: 15px;
   border-radius: 8px;
-  color: #ddd;
-  font-size: 16px;
+  color: #fff;
+  font-size: 15px;
   line-height: 1.6;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-height: 400px;
+  overflow: auto;
+  resize: vertical;
 }
 
 /* Timeline vertical de la derecha */
@@ -406,12 +414,15 @@
   font-size: 11px;
   color: #ccc;
   font-weight: 700;
+  letter-spacing: 0.5px;
 }
 .t-value {
   display: block;
   font-size: 15px;
   color: #fff;
+  font-weight: 700;
   margin-top: 2px;
+  word-break: break-all;
 }
 
 /* Badges */
@@ -462,11 +473,12 @@
 /* Tags inferiores */
 .tag-outline {
   border: 1px solid #444;
-  padding: 9px 18px;
+  padding: 8px 16px;
   border-radius: 8px;
-  color: #e0e0e0;
-  font-size: 15px;
+  color: #fff;
+  font-size: 14px;
   background: #1a1a1a;
+  font-weight: 600;
 }
 
 .file-card-mini {
@@ -562,16 +574,18 @@
   overflow-wrap: break-word;
   hyphens: auto;
   min-height: auto;
+  overflow: auto;
+  resize: vertical;
 }
 
 .content-box .content-text {
   color: #ddd;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.6;
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Para títulos largos - MEJORADO */
@@ -768,7 +782,26 @@
   transition: all 0.2s ease;
 }
 
-#btn-expandir:hover {
-  background: #f5c400;
-  color: #000;
+
+/* Clases de utilidad para evitar estilos inline */
+.descripcion-box {
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.url-card-full {
+  max-width: 100% !important;
+}
+
+.flex-1 {
+  flex: 1 !important;
+}
+
+.text-ellipsis-simple {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
