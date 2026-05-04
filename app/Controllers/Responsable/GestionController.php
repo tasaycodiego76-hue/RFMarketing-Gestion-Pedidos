@@ -7,24 +7,33 @@ use App\Models\AtencionModel;
 class GestionController extends BaseResponsableController
 {
     /**
-     * Vista de Historial de tareas (Propias y del Área)
+     * Muestra una vista con dos tablas:
+     * 1. Trabajos finalizados por el propio responsable (si es que ejecutó alguno).
+     * 2. Trabajos finalizados por todo su equipo del área.
+     * @return string|\CodeIgniter\HTTP\RedirectResponse
      */
     public function historial()
     {
+        // Validar identidad
         $userS = $this->ValidarSesion_DatosUser();
         if (!$userS['ok']) return redirect()->to('login');
 
         $user = $userS['user'];
         $idAreaAgencia = (int)$user['idarea_agencia'];
+        
+        // Cargar métricas para el Sidebar
         $metrics = $this->_getMetrics($idAreaAgencia);
 
         $atencionModel = new AtencionModel();
+        
+        // Obtener datos históricos (Estado: finalizado)
         $misCompletados = $atencionModel->obtenerDetalladoPorEmpleado((int)$user['id'], ['finalizado']);
         $areaCompletados = $atencionModel->obtenerDetalladoPorArea($idAreaAgencia, ['finalizado']);
 
+        // Inyectar en la vista
         return view('responsable/historial', array_merge([
-            'titulo' => 'Historial',
-            'tituloPagina' => 'HISTORIAL DE TRABAJOS',
+            'titulo' => 'Historial de Pedidos',
+            'tituloPagina' => 'HISTORIAL DE TRABAJOS FINALIZADOS',
             'user' => $userS['userData'],
             'mis_completados' => $misCompletados,
             'area_completados' => $areaCompletados
@@ -32,7 +41,9 @@ class GestionController extends BaseResponsableController
     }
 
     /**
-     * Vista de Retroalimentación (Pedidos devueltos)
+     * Muestra los pedidos que tienen observaciones o que fueron devueltos 
+     * desde administración o por el propio cliente para ser corregidos.
+     * @return string|\CodeIgniter\HTTP\RedirectResponse
      */
     public function retroalimentacion()
     {
@@ -43,11 +54,13 @@ class GestionController extends BaseResponsableController
         $metrics = $this->_getMetrics($idAreaAgencia);
         
         $atencionModel = new AtencionModel();
+        
+        // Obtener solo los pedidos del área que tengan el campo 'observacion_revision' lleno
         $items = $atencionModel->obtenerRetroalimentacionPorArea($idAreaAgencia);
 
         return view('responsable/retroalimentacion', array_merge([
-            'titulo' => 'Retroalimentación',
-            'tituloPagina' => 'Retroalimentación',
+            'titulo' => 'Buzón de Retroalimentación',
+            'tituloPagina' => 'Requerimientos Observados / Devueltos',
             'user' => $userS['userData'],
             'data' => $items
         ], $metrics));
