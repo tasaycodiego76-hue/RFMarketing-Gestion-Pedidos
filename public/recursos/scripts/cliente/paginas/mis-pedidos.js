@@ -612,12 +612,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const formatos = checkedVals("formatos[]");
 
     fd.append("servicio_ui_nombre", nombreServicioSeleccionado || "");
-    fd.append("objetivo_comunicacion", modoConsultivo ? "" : objetivo);
+    fd.append("objetivo_comunicacion", objetivo);
     fd.append("descripcion", descripcion);
-    fd.append("tipo_requerimiento", modoConsultivo ? "" : (MAPA_TIPOS[tipoReq] || tipoReq));
-    fd.append("publico_objetivo", modoConsultivo ? "" : publico);
-    fd.append("canales_difusion", JSON.stringify(modoConsultivo ? [] : canales));
-    fd.append("formatos_solicitados", JSON.stringify(modoConsultivo ? [] : formatos));
+    fd.append("tipo_requerimiento", modoConsultivo ? (MAPA_TIPOS[tipoReq] || tipoReq || "") : (MAPA_TIPOS[tipoReq] || tipoReq));
+    fd.append("publico_objetivo", publico);
+    fd.append("canales_difusion", JSON.stringify(canales));
+    fd.append("formatos_solicitados", JSON.stringify(formatos));
     fd.append("fecharequerida", getVal('[name="fecha_entrega"]'));
     fd.append("prioridad",qs('input[name="prioridad"]:checked')?.value || "Media");
     fd.append("tiene_materiales",document.getElementById("select-materiales")?.value || "0");

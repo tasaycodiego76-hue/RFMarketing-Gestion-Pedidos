@@ -4,8 +4,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const inputId = document.querySelector('#areaId');
     const modalTitulo = document.querySelector('#modal-titulo');
 
-    function notificar(mensaje) {
-        alert(mensaje);
+    function notificar(mensaje, tipo = 'info') {
+        Swal.fire({
+            text: mensaje,
+            icon: tipo,
+            confirmButtonColor: '#F5C400',
+            background: '#161616',
+            color: '#ffffff',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
     }
 
     // 1. LISTAR ÁREAS
@@ -83,11 +94,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const result = await response.json();
 
         if (result.success) {
-            notificar(result.message);
+            notificar(result.message, 'success');
             $('#modal-area').modal('hide');
             obtenerAreas();
         } else {
-            alert(result.message || 'Error al guardar');
+            notificar(result.message || 'Error al guardar', 'error');
         }
     });
 
@@ -106,17 +117,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 5. TOGGLE ESTADO
     window.toggleEstado = async function (id, estadoActual) {
-        if (!confirm('¿Seguro que deseas cambiar el estado de esta área?')) return;
-        const response = await fetch(BASE_URL + 'admin/areas/toggleEstado', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, estado: !estadoActual })
+        const titulo = estadoActual ? '¿Deshabilitar Área?' : '¿Habilitar Área?';
+        const texto = estadoActual 
+            ? 'Al deshabilitar el área, también se desactivarán los servicios vinculados y los empleados asignados a ella dejarán de tener acceso.' 
+            : 'Esta acción volverá a habilitar el área.';
+
+        Swal.fire({
+            title: titulo,
+            text: texto,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#F5C400',
+            cancelButtonColor: '#71717a',
+            confirmButtonText: 'Sí, continuar',
+            cancelButtonText: 'Cancelar',
+            background: '#161616',
+            color: '#ffffff'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const response = await fetch(BASE_URL + 'admin/areas/toggleEstado', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, estado: !estadoActual })
+                });
+                const resultData = await response.json();
+                if (resultData.success) {
+                    notificar(resultData.message, 'success');
+                    obtenerAreas();
+                } else {
+                    notificar(resultData.message || 'Error al cambiar estado', 'error');
+                }
+            }
         });
-        const result = await response.json();
-        if (result.success) {
-            notificar(result.message);
-            obtenerAreas();
-        }
     };
 
     obtenerAreas();

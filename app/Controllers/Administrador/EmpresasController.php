@@ -125,16 +125,30 @@
    * @return \CodeIgniter\HTTP\ResponseInterface
    */
   public function toggleEstado()
-{
-    $model = new EmpresaModel();
-    $datos = $this->request->getJSON(true);
+  {
+      $model = new EmpresaModel();
+      $datos = $this->request->getJSON(true);
+      $db = \Config\Database::connect();
 
-    // Forzamos que el valor sea booleano (true o false)
-    $nuevoEstado = filter_var($datos['estado'], FILTER_VALIDATE_BOOLEAN);
+      // Forzamos que el valor sea booleano (true o false)
+      $nuevoEstado = filter_var($datos['estado'], FILTER_VALIDATE_BOOLEAN);
 
-    $model->update($datos['id'], ['estado' => $nuevoEstado]);
+      $db->transStart();
+      
+      // 1. Actualizar estado de la empresa
+      $model->update($datos['id'], ['estado' => $nuevoEstado]);
 
-    $msg = $nuevoEstado ? 'habilitada' : 'deshabilitada';
-    return $this->response->setJSON(['success' => true, 'message' => "Empresa $msg"]);
-}
+      // 2. Si se desactiva la empresa, desactivamos a sus responsables (usuarios clientes)
+      if (!$nuevoEstado) {
+          $db->table('usuarios u')
+             ->join('areas a', 'a.id = u.idarea')
+             ->where('a.idempresa', $datos['id'])
+             ->update(['estado' => false]);
+      }
+
+      $db->transComplete();
+
+      $msg = $nuevoEstado ? 'habilitada' : 'deshabilitada';
+      return $this->response->setJSON(['success' => true, 'message' => "Empresa $msg con sus áreas y responsables vinculados."]);
+  }
   }

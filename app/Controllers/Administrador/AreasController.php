@@ -129,10 +129,50 @@
       {
           $json  = $this->request->getJSON(true);
           $model = new AreasAgenciaModel();
+          $db = \Config\Database::connect();
 
-          $model->update($json['id'], ['activo' => (bool) $json['estado']]);
+          $idArea = $json['id'];
+          $nuevoEstado = (bool) $json['estado'];
 
-          $msg = $json['estado'] ? 'habilitada' : 'deshabilitada';
-          return $this->response->setJSON(['success' => true, 'message' => "Área $msg"]);
+          $db->transStart();
+
+          // 1. Actualizar estado del área de agencia
+          $model->update($idArea, ['activo' => $nuevoEstado]);
+
+          if (!$nuevoEstado) {
+              // 2. Desactivar a los usuarios (empleados) de esa área
+              $db->table('usuarios')
+                 ->where('idarea_agencia', $idArea)
+                 ->update(['estado' => false]);
+
+              // 3. Desactivar el servicio vinculado (si existe)
+              $area = $model->find($idArea);
+              if ($area) {
+                  $db->table('servicios')
+                     ->where('LOWER(nombre)', mb_strtolower($area['nombre']))
+                     ->update(['activo' => false]);
+              }
+          } else {
+              // 2. Habilitar a los usuarios (empleados) de esa área
+              $db->table('usuarios')
+                 ->where('idarea_agencia', $idArea)
+                 ->update(['estado' => true]);
+
+              // 3. Habilitar el servicio vinculado (si existe)
+              $area = $model->find($idArea);
+              if ($area) {
+                  $db->table('servicios')
+                     ->where('LOWER(nombre)', mb_strtolower($area['nombre']))
+                     ->update(['activo' => true]);
+              }
+          }
+
+          $db->transComplete();
+
+          $msg = $nuevoEstado ? 'habilitada' : 'deshabilitada';
+          return $this->response->setJSON([
+              'success' => true, 
+              'message' => "Área $msg. Los servicios y empleados vinculados también han sido actualizados."
+          ]);
       }
   }
