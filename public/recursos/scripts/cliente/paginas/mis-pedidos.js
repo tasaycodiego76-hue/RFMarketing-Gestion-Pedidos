@@ -117,6 +117,27 @@ document.addEventListener("DOMContentLoaded", function () {
   // Configuración de colores y fondo para las alertas de SweetAlert2 (modo oscuro).
   const swalBase = { background: "#1a1a1a", color: "#f0f0f0", confirmButtonColor: "#f5c400" };
 
+  // Limitación de selección (Máximo 3) para contenedores de checkboxes
+  const aplicarLimiteCheckboxes = (containerId) => {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.addEventListener("change", (e) => {
+      if (e.target.type === "checkbox") {
+        const checked = container.querySelectorAll('input[type="checkbox"]:checked');
+        if (checked.length > 3) {
+          e.target.checked = false;
+          const item = e.target.closest(".check-item");
+          if (item) {
+            item.style.borderColor = "#ef4444";
+            setTimeout(() => item.style.borderColor = "", 800);
+          }
+        }
+      }
+    });
+  };
+  aplicarLimiteCheckboxes("canales-checks");
+  aplicarLimiteCheckboxes("formatos-checks");
+
 
   // Función asíncrona que descarga los servicios desde la base de datos y los pinta.
   async function cargarServicios() {
@@ -494,17 +515,26 @@ document.addEventListener("DOMContentLoaded", function () {
     const textoOriginal = btnEnv.innerHTML;
     btnEnv.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando...';
 
+       // Inicializamos FormData con los datos del formulario
+    const fd = new FormData(formNuevoPedido);
+    
+    // Obtenemos los valores necesarios que no están mapeados directamente o requieren proceso
     const modoConsultivo = esServicioConsultivo(nombreServicioSeleccionado);
-    const idServ = getIdVal("form-idservicio");
-    const tipoReq = getVal('[name="tipo_requerimiento"]');
+    const tipoReq = selectTipoReq.value;
+    const objetivo = getVal('[name="objetivo"]');
+    const descripcion = getVal('[name="descripcion"]');
+    const publico = getVal('[name="publico"]');
+    const canales = checkedVals("canales[]");
+    const formatos = checkedVals("formatos[]");
 
-    fd.append("servicio_ui_nombre", nombreServicioSeleccionado || "");
-    fd.append("objetivo_comunicacion", objetivo);
-    fd.append("descripcion", descripcion);
-    fd.append("tipo_requerimiento", modoConsultivo ? (MAPA_TIPOS[tipoReq] || tipoReq || "") : (MAPA_TIPOS[tipoReq] || tipoReq));
-    fd.append("publico_objetivo", publico);
-    fd.append("canales_difusion", JSON.stringify(canales));
-    fd.append("formatos_solicitados", JSON.stringify(formatos));
+    // Agregamos o sobreescribimos campos específicos
+    fd.set("servicio_ui_nombre", nombreServicioSeleccionado || "");
+    fd.set("objetivo_comunicacion", objetivo);
+    fd.set("descripcion", descripcion);
+    fd.set("tipo_requerimiento", modoConsultivo ? (MAPA_TIPOS[tipoReq] || tipoReq || "") : (MAPA_TIPOS[tipoReq] || tipoReq));
+    fd.set("publico_objetivo", publico);
+    fd.set("canales_difusion", JSON.stringify(canales));
+    fd.set("formatos_solicitados", JSON.stringify(formatos));
 
     fd.append("fecharequerida", getVal('[name="fecha_entrega"]'));
     fd.append("prioridad", qs('input[name="prioridad"]:checked')?.value || "Media");
@@ -534,6 +564,11 @@ document.addEventListener("DOMContentLoaded", function () {
         formNuevoPedido.reset();
         archivosSeleccionados = [];
         listaArchivos.innerHTML = "";
+
+        // Limpieza de estados visuales (ocultar secciones dinámicas)
+        document.getElementById("contenedor-materiales")?.classList.add("d-none");
+        document.getElementById("info-tipo-container")?.classList.add("d-none");
+        document.getElementById("contenedor-nombre-personalizado")?.classList.add("d-none");
       } else {
         // Si hay errores de validación en el servidor
         let msg = data.msg || "Error al enviar";

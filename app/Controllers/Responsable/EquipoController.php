@@ -9,7 +9,9 @@ use App\Models\RequerimientoModel;
 class EquipoController extends BaseResponsableController
 {
     /**
-     * Renderiza la vista de Mi Equipo
+     * Renderiza la página principal de "Mi Equipo", donde se listan los técnicos 
+     * a cargo del responsable.
+     * @return string|\CodeIgniter\HTTP\RedirectResponse
      */
     public function index()
     {
@@ -19,8 +21,8 @@ class EquipoController extends BaseResponsableController
         $metrics = $this->_getMetrics((int) $userS['user']['idarea_agencia']);
 
         $data = array_merge([
-            'titulo' => 'Mi Equipo',
-            'tituloPagina' => 'Mi Equipo',
+            'titulo' => 'Gestión de Equipo',
+            'tituloPagina' => 'Mi Equipo de Trabajo',
             'user' => $userS['userData']
         ], $metrics);
 
@@ -28,7 +30,9 @@ class EquipoController extends BaseResponsableController
     }
 
     /**
-     * Renderiza la vista de Tareas En Proceso del equipo
+     * Renderiza la vista de monitoreo en tiempo real. Permite ver en qué está 
+     * trabajando cada miembro del equipo en el momento actual.
+     * @return string|\CodeIgniter\HTTP\RedirectResponse
      */
     public function vistaTareasEnProceso()
     {
@@ -39,9 +43,12 @@ class EquipoController extends BaseResponsableController
         $metrics = $this->_getMetrics($idAreaAgencia);
 
         $usuarioModel = new UsuarioModel();
+        
+        // Obtenemos solo los empleados que pertenecen al área de la agencia del responsable
         $empleados = $usuarioModel->obtenerAsignablesPorAreaAgencia($idAreaAgencia);
         $empleadosEstaticos = [];
 
+        // Limpiamos y formateamos los datos de los empleados para la vista
         foreach ($empleados as $empleado) {
             $empleadosEstaticos[] = [
                 'id' => (int) $empleado['id'],
@@ -53,8 +60,8 @@ class EquipoController extends BaseResponsableController
         }
 
         $data = array_merge([
-            'titulo' => 'Tareas en Proceso',
-            'tituloPagina' => 'Tareas en Proceso',
+            'titulo' => 'Monitoreo de Tareas',
+            'tituloPagina' => 'Tareas en Proceso del Equipo',
             'user' => $userS['userData'],
             'empleados' => $empleadosEstaticos
         ], $metrics);
@@ -63,7 +70,9 @@ class EquipoController extends BaseResponsableController
     }
 
     /**
-     * Obtiene el detalle de un miembro del equipo y sus pedidos asignados
+     * Obtiene el perfil completo de un técnico y su historial de pedidos actuales.
+     * @param mixed $idEmpleado
+     * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function detalleMiembro($idEmpleado)
     {
@@ -75,13 +84,14 @@ class EquipoController extends BaseResponsableController
         $idAreaAgencia = (int) $userS['user']['idarea_agencia'];
         $usuarioModel = new UsuarioModel();
         
-        // Validar que el empleado pertenece a la misma área
+        // Validar que el empleado consultado realmente pertenece al área del responsable
         $empleado = $usuarioModel->find($idEmpleado);
         if (!$empleado || $empleado['idarea_agencia'] != $idAreaAgencia) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Empleado no encontrado o no pertenece a tu área.']);
+            return $this->response->setJSON(['success' => false, 'message' => 'Acceso denegado: El empleado no pertenece a tu área o no existe.']);
         }
 
         $atencionModel = new AtencionModel();
+        // Obtenemos todos los pedidos donde este técnico es el responsable (atencion.idempleado)
         $tareas = $atencionModel->obtenerDetalladoPorEmpleado($idEmpleado);
 
         return $this->response->setJSON([
@@ -98,7 +108,8 @@ class EquipoController extends BaseResponsableController
     }
 
     /**
-     * Lista de los Empleados asignables del Area
+     *  Lista de los Empleados asignables del Area
+     * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function empleadosMiAreaJson()
     {
@@ -139,7 +150,8 @@ class EquipoController extends BaseResponsableController
     }
 
     /**
-     * Tareas en proceso de todos los empleados del área
+     * Endpoint API JSON: Construye una muestra para las listas de monitoreo
+     * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function tareasEnProceso()
     {
@@ -152,29 +164,35 @@ class EquipoController extends BaseResponsableController
         $usuarioModel = new UsuarioModel();
         $requerimientoModel = new RequerimientoModel();
 
+        // Obtener miembros del equipo
         $empleados = $usuarioModel->obtenerAsignablesPorAreaAgencia((int) $userS['user']['idarea_agencia']);
         $tareasPorEmpleado = [];
 
+        // Por cada miembro, buscar sus tareas activas
         foreach ($empleados as $empleado) {
             $tareas = $atencionModel->where('idempleado', $empleado['id'])
                                     ->whereIn('estado', ['en_proceso', 'pendiente_asignado'])
                                     ->findAll();
             $tareasDetalladas = [];
             foreach ($tareas as $tarea) {
+                // Unimos con el detalle del requerimiento (cliente, empresa, etc)
                 $detalle = $requerimientoModel->getDetalleCompleto($tarea['idrequerimiento']);
                 if ($detalle) {
                     $tareaConDetalle = array_merge($tarea, $detalle);
+                    // Identificador único para el frontend (evitar colisiones de IDs en listas)
                     $tareaConDetalle['identificador_unico'] = 'EMP_' . $empleado['id'] . '_TAREA_' . $tarea['id'] . '_' . date('His');
                     $tareasDetalladas[] = $tareaConDetalle;
                 }
             }
 
+            // Ordenamos las tareas por prioridad (Alta primero)
             $prioridadOrden = ['alta' => 1, 'media' => 2, 'baja' => 3];
             usort($tareasDetalladas, function ($a, $b) use ($prioridadOrden) {
                 $prioA = $prioridadOrden[strtolower($a['prioridad'] ?? 'media')] ?? 2;
                 $prioB = $prioridadOrden[strtolower($b['prioridad'] ?? 'media')] ?? 2;
                 if ($prioA != $prioB) return $prioA - $prioB;
-                return strtotime($b['fechaasignacion'] ?? '0') - strtotime($a['fechaasignacion'] ?? '0');
+                // Si tienen misma prioridad, el más viejo (asignado antes) va primero
+                return strtotime($a['fechacreacion'] ?? '0') - strtotime($b['fechacreacion'] ?? '0');
             });
 
             $tareasPorEmpleado[] = [
@@ -195,7 +213,10 @@ class EquipoController extends BaseResponsableController
     }
 
     /**
-     * Tareas de un empleado específico
+     * Obtiene las tareas activas de un empleado específico.
+     * Utilizado para refrescar la carga de trabajo de un miembro puntual.
+     * @param int|null $idEmpleado
+     * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function tareasPorEmpleado($idEmpleado = null)
     {
@@ -204,10 +225,14 @@ class EquipoController extends BaseResponsableController
             return $this->response->setJSON(['success' => false, 'message' => $userS['message']]);
         }
 
-        if (!$idEmpleado) return $this->response->setJSON(['success' => false, 'message' => 'ID de empleado no válido']);
+        if (!$idEmpleado) {
+            return $this->response->setJSON(['success' => false, 'message' => 'ID de empleado no válido']);
+        }
 
         $atencionModel = new AtencionModel();
         $requerimientoModel = new RequerimientoModel();
+
+        // Buscamos tareas que estén en manos del técnico
         $tareas = $atencionModel->where('idempleado', $idEmpleado)
                                 ->whereIn('estado', ['en_proceso', 'pendiente_asignado'])
                                 ->findAll();
