@@ -2,8 +2,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const tabla = document.querySelector('#tabla-empresas');
     const formulario = document.querySelector('#form-empresa');
 
-    function notificar(mensaje) {
-        alert(mensaje);
+    function notificar(mensaje, tipo = 'info') {
+        Swal.fire({
+            text: mensaje,
+            icon: tipo,
+            confirmButtonColor: '#F5C400',
+            background: '#161616',
+            color: '#ffffff',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
     }
 
     async function obtenerEmpresas() {
@@ -71,13 +82,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const data = await response.json();
 
         if (data.success) {
-            notificar(data.message);
+            notificar(data.message, 'success');
             $('#modal-empresa').modal('hide');
             formulario.reset();
             delete formulario.dataset.editId;
             obtenerEmpresas();
         } else {
-            alert(data.message || 'Error al guardar');
+            notificar(data.message || 'Error al guardar', 'error');
         }
     });
 
@@ -97,17 +108,38 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     window.toggleEstado = async function (id, estadoActual) {
-        if (!confirm('¿Seguro que deseas cambiar el estado de esta empresa?')) return;
-        const response = await fetch(BASE_URL + 'admin/empresas/toggleEstado', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, estado: !estadoActual }) 
+        const titulo = estadoActual ? '¿Deshabilitar Empresa?' : '¿Habilitar Empresa?';
+        const texto = estadoActual 
+            ? 'Esta acción desactivará también a todos los responsables y áreas vinculadas a esta empresa. El cliente ya no podrá acceder al sistema.' 
+            : 'Esta acción volverá a habilitar la empresa.';
+
+        Swal.fire({
+            title: titulo,
+            text: texto,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#F5C400',
+            cancelButtonColor: '#71717a',
+            confirmButtonText: 'Sí, continuar',
+            cancelButtonText: 'Cancelar',
+            background: '#161616',
+            color: '#ffffff'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const response = await fetch(BASE_URL + 'admin/empresas/toggleEstado', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, estado: !estadoActual }) 
+                });
+                const data = await response.json();
+                if (data.success) {
+                    notificar(data.message, 'success');
+                    obtenerEmpresas();
+                } else {
+                    notificar(data.message || 'Error al cambiar estado', 'error');
+                }
+            }
         });
-        const data = await response.json();
-        if (data.success) {
-            notificar(data.message);
-            obtenerEmpresas();
-        }
     };
 
     document.querySelector('#btn-nueva-empresa').addEventListener('click', () => {

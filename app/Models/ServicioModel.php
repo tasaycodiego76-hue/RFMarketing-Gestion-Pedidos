@@ -13,12 +13,40 @@ class ServicioModel extends Model
     /* CLIENTE */
 
     /**
-     * Funcion que obtiene la lista de servicios disponibles para los clientes
-     * @return array<array<bool|float|int|object|string|null>|object>
+
+     * Funcion que devuelve todos los Servicios Activos 
+     * Solo devuelve servicios si el área asociada tiene un responsable asignado.
+     * @return array
      */
     public function getServiciosActivos()
     {
-        return $this->where('activo', true)->findAll();
+        $db = \Config\Database::connect();
+        
+        // Obtenemos todos los servicios activos base
+        $servicios = $this->where('activo', true)->findAll();
+        $filtrados = [];
+
+        foreach ($servicios as $s) {
+            $idArea = $this->getAreaAgenciaByServicio((int)$s['id']);
+            $nombreServicio = $s['nombre'];
+            
+            // Verificar si el área (por ID o por nombre coincidente) tiene al menos un responsable activo
+            $tieneResponsable = $db->table('usuarios u')
+                ->join('areas_agencia aa', 'aa.id = u.idarea_agencia')
+                ->where('u.esresponsable', true)
+                ->where('u.estado', true)
+                ->groupStart()
+                    ->where('aa.id', $idArea)
+                    ->orWhere('LOWER(aa.nombre)', mb_strtolower($nombreServicio))
+                ->groupEnd()
+                ->countAllResults() > 0;
+
+            if ($tieneResponsable) {
+                $filtrados[] = $s;
+            }
+        }
+
+        return $filtrados;
     }
 
     /**

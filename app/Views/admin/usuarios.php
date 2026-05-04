@@ -145,7 +145,7 @@
                           </div>
                       </div>
 
-                      <!-- Solo empleado -->
+                      <!-- Solo empleado (Selección de Área) -->
                       <div id="campos-empleado" style="display:none;">
                           <div class="form-group">
                               <label>Área de la Agencia <span class="text-danger">*</span></label>
@@ -155,10 +155,7 @@
                                       <option value="<?= $a['id'] ?>"><?= $a['nombre'] ?></option>
                                   <?php endforeach; ?>
                               </select>
-                          </div>
-                          <div class="form-check mb-3">
-                              <input type="checkbox" class="form-check-input" id="esresponsable">
-                              <label class="form-check-label">¿Es responsable de esta área?</label>
+                              <div id="area-status-msg" class="mt-1 small" style="display:none;"></div>
                           </div>
                       </div>
 
@@ -174,7 +171,7 @@
 
   <!-- MODAL REASIGNAR (REDiseño Premium) -->
   <div class="modal fade" id="modal-reasignar" data-backdrop="static" tabindex="-1">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
           <div class="modal-content" style="border: 1px solid #333; box-shadow: 0 10px 40px rgba(0,0,0,0.7);">
               <div class="modal-header" style="background: #0a0a0a; border-bottom: 2px solid #F5C400;">
                   <h5 class="modal-title" style="color: #F5C400; font-weight: 800; letter-spacing: 1px; display: flex; align-items: center; gap: 10px;">

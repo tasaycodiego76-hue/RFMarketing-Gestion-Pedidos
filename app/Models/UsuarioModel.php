@@ -41,14 +41,46 @@ class UsuarioModel extends Model
      */
     public function verificarCredenciales(string $usuario, string $clave): ?object
     {
-        //Verificar si existe el Usuario
-        $row = $this->where('usuario', $usuario)->first();
+        // 1. Verificar si existe el Usuario y está ACTIVO
+        $row = $this->where('usuario', $usuario)
+                    ->where('estado', true)
+                    ->first();
 
-        //Asumimos que el usuario existe... entonces validamos la clave
         if ($row && password_verify($clave, $row['clave'])) {
+
+            
+            // 2. Si es CLIENTE, verificar que su EMPRESA esté activa
+            if ($row['rol'] === 'cliente' && !empty($row['idarea'])) {
+                $db = \Config\Database::connect();
+                $empresa = $db->table('usuarios u')
+                    ->select('emp.estado')
+                    ->join('areas a', 'a.id = u.idarea')
+                    ->join('empresas emp', 'emp.id = a.idempresa')
+                    ->where('u.id', $row['id'])
+                    ->get()->getRow();
+                
+                if ($empresa && !($empresa->estado === true || $empresa->estado === 't' || $empresa->estado == 1)) {
+                    return null; // Empresa deshabilitada
+                }
+            }
+
+            // 3. Si es EMPLEADO, verificar que su ÁREA DE AGENCIA esté activa
+            if ($row['rol'] === 'empleado' && !empty($row['idarea_agencia'])) {
+                $db = \Config\Database::connect();
+                $area = $db->table('areas_agencia')
+                    ->where('id', $row['idarea_agencia'])
+                    ->get()->getRow();
+                
+                if ($area && !($area->activo === true || $area->activo === 't' || $area->activo == 1)) {
+                    return null; // Área de agencia deshabilitada
+                }
+            }
+
+            // Acceso Correcto
             return (object) $row;
         }
-        //El usuario NO existe, retornamos null
+
+
         return null;
     }
 
@@ -115,15 +147,17 @@ class UsuarioModel extends Model
     }
 
     /**
-     * Funcion que obtiene un usuario específico resolviendo su área de la agencia
+     * Devuelve un usuario por ID junto con el nombre de su área de agencia,
+     * o datos de su área de empresa y la empresa misma.
      * @param int $id
      * @return array|null
      */
     public function obtenerConArea(int $id): ?array
     {
         return $this->db->table('usuarios u')
-            ->select('u.*, a.nombre as area_nombre')
-            ->join('areas_agencia a', 'a.id = u.idarea_agencia', 'left')
+            ->select('u.*, aa.nombre as area_agencia_nombre, ae.nombre as area_empresa_nombre, ae.descripcion as area_empresa_desc, ae.idempresa')
+            ->join('areas_agencia aa', 'aa.id = u.idarea_agencia', 'left')
+            ->join('areas ae', 'ae.id = u.idarea', 'left')
             ->where('u.id', $id)
             ->get()->getRowArray() ?: null;
     }

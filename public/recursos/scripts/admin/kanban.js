@@ -369,6 +369,7 @@ async function verDetalle(idAtencion) {
                 .data-label { color: #fff; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; display: block; opacity: 0.8; }
                 .data-value { color: #fff; font-size: 14px; font-weight: 600; line-height: 1.5; }
                 .data-value.highlight { color: #F5C400; }
+                .data-label-large { color: #fff; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; margin-bottom: 8px; display: block; }
                 
                 /* Tags */
                 .tags-container { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -415,20 +416,20 @@ async function verDetalle(idAtencion) {
 
             <div class="exp-container">
                 <!-- 1. HEADER SECCIÓN -->
-                <div style="padding: 40px 30px 20px; display: flex; justify-content: space-between; align-items: flex-end;">
-                    <div>
+                <div style="padding: 40px 30px 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+                    <div style="flex: 1; min-width: 0;">
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                             ${statusPill}
                             <span style="color:#444; font-size:11px; font-weight:800;">ID: #REQ-${d.idrequerimiento || "---"}</span>
                         </div>
-                        <h2 style="font-family:'Bebas Neue'; font-size:48px; color:#fff; letter-spacing:1px; margin:0; line-height:0.9;">${d.titulo || "SIN TÍTULO"}</h2>
-                        <div style="margin-top:15px; display:flex; align-items:center; gap:15px;">
+                        <h2 style="font-family:'Bebas Neue'; font-size:48px; color:#fff; letter-spacing:1px; margin:0; line-height:1.1; word-wrap:break-word; overflow-wrap:break-word;">${d.titulo || "SIN TÍTULO"}</h2>
+                        <div style="margin-top:15px; display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
                             <span style="color:#F5C400; font-weight:800; font-size:14px;"><i class="bi bi-building"></i> ${d.nombreempresa}</span>
                             <span style="color:#222;">|</span>
                             <span style="color:#888; font-size:13px; font-weight:600;">ÁREA: ${d.area_solicitante_nombre || "---"}</span>
                         </div>
                     </div>
-                    <div style="text-align:right;">
+                    <div style="text-align:right; flex-shrink:0;">
                         <div style="font-family:'Bebas Neue'; font-size:24px; color:#F5C400;">${d.servicio || "SERVICIO GENERAL"}</div>
                         <div style="color:#444; font-size:10px; font-weight:800; letter-spacing:1px; margin-top:5px;">ATENCIÓN #${d.id.toString().padStart(5, "0")}</div>
                     </div>
@@ -441,28 +442,33 @@ async function verDetalle(idAtencion) {
                     <!-- COLUMNA PRINCIPAL -->
                     <div class="exp-main-col">
                         
-                        <!-- Brief -->
+                        <!-- Descripción (siempre visible) -->
                         <div class="exp-card">
-                            <div class="exp-card-header"><i class="bi bi-compass"></i> <span>ESTRATEGIA DEL REQUERIMIENTO</span></div>
+                            <div class="exp-card-header"><i class="bi bi-file-text"></i> <span>DESCRIPCIÓN DEL REQUERIMIENTO</span></div>
+                            <div class="exp-card-body">
+                                <div class="data-value" style="white-space:pre-wrap; font-size:13px; color:#ccc;">${d.descripcion || "Sin descripción adicional."}</div>
+                            </div>
+                        </div>
+
+                        ${((d.servicio && d.servicio.toLowerCase().includes('contenido')) || (d.area_nombre && d.area_nombre.toLowerCase().includes('contenido'))) ? `
+                        <!-- Estrategia (Solo Creación de Contenido) -->
+                        <div class="exp-card">
+                            <div class="exp-card-header"><i class="bi bi-compass"></i> <span>ESTRATEGIA DE CONTENIDO</span></div>
                             <div class="exp-card-body">
                                 <div class="data-row">
                                     <div class="data-box">
-                                        <span class="data-label">Objetivo Principal</span>
-                                        <div class="data-value highlight">${d.objetivo_comunicacion || "---"}</div>
+                                        <span class="data-label-large">Objetivo Principal</span>
+                                        <div class="data-value">${d.objetivo_comunicacion && d.objetivo_comunicacion.trim() !== '' ? d.objetivo_comunicacion : '---'}</div>
                                     </div>
                                     <div class="data-box">
-                                        <span class="data-label">Público Objetivo</span>
-                                        <div class="data-value">${d.publico_objetivo || "---"}</div>
+                                        <span class="data-label-large">Público Objetivo</span>
+                                        <div class="data-value">${d.publico_objetivo && d.publico_objetivo.trim() !== '' ? d.publico_objetivo : '---'}</div>
                                     </div>
-                                </div>
-                                <div class="data-box">
-                                    <span class="data-label">Descripción Detallada</span>
-                                    <div class="data-value" style="white-space:pre-wrap; font-size:13px; color:#ccc;">${d.descripcion || "Sin descripción adicional."}</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Formatos y Canales -->
+                        <!-- Canales y Formatos (Solo Creación de Contenido) -->
                         <div class="data-row">
                             <div class="exp-card" style="margin-bottom:0;">
                                 <div class="exp-card-header"><i class="bi bi-broadcast"></i> <span>CANALES</span></div>
@@ -473,28 +479,27 @@ async function verDetalle(idAtencion) {
                                 <div class="exp-card-body">${renderTags(d.formatos_solicitados)}</div>
                             </div>
                         </div>
+                        ` : ''}
 
                         <!-- Recursos -->
                         <div class="exp-card" style="margin-top:25px;">
                             <div class="exp-card-header"><i class="bi bi-folder-symlink"></i> <span>RECURSOS DEL CLIENTE</span></div>
                             <div class="exp-card-body">
                                 ${arcClienteHtml}
-                                ${
-                                  d.url_subida
-                                    ? `
+                                ${d.url_subida
+        ? `
                                 <a href="${d.url_subida}" target="_blank" style="margin-top:20px; display:flex; align-items:center; justify-content:center; gap:10px; background:#F5C400; color:#000; padding:15px; border-radius:12px; font-weight:900; text-decoration:none; font-size:12px; letter-spacing:1px;">
                                     <i class="bi bi-cloud-arrow-down-fill" style="font-size:20px;"></i> URL DEL CLIENTE
                                 </a>`
-                                    : ""
-                                }
+        : ""
+      }
                             </div>
                         </div>
 
                         <!-- Entrega si existe -->
-                        ${
-                          d.estado === "en_revision" ||
-                          d.estado === "finalizado"
-                            ? `
+                        ${d.estado === "en_revision" ||
+        d.estado === "finalizado"
+        ? `
                         <div class="exp-card" style="border-color:#10b981; background:rgba(16,185,129,0.02);">
                             <div class="exp-card-header" style="background:rgba(16,185,129,0.05); border-bottom-color:rgba(16,185,129,0.1);">
                                 <i class="bi bi-send-check" style="color:#10b981;"></i> <span style="color:#10b981;">ENTREGA Y RESULTADOS</span>
@@ -514,8 +519,8 @@ async function verDetalle(idAtencion) {
                                 ${arcEmpleadoHtml}
                             </div>
                         </div>`
-                            : ""
-                        }
+        : ""
+      }
 
                     </div>
 
@@ -536,33 +541,31 @@ async function verDetalle(idAtencion) {
                             <div class="exp-card-body">
                                 <div style="display:flex; flex-direction:column; gap:15px;">
                                     <div class="data-box">
-                                        <span class="data-label">Fecha de Solicitud</span>
+                                        <span class="data-label-large">Fecha de Solicitud</span>
                                         <div class="data-value">${fSolFmt}</div>
                                     </div>
                                     <div class="data-box" style="border-color:#F5C40033; background:rgba(245,196,0,0.02);">
                                         <span class="data-label" style="color:#F5C400;">Fecha Límite</span>
                                         <div class="data-value" style="font-weight:900;">${fReq}</div>
                                     </div>
-                                    ${
-                                      d.fechainicio !== "---" &&
-                                      d.fechainicio !== "—"
-                                        ? `
+                                    ${d.fechainicio !== "---" &&
+        d.fechainicio !== "—"
+        ? `
                                     <div class="data-box">
                                         <span class="data-label">Inicio de Trabajo</span>
                                         <div class="data-value">${fIni}</div>
                                     </div>`
-                                        : ""
-                                    }
-                                    ${
-                                      d.fechacompletado !== "---" &&
-                                      d.fechacompletado !== "—"
-                                        ? `
+        : ""
+      }
+                                    ${d.fechacompletado !== "---" &&
+        d.fechacompletado !== "—"
+        ? `
                                     <div class="data-box" style="border-color:#10b98133;">
                                         <span class="data-label" style="color:#10b981;">Completado</span>
                                         <div class="data-value">${fFin}</div>
                                     </div>`
-                                        : ""
-                                    }
+        : ""
+      }
                                 </div>
                             </div>
                         </div>

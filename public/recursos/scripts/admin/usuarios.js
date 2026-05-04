@@ -5,9 +5,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnGuardar = document.querySelector('#btn-guardar');
     const inputTipoRegistro = document.querySelector('#tipo_registro');
 
-    // ─── NOTIFICACIÓN ──────────────────────────────────────
-    function notificar(mensaje) {
-        alert(mensaje);
+    // ─── NOTIFICACIÓN (SweetAlert2) ────────────────────────
+    function notificar(mensaje, tipo = 'info') {
+        Swal.fire({
+            text: mensaje,
+            icon: tipo,
+            confirmButtonColor: '#F5C400',
+            background: '#161616',
+            color: '#ffffff',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
     }
 
     // ─── LISTAR USUARIOS ───────────────────────────────────
@@ -101,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const btnToggle = u.estado
                     ? `<button class="btn-icon btn-icon-toggle activo" onclick="toggleEstado(${u.id}, true)" title="Desactivar usuario" style="cursor:pointer;">✕</button>`
                     : `<button class="btn-icon btn-icon-toggle inactivo" onclick="toggleEstado(${u.id}, false)" title="Activar usuario" style="cursor:pointer;">✓</button>`;
-                
+
                 // Botón Reasignar (Solo para Clientes o Responsables de Área ACTIVO)
                 let btnReasignar = '';
                 if ((esCliente || esResponsable) && u.estado) {
@@ -153,14 +164,21 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelector('#idempresa').required = false;
         document.querySelector('#nombre_area').required = false;
         document.querySelector('#razonsocial').required = false;
-        document.querySelector('#idarea_agencia').required = false;
+        const areaAgencia = document.querySelector('#idarea_agencia');
+        areaAgencia.required = false;
+        areaAgencia.disabled = false;
+
+        const isEdit = !!formulario.dataset.editId;
 
         if (tipo === 'empleado') {
-            modalTitulo.textContent = 'Nuevo Colaborador';
+            modalTitulo.textContent = isEdit ? 'Editar Colaborador' : 'Nuevo Colaborador';
             camposEmpleado.style.display = 'block';
             labelNombre.textContent = 'Nombre';
             tipodoc.innerHTML = '<option value="DNI">DNI</option><option value="CE">CE</option>';
-            document.querySelector('#idarea_agencia').required = true;
+            areaAgencia.required = true;
+            
+            // Restricción: No se puede cambiar el área de la agencia al editar
+            areaAgencia.disabled = isEdit;
 
         } else if (tipo === 'responsable_area') {
             modalTitulo.textContent = 'Crear Área de Empresa + Responsable';
@@ -203,12 +221,47 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('#tipodoc').addEventListener('change', () =>
         actualizarDoc(document.querySelector('#tipodoc').value));
 
+    // Función para mostrar un mensaje informativo sobre el estado del área
+    async function verificarEstadoArea(idArea, excludeId = null) {
+        const msgDiv = document.querySelector('#area-status-msg');
+        const isEdit = !!excludeId;
+
+        // En modo EDICIÓN no mostramos ningún mensaje informativo sobre el área
+        if (isEdit || !idArea) {
+            msgDiv.style.display = 'none';
+            return;
+        }
+
+        try {
+            const url = BASE_URL + 'admin/usuarios/verificarAreaResponsable/' + idArea;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            msgDiv.style.display = 'block';
+            if (data.ocupado) {
+                msgDiv.innerHTML = `<i class="bi bi-info-circle-fill text-info"></i> El área ya cuenta con un responsable: <strong>${data.nombre}</strong>. El nuevo usuario será un colaborador.`;
+                msgDiv.className = 'mt-1 small text-muted';
+            } else {
+                msgDiv.innerHTML = `<i class="bi bi-exclamation-triangle-fill text-warning"></i> Esta área no tiene responsable. El usuario será asignado como <strong>RESPONSABLE</strong> automáticamente.`;
+                msgDiv.className = 'mt-1 small text-warning';
+            }
+        } catch (error) {
+            console.error('Error al verificar estado del área:', error);
+        }
+    }
+
+    document.querySelector('#idarea_agencia').addEventListener('change', function () {
+        const editId = formulario.dataset.editId;
+        verificarEstadoArea(this.value, editId);
+    });
+
     // ─── EVENTOS DE OPCIONES ────────────────────────────────
     document.querySelector('#opcion-empleado').addEventListener('click', (e) => {
         e.preventDefault();
         formulario.reset();
         delete formulario.dataset.editId;
         configurarFormulario('empleado');
+        document.querySelector('#area-status-msg').style.display = 'none';
         $('#modal-usuario').modal('show');
     });
 
@@ -245,17 +298,15 @@ document.addEventListener('DOMContentLoaded', function () {
             // Modo edición - mantener rol original
             datos.rol = rolOriginal;
 
-            // Si es empleado, enviar campos de área y responsable
+            // Si es empleado, enviar campos de área
             if (rolOriginal === 'empleado') {
                 datos.idarea_agencia = document.querySelector('#idarea_agencia').value || null;
-                datos.esresponsable = document.querySelector('#esresponsable').checked;
             }
         } else {
             // Modo creación según tipo
             if (tipo === 'empleado') {
                 datos.rol = 'empleado';
                 datos.idarea_agencia = document.querySelector('#idarea_agencia').value || null;
-                datos.esresponsable = document.querySelector('#esresponsable').checked;
             } else if (tipo === 'responsable_area') {
                 datos.rol = 'responsable_area';
                 datos.idempresa = document.querySelector('#idempresa').value;
@@ -276,8 +327,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         const data = await response.json();
 
-        notificar(data.message);
-        if (!data.success) return;
+        if (!data.success) {
+            notificar(data.message, 'error');
+            return;
+        }
+
+        notificar(data.message, 'success');
 
         $('#modal-usuario').modal('hide');
         formulario.reset();
@@ -304,14 +359,17 @@ document.addEventListener('DOMContentLoaded', function () {
             configurarFormulario('empleado');
             setTimeout(() => {
                 document.querySelector('#idarea_agencia').value = u.idarea_agencia ?? '';
-                // Fix: Postgres devuelve 't' o 'f' como string, o true/false boolean
-                const esResponsable = u.esresponsable === true || u.esresponsable === 't' || u.esresponsable === 1;
-                document.querySelector('#esresponsable').checked = esResponsable;
+                verificarEstadoArea(u.idarea_agencia, id);
             }, 50);
         } else if (u.rol === 'cliente') {
             if (u.idarea) {
-                // Es un responsable de área
+                // Es un responsable de área de empresa
                 configurarFormulario('responsable_area');
+                setTimeout(() => {
+                    document.querySelector('#idempresa').value = u.idempresa ?? '';
+                    document.querySelector('#nombre_area').value = u.area_empresa_nombre ?? '';
+                    document.querySelector('#descripcion_area').value = u.area_empresa_desc ?? '';
+                }, 50);
             } else {
                 configurarFormulario('cliente');
                 setTimeout(() => {
@@ -340,17 +398,30 @@ document.addEventListener('DOMContentLoaded', function () {
             ? '¿Seguro que deseas deshabilitar este usuario?'
             : '¿Deseas volver a habilitar este usuario?';
 
-        if (!confirm(mensaje)) return;
+        Swal.fire({
+            title: '¿Confirmar Cambio?',
+            text: mensaje,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#F5C400',
+            cancelButtonColor: '#71717a',
+            confirmButtonText: 'Sí, Continuar',
+            cancelButtonText: 'Cancelar',
+            background: '#161616',
+            color: '#ffffff'
+        }).then(async (result) => {
+            if (!result.isConfirmed) return;
 
-        const response = await fetch(BASE_URL + 'admin/usuarios/toggleEstado', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, estado: !estadoActual })
+            const response = await fetch(BASE_URL + 'admin/usuarios/toggleEstado', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, estado: !estadoActual })
+            });
+            const data = await response.json();
+
+            notificar(data.message, data.success ? 'success' : 'error');
+            if (data.success) obtenerUsuarios();
         });
-        const data = await response.json();
-
-        notificar(data.message);
-        if (data.success) obtenerUsuarios();
     };
 
     // ─── BUSCADOR ──────────────────────────────────────────
@@ -366,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // ─── REASIGNACIÓN ──────────────────────────────────────
-    window.abrirModalReasignar = async function(id) {
+    window.abrirModalReasignar = async function (id) {
         try {
             const response = await fetch(BASE_URL + 'admin/usuarios/infoReasignar/' + id);
             const data = await response.json();
@@ -390,12 +461,12 @@ document.addEventListener('DOMContentLoaded', function () {
             historialDiv.style.display = 'none';
             btnProcesar.dataset.tipo = data.tipo;
 
-            const formatFecha = (f) => f ? new Date(f).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
+            const formatFecha = (f) => f ? new Date(f).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
 
             if (data.tipo === 'cliente') {
                 formCliente.style.display = 'block';
                 historialDiv.style.display = 'block';
-                
+
                 document.querySelector('#rea-id-registro-actual').value = data.actual.id || '';
                 document.querySelector('#rea-id-empresa').value = data.actual.idempresa;
                 document.querySelector('#rea-id-usuario-anterior').value = data.usuario.id;
@@ -410,9 +481,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </div>
                             </div>
                             <div class="col">
-                                <p class="mb-0 text-white-50 small font-weight-bold uppercase" style="letter-spacing: 1px;">Empresa Actual</p>
-                                <h6 class="text-white mb-0 font-weight-bold" style="font-size: 16px;">${data.actual.nombreempresa} <span class="text-warning ml-2" style="font-size: 11px; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">RUC: ${data.actual.ruc}</span></h6>
-                            </div>
+                                 <h6 class="text-white mb-0 font-weight-bold" style="font-size: 16px;">${data.actual.nombreempresa} <span class="text-warning ml-2" style="font-size: 11px; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">RUC: ${data.actual.ruc}</span></h6>
+                                 <p class="mb-0 text-white-50 mt-1" style="font-size: 12px;"><i class="bi bi-diagram-3 mr-1"></i> Área: <span class="text-white">${data.actual.nombre_area || 'General'}</span></p>
+                             </div>
                         </div>
                         <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
                         <div class="row">
@@ -431,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Historial (Solo mostrar registros pasados/inactivos para que sea una verdadera "línea de tiempo de reasignaciones")
                 const listaHistorial = document.querySelector('#lista-historial-reasignar');
                 listaHistorial.innerHTML = '';
-                
+
                 // Filtramos para no mostrar al que ya está activo arriba
                 const reasignacionesPasadas = data.historial ? data.historial.filter(h => h.estado !== 'activo') : [];
 
@@ -516,7 +587,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    document.querySelector('#btn-procesar-reasignar').addEventListener('click', async function() {
+    document.querySelector('#btn-procesar-reasignar').addEventListener('click', async function () {
         const tipo = this.dataset.tipo;
         let url = '';
         let datos = {};
@@ -558,24 +629,37 @@ document.addEventListener('DOMContentLoaded', function () {
             };
         }
 
-        if (!confirm('¿CONFIRMAR REASIGNACIÓN?\nEsta acción es irreversible y actualizará todos los permisos del sistema.')) return;
+        Swal.fire({
+            title: '¿Confirmar Reasignación?',
+            text: 'Esta acción es irreversible y actualizará todos los permisos del sistema.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#F5C400',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, Confirmar Cambio',
+            cancelButtonText: 'Cancelar',
+            background: '#161616',
+            color: '#ffffff'
+        }).then(async (result) => {
+            if (!result.isConfirmed) return;
 
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datos)
-            });
-            const result = await response.json();
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+                const resultData = await response.json();
 
-            notificar(result.message || 'Operación completada');
-            if (result.success) {
-                $('#modal-reasignar').modal('hide');
-                obtenerUsuarios();
+                notificar(resultData.message || 'Operación completada', resultData.success ? 'success' : 'error');
+                if (resultData.success) {
+                    $('#modal-reasignar').modal('hide');
+                    obtenerUsuarios();
+                }
+            } catch (e) {
+                notificar('Ocurrió un error al procesar el cambio de responsable', 'error');
             }
-        } catch (e) {
-            notificar('Ocurrió un error al procesar el cambio de responsable');
-        }
+        });
     });
 
     // ─── INICIO ────────────────────────────────────────────

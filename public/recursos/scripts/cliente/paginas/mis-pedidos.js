@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
     Media: { clase: "prio-media", etiqueta: "Media" },
     Alta: { clase: "prio-alta", etiqueta: "Alta" },
   };
-  
+
   /* VARIABLES DE ESTADO DE CONTROL */
   let pasoActual = 1;                   // Variable numérica para saber si estamos en el paso 1, 2 o 3.
   let archivosSeleccionados = [];       // Array que guarda los objetos 'File' seleccionados por el usuario.
@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
           <i class="bi bi-arrow-right servicio-card-arrow"></i>
         </div>`;
-      
+
       listaServicios.innerHTML = html;
     } catch (error) {
       console.error("Error cargando servicios:", error);
@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Función que obtiene la lista de pedidos del usuario y actualiza toda la interfaz.
   async function obtenerPedidos() {
-    if (!tablaPedidosBody){ return };
+    if (!tablaPedidosBody) { return };
     try {
       const response = await fetch(`${base_url}cliente/pedidos/listar`);
       const datos = await response.json();
@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const aplicarModoConsultivo = (activo) => {
     const camposOpcionales = [qs('[name="objetivo"]'), selectTipoReq, qs('[name="publico"]')];
     camposOpcionales.forEach(c => {
-      if (!c){ return};
+      if (!c) { return };
       // Si es activo (Modo Flexible), quitamos el 'required'; si no, lo ponemos.
       activo ? c.removeAttribute("required") : c.setAttribute("required", "required");
     });
@@ -242,7 +242,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("wbadge-container").textContent = nombreServicioSeleccionado; // Colocamos el Servicio en una Etiqueta para el Modal
     // Si eligió 'Personalizado', mostramos el campo para que escriba qué servicio es.
     document.getElementById("contenedor-nombre-personalizado").classList.toggle("d-none", id != 0);
-    
+
     // Verificamos si este servicio específico activa el modo de campos opcionales.
     aplicarModoConsultivo(esServicioConsultivo(nombreServicioSeleccionado));
 
@@ -270,7 +270,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Ocultamos el cuadro de info técnica por si estaba abierto de antes.
     document.getElementById("info-tipo-container").classList.add("d-none");
-    
+
     // Cerramos el primer modal y abrimos el formulario en el Paso 1.
     bootstrap.Modal.getInstance(modalNuevoPedidoEl)?.hide();
     irAlPaso(1);
@@ -284,12 +284,12 @@ document.addEventListener("DOMContentLoaded", function () {
     qsAll(".wizard-section").forEach(s => s.classList.add("d-none"));
     // Quitamos el color amarillo de todos los números de pasos.
     qsAll(".step").forEach(i => i.classList.remove("active"));
-    
+
     // Mostramos solo la sección que corresponde al paso actual.
     document.getElementById(`section-${paso}`)?.classList.remove("d-none");
     // Ponemos en amarillo el número del paso actual en la parte superior.
     document.getElementById(`step-${paso}-indicador`)?.classList.add("active");
-    
+
     // Cambiamos el título del modal según el paso.
     const titulos = ["Info básica", "Detalles y formatos", "Confirmar y enviar"];
     document.getElementById("form-titulo-servicio").textContent = `Paso ${paso}: ${titulos[paso - 1]}`;
@@ -305,7 +305,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function validarYPasar() {
     const seccion = document.getElementById(`section-${pasoActual}`);
     const errores = []; // Aquí acumularemos los mensajes de error.
-    
+
     // Buscamos todos los campos marcados como obligatorios en la sección actual.
     seccion.querySelectorAll("[required]").forEach(input => {
       // Ignoramos campos que están ocultos (como los de modo flexible).
@@ -320,7 +320,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (pasoActual === 1) {
       const titulo = getIdVal("campo-titulo");
       if (!titulo) errores.push("El título del requerimiento es obligatorio.");
-      
+
       const idServ = getIdVal("form-idservicio");
       if (idServ === "0" && !getIdVal("titulo_personalizado")) errores.push("El nombre del servicio personalizado es obligatorio.");
 
@@ -352,7 +352,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Validaciones específicas del PASO 2 (Detalles).
     if (pasoActual === 2) {
       if (!getVal('[name="descripcion"]')) errores.push("La descripción detallada es obligatoria.");
-      
+
       if (!esServicioConsultivo(nombreServicioSeleccionado)) {
         if (!getVal('[name="publico"]')) errores.push("El público objetivo es obligatorio.");
         if (checkedVals("canales[]").length === 0) errores.push("Selecciona al menos un canal de difusión.");
@@ -403,7 +403,7 @@ document.addEventListener("DOMContentLoaded", function () {
     set("res-servicio", nombreServicioSeleccionado);
     set("res-descripcion", getVal('[name="descripcion"]'));
     set("res-publico", getVal('[name="publico"]'));
-    
+
     // Formateamos la fecha a algo legible: ej "04 de mayo de 2026".
     const fv = getVal('[name="fecha_entrega"]');
     if (fv) set("res-fecha", new Date(fv + "T00:00:00").toLocaleDateString("es-PE", { day: '2-digit', month: 'long', year: 'numeric' }));
@@ -464,7 +464,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Al hacer clic en el área de archivos, simulamos un clic en el input invisible.
   areaSubidaArchivos?.addEventListener("click", () => inputArchivos.click());
-  
+
   // Al elegir archivos, actualizamos la lista visual debajo del área de subida.
   inputArchivos?.addEventListener("change", (e) => {
     const files = Array.from(e.target.files);
@@ -488,7 +488,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // ENVÍO FINAL
   formNuevoPedido?.addEventListener("submit", async (e) => {
     e.preventDefault(); // Evita que la página se recargue.
-    
+
     const btnEnv = document.getElementById("btn-enviar");
     btnEnv.disabled = true; // Bloqueamos para evitar doble clic.
     const textoOriginal = btnEnv.innerHTML;
@@ -498,26 +498,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const idServ = getIdVal("form-idservicio");
     const tipoReq = getVal('[name="tipo_requerimiento"]');
 
-    // FormData es necesario para poder enviar ARCHIVOS binarios al servidor.
-    const fd = new FormData();
-    fd.append("idservicio", idServ);
-    if (idServ === "0") fd.append("servicio_personalizado", getIdVal("titulo_personalizado"));
-    
-    fd.append("titulo", getIdVal("campo-titulo"));
-    fd.append("servicio_ui_nombre", nombreServicioSeleccionado);
-    fd.append("objetivo_comunicacion", modoConsultivo ? "" : getVal('[name="objetivo"]'));
-    fd.append("descripcion", getVal('[name="descripcion"]'));
-    fd.append("tipo_requerimiento", modoConsultivo ? "" : (MAPA_TIPOS[tipoReq] || tipoReq));
-    fd.append("publico_objetivo", modoConsultivo ? "" : getVal('[name="publico"]'));
-    fd.append("canales_difusion", JSON.stringify(modoConsultivo ? [] : checkedVals("canales[]")));
-    fd.append("formatos_solicitados", JSON.stringify(modoConsultivo ? [] : checkedVals("formatos[]")));
+    fd.append("servicio_ui_nombre", nombreServicioSeleccionado || "");
+    fd.append("objetivo_comunicacion", objetivo);
+    fd.append("descripcion", descripcion);
+    fd.append("tipo_requerimiento", modoConsultivo ? (MAPA_TIPOS[tipoReq] || tipoReq || "") : (MAPA_TIPOS[tipoReq] || tipoReq));
+    fd.append("publico_objetivo", publico);
+    fd.append("canales_difusion", JSON.stringify(canales));
+    fd.append("formatos_solicitados", JSON.stringify(formatos));
+
     fd.append("fecharequerida", getVal('[name="fecha_entrega"]'));
     fd.append("prioridad", qs('input[name="prioridad"]:checked')?.value || "Media");
     fd.append("tiene_materiales", selectMateriales.value || "0");
-    
+
     const fo = getVal('[name="formato_otros"]');
     if (!modoConsultivo && fo) fd.append("formato_otros", fo);
-    
+
     const url = getVal('[name="url_referencia"]');
     if (url) fd.append("url_subida", url);
 

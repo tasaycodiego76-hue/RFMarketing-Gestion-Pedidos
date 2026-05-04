@@ -54,6 +54,31 @@ class UsuarioController extends Controller
         return $this->response->setJSON($model->listarActivas());
     }
 
+    /**
+     * Verifica si un área de agencia ya tiene un responsable asignado.
+     * @param int $idArea
+     * @param int|null $excludeId ID de usuario a excluir de la búsqueda
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function verificarAreaResponsable($idArea, $excludeId = null)
+    {
+        $model = new UsuarioModel();
+        $query = $model->where('idarea_agencia', $idArea)
+                       ->where('esresponsable', true)
+                       ->where('estado', true);
+
+        if ($excludeId) {
+            $query->where('id !=', $excludeId);
+        }
+
+        $responsable = $query->first();
+
+        return $this->response->setJSON([
+            'ocupado' => !empty($responsable),
+            'nombre' => $responsable ? ($responsable['nombre'] . ' ' . $responsable['apellidos']) : null
+        ]);
+    }
+
 
     /**
    * Registra un nuevo usuario. Si es cliente, también crea su empresa y lo asigna como responsable.
@@ -77,44 +102,22 @@ class UsuarioController extends Controller
           return $this->registrarAreaResponsable($datos);
       }
 
-      // Validación: Solo un responsable por área (solo si es explícitamente true)
-      $esResponsable = isset($datos['esresponsable']) && ($datos['esresponsable'] === true || $datos['esresponsable'] === 't' || $datos['esresponsable'] === 1);
- 
-// VALIDACIÓN: Para empleados NO responsables, verificar que el área tenga responsable asignado
-if ($datos['rol'] === 'empleado' && !empty($datos['idarea_agencia']) && !$esResponsable) {
-    $existeResponsable = $model->where('idarea_agencia', $datos['idarea_agencia'])
-        ->where('esresponsable', true)
-        ->where('estado', true)
-        ->first();
- 
-    if (!$existeResponsable) {
-        return $this->response->setJSON([
-            'success' => false, 
-            'message' => 'Esta área no tiene un responsable asignado. Primero debe crear un responsable para esta área antes de registrar empleados.'
-        ]);
-    }
-}
- 
-if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agencia'])) {
-    $existeResponsable = $model->where('idarea_agencia', $datos['idarea_agencia'])
-        ->where('esresponsable', true)
-        ->where('id !=', $datos['id'] ?? 0)
-        ->where('estado', true)
-        ->first();
- 
-    if ($existeResponsable) {
-        return $this->response->setJSON([
-            'success' => false,
-            'message' => 'Ya existe un responsable para esta área: ' . $existeResponsable['nombre'] . ' ' . $existeResponsable['apellidos']
-        ]);
-    }
- 
-    // Asegurar que se guarde como booleano
-    $datos['esresponsable'] = true;
-} else {
-    // Asegurar false cuando no es responsable
-    $datos['esresponsable'] = false;
-}
+      // Automatización: El primer empleado en un área es el responsable
+      if ($datos['rol'] === 'empleado' && !empty($datos['idarea_agencia'])) {
+          $responsableActual = $model->where('idarea_agencia', $datos['idarea_agencia'])
+              ->where('esresponsable', true)
+              ->where('estado', true)
+              ->first();
+
+          // Si no hay responsable, este nuevo usuario lo será automáticamente
+          $datos['esresponsable'] = ($responsableActual === null);
+      } else if ($datos['rol'] === 'cliente') {
+          // Los clientes creados con área son siempre responsables de su área
+          $datos['esresponsable'] = true;
+      } else {
+          $datos['esresponsable'] = false;
+      }
+
 
       $id = $model->insert($datos, true);
 
@@ -195,7 +198,9 @@ if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agen
           if ($existeResponsable) {
               return $this->response->setJSON([
                   'success' => false,
-                  'message' => 'Ya existe un responsable para esta área. Desactive al responsable actual primero.'
+                  'message' => 'Ya existe un responsable para esta área: ' . $existeResponsable['nombre'] . ' ' . $existeResponsable['apellidos'] . '. Para cambiar de responsable debe usar el botón de reasignar.',
+                  'id_responsable_actual' => $existeResponsable['id'],
+                  'requiere_reasignacion' => true
               ]);
           }
       }
@@ -218,10 +223,60 @@ if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agen
     {
         $model = new UsuarioModel();
         $datos = $this->request->getJSON(true);
+        $id = $datos['id'];
+        $nuevoEstado = (bool) $datos['estado'];
 
-        $model->update($datos['id'], ['estado' => (bool) $datos['estado']]);
+        $usuario = $model->find($id);
+        if (!$usuario) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Usuario no encontrado']);
+        }
 
-        $msg = $datos['estado'] ? 'habilitado' : 'deshabilitado';
+        // Si se está habilitando, realizar validaciones críticas
+        if ($nuevoEstado === true) {
+            // 1. Verificar si el área de la agencia está activa antes de permitir habilitar al empleado
+            if (!empty($usuario['idarea_agencia'])) {
+                $areaAgenciaModel = new \App\Models\AreasAgenciaModel();
+                $area = $areaAgenciaModel->find($usuario['idarea_agencia']);
+                if ($area && !($area['activo'] === true || $area['activo'] === 't' || $area['activo'] == 1)) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'No se puede habilitar al usuario porque su área (' . $area['nombre'] . ') está deshabilitada.'
+                    ]);
+                }
+            }
+
+            // 2. Evitar conflictos de responsabilidad
+            $esResponsable = ($usuario['esresponsable'] === true || $usuario['esresponsable'] === 't' || $usuario['esresponsable'] == 1);
+            
+            // Caso: Empleado de Agencia
+            if (!empty($usuario['idarea_agencia']) && $esResponsable) {
+                $otroResponsable = $model->where('idarea_agencia', $usuario['idarea_agencia'])
+                    ->where('esresponsable', true)
+                    ->where('estado', true)
+                    ->where('id !=', $id)
+                    ->first();
+                
+                if ($otroResponsable) {
+                    $model->update($id, ['esresponsable' => false]);
+                }
+            }
+            
+            // Caso: Responsable de Área de Empresa (Cliente)
+            if ($usuario['rol'] === 'cliente' && !empty($usuario['idarea'])) {
+                $otroCliente = $model->where('idarea', $usuario['idarea'])
+                    ->where('estado', true)
+                    ->where('id !=', $id)
+                    ->first();
+                
+                if ($otroCliente) {
+                    $model->update($id, ['idarea' => null, 'esresponsable' => false]);
+                }
+            }
+        }
+
+        $model->update($id, ['estado' => $nuevoEstado]);
+
+        $msg = $nuevoEstado ? 'habilitado' : 'deshabilitado';
         return $this->response->setJSON(['success' => true, 'message' => "Usuario $msg correctamente"]);
     }
     
@@ -233,11 +288,39 @@ if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agen
   private function registrarAreaResponsable(array $datos)
   {
       $db = \Config\Database::connect();
+      $areasModel = new \App\Models\AreasModel();
+      $usuarioModel = new UsuarioModel();
+
+      $nombreAreaInput = trim((string)$datos['nombre_area']);
+
+      // Verificar si el área ya existe para esta empresa (Búsqueda insensible a mayúsculas/minúsculas)
+      $areaExistente = $areasModel->where('idempresa', $datos['idempresa'])
+                                  ->where('LOWER(nombre)', mb_strtolower($nombreAreaInput))
+                                  ->first();
+
+      if ($areaExistente) {
+          // Verificar si esta área ya tiene un responsable activo
+          // Para áreas de empresa, cualquier usuario 'cliente' asignado es considerado responsable
+          $responsableExistente = $usuarioModel->where('idarea', $areaExistente['id'])
+                                              ->where('estado', true)
+                                              ->first();
+          
+          if ($responsableExistente) {
+              return $this->response->setJSON([
+                  'success' => false,
+                  'message' => 'Ya existe un responsable asignado al área "' . $areaExistente['nombre'] . '" para esta empresa: ' . $responsableExistente['nombre'] . ' ' . $responsableExistente['apellidos'] . '. Solo puede haber un responsable por área.',
+                  'id_responsable_actual' => $responsableExistente['id'],
+                  'id_area' => $areaExistente['id'],
+                  'nombre_area' => $areaExistente['nombre'],
+                  'requiere_reasignacion' => true
+              ]);
+          }
+      }
+
       $db->transBegin();
 
       try {
           // 1. Crear el usuario como cliente
-          $usuarioModel = new UsuarioModel();
           $datosUsuario = [
               'nombre'      => $datos['nombre'],
               'apellidos'   => $datos['apellidos'],
@@ -260,19 +343,24 @@ if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agen
               throw new \Exception('Error al crear el usuario');
           }
 
-          // 2. Crear el área para la empresa seleccionada
-          $areasModel = new \App\Models\AreasModel();
-          $datosArea = [
-              'idempresa'   => $datos['idempresa'],
-              'nombre'      => $datos['nombre_area'],
-              'descripcion' => $datos['descripcion_area'] ?? 'Área creada desde registro de responsable',
-              'activo'      => true,
-          ];
+          // 2. Crear o reutilizar el área
+          if ($areaExistente) {
+              $idArea = $areaExistente['id'];
+              // Asegurar que esté activa
+              $areasModel->update($idArea, ['activo' => true]);
+          } else {
+              $datosArea = [
+                  'idempresa'   => $datos['idempresa'],
+                  'nombre'      => $datos['nombre_area'],
+                  'descripcion' => $datos['descripcion_area'] ?? 'Área creada desde registro de responsable',
+                  'activo'      => true,
+              ];
 
-          $idArea = $areasModel->insert($datosArea, true);
+              $idArea = $areasModel->insert($datosArea, true);
 
-          if (!$idArea) {
-              throw new \Exception('Error al crear el área');
+              if (!$idArea) {
+                  throw new \Exception('Error al crear el área');
+              }
           }
 
           // 3. Actualizar el usuario con el idarea asignado
@@ -326,6 +414,8 @@ if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agen
           'edicion y video' => 'AudioVisual',
           'edición y video' => 'AudioVisual',
           'audiovisual' => 'AudioVisual',
+          'fotografia' => 'Fotografía',
+          'fotografía' => 'Fotografía',
       ];
 
       $nombreServicio = $equivalencias[$clave] ?? $nombreArea;
@@ -365,14 +455,14 @@ if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agen
   public function infoReasignar($id)
   {
       $userModel = new UsuarioModel();
-      // Usar obtenerConArea para tener info de empresa/área de una vez
-      $u = $userModel->obtenerConArea((int) $id);
+      // Usar getDetalleUsuario para tener info completa de empresa/área
+      $u = $userModel->getDetalleUsuario((int) $id);
       
       if (!$u) return $this->response->setJSON(['success' => false, 'message' => 'No encontrado']);
 
       $respModel = new ResponsablesEmpresaModel();
       
-      // CASO A: CLIENTE (Responsable de Empresa)
+      // CASO A: CLIENTE (Responsable de Empresa / Área)
       if ($u['rol'] === 'cliente') {
           $activo = $respModel->obtenerActivoPorUsuario((int) $id);
           
@@ -390,7 +480,7 @@ if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agen
                       'idempresa' => $area['idempresa'],
                       'nombreempresa' => $emp['nombreempresa'] ?? 'Empresa Desconocida',
                       'ruc' => $emp['ruc'] ?? '',
-                      'fecha_inicio' => $u['created_at'] ?? date('Y-m-d H:i:s'),
+                      'fecha_inicio' => $u['fechacreacion'] ?? date('Y-m-d H:i:s'),
                       'estado' => 'activo'
                   ];
               }
@@ -402,6 +492,9 @@ if ($datos['rol'] === 'empleado' && $esResponsable && !empty($datos['idarea_agen
                   'message' => 'Este cliente no tiene una empresa asignada vinculada como responsable.'
               ]);
           }
+
+          // Añadir nombre del área al objeto activo para mostrarlo en el modal
+          $activo['nombre_area'] = $u['nombre_area'] ?? 'General';
 
           $historial = $respModel->historialPorEmpresa((int) $activo['idempresa']);
           return $this->response->setJSON([

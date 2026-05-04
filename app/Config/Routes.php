@@ -23,6 +23,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('usuarios', 'Administrador\UsuarioController::index');
     $routes->get('usuarios/listar', 'Administrador\UsuarioController::listar');
     $routes->get('usuarios/obtener/(:num)', 'Administrador\UsuarioController::obtener/$1');
+    $routes->get('usuarios/verificarAreaResponsable/(:num)', 'Administrador\UsuarioController::verificarAreaResponsable/$1');
+    $routes->get('usuarios/verificarAreaResponsable/(:num)/(:num)', 'Administrador\UsuarioController::verificarAreaResponsable/$1/$2');
     $routes->get('servicios/listar', 'Administrador\UsuarioController::listarServicios');
     $routes->post('usuarios/registrar', 'Administrador\UsuarioController::registrar');
     $routes->put('usuarios/editar/(:num)', 'Administrador\UsuarioController::editar/$1');
