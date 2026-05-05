@@ -498,6 +498,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const idServ = getIdVal("form-idservicio");
     const tipoReq = getVal('[name="tipo_requerimiento"]');
 
+    const objetivo = getVal('[name="objetivo"]');
+    const descripcion = getVal('[name="descripcion"]');
+    const publico = getVal('[name="publico"]');
+    const canales = checkedVals("canales[]");
+    const formatos = checkedVals("formatos[]");
+
+    const fd = new FormData();
+
+    fd.append("idservicio", idServ);
+    if (idServ === "0") {
+      fd.append("servicio_personalizado", getIdVal("titulo_personalizado"));
+    }
+
+    fd.append("titulo", getIdVal("campo-titulo"));
     fd.append("servicio_ui_nombre", nombreServicioSeleccionado || "");
     fd.append("objetivo_comunicacion", objetivo);
     fd.append("descripcion", descripcion);

@@ -168,7 +168,7 @@
                 <div class="barras-wrap" style="overflow-x:auto; flex:1; align-items:flex-end; position:relative; z-index:1;">
                     <?php
                     $totales = array_map(fn($e) => $e['por_aprobar'] + $e['activos'] + $e['completados'], $empresas);
-                    $max     = max(1, ...$totales);
+                    $max     = !empty($totales) ? max(1, ...$totales) : 1;
                     foreach ($empresas as $i => $e):
                         $h = round($totales[$i] / $max * 100);
                         $delay = 0.15 + ($i * 0.1);
