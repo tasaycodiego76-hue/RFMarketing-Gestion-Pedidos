@@ -66,30 +66,20 @@ class BaseResponsableController extends BaseController
         $atencionModel = new AtencionModel();
         $usuarioModel = new UsuarioModel();
 
+        $pendientes = count($atencionModel->obtenerBandejaResponsable($idAreaAgencia));
+        $enProceso = $atencionModel->where('idarea_agencia', $idAreaAgencia)
+            ->whereIn('estado', ['en_proceso', 'pendiente_asignado'])
+            ->where('idempleado >', 0)
+            ->countAllResults();
+
         return [
-            // Solicitudes nuevas que no han sido asignadas a nadie todavía
-            'pendientes_asignar' => count($atencionModel->obtenerBandejaResponsable($idAreaAgencia)),
-
-            // Tareas que ya están en manos de un técnico (en cola o iniciadas)
-            'en_proceso' => $atencionModel->where('idarea_agencia', $idAreaAgencia)
-                ->whereIn('estado', ['en_proceso', 'pendiente_asignado'])
-                ->where('idempleado >', 0)
-                ->countAllResults(),
-
-            // Tareas que el técnico ya terminó y están esperando aprobación del responsable
-            'enRevision' => $atencionModel->where('idarea_agencia', $idAreaAgencia)
-                ->where('estado', 'en_revision')
-                ->countAllResults(),
-
-            // Histórico de tareas finalizadas con éxito
-            'completados' => $atencionModel->where('idarea_agencia', $idAreaAgencia)
-                ->where('estado', 'finalizado')
-                ->countAllResults(),
-
-            // Cantidad de personas a cargo en el equipo
+            'pendientes_asignar' => $pendientes,
+            'porAsignar' => $pendientes, // Alias para el Dashboard
+            'en_proceso' => $enProceso,
+            'enProceso' => $enProceso,  // Alias para el Dashboard
+            'enRevision' => $atencionModel->where('idarea_agencia', $idAreaAgencia)->where('estado', 'en_revision')->countAllResults(),
+            'completados' => $atencionModel->where('idarea_agencia', $idAreaAgencia)->where('estado', 'finalizado')->countAllResults(),
             'totalMiembros' => count($usuarioModel->obtenerAsignablesPorAreaAgencia($idAreaAgencia)),
-
-            // Requerimientos que han sido observados o devueltos para correcciones
             'devoluciones' => count($atencionModel->obtenerRetroalimentacionPorArea($idAreaAgencia))
         ];
     }

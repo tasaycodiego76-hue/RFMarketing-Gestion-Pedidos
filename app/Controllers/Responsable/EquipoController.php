@@ -108,6 +108,48 @@ class EquipoController extends BaseResponsableController
     }
 
     /**
+     *  Lista de los Empleados asignables del Area
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function empleadosMiAreaJson()
+    {
+        $userS = $this->ValidarSesion_DatosUser();
+        if (!$userS['ok']) {
+            return $this->response->setJSON(['success' => false, 'message' => $userS['message']]);
+        }
+
+        $usuarioModel = new UsuarioModel();
+        $atencionModel = new AtencionModel();
+        $lista = $usuarioModel->obtenerAsignablesPorAreaAgencia((int) $userS['user']['idarea_agencia']);
+
+        $data = array_map(function ($u) use ($atencionModel) {
+            $esResponsable = ($u['esresponsable'] === true || $u['esresponsable'] === 't' || $u['esresponsable'] == 1);
+            $tareas = $atencionModel->obtenerDetalladoPorEmpleado((int) $u['id']);
+
+            $enProceso = 0;
+            $completados = 0;
+            $pendientes = 0;
+
+            foreach ($tareas as $t) {
+                if ($t['estado'] === 'en_proceso') $enProceso++;
+                elseif (in_array($t['estado'], ['finalizado', 'completado'])) $completados++;
+                else $pendientes++;
+            }
+
+            return [
+                'id' => (int) $u['id'],
+                'nombre_completo' => trim(($u['nombre'] ?? '') . ' ' . ($u['apellidos'] ?? '')),
+                'esresponsable' => $esResponsable,
+                'en_proceso' => $enProceso,
+                'completados' => $completados,
+                'pendientes' => $pendientes
+            ];
+        }, $lista);
+
+        return $this->response->setJSON(['success' => true, 'total' => count($data), 'data' => $data]);
+    }
+
+    /**
      * Endpoint API JSON: Construye una muestra para las listas de monitoreo
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
@@ -167,6 +209,48 @@ class EquipoController extends BaseResponsableController
             'data' => $tareasPorEmpleado,
             'total_empleados' => count($tareasPorEmpleado),
             'total_tareas' => array_sum(array_column($tareasPorEmpleado, 'total_tareas'))
+        ]);
+    }
+
+    /**
+     * Obtiene las tareas activas de un empleado específico.
+     * Utilizado para refrescar la carga de trabajo de un miembro puntual.
+     * @param int|null $idEmpleado
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function tareasPorEmpleado($idEmpleado = null)
+    {
+        $userS = $this->ValidarSesion_DatosUser();
+        if (!$userS['ok']) {
+            return $this->response->setJSON(['success' => false, 'message' => $userS['message']]);
+        }
+
+        if (!$idEmpleado) {
+            return $this->response->setJSON(['success' => false, 'message' => 'ID de empleado no válido']);
+        }
+
+        $atencionModel = new AtencionModel();
+        $requerimientoModel = new RequerimientoModel();
+
+        // Buscamos tareas que estén en manos del técnico
+        $tareas = $atencionModel->where('idempleado', $idEmpleado)
+                                ->whereIn('estado', ['en_proceso', 'pendiente_asignado'])
+                                ->findAll();
+
+        $tareasDetalladas = [];
+        foreach ($tareas as $tarea) {
+            $detalle = $requerimientoModel->getDetalleCompleto($tarea['idrequerimiento']);
+            if ($detalle) {
+                $tareaConDetalle = array_merge($tarea, $detalle);
+                $tareaConDetalle['identificador_unico'] = 'EMP_' . $idEmpleado . '_T_' . $tarea['id'];
+                $tareasDetalladas[] = $tareaConDetalle;
+            }
+        }
+
+        return $this->response->setJSON([
+            'success' => true, 
+            'data' => $tareasDetalladas,
+            'total_tareas' => count($tareasDetalladas)
         ]);
     }
 }

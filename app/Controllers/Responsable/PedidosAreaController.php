@@ -463,4 +463,56 @@ class PedidosAreaController extends BaseResponsableController
             return $this->response->setJSON(['status' => 'error', 'message' => 'Error crítico al procesar la entrega: ' . $e->getMessage()]);
         }
     }
+
+    /**
+     * Lista todos los servicios activos disponibles en el sistema.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function listarServicios()
+    {
+        $servicioModel = new ServicioModel();
+        $servicios = $servicioModel->where('activo', true)->findAll();
+        return $this->response->setJSON(['success' => true, 'data' => $servicios]);
+    }
+
+    /**
+     * Sirve el archivo físico para vista previa en el navegador.
+     * Valida permisos básicos y que el archivo exista en disco.
+     * @param int $idArchivo
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function vistaPrevia($idArchivo)
+    {
+        $userS = $this->ValidarSesion_DatosUser();
+        if (!$userS['ok']) {
+            return $this->response->setStatusCode(403)->setJSON(['message' => 'Sesión expirada o inválida.']);
+        }
+
+        $archivoModel = new ArchivoModel();
+        $archivo = $archivoModel->find($idArchivo);
+
+        if (!$archivo) {
+            return $this->response->setStatusCode(404)->setJSON(['message' => 'El archivo no existe en la base de datos.']);
+        }
+
+        // Construir la ruta absoluta usando FCPATH
+        $rutaAbsoluta = FCPATH . $archivo['ruta'];
+
+        if (!file_exists($rutaAbsoluta)) {
+            // Reintentar si la ruta en DB no tiene el prefijo de FCPATH pero es relativa
+            if (!is_file($rutaAbsoluta)) {
+                return $this->response->setStatusCode(404)->setJSON(['message' => 'El archivo físico no se encuentra en el servidor.']);
+            }
+        }
+
+        // Obtener el tipo MIME para servirlo correctamente
+        $mimeType = $archivo['tipo'] ?? 'application/octet-stream';
+
+        // Servir el archivo directamente al navegador para previsualización (inline)
+        return $this->response
+            ->setHeader('Content-Type', $mimeType)
+            ->setHeader('Content-Disposition', 'inline; filename="' . $archivo['nombre'] . '"')
+            ->setHeader('Cache-Control', 'max-age=3600')
+            ->setBody(file_get_contents($rutaAbsoluta));
+    }
 }
