@@ -407,7 +407,7 @@ class kanban extends Controller
         }
 
         // 1. Actualizar estado del pedido a 'en_proceso' e incrementar modificaciones
-        $db->query("UPDATE atencion SET estado = 'en_proceso', num_modificaciones = num_modificaciones + 1, url_entrega = NULL, observacion_revision = NULL WHERE id = ?", [$idAtencion]);
+        $db->query("UPDATE atencion SET estado = 'en_proceso', num_modificaciones = num_modificaciones + 1, url_entrega = NULL, observacion_revision = ? WHERE id = ?", [$mensaje, $idAtencion]);
 
         // 1.5. Limpiar los archivos entregados anteriormente (para no mostrarlos de nuevo)
         $archivoModel = new ArchivoModel();

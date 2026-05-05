@@ -270,11 +270,16 @@ function renderizarListaEmpleados() {
                 <div class="empleado-rol" style="font-size:12px;margin-top:2px;">
                     ${emp.esresponsable ? '<span class="badge-jefe">Jefe de Área</span>' : '<span class="badge-miembro">Miembro del Equipo</span>'}
                 </div>
-                <div class="empleado-workload" style="margin-top:4px;">
-                    ${emp.en_proceso > 0
-          ? `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(245,196,0,0.15);color:#F5C400;border:1px solid rgba(245,196,0,0.3);padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;">${emp.en_proceso} tarea${emp.en_proceso > 1 ? 's' : ''} activa${emp.en_proceso > 1 ? 's' : ''}</span>`
-          : `<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(34,197,94,0.1);color:#22c55e;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;">Disponible</span>`
-        }
+                <div class="empleado-workload" style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;">
+                    ${emp.en_proceso > 0 
+                        ? `<span style="background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.2); padding:2px 10px; border-radius:6px; font-size:10px; font-weight:800; letter-spacing:0.3px;"><i class="bi bi-cpu-fill me-1"></i>${emp.en_proceso} EN PROCESO</span>` 
+                        : ''}
+                    ${emp.pendientes > 0 
+                        ? `<span style="background:rgba(245,196,0,0.1); color:#F5C400; border:1px solid rgba(245,196,0,0.2); padding:2px 10px; border-radius:6px; font-size:10px; font-weight:800; letter-spacing:0.3px;"><i class="bi bi-hourglass-split me-1"></i>${emp.pendientes} EN ESPERA</span>` 
+                        : ''}
+                    ${(emp.en_proceso === 0 && emp.pendientes === 0) 
+                        ? `<span style="background:rgba(34,197,94,0.1); color:#22c55e; border:1px solid rgba(34,197,94,0.2); padding:2px 10px; border-radius:6px; font-size:10px; font-weight:800; letter-spacing:0.3px;"><i class="bi bi-check-circle-fill me-1"></i>TOTALMENTE DISPONIBLE</span>` 
+                        : ''}
                 </div>
             </div>
             <div class="empleado-check">

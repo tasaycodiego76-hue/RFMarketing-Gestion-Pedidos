@@ -132,7 +132,7 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
                 <div class="d-flex align-items-center gap-2 flex-grow-1" style="min-width: 0;">
                     <span class="badge-prio ${(tarea.prioridad || 'media').toLowerCase()}">${tarea.prioridad || 'Media'}</span>
                     <span class="tarea-titulo text-truncate" style="font-weight: 600; color: #fff;">${escaparHtml(tarea.titulo || 'Sin título')}</span>
-                    ${tarea.observacion_revision ? `
+                    ${(parseInt(tarea.num_modificaciones) > 0 || tarea.observacion_revision) ? `
                         <span class="badge-returned" title="Tarea devuelta con observaciones">DEVUELTO</span>
                     ` : ''}
                 </div>
@@ -534,7 +534,7 @@ function mostrarModalDetalle(req, archivos, tracking) {
         // Insertar antes del botón de cerrar
         const closeBtn = modalHeader.querySelector('.btn-close');
         modalHeader.insertBefore(btnStart, closeBtn);
-    } else if (esServicioEditable) {
+    } else if (esServicioEditable && isMeTask) {
         const btn = document.createElement('button');
         btn.id = 'btn-formalizar-header';
         btn.className = 'btn btn-sm btn-warning ms-auto me-3';

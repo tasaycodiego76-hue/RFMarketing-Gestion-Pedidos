@@ -233,6 +233,11 @@ class PedidosAreaController extends BaseResponsableController
             return $this->response->setJSON(['success' => false, 'message' => 'No tienes permisos para editar este requerimiento.']);
         }
 
+        // Restricción Solo el asignado puede editar
+        if ($atencion['idempleado'] != $userS['user']['id']) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Seguridad: Solo el especialista asignado a este pedido puede modificar sus detalles técnicos.']);
+        }
+
         // Mapeo de datos del formulario
         $data = [
             'idservicio' => (int) $this->request->getPost('idservicio'),

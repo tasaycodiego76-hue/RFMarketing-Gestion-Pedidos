@@ -74,13 +74,13 @@ class BaseResponsableController extends BaseController
 
         return [
             'pendientes_asignar' => $pendientes,
-            'porAsignar'         => $pendientes, // Alias para el Dashboard
-            'en_proceso'         => $enProceso,
-            'enProceso'          => $enProceso,  // Alias para el Dashboard
-            'enRevision'         => $atencionModel->where('idarea_agencia', $idAreaAgencia)->where('estado', 'en_revision')->countAllResults(),
-            'completados'        => $atencionModel->where('idarea_agencia', $idAreaAgencia)->where('estado', 'finalizado')->countAllResults(),
-            'totalMiembros'      => count($usuarioModel->obtenerAsignablesPorAreaAgencia($idAreaAgencia)),
-            'devoluciones'       => count($atencionModel->obtenerRetroalimentacionPorArea($idAreaAgencia))
+            'porAsignar' => $pendientes, // Alias para el Dashboard
+            'en_proceso' => $enProceso,
+            'enProceso' => $enProceso,  // Alias para el Dashboard
+            'enRevision' => $atencionModel->where('idarea_agencia', $idAreaAgencia)->where('estado', 'en_revision')->countAllResults(),
+            'completados' => $atencionModel->where('idarea_agencia', $idAreaAgencia)->where('estado', 'finalizado')->countAllResults(),
+            'totalMiembros' => count($usuarioModel->obtenerAsignablesPorAreaAgencia($idAreaAgencia)),
+            'devoluciones' => count($atencionModel->obtenerRetroalimentacionPorArea($idAreaAgencia))
         ];
     }
 }

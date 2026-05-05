@@ -302,8 +302,8 @@
         </div>
     </div>
 
-    <!-- Archivos de Entrega del Especialista - Visible si está en revisión o terminado -->
-    <?php if (in_array(($requerimiento['estado'] ?? ''), ['en_revision', 'finalizado', 'completado'])): ?>
+    <!-- Archivos de Entrega del Especialista -->
+    <?php if (in_array(($requerimiento['estado'] ?? ''), ['finalizado', 'completado'])): ?>
         <div class="col-12 mt-4">
             <div class="card-dark-main p-3">
                 <label class="label-tiny mb-3 d-block"> ARCHIVOS DE ENTREGA DEL ESPECIALISTA </label>

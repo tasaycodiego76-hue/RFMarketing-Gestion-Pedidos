@@ -136,7 +136,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   };
   aplicarLimiteCheckboxes("canales-checks");
-  aplicarLimiteCheckboxes("formatos-checks");
 
 
   // Función asíncrona que descarga los servicios desde la base de datos y los pinta.
@@ -385,7 +384,10 @@ document.addEventListener("DOMContentLoaded", function () {
         errores.push("Debe seleccionar si cuenta con materiales de referencia.");
       } else if (selectMateriales.value === "1") {
         // Si dijo que sí tiene, debe haber subido un archivo O puesto un link de Drive/Wetransfer.
-        if (!inputArchivos.files.length && !getVal('[name="url_referencia"]')) {
+        const tieneArchivos = archivosSeleccionados.length > 0 || inputArchivos?.files?.length > 0;
+        const tieneUrl = getVal('[name="url_referencia"]') !== "";
+
+        if (!tieneArchivos && !tieneUrl) {
           errores.push("Debe subir un archivo o proporcionar una URL de referencia.");
         }
       }
@@ -489,12 +491,42 @@ document.addEventListener("DOMContentLoaded", function () {
   // Al elegir archivos, actualizamos la lista visual debajo del área de subida.
   inputArchivos?.addEventListener("change", (e) => {
     const files = Array.from(e.target.files);
-    archivosSeleccionados = files; // Guardamos en memoria.
-    listaArchivos.innerHTML = files.map(f => `
+    const MAX_SIZE = 100 * 1024 * 1024; // 100MB (Límite solicitado)
+    const archivosValidos = [];
+    const archivosPesados = [];
+
+    files.forEach(f => {
+      if (f.size > MAX_SIZE) {
+        archivosPesados.push(f.name);
+      } else {
+        archivosValidos.push(f);
+      }
+    });
+
+    if (archivosPesados.length > 0) {
+      Swal.fire({
+        ...swalBase,
+        icon: "warning",
+        title: "¡Archivo demasiado pesado!",
+        html: `Los siguientes archivos superan los <strong>100MB</strong> permitidos:<br><br>
+               <small>${archivosPesados.join("<br>")}</small><br><br>
+               Por favor, súbelos a <strong>Google Drive, WeTransfer o Dropbox</strong> y pega el enlace en el campo "URL de Referencia".`,
+        confirmButtonText: "Entendido"
+      });
+    }
+
+    archivosSeleccionados = archivosValidos; // Solo guardamos los válidos
+    listaArchivos.innerHTML = archivosSeleccionados.map(f => `
       <div class="d-flex align-items-center gap-2 p-2 border border-secondary rounded mb-2 bg-dark">
         <i class="bi ${getIconoArchivo(f.type, f.name)} text-warning fs-4"></i>
         <span class="small text-truncate">${f.name}</span>
+        <span class="ms-auto badge bg-secondary" style="font-size:9px;">${(f.size / 1024).toFixed(0)} KB</span>
       </div>`).join("");
+
+    // Si no quedaron archivos válidos y hay pesados, limpiar el input
+    if (archivosValidos.length === 0 && archivosPesados.length > 0) {
+      inputArchivos.value = "";
+    }
   });
 
   // Oculta o muestra el panel de subida según el selector de materiales (SÍ/NO).
@@ -507,85 +539,117 @@ document.addEventListener("DOMContentLoaded", function () {
   btnAtras?.addEventListener("click", () => irAlPaso(pasoActual - 1));
 
   // ENVÍO FINAL
-  formNuevoPedido?.addEventListener("submit", async (e) => {
-    e.preventDefault(); // Evita que la página se recargue.
+  formNuevoPedido?.addEventListener("submit", (e) => {
+    e.preventDefault();
 
     const btnEnv = document.getElementById("btn-enviar");
-    btnEnv.disabled = true; // Bloqueamos para evitar doble clic.
     const textoOriginal = btnEnv.innerHTML;
-    btnEnv.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando...';
+    
+    // Configuración visual del botón para el progreso
+    btnEnv.disabled = true;
+    btnEnv.style.position = "relative";
+    btnEnv.style.overflow = "hidden";
+    
+    // Crear la línea de carga minimalista en el fondo del botón
+    let progressLine = btnEnv.querySelector(".btn-progress-line");
+    if (!progressLine) {
+      progressLine = document.createElement("div");
+      progressLine.className = "btn-progress-line";
+      progressLine.style.cssText = "position:absolute; bottom:0; left:0; height:3px; background:rgba(0,0,0,0.3); width:0%; transition:width 0.2s ease;";
+      btnEnv.appendChild(progressLine);
+    }
+    progressLine.style.width = "0%";
+    btnEnv.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Subiendo 0%`;
 
-    // Inicializamos FormData con los datos del formulario
+    const fd = new FormData(formNuevoPedido);
+    fd.delete("documentos[]"); // Evitar duplicidad
+
+    // CAPTURA POR ID (Para evitar conflictos con nombres duplicados en el HTML)
     const modoConsultivo = esServicioConsultivo(nombreServicioSeleccionado);
     const tipoReq = selectTipoReq.value;
-    const objetivo = getVal('[name="objetivo"]');
-    const descripcion = getVal('[name="descripcion"]');
-    const publico = getVal('[name="publico"]');
-    const canales = checkedVals("canales[]");
-    const formatos = checkedVals("formatos[]");
-    const idServ = document.getElementById("form-idservicio").value; // <--- AGREGAR ESTO
-    const fd = new FormData();
-
-    fd.append("idservicio", idServ);
-    if (idServ === "0") {
-      fd.append("servicio_personalizado", getIdVal("titulo_personalizado"));
+    
+    // Usamos IDs específicos para no fallar
+    const inputTitulo = document.getElementById("campo-titulo");
+    const inputTituloPerso = document.getElementById("titulo_personalizado");
+    
+    // Si el servicio es personalizado, usamos ese título, si no, el normal
+    let tituloFinal = inputTitulo?.value || "";
+    if (nombreServicioSeleccionado === "Otro (Personalizado)") {
+        tituloFinal = inputTituloPerso?.value || tituloFinal;
     }
 
-    fd.append("titulo", getIdVal("campo-titulo"));
-    fd.append("servicio_ui_nombre", nombreServicioSeleccionado || "");
-    fd.append("objetivo_comunicacion", objetivo);
-    fd.append("descripcion", descripcion);
-    fd.append("tipo_requerimiento", modoConsultivo ? (MAPA_TIPOS[tipoReq] || tipoReq || "") : (MAPA_TIPOS[tipoReq] || tipoReq));
-    fd.append("publico_objetivo", publico);
-    fd.append("canales_difusion", JSON.stringify(canales));
-    fd.append("formatos_solicitados", JSON.stringify(formatos));
+    fd.set("titulo", tituloFinal);
+    fd.set("objetivo_comunicacion", qs('.textarea-objetivo')?.value || "");
+    fd.set("publico_objetivo", qs('.textarea-publico')?.value || "");
+    fd.set("descripcion", qs('.textarea-descripcion')?.value || "");
+    
+    fd.set("servicio_ui_nombre", nombreServicioSeleccionado || "");
+    fd.set("tipo_requerimiento", modoConsultivo ? (MAPA_TIPOS[tipoReq] || tipoReq || "") : (MAPA_TIPOS[tipoReq] || tipoReq));
+    fd.set("canales_difusion", JSON.stringify(checkedVals("canales[]")));
+    fd.set("formatos_solicitados", JSON.stringify(checkedVals("formatos[]")));
     fd.append("fecharequerida", getVal('[name="fecha_entrega"]'));
     fd.append("prioridad", qs('input[name="prioridad"]:checked')?.value || "Media");
     fd.append("tiene_materiales", selectMateriales.value || "0");
 
-    const fo = getVal('[name="formato_otros"]');
-    if (!modoConsultivo && fo) fd.append("formato_otros", fo);
+    if (getVal('[name="formato_otros"]')) fd.append("formato_otros", getVal('[name="formato_otros"]'));
+    if (getVal('[name="url_referencia"]')) fd.append("url_subida", getVal('[name="url_referencia"]'));
 
-    const url = getVal('[name="url_referencia"]');
-    if (url) fd.append("url_subida", url);
-
-    // Si hay archivos en memoria, los adjuntamos uno por uno.
     if (archivosSeleccionados.length) {
       archivosSeleccionados.forEach(f => fd.append("documentos[]", f));
     }
 
-    try {
-      // Envío por POST al controlador de requerimientos.
-      const response = await fetch(`${base_url}cliente/requerimiento/guardar`, { method: "POST", body: fd });
-      const data = await response.json();
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${base_url}cliente/requerimiento/guardar`, true);
 
-      if (data.status === "success") {
-        // Cerramos el modal y limpiamos todo.
-        bootstrap.Modal.getInstance(modalFormularioDetalleEl)?.hide();
-        Swal.fire({ ...swalBase, icon: "success", title: "¡Enviado!", text: "Tu pedido ha sido registrado correctamente." });
-        obtenerPedidos(); // Refrescamos la tabla de fondo sin recargar.
-        formNuevoPedido.reset();
-        archivosSeleccionados = [];
-        listaArchivos.innerHTML = "";
-
-        // Limpieza de estados visuales (ocultar secciones dinámicas)
-        document.getElementById("contenedor-materiales")?.classList.add("d-none");
-        document.getElementById("info-tipo-container")?.classList.add("d-none");
-        document.getElementById("contenedor-nombre-personalizado")?.classList.add("d-none");
-      } else {
-        // Si hay errores de validación en el servidor
-        let msg = data.msg || "Error al enviar";
-        if (data.errores?.length) msg += ":<br>• " + data.errores.join("<br>• ");
-        Swal.fire({ ...swalBase, icon: "error", title: "Error", html: msg });
+    xhr.upload.onprogress = (ev) => {
+      if (ev.lengthComputable) {
+        const percent = Math.round((ev.loaded / ev.total) * 100);
+        progressLine.style.width = percent + "%";
+        btnEnv.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Subiendo ${percent}%`;
+        
+        if (percent >= 100) {
+          btnEnv.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Procesando...`;
+        }
       }
-    } catch (err) {
-      console.error(err);
-      Swal.fire({ ...swalBase, icon: "error", title: "Error de red", text: "No se pudo conectar con el servidor." });
-    } finally {
+    };
+
+    xhr.onload = function() {
       btnEnv.disabled = false;
       btnEnv.innerHTML = textoOriginal;
-    }
+      if (progressLine) progressLine.style.width = "0%";
+
+      if (xhr.status === 200) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.status === "success") {
+            bootstrap.Modal.getInstance(modalFormularioDetalleEl)?.hide();
+            Swal.fire({ ...swalBase, icon: "success", title: "¡Enviado!", text: "Tu pedido ha sido registrado correctamente." });
+            formNuevoPedido.reset();
+            archivosSeleccionados = [];
+            listaArchivos.innerHTML = "";
+            document.getElementById("contenedor-materiales")?.classList.add("d-none");
+            document.getElementById("info-tipo-container")?.classList.add("d-none");
+            obtenerPedidos();
+          } else {
+            Swal.fire({ ...swalBase, icon: "error", title: "Error", html: data.msg || "Error en el servidor" });
+          }
+        } catch (e) {
+          Swal.fire({ ...swalBase, icon: "error", title: "Error de Servidor", text: "Respuesta inesperada. Posible archivo muy pesado." });
+        }
+      } else {
+        Swal.fire({ ...swalBase, icon: "error", title: "Error", text: "No se pudo conectar con el servidor." });
+      }
+    };
+
+    xhr.onerror = () => {
+      btnEnv.disabled = false;
+      btnEnv.innerHTML = textoOriginal;
+      Swal.fire({ ...swalBase, icon: "error", title: "Error de Red", text: "No se pudo completar la subida." });
+    };
+
+    xhr.send(fd);
   });
-  obtenerPedidos(); // Carga la tabla inicial de pedidos.
-  modalNuevoPedidoEl?.addEventListener("shown.bs.modal", cargarServicios); // Solo cargamos los servicios si el usuario abre el modal de 'Nuevo Pedido'.
+
+  obtenerPedidos();
+  modalNuevoPedidoEl?.addEventListener("shown.bs.modal", cargarServicios);
 });
