@@ -147,8 +147,8 @@ class kanban extends Controller
         // 3. Procesamiento de datos adicionales
         // NO decodificar JSON aquí, dejar que el JS lo maneje con _parseList
 
-        foreach (['fecharequerida', 'fechainicio', 'fechafin', 'fechacompletado'] as $campo) {
-            $data[$campo] = !empty($data[$campo]) ? date('d M Y', strtotime($data[$campo])) : '—';
+        foreach (['fecharequerida', 'fechainicio', 'fechafin', 'fechacompletado', 'r_fechacreacion'] as $campo) {
+            $data[$campo] = !empty($data[$campo]) ? date('Y-m-d H:i', strtotime($data[$campo])) : '—';
         }
 
         $data['empleado_fullname'] = trim(($data['empleado_nombre'] ?? '') . ' ' . ($data['empleado_apellidos'] ?? '')) ?: 'Sin asignar';

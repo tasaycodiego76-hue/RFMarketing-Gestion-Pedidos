@@ -164,10 +164,29 @@ async function verDetalle(idAtencion) {
     const fSol = d.r_fechacreacion || "---";
     const fIni = d.fechainicio || "---";
     const fFin = d.fechacompletado || "---";
-    const fmtRaw = (s) =>
-      s && s.length > 10
-        ? s.substring(0, 10).split("-").reverse().join("/")
-        : s;
+    
+    // Formato de fecha con hora: YYYY-MM-DD HH:MM → DD/MM/YYYY HH:MM
+    const fmtRaw = (s) => {
+      if (!s || s === "---" || s === "—") return s;
+      s = String(s).trim();
+      if (s.length === 0) return "---";
+      
+      // Si ya tiene el formato "YYYY-MM-DD HH:MM"
+      if (s.length >= 16 && s.includes(' ')) {
+        const partes = s.split(' ');
+        if (partes.length >= 2) {
+          const fecha = partes[0].split('-').reverse().join('/');
+          const hora = partes[1];
+          return `${fecha} ${hora}`;
+        }
+      } 
+      // Si solo tiene fecha "YYYY-MM-DD"
+      else if (s.length >= 10) {
+        const fecha = s.substring(0, 10).split("-").reverse().join("/");
+        return fecha;
+      }
+      return s;
+    };
     const fSolFmt = fmtRaw(fSol);
 
     // ── Pill de Estado ──────────────────────────────────────
@@ -349,13 +368,13 @@ async function verDetalle(idAtencion) {
 
     // ── Cronología y Auditoría ──
     clone.querySelector('.tpl-f-solicitud').textContent = fSolFmt;
-    clone.querySelector('.tpl-f-limite').textContent = fReq;
+    clone.querySelector('.tpl-f-limite').textContent = fmtRaw(fReq);
 
     if (d.fechainicio !== "---" && d.fechainicio !== "—") {
       clone.querySelector('.tpl-f-inicio-container').innerHTML = `
             <div class="data-box">
                 <span class="data-label">Inicio de Trabajo</span>
-                <div class="data-value">${fIni}</div>
+                <div class="data-value">${fmtRaw(fIni)}</div>
             </div>`;
     }
 
@@ -363,7 +382,7 @@ async function verDetalle(idAtencion) {
       clone.querySelector('.tpl-f-fin-container').innerHTML = `
             <div class="data-box" style="border-color:#10b98133;">
                 <span class="data-label" style="color:#10b981;">Completado</span>
-                <div class="data-value">${fFin}</div>
+                <div class="data-value">${fmtRaw(fFin)}</div>
             </div>`;
     }
 
