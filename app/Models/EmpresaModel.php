@@ -69,4 +69,34 @@ class EmpresaModel extends Model
 
         return $empresas;
     }
-}
+    /**
+     * Cambia el estado de una empresa y desactiva a sus responsables si la empresa se deshabilita.
+     * @param int $idEmpresa
+     * @param bool $nuevoEstado
+     * @return bool
+     */
+    public function cambiarEstado(int $idEmpresa, bool $nuevoEstado): bool
+    {
+        $this->db->transStart();
+
+        // 1. Actualizar estado de la empresa
+        $this->update($idEmpresa, ['estado' => $nuevoEstado]);
+
+        // 2. Si se desactiva la empresa, desactivamos a sus responsables (usuarios clientes)
+        if (!$nuevoEstado) {
+            // En PostgreSQL, los updates con JOIN pueden ser problemáticos en Query Builder.
+            // Usamos un subquery para mayor compatibilidad y evitar ambigüedades.
+            $this->db->table('usuarios')
+                ->whereIn('idarea', function ($builder) use ($idEmpresa) {
+                    return $builder->select('id')
+                        ->from('areas')
+                        ->where('idempresa', $idEmpresa);
+                })
+                ->update(['estado' => false]);
+        }
+
+        $this->db->transComplete();
+
+        return $this->db->transStatus();
+    }
+}

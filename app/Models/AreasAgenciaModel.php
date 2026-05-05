@@ -40,4 +40,34 @@ class AreasAgenciaModel extends Model
 
         return $this->db->query($sql)->getResultArray();
     }
-}
+    /**
+     * Cambia el estado de un área y actualiza recursivamente a sus empleados y servicios vinculados.
+     * @param int $idArea
+     * @param bool $nuevoEstado
+     * @return bool
+     */
+    public function cambiarEstado(int $idArea, bool $nuevoEstado): bool
+    {
+        $this->db->transStart();
+
+        // 1. Actualizar estado del área
+        $this->update($idArea, ['activo' => $nuevoEstado]);
+
+        // 2. Actualizar estado de los usuarios vinculados a esta área
+        $this->db->table('usuarios')
+            ->where('idarea_agencia', $idArea)
+            ->update(['estado' => $nuevoEstado]);
+
+        // 3. Actualizar estado del servicio vinculado (basado en el nombre del área)
+        $area = $this->find($idArea);
+        if ($area) {
+            $this->db->table('servicios')
+                ->where('LOWER(nombre)', mb_strtolower($area['nombre']))
+                ->update(['activo' => $nuevoEstado]);
+        }
+
+        $this->db->transComplete();
+
+        return $this->db->transStatus();
+    }
+}

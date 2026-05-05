@@ -515,10 +515,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const textoOriginal = btnEnv.innerHTML;
     btnEnv.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando...';
 
-       // Inicializamos FormData con los datos del formulario
-    const fd = new FormData(formNuevoPedido);
-    
-    // Obtenemos los valores necesarios que no están mapeados directamente o requieren proceso
+    // Inicializamos FormData con los datos del formulario
     const modoConsultivo = esServicioConsultivo(nombreServicioSeleccionado);
     const tipoReq = selectTipoReq.value;
     const objetivo = getVal('[name="objetivo"]');
@@ -526,16 +523,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const publico = getVal('[name="publico"]');
     const canales = checkedVals("canales[]");
     const formatos = checkedVals("formatos[]");
+    const idServ = document.getElementById("form-idservicio").value; // <--- AGREGAR ESTO
+    const fd = new FormData();
 
-    // Agregamos o sobreescribimos campos específicos
-    fd.set("servicio_ui_nombre", nombreServicioSeleccionado || "");
-    fd.set("objetivo_comunicacion", objetivo);
-    fd.set("descripcion", descripcion);
-    fd.set("tipo_requerimiento", modoConsultivo ? (MAPA_TIPOS[tipoReq] || tipoReq || "") : (MAPA_TIPOS[tipoReq] || tipoReq));
-    fd.set("publico_objetivo", publico);
-    fd.set("canales_difusion", JSON.stringify(canales));
-    fd.set("formatos_solicitados", JSON.stringify(formatos));
+    fd.append("idservicio", idServ);
+    if (idServ === "0") {
+      fd.append("servicio_personalizado", getIdVal("titulo_personalizado"));
+    }
 
+    fd.append("titulo", getIdVal("campo-titulo"));
+    fd.append("servicio_ui_nombre", nombreServicioSeleccionado || "");
+    fd.append("objetivo_comunicacion", objetivo);
+    fd.append("descripcion", descripcion);
+    fd.append("tipo_requerimiento", modoConsultivo ? (MAPA_TIPOS[tipoReq] || tipoReq || "") : (MAPA_TIPOS[tipoReq] || tipoReq));
+    fd.append("publico_objetivo", publico);
+    fd.append("canales_difusion", JSON.stringify(canales));
+    fd.append("formatos_solicitados", JSON.stringify(formatos));
     fd.append("fecharequerida", getVal('[name="fecha_entrega"]'));
     fd.append("prioridad", qs('input[name="prioridad"]:checked')?.value || "Media");
     fd.append("tiene_materiales", selectMateriales.value || "0");
