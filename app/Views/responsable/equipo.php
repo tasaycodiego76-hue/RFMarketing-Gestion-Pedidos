@@ -31,19 +31,21 @@
 </div>
 
 <!-- Modal Detalle Miembro -->
-<div class="modal fade" id="modalDetalleMiembro" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+<div class="modal fade" id="modalDetalleMiembro" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content" style="background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: #f5f5f5;">
-            <div class="modal-header" style="border-bottom: 1px solid #333;">
-                <h5 class="modal-title" style="font-weight: 600;">
-                    <span id="nombreMiembroModal" style="color: #d4af37;">Tareas del Miembro</span>
+        <div class="modal-content modal-dark-rf">
+            <div class="modal-header modal-header-rf">
+                <h5 class="modal-title modal-title-rf">
+                    <span id="nombreMiembroModal" class="text-oro">Tareas del Miembro</span>
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
             <div class="modal-body p-3">
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0" id="tablaTareasMiembro" style="background: transparent;">
-                        <thead style="background: rgba(255,255,255,0.05);">
+                    <table class="table table-dark table-hover mb-0 table-dark-transparent" id="tablaTareasMiembro">
+                        <thead class="thead-dark-soft">
                             <tr>
                                 <th class="p-3 border-secondary">Requerimiento</th>
                                 <th class="p-3 border-secondary">Servicio</th>
@@ -52,18 +54,18 @@
                                 <th class="p-3 border-secondary">Inicio</th>
                             </tr>
                         </thead>
-                        <tbody id="bodyTareasMiembro" style="border-top: 0;">
+                        <tbody id="bodyTareasMiembro" class="border-none">
                             <!-- Filas de tareas -->
                         </tbody>
                     </table>
                 </div>
                 <div id="sinTareasMiembro" class="text-center p-5 d-none text-muted">
-                    <i class="bi bi-check-circle" style="font-size: 3rem; opacity: 0.5;"></i>
-                    <p class="mt-3 mb-0" style="font-size: 1.1rem;">No hay tareas asignadas actualmente.</p>
+                    <i class="bi bi-check-circle icon-large-muted"></i>
+                    <p class="mt-3 mb-0 text-large-muted">No hay tareas asignadas actualmente.</p>
                 </div>
             </div>
-            <div class="modal-footer" style="border-top: 1px solid #333;">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background: #333; border: 1px solid #444; color: #fff;">Cerrar</button>
+            <div class="modal-footer modal-footer-rf">
+                <button type="button" class="btn btn-secondary btn-dark-rf" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>

@@ -380,6 +380,7 @@ class RequerimientoController extends BaseClienteController
         $fecha->setTime(0, 0, 0); 
         $cont = 0;
 
+        // Contar los días hábiles de trabajo
         while ($cont < $diasHabiles) {
             $fecha->modify('+1 day');
             // N (1:Lunes, ..., 5:Viernes, 6:Sábado, 7:Domingo)
@@ -387,8 +388,11 @@ class RequerimientoController extends BaseClienteController
                 $cont++;
             }
         }
-        // Margen adicional de 1 día para procesamiento inicial
+        // Mover la entrega al siguiente día hábil disponible
         $fecha->modify('+1 day');
+        while ($fecha->format('N') >= 6) {
+            $fecha->modify('+1 day');
+        }
         return $fecha;
     }
 

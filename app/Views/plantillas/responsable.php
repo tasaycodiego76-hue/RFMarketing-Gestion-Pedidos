@@ -197,17 +197,15 @@
             </div>
 
             <div class="topbar-right">
-                <!-- Perfil rápido -->
-                    <div class="user-info d-none d-md-block" style="text-align: right; margin-right: 20px;">
-                        <span class="user-name" style="font-size: 13px; font-weight: 700; color: #fff; opacity: 0.6;"><?= esc($nombre) ?></span>
-                        <div class="d-flex align-items-center justify-content-end" style="gap: 12px; margin-top: 2px;">
-                            <i class="bi bi-palette" style="color: var(--accent-primary); font-size: 24px;"></i>
-                            <span class="user-role" style="font-family: 'Bebas Neue'; font-size: 20px; color: #fff; letter-spacing: 4px; text-transform: uppercase;">
-                                <?= esc($nombre_area) ?>
-                            </span>
+                <div class="topbar-profile">
+                    <div class="profile-text">
+                        <span class="user-name"><?= esc($nombre) ?></span>
+                        <div class="user-area-badge">
+                            <i class="bi bi-palette-fill"></i>
+                            <span class="user-role-text"><?= esc($nombre_area) ?></span>
                         </div>
                     </div>
-                    <div class="user-avatar">
+                    <div class="user-avatar-top">
                         <?= $iniciales ?>
                     </div>
                 </div>
