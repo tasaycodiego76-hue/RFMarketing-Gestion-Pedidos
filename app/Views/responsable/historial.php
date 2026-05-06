@@ -139,20 +139,18 @@
     role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content modal-historial-content">
-            <div class="modal-header" style="border-bottom: 1px solid #1e1e1e; padding: 20px 25px;">
-                <h5 class="modal-title" id="modal-titulo-historial"
-                    style="font-family: 'Bebas Neue'; color: #fff; letter-spacing: 1px; font-size: 22px;">
+            <div class="modal-header modal-header-historial">
+                <h5 class="modal-title modal-title-historial" id="modal-titulo-historial">
                     DETALLE DE HISTORIAL
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="modal-cuerpo-historial" style="padding: 25px;">
+            <div class="modal-body modal-body-historial" id="modal-cuerpo-historial">
                 <!-- Contenido dinámico -->
             </div>
-            <div class="modal-footer" style="border-top: 1px solid #1e1e1e; padding: 15px 25px;">
-                <button class="btn btn-dark" data-bs-dismiss="modal"
-                    style="font-family: 'Bebas Neue'; letter-spacing: 1px; font-weight:500; border:1px solid #333; padding: 8px 25px;">
+            <div class="modal-footer modal-footer-historial">
+                <button class="btn btn-dark btn-close-historial" data-bs-dismiss="modal">
                     CERRAR
                 </button>
             </div>

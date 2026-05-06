@@ -2,8 +2,10 @@ document.addEventListener('DOMContentLoaded', function () {
     cargarTareasEnProceso();
 });
 
+/* FUNCIONES DE CARGA (API) */
+
 /**
- * Cargar tareas en proceso desde el backend
+ * Función principal: Descarga la lista de empleados y sus tareas asociadas desde el backend. Actualiza los contadores globales.
  */
 function cargarTareasEnProceso() {
     renderizarEmpleados(empleadosData);
@@ -16,8 +18,13 @@ function cargarTareasEnProceso() {
     });
 }
 
+/* RENDERIZADO DE UI */
+
 /**
- * Renderizar la lista de empleados con sus tareas
+ * Renderiza la lista visual de empleados y genera los contenedores (tarjetas) donde irán sus tareas.
+ * Posiciona al usuario actual (Responsable) al inicio de la lista.
+ * @param {*} empleados 
+ * @returns 
  */
 function renderizarEmpleados(empleados) {
     const container = document.getElementById('empleados-container');
@@ -26,8 +33,8 @@ function renderizarEmpleados(empleados) {
         container.innerHTML = `
             <div class="col-12">
                 <div class="text-center py-5">
-                    <i class="bi bi-inbox" style="font-size: 2.5rem; color: #444;"></i>
-                    <p class="mt-3" style="color: #666;">No hay empleados en el área</p>
+                    <i class="bi bi-inbox ep-icon-empty"></i>
+                    <p class="mt-3 ep-text-empty">No hay empleados en el área</p>
                 </div>
             </div>
         `;
@@ -54,26 +61,24 @@ function renderizarEmpleados(empleados) {
                             ${empleado.esresponsable ? '<i class="bi bi-shield-check"></i>' : obtenerIniciales(empleado.nombre_completo)}
                         </div>
                         <div class="ms-3">
-                            <h6 class="text-white mb-1" style="font-size: 15px;">
-                                ${escaparHtml(empleado.nombre_completo)} 
-                                ${isMe ? '<span class="badge bg-warning text-dark ms-2" style="font-size: 9px; vertical-align: middle;">TÚ</span>' : ''}
+                            <h6 class="text-white mb-1 ep-nombre">
+                                ${escaparHtml(empleado.nombre_completo)}
                             </h6>
-                            <span style="font-size: 11px; color: ${empleado.esresponsable ? '#f5c400' : '#888'};">
+                            <span class="${empleado.esresponsable ? 'ep-rol-jefe' : 'ep-rol-miembro'}">
                                 ${empleado.esresponsable ? 'Jefe de Área' : 'Miembro del Equipo'}
                             </span>
                         </div>
                     </div>
                     <div class="text-end">
-                        <span class="text-white" style="font-size: 20px; font-weight: 700;" id="tareas-count-${empleado.id}">0</span>
+                        <span class="text-white fw-bold fs-5" id="tareas-count-${empleado.id}">0</span>
                         <br>
-                        <small style="color: #666; font-size: 11px;">tareas</small>
+                        <small class="text-muted ep-text-xs">tareas</small>
                     </div>
                 </div>
-                
                 <div class="tareas-lista" id="tareas-container-${empleado.id}">
-                    <div class="text-center py-3" style="color: #555;">
-                        <div class="spinner-border spinner-border-sm me-2" role="status" style="width: 14px; height: 14px;"></div>
-                        <span style="font-size: 13px;">Cargando...</span>
+                    <div class="text-center py-3 text-muted">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                        <span class="ep-text-sm">Cargando...</span>
                     </div>
                 </div>
             </div>
@@ -82,7 +87,8 @@ function renderizarEmpleados(empleados) {
 }
 
 /**
- * Cargar tareas de un empleado específico
+ * Consulta al servidor para obtener exclusivamente las tareas activas de un empleado.
+ * @param {*} idEmpleado 
  */
 function cargarTareasEmpleado(idEmpleado) {
     const container = document.getElementById(`tareas-container-${idEmpleado}`);
@@ -94,27 +100,30 @@ function cargarTareasEmpleado(idEmpleado) {
             if (data.success) {
                 renderizarTareasEmpleado(container, data.data, idEmpleado);
                 countElement.textContent = data.total_tareas;
-
                 // Actualizar total global
                 window._totalTareas += data.total_tareas;
                 document.getElementById('total-tareas').textContent = window._totalTareas;
             } else {
-                container.innerHTML = `<div class="text-center py-3" style="color: #666; font-size: 13px;">Error al cargar</div>`;
+                container.innerHTML = `<div class="text-center py-3 ep-text-empty ep-text-sm">Error al cargar</div>`;
                 countElement.textContent = '0';
             }
         })
         .catch(() => {
-            container.innerHTML = `<div class="text-center py-3" style="color: #666; font-size: 13px;">Error de conexión</div>`;
+            container.innerHTML = `<div class="text-center py-3 ep-text-empty ep-text-sm">Error de conexión</div>`;
         });
 }
 
 /**
- * Renderizar tareas - SOLO título y prioridad
+ * Dibuja el listado compacto de tareas (título, prioridad y botones) dentro del contenedor de un empleado.
+ * @param {*} container 
+ * @param {*} tareas 
+ * @param {*} idEmpleado 
+ * @returns 
  */
 function renderizarTareasEmpleado(container, tareas, idEmpleado) {
     if (tareas.length === 0) {
         container.innerHTML = `
-            <div class="text-center py-3" style="color: #555; font-size: 13px;">
+            <div class="text-center py-3 ep-text-empty ep-text-sm">
                 Sin tareas asignadas
             </div>
         `;
@@ -127,45 +136,39 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
         const canDeliver = isMe && hasStarted && tarea.estado === 'en_proceso';
 
         return `
-        <div class="tarea-item mb-2" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 12px;">
+        <div class="tarea-item mb-2">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="d-flex align-items-center gap-2 flex-grow-1" style="min-width: 0;">
+                <div class="d-flex align-items-center gap-2 flex-grow-1 ep-min-w0">
                     <span class="badge-prio ${(tarea.prioridad || 'media').toLowerCase()}">${tarea.prioridad || 'Media'}</span>
-                    <span class="tarea-titulo text-truncate" style="font-weight: 600; color: #fff;">${escaparHtml(tarea.titulo || 'Sin título')}</span>
+                    <span class="tarea-titulo text-truncate">${escaparHtml(tarea.titulo || 'Sin título')}</span>
                     ${(parseInt(tarea.num_modificaciones) > 0 || tarea.observacion_revision) ? `
                         <span class="badge-returned" title="Tarea devuelta con observaciones">DEVUELTO</span>
                     ` : ''}
                 </div>
                 <div class="d-flex gap-1">
                     ${(isMe && !hasStarted) ? `
-                        <button class="btn btn-sm btn-warning" onclick="iniciarTrabajo(${tarea.id})" title="Registrar inicio de trabajo" style="padding: 4px 15px; font-size: 11px; font-weight: 800; background: #f5c400; color: #000; border: none; letter-spacing: 0.5px;">
+                        <button class="btn-header-action bg-warning text-dark" onclick="iniciarTrabajo(${tarea.id})" title="Registrar inicio de trabajo">
                             <i class="bi bi-play-fill me-1"></i> INICIAR TRABAJO
                         </button>
                     ` : `
                         ${canDeliver ? `
-                            <button class="btn btn-sm btn-success" onclick="abrirModalEntregar(${tarea.id})" title="Entregar mi trabajo" style="padding: 2px 8px; font-size: 11px;">
+                            <button class="btn btn-sm btn-success ep-btn-entregar" onclick="abrirModalEntregar(${tarea.id})" title="Entregar mi trabajo">
                                 <i class="bi bi-send-fill me-1"></i> ENTREGAR
                             </button>
                         ` : ''}
-                        <button class="btn btn-sm btn-outline-warning" onclick="verDetalleTarea(${tarea.id})" title="Ver detalles" style="border-color: #444; color: #fff; padding: 2px 8px;">
-                            <i class="bi bi-eye" style="font-size: 13px;"></i>
+                        <button class="btn btn-sm btn-outline-warning ep-btn-ver" onclick="verDetalleTarea(${tarea.id})" title="Ver detalles">
+                            <i class="bi bi-eye ep-text-eye"></i>
                         </button>
                     `}
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-between mt-1">
-                <div style="font-size: 11px; color: #777; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <span style="color: #aaa; font-weight: 600; text-transform: uppercase; font-size: 10px;">${escaparHtml(tarea.nombre_servicio || 'Servicio')}</span>
-                    
-
+                <div class="d-flex align-items-center gap-2 flex-wrap text-muted ep-text-xs">
                     ${hasStarted ? `
-                        <span style="color: #22c55e; background: rgba(34, 197, 94, 0.1); padding: 1px 6px; border-radius: 4px; font-size: 10px; border: 1px solid rgba(34, 197, 94, 0.2);">
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 ep-text-xxs">
                             <i class="bi bi-calendar-check me-1"></i> Iniciado: ${formatearFechaLimpia(tarea.fechainicio)}
                         </span>
                     ` : ''}
-                </div>
-                <div style="font-size: 10px; color: #444; font-style: italic;">
-                    #REQ-${tarea.id_requerimiento || tarea.id}
                 </div>
             </div>
         </div>`;
@@ -173,7 +176,73 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
 }
 
 /**
- * Ver detalles de una tarea
+ * Registra oficialmente en el sistema la fecha y hora en la que el usuario empieza a trabajar.
+ * @param {*} idAtencion 
+ */
+function iniciarTrabajo(idAtencion) {
+    Swal.fire({
+        title: '¿Iniciar trabajo?',
+        text: "Se registrará la fecha y hora oficial de inicio para este requerimiento.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#f5c400',
+        cancelButtonColor: '#333',
+        confirmButtonText: 'Sí, ¡empezar!',
+        cancelButtonText: 'Cancelar',
+        background: '#161616',
+        color: '#fff'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`${window.base_url}responsable/pedido-iniciar/${idAtencion}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                }
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Trabajo Iniciado!',
+                            text: data.message,
+                            background: '#161616',
+                            color: '#fff',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        // Recargar tareas para actualizar la UI (quitar botón iniciar, poner entregar)
+                        cargarTareasEmpleado(window.currentUserId);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message,
+                            background: '#161616',
+                            color: '#fff'
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo conectar con el servidor',
+                        background: '#161616',
+                        color: '#fff'
+                    });
+                });
+        }
+    });
+}
+
+/* DETALLE DEL REQUERIMIENTO (MODAL DETALLE) */
+
+/**
+ * Llama al servidor para obtener la información detallada, archivos y tracking de una tarea específica.
+ * @param {*} idAtencion 
  */
 function verDetalleTarea(idAtencion) {
     fetch(`${window.base_url}responsable/pedidos/detalle?id=${idAtencion}`)
@@ -183,26 +252,47 @@ function verDetalleTarea(idAtencion) {
                 window.requerimientoActualEnProceso = data.data; // Guardar globalmente
                 mostrarModalDetalle(data.data, data.archivos, data.tracking);
             } else {
-                Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'No se pudieron cargar los detalles', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400', allowOutsideClick: false, allowEscapeKey: false });
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'No se pudieron cargar los detalles',
+                    background: '#161616', color: '#fff',
+                    confirmButtonColor: '#f5c400',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                });
             }
         })
         .catch(() => {
-            Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400', allowOutsideClick: false, allowEscapeKey: false });
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error de conexión',
+                background: '#161616',
+                color: '#fff',
+                confirmButtonColor: '#f5c400',
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            });
         });
 }
 
 /**
- * Modal con diseño limpio - blanco/negro/amarillo
+ * Construye dinámicamente y muestra el Modal con el Detalle del requerimiento.
+ * Pinta toda la información relevante (objetivos, públicos, formatos, canales, entregables).
+ * @param {*} req 
+ * @param {*} archivos 
+ * @param {*} tracking 
  */
 function mostrarModalDetalle(req, archivos, tracking) {
     const cuerpo = document.getElementById('detalle-tarea-content');
 
-    // ── Fechas ──
+    // Fechas
     const fReq = req.fecha_requerida_formateada || req.fecharequerida;
     const fSol = req.fecha_formateada || req.fechacreacion;
     const fIni = req.fecha_inicio_formateada || req.fechainicio;
 
-    // ── Trabajo HTML ──
+    // Trabajo HTML 
     let trabajoHtml;
     if (req.estado === 'finalizado' || req.estado === 'completado') {
         trabajoHtml = _pill('bi-check2-circle', 'Completado', '#22c55e', '#052e16');
@@ -214,14 +304,14 @@ function mostrarModalDetalle(req, archivos, tracking) {
         trabajoHtml = _pill('bi-lightning-charge-fill', 'Desarrollando', '#10b981', '#001a0f');
     }
 
-    // ── Estado Map ──
+    // Estado Map
     const estadoMap = {
-        pendiente_sin_asignar: { c: '#f59e0b', label: '📋 Nuevo requerimiento', i: 'bi-hourglass-split' },
-        pendiente_asignado: { c: '#F5C400', label: '✅ Asignado al diseñador', i: 'bi-send-check-fill' },
-        en_proceso: { c: '#10b981', label: '🚀 Trabajando en tu diseño', i: 'bi-lightning-charge-fill' },
-        en_revision: { c: '#3b82f6', label: '👀 Listo para revisar', i: 'bi-eye-fill' },
-        finalizado: { c: '#22c55e', label: '🎉 Entregado con éxito', i: 'bi-check2-circle' },
-        cancelado: { c: '#ef4444', label: '❌ Cancelado', i: 'bi-x-circle-fill' },
+        pendiente_sin_asignar: { c: '#f59e0b', label: ' Nuevo requerimiento', i: 'bi-hourglass-split' },
+        pendiente_asignado: { c: '#F5C400', label: 'Asignado al diseñador', i: 'bi-send-check-fill' },
+        en_proceso: { c: '#10b981', label: 'Trabajando en tu diseño', i: 'bi-lightning-charge-fill' },
+        en_revision: { c: '#3b82f6', label: ' Listo para revisar', i: 'bi-eye-fill' },
+        finalizado: { c: '#22c55e', label: 'Entregado con éxito', i: 'bi-check2-circle' },
+        cancelado: { c: '#ef4444', label: 'Cancelado', i: 'bi-x-circle-fill' },
     };
     const estKey = (req.estado || '').toLowerCase();
     const es = estadoMap[estKey] || { c: '#aaa', label: req.estado || 'N/A', i: 'bi-circle' };
@@ -230,276 +320,142 @@ function mostrarModalDetalle(req, archivos, tracking) {
     const priC = pri === 'Alta' ? '#ef4444' : (pri === 'Media' ? '#F5C400' : '#3b82f6');
     const priI = pri === 'Alta' ? 'bi-arrow-up-circle-fill' : (pri === 'Media' ? 'bi-dash-circle-fill' : 'bi-arrow-down-circle-fill');
 
-    // ── Empleado ──
+    // Empleado
     let empleadoHtml;
     if (req.empleado_asignado) {
         const ini = obtenerIniciales(req.empleado_asignado.nombre + ' ' + req.empleado_asignado.apellidos);
         empleadoHtml = `
-            <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
-                <div style="width:36px;height:36px;border-radius:50%;
-                    background:linear-gradient(135deg,#F5C400,#b45309);
-                    color:#000;font-weight:800;font-size:13px;
-                    display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ini}</div>
+            <div class="d-flex align-items-center gap-2 mt-2">
+                <div class="avatar-sm bg-warning text-dark fw-bold">${ini}</div>
                 <div>
-                    <div style="color:#f0f0f0;font-weight:700;font-size:13px;">${escaparHtml(req.empleado_asignado.nombre)} ${escaparHtml(req.empleado_asignado.apellidos)}</div>
-                    <div style="color:#555;font-size:10px;text-transform:uppercase;letter-spacing:.5px;">
-                        ${req.estado === 'en_proceso' ? 'En desarrollo' : 'Asignado'}
-                    </div>
+                    <div class="text-light fw-bold ep-emp-name">${escaparHtml(req.empleado_asignado.nombre)} ${escaparHtml(req.empleado_asignado.apellidos)}</div>
+                    <div class="text-muted text-uppercase ep-emp-role">${req.estado === 'en_proceso' ? 'En desarrollo' : 'Asignado'}</div>
                 </div>
             </div>`;
     } else {
         empleadoHtml = `
-            <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
-                <div style="width:36px;height:36px;border-radius:50%;background:#111;
-                    border:2px dashed #222;display:flex;align-items:center;justify-content:center;">
-                    <i class="bi bi-person-dash" style="color:#444;font-size:16px;"></i>
-                </div>
+            <div class="d-flex align-items-center gap-2 mt-2">
+                <div class="avatar-sm bg-dark border border-secondary text-muted"><i class="bi bi-person-dash"></i></div>
                 <div>
-                    <div style="color:#F5C400;font-weight:700;font-size:13px;">Sin asignar</div>
-                    <div style="color:#555;font-size:10px;letter-spacing:.5px;">Esperando asignación</div>
+                    <div class="text-warning fw-bold ep-emp-name">Sin asignar</div>
+                    <div class="text-muted ep-emp-role">Esperando asignación</div>
                 </div>
             </div>`;
     }
 
-    // ── Entrega info (si existe) ──
+    // Entrega info (si existe)
     let entregaHtml = '';
     if (req.estado === 'en_revision' || req.estado === 'finalizado') {
-        const urlEntrega = req.url_entrega ? `<a href="${escaparHtml(req.url_entrega)}" target="_blank" class="btn btn-sm btn-outline-success" style="font-size:11px;"><i class="bi bi-box-arrow-up-right"></i> VER TRABAJO FINAL</a>` : '<span style="color:#555;">No se registró URL</span>';
+        const urlEntrega = req.url_entrega ? `<a href="${escaparHtml(req.url_entrega)}" target="_blank" class="btn btn-sm btn-outline-success ep-text-xs"><i class="bi bi-box-arrow-up-right"></i> VER TRABAJO FINAL</a>` : '<span class="text-muted">No se registró URL</span>';
 
-        // Archivos de entrega
         let arcEntHtml = '';
         const archivosEntrega = archivos.filter(a => a.idatencion);
         if (archivosEntrega.length > 0) {
-            arcEntHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:8px;margin-top:8px;">`;
+            arcEntHtml = `<div class="d-flex flex-wrap gap-2 mt-2">`;
             archivosEntrega.forEach(a => {
-                const icon = getFileIcon(a.nombre_original || a.nombre);
-                arcEntHtml += `
-                    <button type="button" onclick="abrirArchivo(${a.id})"
-                       style="display:flex;align-items:center;gap:8px;padding:9px 12px;
-                              background:#0a0a0a;border:1px solid #22c55e;border-radius:7px;
-                              color:#aaa;text-decoration:none;font-size:11px;transition:all .15s;
-                              min-width:0; overflow:hidden; width:100%; text-align:left;">
-                        <i class="bi ${icon}" style="color:#22c55e;font-size:16px;flex-shrink:0;"></i>
-                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">${escaparHtml(a.nombre_original || a.nombre)}</span>
-                    </button>`;
+                arcEntHtml += `<button type="button" onclick="abrirArchivo(${a.id})" class="archivo-item btn btn-dark btn-sm text-start"><i class="bi ${getFileIcon(a.nombre_original || a.nombre)} text-success me-2"></i><span class="text-truncate d-inline-block align-middle ep-archivo-nombre">${escaparHtml(a.nombre_original || a.nombre)}</span></button>`;
             });
             arcEntHtml += '</div>';
         } else {
-            arcEntHtml = '<p style="color:#444;font-size:11px;font-style:italic;">No se subieron archivos físicos en la entrega.</p>';
+            arcEntHtml = '<p class="text-muted fst-italic mt-2 mb-0 ep-text-italic-sm">No se subieron archivos físicos en la entrega.</p>';
         }
 
         entregaHtml = _seccion('bi-send-check', 'Información de la Entrega', '#22c55e', `
-            <div class="mb-3">
-                ${_label('URL de Entrega')}
-                <div style="margin-top:5px;">${urlEntrega}</div>
-            </div>
-            <div class="mb-3">
-                ${_label('Notas de Entrega / Observaciones')}
-                <div class="kd-val" style="font-size:13px; color:#bbb;">${escaparHtml(req.observacion_revision || 'Sin observaciones')}</div>
-            </div>
-            <div>
-                ${_label('Archivos de la Entrega')}
-                ${arcEntHtml}
-            </div>
+            <div class="mb-3">${_label('URL de Entrega')}<div class="mt-1">${urlEntrega}</div></div>
+            <div class="mb-3">${_label('Notas de Entrega / Observaciones')}<div class="kd-val text-muted">${escaparHtml(req.observacion_revision || 'Sin observaciones')}</div></div>
+            <div>${_label('Archivos de la Entrega')}${arcEntHtml}</div>
         `);
     }
 
-    // ── Archivos de la Solicitud (idatencion es nulo o ruta en requerimientos) ──
+    // Archivos de la Solicitud
     const archivosSolicitud = archivos.filter(a => !a.idatencion || (a.ruta && a.ruta.includes('requerimientos')));
     let arcSolHtml = '';
     if (archivosSolicitud.length) {
-        arcSolHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:8px;margin-top:8px;max-height:200px;overflow-y:auto;padding-right:4px;">`;
+        arcSolHtml = `<div class="d-flex flex-wrap gap-2 mt-2">`;
         archivosSolicitud.forEach(a => {
-            const icon = getFileIcon(a.nombre_original || a.nombre);
-            arcSolHtml += `
-                <button type="button" onclick="abrirArchivo(${a.id})"
-                   style="display:flex;align-items:center;gap:8px;padding:9px 12px;
-                          background:#0a0a0a;border:1px solid #1e1e1e;border-radius:7px;
-                          color:#aaa;text-decoration:none;font-size:11px;transition:border-color .15s;
-                          min-width:0; overflow:hidden; width:100%; text-align:left;"
-                   onmouseover="this.style.borderColor='#F5C400'"
-                   onmouseout="this.style.borderColor='#1e1e1e'">
-                    <i class="bi ${icon}" style="color:#F5C400;font-size:16px;flex-shrink:0;"></i>
-                    <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0;">${escaparHtml(a.nombre_original || a.nombre)}</span>
-                </button>`;
+            arcSolHtml += `<button type="button" onclick="abrirArchivo(${a.id})" class="archivo-item btn btn-dark btn-sm text-start"><i class="bi ${getFileIcon(a.nombre_original || a.nombre)} text-warning me-2"></i><span class="text-truncate d-inline-block align-middle ep-archivo-nombre">${escaparHtml(a.nombre_original || a.nombre)}</span></button>`;
         });
         arcSolHtml += '</div>';
     } else {
-        arcSolHtml = '<p style="color:#333;font-size:11px;font-style:italic;margin:8px 0 0;">No se adjuntaron archivos.</p>';
+        arcSolHtml = '<p class="text-muted fst-italic mt-2 mb-0 ep-text-italic-sm">No se adjuntaron archivos.</p>';
     }
 
-    // ── URLs del Cliente ──
+    // URLs del Cliente
     let urlsClienteHtml = '';
     if (req.url_subida) {
-        const link = `<a href="${escaparHtml(req.url_subida)}" target="_blank" style="color:#60a5fa;text-decoration:underline;font-size:13px;word-break:break-all;">${escaparHtml(req.url_subida)}</a>`;
-        urlsClienteHtml = _seccion('', 'URLs enviadas por el Cliente', '#60a5fa', `
-            <div>
-                ${_label('Enlace / URLs')}
-                <div style="margin-top:5px;">${link}</div>
-            </div>
-        `);
+        const link = `<a href="${escaparHtml(req.url_subida)}" target="_blank" class="text-primary text-decoration-underline ep-url-link">${escaparHtml(req.url_subida)}</a>`;
+        urlsClienteHtml = _seccion('', 'URLs enviadas por el Cliente', '#60a5fa', `<div class="mt-1">${_label('Enlace / URLs')}<div class="mt-1">${link}</div></div>`);
     }
 
-    // ── Cliente info (derecha) ──
-    const clienteHtml = `
-        <div style="margin-top: 24px;">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:#555;margin-bottom:14px;">
-                INFORMACIÓN DEL CLIENTE
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <div style="background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:12px;">
-                    ${_label('Nombre completo')}
-                    <div class="kd-val" style="margin-top:4px;">${escaparHtml(req.nombre_cliente || 'N/A')}</div>
-                </div>
-                <div style="background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:12px;">
-                    ${_label('Empresa')}
-                    <div class="kd-val" style="margin-top:4px;">${escaparHtml(req.nombre_empresa || 'N/A')}</div>
-                </div>
-                <div style="background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:12px;">
-                    ${_label('Teléfono')}
-                    <div class="kd-val" style="margin-top:4px;">${escaparHtml(req.telefono_cliente || 'N/A')}</div>
-                </div>
-                <div style="background:#111;border:1px solid #1e1e1e;border-radius:8px;padding:12px;">
-                    ${_label('Correo')}
-                    <div class="kd-val" style="margin-top:4px;word-break:break-all;">${escaparHtml(req.correo_cliente || 'N/A')}</div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // ── HTML ──
+    // HTML Principal
     const html = `
-    <div class="modal-ver-detalle" style="font-family:'Segoe UI',system-ui,sans-serif;color:#c8c8c8;padding-top:10px;">
-        <!-- ══ CABECERA ══ -->
-        <div style="margin-bottom:18px;">
-            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:12px;">
+    <div class="modal-ver-detalle">
+        <!-- CABECERA -->
+        <div class="mb-4">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
                 ${_pill(es.i, es.label, es.c, es.c + '18')}
                 ${_pill(priI, pri, priC, priC + '18')}
-                ${req.tipo_requerimiento ? `<span style="background:#111;color:#555;border:1px solid #1e1e1e;padding:4px 12px;border-radius:20px;font-size:10px;">${escaparHtml(req.tipo_requerimiento)}</span>` : ''}
+                ${req.tipo_requerimiento ? `<span class="badge bg-dark border border-secondary rounded-pill px-3 py-1 text-muted fw-normal ep-detail-badge">${escaparHtml(req.tipo_requerimiento)}</span>` : ''}
             </div>
-            <h2 style="font-family:'Bebas Neue',sans-serif;color:#fff;font-size:28px;letter-spacing:2px;margin:0 0 2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;hyphens:auto; display:flex; align-items:center; gap:15px;">
+            <h2 class="font-bebas text-white mb-1 d-flex align-items-center gap-3 ep-detail-title">
                 ${escaparHtml(req.titulo || 'Sin Título')}
             </h2>
-            <p style="color:#777;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;">
+            <p class="text-muted fw-bold text-uppercase mb-3 ep-detail-subtitle">
                 ${escaparHtml(req.nombre_empresa || 'Empresa no asignada')} | ${escaparHtml(req.nombre_servicio || req.servicio || 'Servicio no especificado')}
             </p>
             ${trabajoHtml}
         </div>
 
-        <!-- ══ GRID PRINCIPAL ══ -->
-        <div class="kd-main" style="display:grid;grid-template-columns:1fr 285px;gap:18px;align-items:start;">
-            <!-- ══ IZQUIERDA ══ -->
-            <div style="display:flex;flex-direction:column;gap:4px;min-width:0;">
+        <!-- GRID PRINCIPAL -->
+        <div class="kd-main">
+            <!-- IZQUIERDA -->
+            <div class="d-flex flex-column gap-1 ep-min-w0">
                 
-                <!-- ── Retroalimentación (si es devuelto) ── -->
                 ${req.observacion_revision && (req.estado === 'en_proceso' || req.estado === 'pendiente_asignado') ? `
                     <div class="feedback-box">
-                        <div class="feedback-title">
-                            <i class="bi bi-exclamation-triangle-fill"></i> CORRECCIÓN SOLICITADA POR ADMINISTRACIÓN
-                        </div>
-                        <div class="feedback-content">
-                            "${escaparHtml(req.observacion_revision)}"
-                        </div>
+                        <div class="feedback-title"><i class="bi bi-exclamation-triangle-fill"></i> CORRECCIÓN SOLICITADA POR ADMINISTRACIÓN</div>
+                        <div class="feedback-content">"${escaparHtml(req.observacion_revision)}"</div>
                     </div>
                 ` : ''}
 
                 ${entregaHtml}
 
-                ${_seccion('', 'Tipo de Requerimiento', '#3b82f6', `
-                    <div class="kd-val" style="font-weight:700; color:#fff;">${escaparHtml(req.tipo_requerimiento || 'Sin especificar')}</div>
-                `)}
-
-                ${_seccion('', 'Objetivo de Comunicación', '#F5C400', `
-                    <div class="kd-val" style="white-space:pre-wrap;">${escaparHtml(req.objetivo_comunicacion || '---')}</div>
-                `)}
-
-                ${_seccion('', 'Público Objetivo', '#F5C400', `
-                    <div class="kd-val" style="white-space:pre-wrap;">${escaparHtml(req.publico_objetivo || '---')}</div>
-                `)}
-
-                ${_seccion('', 'Descripción', '#555', `
-                    <div class="kd-val" style="line-height:1.75;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow-y:auto;padding-right:5px;">${escaparHtml(req.descripcion || 'Sin descripción.')}</div>
-                `)}
-
-                ${_seccion('', 'Canales de Difusión', '#555', `
-                    <div style="display:flex;flex-wrap:wrap;gap:8px;">${formatearLista(req.canales_difusion)}</div>
-                `)}
-
-                ${_seccion('', 'Formatos Solicitados', '#555', `
-                    <div style="display:flex;flex-wrap:wrap;gap:8px;">${formatearLista(req.formatos_solicitados)}</div>
-                `)}
-
+                ${_seccion('', 'Tipo de Requerimiento', '#3b82f6', `<div class="kd-val text-white fw-bold">${escaparHtml(req.tipo_requerimiento || 'Sin especificar')}</div>`)}
+                ${_seccion('', 'Objetivo de Comunicación', '#F5C400', `<div class="kd-val ep-val-prewrap">${escaparHtml(req.objetivo_comunicacion || '---')}</div>`)}
+                ${_seccion('', 'Público Objetivo', '#F5C400', `<div class="kd-val ep-val-prewrap">${escaparHtml(req.publico_objetivo || '---')}</div>`)}
+                ${_seccion('', 'Descripción', '#555', `<div class="kd-val ep-val-scroll">${escaparHtml(req.descripcion || 'Sin descripción.')}</div>`)}
+                ${_seccion('', 'Canales de Difusión', '#555', `<div class="d-flex flex-wrap gap-2">${formatearLista(req.canales_difusion)}</div>`)}
+                ${_seccion('', 'Formatos Solicitados', '#555', `<div class="d-flex flex-wrap gap-2">${formatearLista(req.formatos_solicitados)}</div>`)}
                 ${_seccion('', 'Archivos Adjuntos a la Solicitud', '#374151', arcSolHtml)}
-
                 ${urlsClienteHtml}
 
             </div>
 
-            <!-- ══ DERECHA: resumen sticky ══ -->
-            <div style="min-width:285px;">
-                <div style="background:#0a0a0a;border:1px solid #1e1e1e;border-radius:8px;padding:16px;position:sticky;top:0;">
-                    
-                    <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:#555;margin-bottom:14px;">
-                        INFORMACIÓN DEL PEDIDO
-                    </div>
+            <!-- DERECHA -->
+            <div class="ep-sidebar">
+                <div class="bg-black border border-dark rounded p-4 position-sticky top-0">
+                    <div class="font-bebas text-muted mb-4 ep-sidebar-title">INFORMACIÓN DEL PEDIDO</div>
 
-                    <!-- 1. Quién solicita (Cliente, Empresa, Área) -->
-                    <div class="mb-3">
+                    <div class="mb-4">
                         ${_label('Solicitado por')}
-                        <div style="color:#fff;font-weight:700;font-size:15px;margin-bottom:12px;">${escaparHtml(req.nombre_cliente || '---')}</div>
-                        
-                        <div class="mb-2">
-                            <span style="font-size:9px; color:#555; text-transform:uppercase; font-weight:800; letter-spacing:1px; display:block; margin-bottom:2px;">Área</span>
-                            <div style="color:#e0e0e0; font-size:12px; font-weight:600;">${escaparHtml(req.nombre_area || 'Área no especificada')}</div>
-                        </div>
-                        <div>
-                            <span style="font-size:9px; color:#555; text-transform:uppercase; font-weight:800; letter-spacing:1px; display:block; margin-bottom:2px;">Empresa</span>
-                            <div style="color:#F5C400; font-size:13px; font-weight:700;">${escaparHtml(req.nombre_empresa || '---')}</div>
-                        </div>
+                        <div class="text-white fw-bold mb-3 ep-nombre">${escaparHtml(req.nombre_cliente || '---')}</div>
+                        <div class="mb-2"><span class="d-block text-muted text-uppercase fw-bold mb-1 ep-sidebar-meta-label">Área</span><div class="text-light fw-semibold ep-sidebar-meta-val">${escaparHtml(req.nombre_area || 'Área no especificada')}</div></div>
+                        <div><span class="d-block text-muted text-uppercase fw-bold mb-1 ep-sidebar-meta-label">Empresa</span><div class="text-warning fw-bold ep-emp-name">${escaparHtml(req.nombre_empresa || '---')}</div></div>
                     </div>
-
                     <hr class="kd-hr">
-
-                    <!-- 2. Asignación (Empleado) -->
-                    <div style="margin-bottom:14px;">
+                    <div class="mb-4">
                         ${_label('Empleado asignado')}
                         ${empleadoHtml}
                     </div>
-
                     <hr class="kd-hr">
-
-                    <!-- 3. Fechas -->
-                    <div class="kd-info-row">
-                        <div>
-                            ${_label('Fecha requerida')}
-                            <div style="color:${fReq ? '#f0f0f0' : '#555'};font-size:14px;font-weight:700;">${formatearFechaLimpia(fReq) || 'No definida'}</div>
-                        </div>
-                    </div>
-
-                    <div class="kd-info-row">
-                        <div>
-                            ${_label('Fecha de solicitud')}
-                            <div style="color:#f0f0f0;font-size:14px;font-weight:700;">${formatearFechaLimpia(fSol) || '---'}</div>
-                        </div>
-                    </div>
-
-                    <div class="kd-info-row">
-                        <div>
-                            ${_label('Inicio de trabajo')}
-                            <div style="color:${fIni ? '#10b981' : '#555'};font-size:14px;font-weight:700;">
-                                ${formatearFechaLimpia(fIni) || 'Aún no iniciado'}
-                            </div>
-                        </div>
-                    </div>
-
+                        <div class="kd-info-row"> <span class="label-text">${_label('Fecha requerida')}</span><div class="fw-bold ${fReq ? 'ep-sidebar-date-active' : 'ep-sidebar-date-inactive'}">${formatearFechaLimpia(fReq) || 'No definida'}</div></div>
+                        <div class="kd-info-row"><span class="label-text">${_label('Fecha de solicitud')}</span><div class="text-light fw-bold ep-sidebar-date"> ${formatearFechaLimpia(fSol) || '---'}</div></div>
+                        <div class="kd-info-row"><span class="label-text">${_label('Inicio de trabajo')}</span><div class="fw-bold ${fIni ? 'ep-sidebar-date-started' : 'ep-sidebar-date-pending'}">${formatearFechaLimpia(fIni) || 'Aún no iniciado'}</div></div>
                     <hr class="kd-hr">
-
-                    <!-- 4. Estado -->
                     <div>
                         ${_label('Estado actual')}
-                        <div style="margin-top:6px;">${_pill(es.i, es.label, es.c, es.c + '18')}</div>
+                        <div class="mt-2">${_pill(es.i, es.label, es.c, es.c + '18')}</div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -507,7 +463,7 @@ function mostrarModalDetalle(req, archivos, tracking) {
 
     cuerpo.innerHTML = html;
 
-    // ── Gestionar Botones en la Cabecera ──
+    // Gestionar Botones en la Cabecera
     const modalHeader = document.querySelector('.modal-detalle-header');
     const existingBtn = document.getElementById('btn-formalizar-header');
     if (existingBtn) existingBtn.remove();
@@ -524,8 +480,7 @@ function mostrarModalDetalle(req, archivos, tracking) {
     if (needsStartHeader) {
         const btnStart = document.createElement('button');
         btnStart.id = 'btn-iniciar-header';
-        btnStart.className = 'btn btn-sm btn-success ms-auto me-3';
-        btnStart.style.cssText = 'font-weight:800; font-size:11px; letter-spacing:1px; padding:6px 16px; border-radius:6px; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2); transition: all 0.2s; border:none; background: #22c55e; color: #fff;';
+        btnStart.className = 'btn btn-sm btn-success ms-auto me-3 ep-btn-iniciar-header';
         btnStart.innerHTML = '<i class="bi bi-play-fill me-2"></i> INICIAR TRABAJO';
         btnStart.onclick = () => {
             iniciarTrabajo(req.idatencion || req.id);
@@ -537,8 +492,7 @@ function mostrarModalDetalle(req, archivos, tracking) {
     } else if (esServicioEditable && isMeTask) {
         const btn = document.createElement('button');
         btn.id = 'btn-formalizar-header';
-        btn.className = 'btn btn-sm btn-warning ms-auto me-3';
-        btn.style.cssText = 'font-weight:800; font-size:11px; letter-spacing:1px; padding:6px 16px; border-radius:6px; box-shadow: 0 4px 15px rgba(245, 196, 0, 0.2); transition: all 0.2s; border:none;';
+        btn.className = 'btn btn-sm btn-warning ms-auto me-3 ep-btn-editar-header';
         btn.innerHTML = '<i class="bi bi-pencil-square me-2"></i> EDITAR REQUERIMIENTO';
         btn.onclick = () => activarEdicionRequerimientoEnProceso();
 
@@ -552,18 +506,18 @@ function mostrarModalDetalle(req, archivos, tracking) {
     modal.show();
 }
 
-// ===== FUNCIONES AUXILIARES =====
+/* Helpers internos del modal (mostrarModalDetalle) */
+
 function abrirArchivo(idArchivo) {
     window.open(`${window.base_url}responsable/archivos/vista-previa/${idArchivo}`, '_blank');
 }
 
 function _pill(icon, label, color, bg) {
-    return `<span style="background:${bg};color:${color};border:1px solid ${color}33;
-        padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px;
-        text-transform:uppercase;display:inline-flex;align-items:center;gap:5px;">
+    return `<span class="ep-pill" style="background:${bg};color:${color};border:1px solid ${color}33;">
         ${label}</span>`;
 }
 
+//Genera una sección de bloque con título e icono.
 function _seccion(icon, titulo, color, innerHtml) {
     return `<div class="kd-sec" style="border-left-color:${color};">
         <div class="kd-sec-title" style="color:${color};">
@@ -573,10 +527,18 @@ function _seccion(icon, titulo, color, innerHtml) {
     </div>`;
 }
 
+//Etiqueta pequeña para los subtítulos del modal.
 function _label(texto) {
     return `<span class="kd-label">${texto}</span>`;
 }
 
+/* UTILIDADES Y HELPERS */
+
+/**
+ * Retorna la clase del icono de Bootstrap según la extensión del archivo.
+ * @param {*} nombre 
+ * @returns 
+ */
 function getFileIcon(nombre) {
     if (!nombre) return 'bi-file-earmark';
     const ext = nombre.split('.').pop().toLowerCase();
@@ -588,18 +550,24 @@ function getFileIcon(nombre) {
     return 'bi-file-earmark';
 }
 
+/**
+ * Convierte un texto separado por comas en etiquetas (pills).
+ * @param {*} valor 
+ * @returns 
+ */
 function formatearLista(valor) {
     if (!valor) return '';
     let items = [];
-    try {
-        const parsed = JSON.parse(valor);
-        items = Array.isArray(parsed) ? parsed : [String(parsed)];
-    } catch (e) {
-        items = valor.split(',').map(s => s.trim()).filter(s => s);
-    }
-    return items.map(item => `<span style="display:inline-block;background:#1e1e1e;color:#e8e8e8;border:1px solid #333;padding:6px 14px;border-radius:6px;font-size:13px;margin-bottom:6px;box-shadow:0 2px 4px rgba(0,0,0,0.2);">${escaparHtml(item)}</span>`).join('');
+    try { const p = JSON.parse(valor); items = Array.isArray(p) ? p : [String(p)]; }
+    catch (e) { items = valor.split(',').map(s => s.trim()).filter(s => s); }
+    return items.map(item => `<span class="badge-tag">${escaparHtml(item)}</span>`).join('');
 }
 
+/**
+ * Sanitiza texto para prevenir ataques XSS.
+ * @param {*} texto 
+ * @returns 
+ */
 function escaparHtml(texto) {
     if (!texto) return '';
     const div = document.createElement('div');
@@ -607,65 +575,54 @@ function escaparHtml(texto) {
     return div.innerHTML;
 }
 
+/**
+ * Formatea fechas largas a una vista limpia (DD/MM/YYYY HH:MM).
+ * @param {*} fecha 
+ * @returns 
+ */
 function formatearFechaLimpia(fecha) {
     if (!fecha) return '---';
-    // Si ya viene formateada dd/mm/yyyy hh:mm, la dejamos así
-    if (fecha.includes('/') && fecha.length <= 16) return fecha;
-
+    if (fecha.includes('/') && fecha.length <= 16) return fecha; // Ya está formateada
     try {
         const d = new Date(fecha);
         if (isNaN(d.getTime())) return fecha;
-
-        const day = String(d.getDate()).padStart(2, '0');
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const year = d.getFullYear();
-        const hours = String(d.getHours()).padStart(2, '0');
-        const minutes = String(d.getMinutes()).padStart(2, '0');
-
-        return `${day}/${month}/${year} ${hours}:${minutes}`;
-    } catch (e) {
-        return fecha;
-    }
-}
-
-function obtenerIniciales(nombre) {
-    if (!nombre) return '?';
-    const p = nombre.trim().split(' ');
-    const first = p[0]?.[0] || '';
-    const last = p[1]?.[0] || '';
-    return (first + last).toUpperCase();
+        return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    } catch (e) { return fecha; }
 }
 
 /**
- * Lógica de entrega para el Responsable
+ * Extrae las iniciales de un nombre
+ * @param {*} nombre 
+ * @returns 
+ */
+function obtenerIniciales(nombre) {
+    if (!nombre) return '?';
+    const p = nombre.trim().split(' ');
+    return ((p[0]?.[0] || '') + (p[1]?.[0] || '')).toUpperCase();
+}
+
+/*  ACCIONES DE ENTREGABLE */
+
+/**
+ * Abre el formulario (SweetAlert) para que el diseñador envíe su trabajo final (link o archivos).
+ * @param {number|string} idAtencion - ID de la atención a entregar.
  */
 function abrirModalEntregar(idAtencion) {
     Swal.fire({
         title: '<i class="bi bi-cloud-arrow-up mr-2" style="color:#F5C400;"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">REALIZAR ENTREGA</span>',
         html: `
-            <div class="text-start p-2" style="font-family: 'Inter', sans-serif;">
-                <div class="mb-4">
-                    <label class="form-label" style="color:#fff; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Enlace del Entregable</label>
-                    <div class="input-group" style="background:#000; border:1px solid #333; border-radius:10px; overflow:hidden;">
-                        <span class="input-group-text" style="background:transparent; border:none; color:#F5C400;"><i class="bi bi-link-45deg"></i></span>
-                        <input type="url" id="swal-url-entrega" class="form-control" placeholder="https://drive.google.com/..." style="background:transparent; border:none; color:#fff; font-size:14px; height:42px;">
-                    </div>
-                    <small style="color:#555; font-size:10px; margin-top:6px; display:block;">Debe comenzar con http:// o https://</small>
+            <div class="text-start" style="font-family: 'Inter', sans-serif;">
+                <div class="mb-3">
+                    <label class="form-label text-white-50 text-uppercase fw-bold ep-swal-label">Link del Entregable</label>
+                    <input type="text" id="swal-url-entrega" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Google Drive, Canva, Figma...">
                 </div>
-
-                <div class="mb-4">
-                    <label class="form-label" style="color:#fff; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Subir Archivos (Opcional)</label>
-                    <div id="swal-upload-area" style="border:2px dashed #333; border-radius:12px; padding:25px; text-align:center; background:#080808; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.borderColor='#F5C400'; this.style.background='#0d0d0d';" onmouseout="this.style.borderColor='#333'; this.style.background='#080808';">
-                        <i class="bi bi-cloud-arrow-up-fill mb-2" style="font-size:28px; color:#F5C400; display:block;"></i>
-                        <span style="color:#ccc; font-weight:600; font-size:12px;">Seleccionar archivos</span>
-                        <input type="file" id="swal-archivos-entrega" class="d-none" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.zip">
-                    </div>
-                    <div id="swal-file-list" style="margin-top:12px; display:flex; flex-direction:column; gap:6px;"></div>
+                <div class="mb-3">
+                    <label class="form-label text-white-50 text-uppercase fw-bold ep-swal-label">Subir Archivos (Opcional)</label>
+                    <input type="file" id="swal-archivos-entrega" class="form-control form-control-sm bg-dark text-white border-secondary" multiple>
                 </div>
-
-                <div class="mb-2">
-                    <label class="form-label" style="color:#fff; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Notas adicionales</label>
-                    <textarea id="swal-notas-entrega" class="form-control" placeholder="Escribe detalles sobre la entrega..." style="background: #000; border: 1px solid #333; color: #fff; font-size: 14px; height: 90px; border-radius:10px; resize:none;"></textarea>
+                <div class="mb-3">
+                    <label class="form-label text-white-50 text-uppercase fw-bold ep-swal-label">Notas adicionales</label>
+                    <textarea id="swal-notas-entrega" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Escribe aquí algún detalle..." rows="3"></textarea>
                 </div>
             </div>
             <script>
@@ -754,8 +711,12 @@ function ejecutarEntrega(idAtencion, data) {
         });
 }
 
+/* MODO EDICIÓN (CREACION DE CONTENIDO) */
+
 /**
- * Activa el modo edición en el modal de en proceso
+ * Transforma la vista estática del Expediente Digital en un formulario editable.
+ * Permite al responsable (y solo al responsable) afinar los requerimientos.
+ * @returns 
  */
 function activarEdicionRequerimientoEnProceso() {
     const req = window.requerimientoActualEnProceso;
@@ -783,60 +744,27 @@ function activarEdicionRequerimientoEnProceso() {
     containerBotones.id = 'container-botones-edicion';
     containerBotones.className = 'ms-auto me-3 d-flex gap-2';
     containerBotones.innerHTML = `
-            <button class="btn btn-sm btn-success" onclick="guardarEdicionRequerimientoEnProceso()" style="font-weight:800; font-size:11px; padding:6px 16px;">GUARDAR CAMBIOS</button>
-            <button class="btn btn-sm btn-outline-light" onclick="verDetalleTarea(${req.idatencion || req.id})" style="font-weight:800; font-size:11px; padding:6px 16px; border-color:#444;">CANCELAR</button>
+            <button class="btn btn-sm btn-success ep-edit-btn" onclick="guardarEdicionRequerimientoEnProceso()">GUARDAR CAMBIOS</button>
+            <button class="btn btn-sm btn-outline-light ep-edit-cancel-btn" onclick="verDetalleTarea(${req.idatencion || req.id})">CANCELAR</button>
         `;
     const closeBtn = modalHeader.querySelector('.btn-close');
     modalHeader.insertBefore(containerBotones, closeBtn);
 
     // Mensaje de Modo Edición en el cuerpo
     const headerH2 = document.querySelector('.modal-ver-detalle h2');
-    headerH2.innerHTML = `<span style="color:#F5C400; font-family:'Bebas Neue'; letter-spacing:2px;">MODO FORMALIZACIÓN DE REQUERIMIENTO</span>`;
+    headerH2.innerHTML = `<span class="ep-edit-header-text">MODO FORMALIZACIÓN DE REQUERIMIENTO</span>`;
 
     // Transformar campos de la izquierda
     const leftContainer = document.querySelector('.kd-main > div:first-child');
 
     // Listas para checkboxes (Estándar - Actualizadas)
     const canalesStandard = [
-        'Por correo',
-        'Página web',
-        'Redes sociales',
-        'SIGU o Aula Virtual Estudiantes',
-        'SIGU o Aula Virtual Docentes',
-        'Impresión física de folletos',
-        'Banner físico',
-        'Letreros',
-        'Merch para eventos específicos'
+        'Por correo', 'Página web', 'Redes sociales', 'SIGU o Aula Virtual Estudiantes', 'SIGU o Aula Virtual Docentes', 'Impresión física de folletos', 'Banner físico', 'Letreros', 'Merch para eventos específicos'
     ];
     const formatosStandard = [
-        'Emailing (pieza para correo)',
-        'Post de Facebook/Instagram',
-        'Historia Facebook/Instagram',
-        'Historia de Whatsapp',
-        'Post de LinkedIn',
-        'SIGU (comunicado)',
-        'Aula Virtual (Pop up)',
-        'Wallpaper – Computadoras',
-        'Banner Web Portada',
-        'Volante A5',
-        'Afiche A4',
-        'Afiche A3',
-        'Credenciales',
-        'Banner 2x1',
-        'Tarjeta Personal',
-        'Tríptico',
-        'Díptico',
-        'Folder A4',
-        'Brochure',
-        'Cartilla',
-        'Banderola',
-        'Módulos',
-        'SMS',
-        'IVR',
-        'Marcos Selfie',
-        'Boletín',
-        'Guías (para proceso, trámites, pagos, etc)',
-        'Imagen JPG - PNG'
+        'Emailing (pieza para correo)', 'Post de Facebook/Instagram', 'Historia Facebook/Instagram', 'Historia de Whatsapp', 'Post de LinkedIn', 'SIGU (comunicado)', 'Aula Virtual (Pop up)', 'Wallpaper – Computadoras', 'Banner Web Portada', 'Volante A5', 'Afiche A4',
+        'Afiche A3', 'Credenciales', 'Banner 2x1', 'Tarjeta Personal', 'Tríptico', 'Díptico', 'Folder A4', 'Brochure', 'Cartilla',
+        'Banderola', 'Módulos', 'SMS', 'IVR', 'Marcos Selfie', 'Boletín', 'Guías (para proceso, trámites, pagos, etc)', 'Imagen JPG - PNG'
     ];
 
     const canalesActuales = (req.canales_difusion || '').split(',').map(s => s.trim()).filter(s => s !== '');
@@ -849,8 +777,8 @@ function activarEdicionRequerimientoEnProceso() {
     const tieneOtrosFormatos = formatosOtrosValues.length > 0;
 
     leftContainer.innerHTML = `
-        <div class="kd-sec" style="border-left-color:#F5C400; background: #0e0e0e;">
-            <div class="kd-sec-title"><i class="bi bi-pencil-square"></i> EDITAR DATOS DEL REQUERIMIENTO</div>
+        <div class="kd-sec border-warning bg-black ep-edit-sec">
+            <div class="kd-sec-title text-warning"><i class="bi bi-pencil-square"></i> EDITAR DATOS DEL REQUERIMIENTO</div>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="kd-label">Título del Requerimiento</label>
@@ -883,7 +811,7 @@ function activarEdicionRequerimientoEnProceso() {
                 
                 <div class="col-12">
                     <label class="kd-label mb-2">Canales de Difusión</label>
-                    <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded bg-black" style="background-color: #050505 !important;">
+                    <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded bg-black">
                         ${canalesStandard.map(c => `
                             <div class="form-check custom-check">
                                 <input class="form-check-input check-canal" type="checkbox" value="${c}" id="canal-${c.replace(/\s+/g, '')}" ${canalesActuales.includes(c) ? 'checked' : ''} onchange="validarMaxCanales(this)">
@@ -895,7 +823,7 @@ function activarEdicionRequerimientoEnProceso() {
 
                 <div class="col-12">
                     <label class="kd-label mb-2">Formatos Solicitados</label>
-                    <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded bg-black" style="background-color: #050505 !important;">
+                    <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded bg-black">
                         ${formatosStandard.map(f => `
                             <div class="form-check custom-check">
                                 <input class="form-check-input check-formato" type="checkbox" value="${f}" id="formato-${f.replace(/\s+/g, '')}" ${formatosActuales.includes(f) ? 'checked' : ''}>
@@ -913,8 +841,8 @@ function activarEdicionRequerimientoEnProceso() {
                 </div>
 
                 <div class="col-12 mt-3">
-                    <div class="alert alert-dark border-warning" style="background: rgba(245, 196, 0, 0.05); color: #F5C400; font-size: 14px; padding: 20px; border-left: 5px solid #F5C400;">
-                        <i class="bi bi-exclamation-triangle-fill me-2" style="font-size: 18px;"></i> 
+                    <div class="alert alert-dark border-warning text-warning p-4 ep-alert-seguridad">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> 
                         <strong>AVISO DE SEGURIDAD:</strong> Los archivos originales, la fecha de entrega y el URL proporcionado por el cliente no pueden ser modificados.
                     </div>
                 </div>
@@ -925,6 +853,7 @@ function activarEdicionRequerimientoEnProceso() {
 
 /**
  * Valida que no se seleccionen más de 3 canales
+ * @param {*} checkbox 
  */
 window.validarMaxCanales = function (checkbox) {
     const seleccionados = document.querySelectorAll('.check-canal:checked');
@@ -1024,66 +953,4 @@ function guardarEdicionRequerimientoEnProceso() {
             btn.disabled = false;
             btn.innerHTML = originalHtml;
         });
-}
-
-/**
- * Función para iniciar oficialmente el trabajo en un requerimiento
- */
-function iniciarTrabajo(idAtencion) {
-    Swal.fire({
-        title: '¿Iniciar trabajo?',
-        text: "Se registrará la fecha y hora oficial de inicio para este requerimiento.",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#f5c400',
-        cancelButtonColor: '#333',
-        confirmButtonText: 'Sí, ¡empezar!',
-        cancelButtonText: 'Cancelar',
-        background: '#161616',
-        color: '#fff'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch(`${window.base_url}responsable/pedido-iniciar/${idAtencion}`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-                }
-            })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: '¡Trabajo Iniciado!',
-                            text: data.message,
-                            background: '#161616',
-                            color: '#fff',
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                        // Recargar tareas para actualizar la UI (quitar botón iniciar, poner entregar)
-                        cargarTareasEmpleado(window.currentUserId);
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: data.message,
-                            background: '#161616',
-                            color: '#fff'
-                        });
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'No se pudo conectar con el servidor',
-                        background: '#161616',
-                        color: '#fff'
-                    });
-                });
-        }
-    });
 }

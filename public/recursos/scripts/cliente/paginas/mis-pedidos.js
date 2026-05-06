@@ -227,14 +227,20 @@ document.addEventListener("DOMContentLoaded", function () {
   // Función que calcula qué fecha es permitida según los días de trabajo (ignora Sábados y Domingos).
   const calcularFechaMinima = (dias) => {
     const fecha = new Date();
+    fecha.setHours(0, 0, 0, 0); // Limpiar horas en la comparación
     let cont = 0;
+    // Contar los días hábiles necesarios para el trabajo
     while (cont < dias) {
       fecha.setDate(fecha.getDate() + 1);
       // Solo contamos el día si es de Lunes (1) a Viernes (5).
       if (fecha.getDay() !== 0 && fecha.getDay() !== 6) cont++;
     }
-    // Añadimos un día de gracia para que no sea tan ajustado.
+    
+    // El día de entrega es el SIGUIENTE día hábil disponible
     fecha.setDate(fecha.getDate() + 1);
+    while (fecha.getDay() === 0 || fecha.getDay() === 6) {
+      fecha.setDate(fecha.getDate() + 1);
+    }
     return fecha;
   };
 

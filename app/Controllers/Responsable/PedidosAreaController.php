@@ -306,46 +306,66 @@ class PedidosAreaController extends BaseResponsableController
      */
     public function obtenerDetalleRequerimiento()
     {
-        $userS = $this->ValidarSesion_DatosUser();
-        if (!$userS['ok'])
-            return $this->response->setJSON(['success' => false, 'message' => $userS['message']]);
+        try {
+            $userS = $this->ValidarSesion_DatosUser();
+            if (!$userS['ok'])
+                return $this->response->setJSON(['success' => false, 'message' => $userS['message']]);
 
-        $idAtencion = (int) $this->request->getGet('id');
-        $atencionModel = new AtencionModel();
-        $idAreaAgencia = (int) $userS['user']['idarea_agencia'];
+            $idAtencion = (int) $this->request->getGet('id');
+            if ($idAtencion <= 0) {
+                return $this->response->setJSON(['success' => false, 'message' => 'ID de atención inválido.']);
+            }
 
-        if (!$atencionModel->atencionPerteneceAArea($idAtencion, $idAreaAgencia)) {
-            return $this->response->setJSON(['success' => false, 'message' => 'No tienes acceso a los detalles de este pedido.']);
+            $atencionModel = new AtencionModel();
+            $idAreaAgencia = (int) $userS['user']['idarea_agencia'];
+
+            if (!$atencionModel->atencionPerteneceAArea($idAtencion, $idAreaAgencia)) {
+                return $this->response->setJSON(['success' => false, 'message' => 'No tienes acceso a los detalles de este pedido.']);
+            }
+
+            // Unión de datos desde múltiples fuentes
+            $atencion = $atencionModel->find($idAtencion);
+            if (!$atencion) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Atención no encontrada.']);
+            }
+
+            $requerimientoModel = new RequerimientoModel();
+            $detalle = $requerimientoModel->getDetalleCompleto($atencion['idrequerimiento']);
+
+            if (!$detalle) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Detalles del requerimiento no encontrados.']);
+            }
+
+            $usuarioModel = new UsuarioModel();
+            $empleadoAsignado = !empty($atencion['idempleado']) ? $usuarioModel->find($atencion['idempleado']) : null;
+
+            $archivoModel = new ArchivoModel();
+            $archivos = $archivoModel->where('idrequerimiento', $atencion['idrequerimiento'])->findAll();
+
+            $trackingModel = new TrackingModel();
+            $tracking = $trackingModel->where('idatencion', $idAtencion)->orderBy('fecha_registro', 'DESC')->findAll();
+
+            // Formatear respuesta amigable para el Frontend
+            $dataCompleta = array_merge((array)$atencion, (array)$detalle, [
+                'empleado_asignado' => $empleadoAsignado,
+                'empleado_nombre' => $empleadoAsignado ? trim($empleadoAsignado['nombre'] . ' ' . $empleadoAsignado['apellidos']) : '---',
+                'servicio' => $detalle['nombre_servicio'] ?? $detalle['servicio_personalizado'] ?? 'N/A',
+                'nombre_cliente' => trim(($detalle['nombre_cliente'] ?? '') . ' ' . ($detalle['apellidos_cliente'] ?? '')),
+            ]);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'data' => $dataCompleta,
+                'archivos' => $archivos,
+                'tracking' => $tracking
+            ]);
+        } catch (\Throwable $th) {
+            log_message('error', '[obtenerDetalleRequerimiento] ' . $th->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error interno al procesar el expediente: ' . $th->getMessage()
+            ]);
         }
-
-        // Unión de datos desde múltiples fuentes
-        $atencion = $atencionModel->find($idAtencion);
-        $requerimientoModel = new RequerimientoModel();
-        $detalle = $requerimientoModel->getDetalleCompleto($atencion['idrequerimiento']);
-
-        $usuarioModel = new UsuarioModel();
-        $empleadoAsignado = !empty($atencion['idempleado']) ? $usuarioModel->find($atencion['idempleado']) : null;
-
-        $archivoModel = new ArchivoModel();
-        $archivos = $archivoModel->where('idrequerimiento', $atencion['idrequerimiento'])->findAll();
-
-        $trackingModel = new TrackingModel();
-        $tracking = $trackingModel->where('idatencion', $idAtencion)->orderBy('fecha_registro', 'DESC')->findAll();
-
-        // Formatear respuesta amigable para el Frontend
-        $dataCompleta = array_merge($atencion, $detalle, [
-            'empleado_asignado' => $empleadoAsignado,
-            'empleado_nombre' => $empleadoAsignado ? trim($empleadoAsignado['nombre'] . ' ' . $empleadoAsignado['apellidos']) : '---',
-            'servicio' => $detalle['nombre_servicio'] ?? $detalle['servicio_personalizado'] ?? 'N/A',
-            'nombre_cliente' => trim(($detalle['nombre_cliente'] ?? '') . ' ' . ($detalle['apellidos_cliente'] ?? '')),
-        ]);
-
-        return $this->response->setJSON([
-            'success' => true,
-            'data' => $dataCompleta,
-            'archivos' => $archivos,
-            'tracking' => $tracking
-        ]);
     }
 
     /**
