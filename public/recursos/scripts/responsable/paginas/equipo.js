@@ -1,94 +1,76 @@
-/**
- * Mi Equipo - Responsable de Área
- * Consume endpoint:
- * - GET responsable/empleados/mi-area-json
- */
-
-// DOM Ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     cargarEquipo();
 });
 
 /**
- * Cargar miembros del equipo
+ * Carga la lista de miembros del equipo desde la API
+ * @returns 
  */
-function cargarEquipo() {
+async function cargarEquipo() {
     const contenedor = document.getElementById('contenedor-equipo');
+    if (!contenedor) return;
+
     contenedor.innerHTML = generarSkeletonCards(4);
 
-    fetch(`${base_url}responsable/empleados/mi-area-json`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const empleados = data.data || [];
-                actualizarContador(empleados.length);
+    try {
+        const response = await fetch(`${base_url}responsable/empleados/mi-area-json`);
+        const res = await response.json();
 
-                if (empleados.length === 0) {
-                    mostrarEstadoVacio();
-                } else {
-                    renderizarEquipo(empleados);
-                }
+        if (res.success) {
+            const empleados = res.data || [];
+            actualizarContador(empleados.length);
+
+            if (empleados.length === 0) {
+                mostrarEstadoVacio();
             } else {
-                mostrarError(data.message || 'Error al cargar el equipo');
+                renderizarEquipo(empleados);
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            mostrarError('Error de conexión al cargar el equipo');
-        });
+        } else {
+            mostrarError(res.message || 'Error al cargar el equipo');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarError('Error de conexión con el servidor');
+    }
 }
 
 /**
- * Renderizar cards del equipo
+ * Renderiza las tarjetas de los miembros con diseño optimizado
+ * @param {*} empleados 
+ * @returns 
  */
 function renderizarEquipo(empleados) {
     const contenedor = document.getElementById('contenedor-equipo');
-    const estadoVacio = document.getElementById('estado-vacio');
+    if (!contenedor) return;
 
-    estadoVacio?.classList.add('d-none');
-
+    document.getElementById('estado-vacio')?.classList.add('d-none');
     const colores = ['yellow', 'green', 'purple'];
 
-    contenedor.innerHTML = empleados.map((emp, index) => {
+    contenedor.innerHTML = empleados.map((emp, i) => {
         const iniciales = obtenerIniciales(emp.nombre_completo);
-        const esResponsable = emp.esresponsable;
-        const colorAvatar = esResponsable ? 'blue' : colores[index % colores.length];
-        
-        const enProceso = (emp.en_proceso || 0);
-        const completados = (emp.completados || 0);
-        const total = (emp.pendientes || 0) + enProceso + completados;
+        const colorAvatar = emp.esresponsable ? 'blue' : colores[i % colores.length];
+        const total = (emp.pendientes || 0) + (emp.en_proceso || 0) + (emp.completados || 0);
 
         return `
-            <div class="employee-card ${esResponsable ? 'jefe' : ''}">
+            <div class="employee-card ${emp.esresponsable ? 'jefe' : ''}">
               <div class="card-header">
-                <div class="avatar ${colorAvatar}">
-                  ${iniciales}
-                </div>
+                <div class="avatar ${colorAvatar}">${iniciales}</div>
                 <div class="card-info">
                   <div class="employee-name">${escaparHtml((emp.nombre_completo || '').toUpperCase())}</div>
-                  <span class="employee-role ${esResponsable ? 'jefe' : 'miembro'}">
-                    ${esResponsable ? '🛡️ Jefe de Área' : 'Miembro del Equipo'}
+                  <span class="employee-role ${emp.esresponsable ? 'jefe' : 'miembro'}">
+                    ${emp.esresponsable ? '🛡️ Jefe de Área' : 'Miembro del Equipo'}
                   </span>
                 </div>
               </div>
-
               <div class="metrics">
-                <div class="metric">
-                  <span class="metric-value warning">${enProceso}</span>
-                  <span class="metric-label">En proceso</span>
-                </div>
-                <div class="metric">
-                  <span class="metric-value success">${completados}</span>
-                  <span class="metric-label">Completados</span>
-                </div>
-                <div class="metric">
-                  <span class="metric-value info">${total}</span>
-                  <span class="metric-label">Total</span>
-                </div>
+                <div class="metric"><span class="metric-value warning">${emp.en_proceso || 0}</span><span class="metric-label">En proceso</span></div>
+                <div class="metric"><span class="metric-value success">${emp.completados || 0}</span><span class="metric-label">Completados</span></div>
+                <div class="metric"><span class="metric-value info">${total}</span><span class="metric-label">Total</span></div>
               </div>
-
               <div class="card-actions">
-                <button class="btn btn-secondary w-100" style="width: 100%;" onclick="verDetalleMiembro(${emp.id})">Ver Tareas</button>
+                <button class="btn btn-secondary w-full" onclick="verDetalleMiembro(${emp.id})">
+                    <i class="bi bi-list-task"></i> VER TAREAS
+                </button>
               </div>
             </div>
         `;
@@ -96,155 +78,128 @@ function renderizarEquipo(empleados) {
 }
 
 /**
- * Mostrar estado vacío
+ * Obtiene los datos del miembro y dispara el renderizado del modal
+ * @param {*} idEmpleado 
  */
-function mostrarEstadoVacio() {
-    const contenedor = document.getElementById('contenedor-equipo');
-    const estadoVacio = document.getElementById('estado-vacio');
+async function verDetalleMiembro(idEmpleado) {
+    Swal.fire({
+        title: 'CONSULTANDO TAREAS',
+        background: '#161616',
+        color: '#fff',
+        didOpen: () => { Swal.showLoading(); }
+    });
 
-    contenedor.innerHTML = '';
-    estadoVacio?.classList.remove('d-none');
-    actualizarContador(0);
-}
+    try {
+        const response = await fetch(`${base_url}responsable/equipo/miembro/${idEmpleado}`);
+        const res = await response.json();
+        Swal.close();
 
-/**
- * Actualizar contador
- */
-function actualizarContador(cantidad) {
-    const contador = document.getElementById('contador-equipo');
-    if (contador) {
-        contador.innerHTML = `👥 ${cantidad} miembro${cantidad !== 1 ? 's' : ''}`;
+        if (res.success) {
+            renderizarModalTareas(res.empleado, res.tareas);
+        } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: res.message, background: '#161616', color: '#fff' });
+        }
+    } catch (error) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión', background: '#161616', color: '#fff' });
     }
 }
 
 /**
- * Mostrar error
+ * Renderiza el contenido del modal de tareas (Optimizado como en Historial)
+ * @param {*} emp 
+ * @param {*} tareas 
+ * @returns 
  */
-function mostrarError(mensaje) {
-    const contenedor = document.getElementById('contenedor-equipo');
-    contenedor.innerHTML = `
-        <div class="col-12 text-center py-5" style="color:#ef4444;">
-            <i class="bi bi-exclamation-triangle-fill mb-3" style="font-size:48px;display:block;"></i>
-            <p>${escaparHtml(mensaje)}</p>
-            <button class="btn-rf mt-3" onclick="cargarEquipo()">
-                <i class="bi bi-arrow-clockwise"></i> Reintentar
-            </button>
-        </div>
-    `;
+function renderizarModalTareas(emp, tareas) {
+    const modalElement = document.getElementById('modalDetalleMiembro');
+    const tbody = document.getElementById('bodyTareasMiembro');
+    if (!modalElement || !tbody) return;
+
+    document.getElementById('nombreMiembroModal').innerText = `TAREAS: ${emp.nombre_completo.toUpperCase()}`;
+
+    if (!tareas || tareas.length === 0) {
+        document.getElementById('tablaTareasMiembro')?.classList.add('d-none');
+        document.getElementById('sinTareasMiembro')?.classList.remove('d-none');
+    } else {
+        document.getElementById('tablaTareasMiembro')?.classList.remove('d-none');
+        document.getElementById('sinTareasMiembro')?.classList.add('d-none');
+
+        const estMap = {
+            'pendiente': { t: 'PENDIENTE', c: 'badge-estado-pendiente' },
+            'en_proceso': { t: 'EN PROCESO', c: 'badge-estado-proceso' },
+            'en_revision': { t: 'EN REVISIÓN', c: 'badge-estado-proceso' },
+            'finalizado': { t: 'COMPLETADO', c: 'badge-estado-finalizado' },
+            'completado': { t: 'COMPLETADO', c: 'badge-estado-finalizado' }
+        };
+
+        const priMap = {
+            'Alta': 'badge-prio-alta',
+            'Media': 'badge-prio-media',
+            'Baja': 'badge-prio-baja'
+        };
+
+        tbody.innerHTML = tareas.map(t => {
+            const e = estMap[t.estado] || { t: t.estado, c: 'badge-estado-pendiente' };
+            const p = priMap[t.prioridad] || 'badge-estado-pendiente';
+            return `
+                <tr>
+                    <td class="vertical-align-middle">
+                        <div class="font-weight-500 text-truncate-rf" title="${escaparHtml(t.titulo)}">${escaparHtml(t.titulo)}</div>
+                        <div class="text-small-dim">${escaparHtml(t.empresa_nombre || '---')}</div>
+                    </td>
+                    <td class="vertical-align-middle text-dim-85">${escaparHtml(t.servicio_nombre || '-')}</td>
+                    <td class="vertical-align-middle"><span class="badge-rf ${e.c}">${e.t}</span></td>
+                    <td class="vertical-align-middle"><span class="badge-rf ${p}">${t.prioridad || '-'}</span></td>
+                    <td class="vertical-align-middle text-extra-small-dim">${t.fechainicio ? t.fechainicio.split(' ')[0] : '---'}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    bootstrap.Modal.getOrCreateInstance(modalElement).show();
 }
 
-/**
- * Generar skeleton loading
- */
-function generarSkeletonCards(cantidad) {
-    return Array(cantidad).fill(0).map(() => `
-        <div class="employee-card">
-            <div class="card-header">
-                <div class="skeleton-avatar"></div>
-                <div class="card-info" style="width: 100%;">
-                    <div class="skeleton-line" style="width:70%;"></div>
-                    <div class="skeleton-line short"></div>
-                </div>
-            </div>
-            <div class="metrics">
-                <div class="metric">
-                    <div class="skeleton-line" style="height:24px;width:50%;margin:0 auto 4px;"></div>
-                    <div class="skeleton-line" style="width:80%;margin:0 auto;"></div>
-                </div>
-                <div class="metric">
-                    <div class="skeleton-line" style="height:24px;width:50%;margin:0 auto 4px;"></div>
-                    <div class="skeleton-line" style="width:80%;margin:0 auto;"></div>
-                </div>
-                <div class="metric">
-                    <div class="skeleton-line" style="height:24px;width:50%;margin:0 auto 4px;"></div>
-                    <div class="skeleton-line" style="width:80%;margin:0 auto;"></div>
-                </div>
-            </div>
-        </div>
-    `).join('');
+/* Funciones de Estado y UI */
+
+// Actualiza el contador visual de miembros del equipo
+function actualizarContador(n) {
+    const c = document.getElementById('contador-equipo');
+    if (c) c.innerHTML = `👥 ${n} miembro${n !== 1 ? 's' : ''}`;
 }
 
-/**
- * Utilidades
- */
-function escaparHtml(texto) {
-    if (!texto) return '';
-    const div = document.createElement('div');
-    div.textContent = texto;
-    return div.innerHTML;
+// Muestra un estado visual vacío cuando no hay miembros
+function mostrarEstadoVacio() {
+    const cont = document.getElementById('contenedor-equipo');
+    if (cont) cont.innerHTML = '';
+    document.getElementById('estado-vacio')?.classList.remove('d-none');
+    actualizarContador(0);
 }
 
-function obtenerIniciales(nombre) {
-    if (!nombre) return '?';
-    const partes = nombre.trim().split(' ');
-    const primera = partes[0]?.[0] || '';
-    const segunda = partes[1]?.[0] || '';
-    return (primera + segunda).toUpperCase();
+// Muestra un mensaje de error con opción de reintento
+function mostrarError(m) {
+    const c = document.getElementById('contenedor-equipo');
+    if (!c) return;
+    c.innerHTML = `<div class="col-12 text-center py-5 text-danger-rf"><i class="bi bi-exclamation-triangle-fill mb-3 icon-xl-rf"></i><p class="font-weight-500">${escaparHtml(m)}</p><button class="btn btn-dark-rf mt-3 px-4" onclick="cargarEquipo()"><i class="bi bi-arrow-clockwise"></i> REINTENTAR</button></div>`;
 }
 
-/**
- * Ver detalles y tareas de un miembro
- */
-function verDetalleMiembro(idEmpleado) {
-    fetch(`${base_url}responsable/equipo/miembro/${idEmpleado}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Actualizar título del modal
-                document.getElementById('nombreMiembroModal').innerText = `Tareas: ${data.empleado.nombre_completo}`;
-                
-                // Preparar la tabla
-                const tbody = document.getElementById('bodyTareasMiembro');
-                const table = document.getElementById('tablaTareasMiembro');
-                const sinTareas = document.getElementById('sinTareasMiembro');
-                
-                tbody.innerHTML = '';
-                
-                if (data.tareas && data.tareas.length > 0) {
-                    table.classList.remove('d-none');
-                    sinTareas.classList.add('d-none');
-                    
-                    data.tareas.forEach(tarea => {
-                        // Badge de estado
-                        let badgeClass = 'bg-secondary';
-                        let estadoTexto = tarea.estado;
-                        if (tarea.estado === 'en_proceso') { badgeClass = 'bg-warning text-dark'; estadoTexto = 'En Proceso'; }
-                        else if (tarea.estado === 'finalizado' || tarea.estado === 'completado') { badgeClass = 'bg-success'; estadoTexto = 'Completado'; }
-                        
-                        // Badge de prioridad
-                        let prioClass = 'bg-secondary';
-                        if (tarea.prioridad === 'Alta') prioClass = 'bg-danger';
-                        else if (tarea.prioridad === 'Media') prioClass = 'bg-warning text-dark';
-                        else if (tarea.prioridad === 'Baja') prioClass = 'bg-info text-dark';
-                        
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="text-truncate" style="max-width: 250px;" title="${escaparHtml(tarea.titulo)}">
-                                    <div style="font-weight: 500;">${escaparHtml(tarea.titulo)}</div>
-                                    <div style="font-size: 0.8rem; color: #888;">${escaparHtml(tarea.empresa_nombre || '')}</div>
-                                </td>
-                                <td style="vertical-align: middle;">${escaparHtml(tarea.servicio_nombre || '-')}</td>
-                                <td style="vertical-align: middle;"><span class="badge ${badgeClass}">${estadoTexto}</span></td>
-                                <td style="vertical-align: middle;"><span class="badge ${prioClass}">${tarea.prioridad || '-'}</span></td>
-                                <td style="vertical-align: middle; font-size: 0.85rem; color: #aaa;">${tarea.fechainicio ? tarea.fechainicio.split(' ')[0] : '-'}</td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    table.classList.add('d-none');
-                    sinTareas.classList.remove('d-none');
-                }
-                
-                // Mostrar modal con Bootstrap
-                const modalElement = document.getElementById('modalDetalleMiembro');
-                const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
-                modal.show();
-            } else {
-                Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Error al obtener detalles', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400', allowOutsideClick: false, allowEscapeKey: false });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400', allowOutsideClick: false, allowEscapeKey: false });
-        });
+// Genera el HTML para el estado de carga (skeleton cards)
+function generarSkeletonCards(n) {
+    return Array(n).fill(0).map(() => `<div class="employee-card skeleton-card"><div class="card-header"><div class="skeleton-avatar"></div><div class="card-info w-full"><div class="skeleton-line skeleton-width-70"></div><div class="skeleton-line short"></div></div></div><div class="metrics"><div class="metric"><div class="skeleton-line skeleton-metric-value"></div><div class="skeleton-line skeleton-metric-label"></div></div><div class="metric"><div class="skeleton-line skeleton-metric-value"></div><div class="skeleton-line skeleton-metric-label"></div></div><div class="metric"><div class="skeleton-line skeleton-metric-value"></div><div class="skeleton-line skeleton-metric-label"></div></div></div></div>`).join('');
+}
+
+/* Helpers y Utilidades de UI */
+
+// Escapa caracteres especiales de HTML para prevenir ataques XSS
+function escaparHtml(t) {
+    if (!t) return '';
+    const d = document.createElement('div');
+    d.textContent = t;
+    return d.innerHTML;
+}
+
+// Obtiene las iniciales de un nombre completo (Máximo 2 letras)
+function obtenerIniciales(n) {
+    if (!n) return '?';
+    const p = n.trim().split(' ');
+    return ((p[0]?.[0] || '') + (p[1]?.[0] || '')).toUpperCase();
 }

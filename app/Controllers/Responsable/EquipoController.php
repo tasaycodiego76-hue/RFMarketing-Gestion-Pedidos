@@ -131,9 +131,13 @@ class EquipoController extends BaseResponsableController
             $pendientes = 0;
 
             foreach ($tareas as $t) {
-                if ($t['estado'] === 'en_proceso') $enProceso++;
-                elseif (in_array($t['estado'], ['finalizado', 'completado'])) $completados++;
-                else $pendientes++;
+                if ($t['estado'] === 'en_proceso') {
+                    $enProceso++;
+                } elseif (in_array($t['estado'], ['finalizado', 'completado'])) {
+                    $completados++;
+                } elseif ($t['estado'] === 'pendiente_asignado') {
+                    $pendientes++;
+                }
             }
 
             return [

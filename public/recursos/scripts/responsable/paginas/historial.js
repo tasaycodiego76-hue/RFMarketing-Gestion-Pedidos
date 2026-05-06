@@ -1,326 +1,273 @@
 /**
- * RF MARKETING - Dashboard Responsable
- * Logic for History View
+ * Obtiene y muestra el detalle completo de un pedido del historial
+ * @param {*} idAtencion 
  */
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Historial JS Loaded');
-});
-
-/**
- * Open detail modal for a completed task
- * @param {number} idAtencion 
- */
-function verDetalleHistorial(idAtencion) {
+async function verDetalleHistorial(idAtencion) {
+    // Notificación de carga
     Swal.fire({
-        title: 'Obteniendo detalles...',
+        title: 'CARGANDO EXPEDIENTE',
+        html: 'Buscando registros en el historial...',
         background: '#0d0d0d',
         color: '#fff',
         allowOutsideClick: false,
-        allowEscapeKey: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
+        didOpen: () => { Swal.showLoading(); }
     });
 
-    // Determinar BASE_URL de forma segura
-    const baseUrl = window.BASE_URL || window.base_url || '/';
-    const fetchUrl = `${baseUrl}responsable/pedidos/detalle?id=${idAtencion}`;
+    const baseUrl = window.BASE_URL || '/';
+    
+    try {
+        const response = await fetch(`${baseUrl}responsable/pedidos/detalle?id=${idAtencion}`);
+        const res = await response.json();
+        
+        Swal.close();
 
-    fetch(fetchUrl)
-        .then(response => response.json())
-        .then(res => {
-            Swal.close();
-            if (res.success) {
-                renderizarDetalleHistorialPremium(res.data, res.archivos, res.tracking);
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: res.message || 'No se pudieron cargar los detalles',
-                    background: '#0d0d0d',
-                    color: '#fff',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error de conexión al servidor',
-                background: '#0d0d0d',
-                color: '#fff',
-                allowOutsideClick: false,
-                allowEscapeKey: false
-            });
-        });
+        if (res.success) {
+            renderizarDetalleHistorialPremium(res.data, res.archivos, res.tracking);
+        } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: res.message, background: '#0d0d0d', color: '#fff' });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({ icon: 'error', title: 'Error de Conexión', text: 'No se pudo establecer comunicación con el servidor', background: '#0d0d0d', color: '#fff' });
+    }
 }
 
 /**
- * Render the detail modal content with the PREMIUM design (matching en_proceso.js)
+ * Renderiza la vista de detalle con estética Premium
+ * Mantiene todas las funcionalidades originales pero con código más limpio y sin estilos inline
+ * @param {*} req 
+ * @param {*} archivos 
+ * @param {*} tracking 
+ * @returns 
  */
-function renderizarDetalleHistorialPremium(req, archivos, tracking) {
-    const modal = new bootstrap.Modal(document.getElementById('modalHistorial'));
+function renderizarDetalleHistorial(req, archivos, tracking) {
+    const modalElement = document.getElementById('modalHistorial');
+    if (!modalElement){return };
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
     const cuerpo = document.getElementById('modal-cuerpo-historial');
     const titulo = document.getElementById('modal-titulo-historial');
 
-    titulo.innerHTML = `
-        #REQ-${req.idrequerimiento} — ${req.titulo}
-        ${req.observacion_revision ? '<span class="badge bg-danger ms-2" style="font-size:10px; vertical-align:middle;">DEVUELTO</span>' : ''}
-    `;
+    // Título con ID de Requerimiento
+    if (titulo) {
+        titulo.innerHTML = `
+            <span class="text-oro">#REQ-${req.idrequerimiento}</span> — ${escaparHtml(req.titulo)}
+            ${req.observacion_revision ? '<span class="badge bg-danger ms-2 badge-devuelto">DEVUELTO</span>' : ''}
+        `;
+    }
 
-    // Estilos de los estados
-    const estados = {
-        'pendiente': { label: 'PENDIENTE', c: '#ef4444', i: 'bi-clock-history' },
-        'pendiente_asignado': { label: 'ASIGNADO', c: '#3b82f6', i: 'bi-person-check' },
-        'en_proceso': { label: 'EN PROCESO', c: '#f5c400', i: 'bi-play-circle' },
-        'en_revision': { label: 'EN REVISIÓN', c: '#a855f7', i: 'bi-eye' },
-        'finalizado': { label: 'FINALIZADO', c: '#22c55e', i: 'bi-check-circle' }
+    // Configuración de Estados y Prioridades usando clases CSS (en historial.css)
+    const estadosMap = {
+        'pendiente': { label: 'PENDIENTE', class: 'kd-pill-pendiente', icon: 'bi-clock-history' },
+        'pendiente_asignado': { label: 'ASIGNADO', class: 'kd-pill-asignado', icon: 'bi-person-check' },
+        'en_proceso': { label: 'EN PROCESO', class: 'kd-pill-proceso', icon: 'bi-play-circle' },
+        'en_revision': { label: 'EN REVISIÓN', class: 'kd-pill-revision', icon: 'bi-eye' },
+        'finalizado': { label: 'FINALIZADO', class: 'kd-pill-finalizado', icon: 'bi-check-circle' }
     };
-    const es = estados[req.estado] || { label: req.estado.toUpperCase(), c: '#999', i: 'bi-question-circle' };
+    const es = estadosMap[req.estado] || { label: req.estado?.toUpperCase(), class: '', icon: 'bi-question-circle' };
 
-    // Prioridad
-    const prios = {
-        'alta': { label: 'ALTA', c: '#ef4444', i: 'bi-chevron-double-up' },
-        'media': { label: 'MEDIA', c: '#f5c400', i: 'bi-chevron-up' },
-        'baja': { label: 'BAJA', c: '#3b82f6', i: 'bi-chevron-down' }
+    const priosMap = {
+        'alta': { label: 'ALTA', class: 'kd-pill-pendiente', icon: 'bi-chevron-double-up' },
+        'media': { label: 'MEDIA', class: 'kd-pill-proceso', icon: 'bi-chevron-up' },
+        'baja': { label: 'BAJA', class: 'kd-pill-asignado', icon: 'bi-chevron-down' }
     };
-    const p = (req.prioridad || 'media').toLowerCase();
-    const pri = prios[p] || { label: p.toUpperCase(), c: '#999', i: 'bi-dash' };
 
-    // Filtrar archivos
+    const pri = priosMap[req.prioridad?.toLowerCase()] || { label: req.prioridad?.toUpperCase(), class: '', icon: 'bi-dash' };
+
+    // Clasificación de archivos
     const archivosCliente = archivos.filter(a => !a.idatencion);
     const archivosEntrega = archivos.filter(a => a.idatencion);
 
-    // Fechas
-    const fSol = req.fecha_formateada || req.fechacreacion;
-    const fCom = req.fechacompletado;
-
-    // ── HTML de la Entrega (Si existe) ──
+    // Sección de Entrega Final
     let entregaHtml = '';
-    if (req.estado === 'finalizado' || req.estado === 'en_revision') {
-        let arcEntHtml = '';
-        if (archivosEntrega.length > 0) {
-            arcEntHtml = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">';
-            archivosEntrega.forEach(a => {
-                arcEntHtml += `
-                    <a href="${window.BASE_URL}${a.ruta}" target="_blank" style="display:flex;align-items:center;background:#111;border:1px solid #22c55e44;padding:8px 12px;border-radius:8px;color:#ddd;text-decoration:none;font-size:12px;gap:8px;transition:0.2s;">
-                        <i class="bi bi-file-earmark-check-fill" style="color:#22c55e;"></i>
-                        <span style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escaparHtml(a.nombre)}</span>
-                    </a>
-                `;
-            });
-            arcEntHtml += '</div>';
-        }
-
+    if (['finalizado', 'en_revision'].includes(req.estado)) {
         entregaHtml = `
-            <div style="background:rgba(34,197,94,0.05); border:1px solid rgba(34,197,94,0.15); border-left-width:4px; border-left-color:#22c55e; border-radius:10px; padding:20px; margin-bottom:20px;">
-                <div style="font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:1.5px; color:#22c55e; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
-                    <i class="bi bi-send-check-fill"></i> DETALLES DE LA ENTREGA FINAL
-                </div>
-                <div class="row g-4">
-                    <div class="col-md-12">
-                        <label style="font-size:10px; font-weight:800; color:#555; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:6px;">URL DE TRABAJO</label>
-                        ${req.url_entrega ? `<a href="${req.url_entrega}" target="_blank" class="btn btn-sm btn-outline-success" style="font-size:12px;"><i class="bi bi-link-45deg"></i> ABRIR ENTREGABLE</a>` : '<span style="color:#444; font-size:12px; font-style:italic;">No se proporcionó URL</span>'}
+            <div class="entrega-container mb-4">
+                <div class="entrega-title"><i class="bi bi-send-check-fill me-2"></i> DETALLES DE LA ENTREGA FINAL</div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="kd-label">URL DEL ENTREGABLE</label>
+                        ${req.url_entrega ? 
+                            `<a href="${req.url_entrega}" target="_blank" class="btn btn-sm btn-outline-success font-size-12"><i class="bi bi-link-45deg"></i> ABRIR TRABAJO FINAL</a>` : 
+                            '<span class="text-dim font-size-12 italic">No se proporcionó una URL externa</span>'}
                     </div>
-                    <div class="col-md-12">
-                        <label style="font-size:10px; font-weight:800; color:#555; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:6px;">OBSERVACIONES / NOTAS</label>
-                        <p style="color:#bbb; font-size:13px; line-height:1.6; margin:0;">${req.observacion_revision || 'Sin observaciones adicionales.'}</p>
+                    <div class="col-12">
+                        <label class="kd-label">OBSERVACIONES DE ENTREGA</label>
+                        <div class="kd-val bg-05 p-10 br-6 text-pre-wrap">${escaparHtml(req.observacion_revision || 'Sin observaciones adicionales.')}</div>
                     </div>
-                    <div class="col-md-12">
-                        <label style="font-size:10px; font-weight:800; color:#555; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:6px;">ARCHIVOS ADJUNTOS</label>
-                        ${arcEntHtml || '<span style="color:#444; font-size:12px; font-style:italic;">No hay archivos físicos.</span>'}
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // ── Tracking HTML ──
-    let trackingHtml = '';
-    if (tracking && tracking.length > 0) {
-        trackingHtml = `
-            <div style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:10px; padding:20px; height:100%;">
-                <div style="font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:1.5px; color:var(--amarillo); margin-bottom:20px; display:flex; align-items:center; gap:8px;">
-                    <i class="bi bi-clock-history"></i> LÍNEA DE TIEMPO
-                </div>
-                <div style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
-                    ${tracking.map(t => `
-                        <div style="border-left: 2px solid #222; padding-left: 20px; position: relative; padding-bottom: 25px;">
-                            <div style="position: absolute; left: -7px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: ${t.estado === 'finalizado' ? '#22c55e' : '#444'}; border: 3px solid #0a0a0a;"></div>
-                            <div style="font-size: 13px; font-weight: 700; color: #eee; margin-bottom: 4px;">${t.accion}</div>
-                            <div style="font-size: 11px; color: #555;">${t.fecha_registro}</div>
+                    <div class="col-12">
+                        <label class="kd-label">ARCHIVOS ADJUNTOS DE ENTREGA</label>
+                        <div class="archivos-entrega-grid mt-1">
+                            ${archivosEntrega.length > 0 ? archivosEntrega.map(a => `
+                                <a href="${window.BASE_URL}${a.ruta}" target="_blank" class="archivo-entrega-item">
+                                    <i class="bi ${getFileIcon(a.nombre)} archivo-entrega-icon"></i>
+                                    <span class="archivo-entrega-name">${escaparHtml(a.nombre)}</span>
+                                </a>
+                            `).join('') : '<span class="text-dim font-size-12 italic">No hay archivos físicos adjuntos</span>'}
                         </div>
-                    `).join('')}
+                    </div>
                 </div>
             </div>
         `;
     }
 
-    const html = `
+    // Estructura Principal del Detalle
+    cuerpo.innerHTML = `
         <div class="row g-4">
             <div class="col-lg-8">
-                <!-- Entrega Primero -->
                 ${entregaHtml}
-
+                
                 <div class="kd-sec">
-                    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
-                        <span class="kd-pill" style="border-color:${es.c}44; color:${es.c};"><i class="bi ${es.i} me-1"></i>${es.label}</span>
-                        <span class="kd-pill" style="border-color:${pri.c}44; color:${pri.c};"><i class="bi ${pri.i} me-1"></i>PRIORIDAD ${pri.label}</span>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span class="kd-pill ${es.class}"><i class="bi ${es.icon} me-1"></i>${es.label}</span>
+                        <span class="kd-pill ${pri.class}"><i class="bi ${pri.icon} me-1"></i>PRIORIDAD ${pri.label}</span>
                     </div>
- 
-                    <div class="kd-sec-title">SOLICITUD ORIGINAL</div>
+
+                    <div class="kd-sec-title">DATOS DEL REQUERIMIENTO</div>
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <span class="kd-label">Objetivo de Comunicación</span>
-                            <div class="kd-val" style="max-height:100px; overflow-y:auto; padding-right:5px; white-space:pre-wrap;">${escaparHtml(req.objetivo_comunicacion || '---')}</div>
+                            <label class="kd-label">Objetivo de Comunicación</label>
+                            <div class="kd-val br-6">${escaparHtml(req.objetivo_comunicacion || '---')}</div>
                         </div>
                         <div class="col-md-6">
-                            <span class="kd-label">Público Objetivo</span>
-                            <div class="kd-val" style="max-height:100px; overflow-y:auto; padding-right:5px; white-space:pre-wrap;">${escaparHtml(req.publico_objetivo || '---')}</div>
+                            <label class="kd-label">Público Objetivo</label>
+                            <div class="kd-val br-6">${escaparHtml(req.publico_objetivo || '---')}</div>
                         </div>
                         <div class="col-12">
-                            <hr style="border-color:#1e1e1e; margin:10px 0;">
-                            <span class="kd-label">Descripción Detallada</span>
-                            <div class="kd-val" style="white-space:pre-wrap; max-height:200px; overflow-y:auto; padding-right:10px; word-break: break-word; background: #050505; padding: 10px; border-radius: 6px;">${escaparHtml(req.descripcion || 'Sin descripción.')}</div>
+                            <hr class="border-dark my-2">
+                            <label class="kd-label">Descripción Detallada</label>
+                            <div class="kd-val text-pre-wrap bg-05 p-10 br-6">${escaparHtml(req.descripcion || 'Sin descripción.')}</div>
                         </div>
                         <div class="col-md-6">
-                            <span class="kd-label">Canales de Difusión</span>
-                            <div class="d-flex flex-wrap gap-2 mt-2">${formatearLista(req.canales_difusion)}</div>
+                            <label class="kd-label">Canales de Difusión</label>
+                            <div class="d-flex flex-wrap gap-1 mt-1">${formatearLista(req.canales_difusion)}</div>
                         </div>
                         <div class="col-md-6">
-                            <span class="kd-label">Formatos Solicitados</span>
-                            <div class="d-flex flex-wrap gap-2 mt-2">${formatearLista(req.formatos_solicitados)}</div>
+                            <label class="kd-label">Formatos Solicitados</label>
+                            <div class="d-flex flex-wrap gap-1 mt-1">${formatearLista(req.formatos_solicitados)}</div>
                         </div>
                         ${req.url_subida ? `
                         <div class="col-12">
-                            <hr style="border-color:#1e1e1e; margin:10px 0;">
-                            <span class="kd-label">URL de Subida (Cliente)</span>
-                            <div class="kd-val" style="margin-top:5px;">
-                                <a href="${escaparHtml(req.url_subida)}" target="_blank" style="color:#60a5fa; text-decoration:underline; font-size:13px;">${escaparHtml(req.url_subida)}</a>
+                            <hr class="border-dark my-2">
+                            <label class="kd-label">URL de Subida (Cliente)</label>
+                            <div class="kd-val mt-1">
+                                <a href="${escaparHtml(req.url_subida)}" target="_blank" class="text-info text-decoration-underline font-size-13">${escaparHtml(req.url_subida)}</a>
                             </div>
                         </div>
                         ` : ''}
                         <div class="col-12">
-                            <span class="kd-label">Materiales de Referencia (Cliente)</span>
-                            <div class="d-flex flex-wrap gap-2 mt-2">
+                            <label class="kd-label">Materiales de Referencia (Cliente)</label>
+                            <div class="d-flex flex-wrap gap-2 mt-1">
                                 ${archivosCliente.length > 0 ? archivosCliente.map(a => `
-                                    <a href="${window.BASE_URL}${a.ruta}" target="_blank" class="badge bg-dark border border-secondary text-secondary p-2 text-decoration-none" style="font-size:10px; font-weight:400; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                        <i class="bi bi-paperclip me-1"></i> ${escaparHtml(a.nombre)}
+                                    <a href="${window.BASE_URL}${a.ruta}" target="_blank" class="badge bg-dark border border-secondary p-2 text-decoration-none text-truncate-rf">
+                                        <i class="bi bi-paperclip me-1 text-oro"></i> ${escaparHtml(a.nombre)}
                                     </a>
-                                 `).join('') : '<span style="color:#444; font-size:12px; font-style:italic;">No hay adjuntos.</span>'}
+                                `).join('') : '<span class="text-dim font-size-12 italic">No se adjuntaron materiales</span>'}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
- 
+
             <div class="col-lg-4">
-                <div class="kd-sec" style="background:#0a0a0a; margin-bottom: 20px;">
+                <div class="kd-sec bg-0a mb-4">
                     <div class="kd-sec-title">RESUMEN DEL PEDIDO</div>
+                    <div class="mb-3"><label class="kd-label">Empresa / Cliente</label><div class="text-white-bold word-break">${escaparHtml(req.nombre_empresa)}</div></div>
+                    <div class="mb-3"><label class="kd-label">Área / Departamento</label><div class="text-white-bold">${escaparHtml(req.nombre_area || '---')}</div></div>
+                    <div class="mb-3"><label class="kd-label">Servicio Contratado</label><div class="text-white-bold word-break">${escaparHtml(req.nombre_servicio || req.servicio)}</div></div>
+                    <div class="mb-3"><label class="kd-label">Solicitado por</label><div class="text-white-bold">${escaparHtml(req.nombre_cliente || '---')}</div></div>
+                    <div class="mb-3"><label class="kd-label">Ejecutor Asignado</label><div class="text-oro-bold word-break">${escaparHtml(req.empleado_nombre || 'Sin asignar')}</div></div>
                     
-                    <div class="mb-3">
-                        <span class="kd-label">Empresa</span>
-                        <div style="font-weight:700; color:#fff; word-break: break-word;">${escaparHtml(req.nombre_empresa)}</div>
-                    </div>
-                    <div class="mb-3">
-                        <span class="kd-label">Área / Departamento</span>
-                        <div style="font-weight:700; color:#fff;">${escaparHtml(req.nombre_area || '---')}</div>
-                    </div>
-                    <div class="mb-3">
-                        <span class="kd-label">Servicio</span>
-                        <div style="font-weight:700; color:#fff; word-break: break-word;">${escaparHtml(req.nombre_servicio || req.servicio)}</div>
-                    </div>
-                    <div class="mb-3">
-                        <span class="kd-label">Solicitado por</span>
-                        <div style="font-weight:700; color:#fff;">${escaparHtml(req.nombre_cliente || '---')}</div>
-                    </div>
-                    <div class="mb-3">
-                        <span class="kd-label">Ejecutor / Especialista</span>
-                        <div style="font-weight:700; color:var(--amarillo); word-break: break-word;">${escaparHtml(req.empleado_nombre || '---')}</div>
-                    </div>
-                    
-                    <hr style="border-color:#1e1e1e; margin:15px 0;">
+                    <hr class="border-dark my-3">
                     
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="kd-label" style="margin:0;">Solicitado el:</span>
-                        <span style="font-size:12px; color:#aaa;">${formatearFechaLimpia(fSol)}</span>
+                        <span class="kd-label m-0">Fecha Solicitud:</span>
+                        <span class="text-dim font-size-12">${formatearFechaLimpia(req.fechacreacion)}</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="kd-label" style="margin:0;">Completado el:</span>
-                        <span style="font-size:12px; color:#22c55e; font-weight:700;">${formatearFechaLimpia(fCom)}</span>
+                    <div class="d-flex justify-content-between">
+                        <span class="kd-label m-0">Fecha Finalización:</span>
+                        <span class="text-green-bold font-size-12">${formatearFechaLimpia(req.fechacompletado)}</span>
                     </div>
                 </div>
 
-                <div style="background:#0a0a0a; border:1px solid #1e1e1e; border-radius:10px; padding:20px; max-height: 450px; display: flex; flex-direction: column;">
-                    <div style="font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:1.5px; color:var(--amarillo); margin-bottom:15px; display:flex; align-items:center; gap:8px;">
-                        <i class="bi bi-clock-history"></i> LÍNEA DE TIEMPO
-                    </div>
-                    <div style="overflow-y: auto; padding-right: 10px; flex: 1;">
+                <div class="timeline-panel">
+                    <div class="timeline-title"><i class="bi bi-clock-history me-2"></i> LÍNEA DE TIEMPO</div>
+                    <div class="timeline-scroll">
                         ${tracking && tracking.length > 0 ? tracking.map(t => `
-                            <div style="border-left: 2px solid #222; padding-left: 15px; position: relative; padding-bottom: 15px;">
-                                <div style="position: absolute; left: -7px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: ${t.estado === 'finalizado' ? '#22c55e' : '#444'}; border: 3px solid #0a0a0a;"></div>
-                                <div style="font-size: 12px; font-weight: 700; color: #eee; margin-bottom: 2px; word-break: break-word;">${t.accion}</div>
-                                <div style="font-size: 10px; color: #555;">${formatearFechaLimpia(t.fecha_registro)}</div>
+                            <div class="timeline-entry">
+                                <div class="timeline-dot" style="background: ${t.estado === 'finalizado' ? 'var(--verde)' : '#444'};"></div>
+                                <div class="timeline-action">${escaparHtml(t.accion)}</div>
+                                <div class="timeline-date">${formatearFechaLimpia(t.fecha_registro)}</div>
                             </div>
-                        `).join('') : '<p style="color:#444; font-size:11px; text-align:center;">No hay registros.</p>'}
+                        `).join('') : '<p class="text-center text-dim py-3">No hay registros de actividad.</p>'}
                     </div>
                 </div>
             </div>
         </div>
     `;
 
-    cuerpo.innerHTML = html;
     modal.show();
 }
 
+/* Helpers y Utilidades de UI */
+
 /**
- * UI Helpers (Matches en_proceso.js style)
+ * Escapa caracteres especiales de HTML para prevenir ataques XSS
+ * @param {*} t 
+ * @returns 
  */
-function escaparHtml(texto) {
-    if (!texto) return '';
-    const div = document.createElement('div');
-    div.textContent = texto;
-    return div.innerHTML;
+function escaparHtml(t) {
+    if (!t) return '';
+    const d = document.createElement('div');
+    d.textContent = t;
+    return d.innerHTML;
 }
 
-function formatearFechaLimpia(fecha) {
-    if (!fecha) return '---';
-    
-    // Si es un string con microsegundos (formato PostgreSQL común: YYYY-MM-DD HH:MM:SS.mmmmmm)
-    // Lo limpiamos antes de procesar
-    let cleanedFecha = fecha;
-    if (typeof fecha === 'string' && fecha.includes('.')) {
-        cleanedFecha = fecha.split('.')[0];
-    }
+/**
+ * Retorna un icono de Bootstrap según la extensión del archivo
+ * @param {*} n 
+ * @returns 
+ */
+function getFileIcon(n) {
+    const e = n?.split('.').pop().toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(e)) return 'bi-file-earmark-image';
+    if (e === 'pdf') return 'bi-file-earmark-pdf';
+    if (['zip', 'rar'].includes(e)) return 'bi-file-earmark-zip';
+    if (['doc', 'docx'].includes(e)) return 'bi-file-earmark-word';
+    return 'bi-file-earmark-text';
+}
 
+/**
+ * Formatea una fecha de DB a un formato legible por el usuario (DD/MM/YYYY HH:MM)
+ * @param {*} f 
+ * @returns 
+ */
+function formatearFechaLimpia(f) {
+    if (!f) return '---';
     try {
-        const d = new Date(cleanedFecha);
-        if (isNaN(d.getTime())) return cleanedFecha;
-        
+        const d = new Date(f.includes('.') ? f.split('.')[0] : f.replace(/-/g, '/'));
+        if (isNaN(d.getTime())) return f;
         const day = String(d.getDate()).padStart(2, '0');
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const year = d.getFullYear();
         const hours = String(d.getHours()).padStart(2, '0');
         const minutes = String(d.getMinutes()).padStart(2, '0');
-        
         return `${day}/${month}/${year} ${hours}:${minutes}`;
-    } catch (e) {
-        return cleanedFecha;
-    }
+    } catch(e) { return f; }
 }
 
-function formatearLista(valor) {
-    if (!valor) return '';
+/**
+ * Convierte un string o JSON de items en una lista de tags HTML (Spans)
+ * @param {*} v 
+ * @returns 
+ */
+function formatearLista(v) {
+    if (!v) return '';
     let items = [];
     try {
-        const parsed = JSON.parse(valor);
-        items = Array.isArray(parsed) ? parsed : [String(parsed)];
+        items = v.startsWith('[') ? JSON.parse(v) : v.split(',').map(s => s.trim());
     } catch (e) {
-        items = valor.split(',').map(s => s.trim()).filter(s => s);
+        items = v.split(',').map(s => s.trim());
     }
-    return items.map(item => `<span style="display:inline-block;background:#1e1e1e;color:#ddd;border:1px solid #333;padding:5px 12px;border-radius:6px;font-size:11px;">${escaparHtml(item)}</span>`).join('');
+    return items.filter(i => i).map(item => `<span class="kd-tag">${escaparHtml(item)}</span>`).join('');
 }

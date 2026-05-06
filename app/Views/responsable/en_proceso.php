@@ -8,7 +8,6 @@
 
 <?= $this->section('contenido') ?>
 <div class="container-fluid py-4">
-
     <!-- Estadísticas Rápidas -->
     <div class="row mb-4">
         <div class="col-md-4">
@@ -51,7 +50,6 @@
             </div>
         </div>
     </div>
-
     <!-- Lista de Empleados con sus Tareas -->
     <div class="row" id="empleados-container">
         <!-- Se cargará dinámicamente -->
