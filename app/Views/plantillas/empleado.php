@@ -93,8 +93,8 @@
             </button>
             <div class="topbar-titulo"><?= esc($tituloPagina ?? 'PANEL') ?></div>
             <div class="ml-auto d-flex align-items-center"
-                style="font-size: 10px; color: var(--texto-3); text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">
-                <i class="bi bi-palette mr-2" style="color: var(--amarillo);"></i>
+                style="font-size: 20px; color: #fff; text-transform: uppercase; font-weight: 400; letter-spacing: 4px; font-family: 'Bebas Neue', sans-serif;">
+                <i class="bi bi-palette mr-3" style="color: var(--amarillo); font-size: 24px;"></i>
                 <?= esc($user['nombre_areaagencia'] ?? 'Agencia') ?>
             </div>
         </header>

@@ -169,37 +169,67 @@ function abrirModalAccion(id, tipo) {
     );
   } else if (tipo === "entregar") {
     titulo.html(
-      '<i class="bi bi-cloud-arrow-up mr-2"></i> Enviar Trabajo Terminado',
+      '<i class="bi bi-cloud-arrow-up mr-2" style="color:var(--amarillo);"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">ENVIAR TRABAJO TERMINADO</span>',
     );
     cuerpo.html(`
-            <div class="p-2">
+            <div class="p-3" style="font-family:'DM Sans', sans-serif;">
                 <form id="form-entrega">
                     <div class="form-group mb-4">
-                        <label class="kb-modal-label">Enlace del entregable (Drive, Canva, Wetransfer, etc.)</label>
-                        <div class="input-group">
+                        <label style="color:#fff; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Enlace del entregable (Drive, Canva, Wetransfer, etc.)</label>
+                        <div class="input-group" style="background:#000; border:1px solid #222; border-radius:12px; overflow:hidden; transition:border-color 0.3s;">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" style="background:#0d0d0d; border:1px solid #222; border-right:none; color:var(--amarillo);"><i class="bi bi-link-45deg"></i></span>
+                                <span class="input-group-text" style="background:transparent; border:none; color:var(--amarillo); font-size:18px;"><i class="bi bi-link-45deg"></i></span>
                             </div>
-                            <input type="text" name="url_entrega" id="url_entrega" class="form-control" placeholder="Pega el link aquí..." style="border-left:none;">
+                            <input type="url" name="url_entrega" id="url_entrega" class="form-control" placeholder="https://..." 
+                                style="background:transparent; border:none; color:#fff; font-size:14px; height:45px; padding-left:0;">
                         </div>
+                        <small style="color:#555; font-size:10px; margin-top:8px; display:block;"><i class="bi bi-info-circle mr-1"></i> El enlace debe comenzar con http:// o https://</small>
                     </div>
                     
                     <div class="form-group mb-4">
-                        <label class="kb-modal-label">Cargar Archivos Directos (Opcional)</label>
-                        <div style="border:1px dashed #333; border-radius:10px; padding:20px; text-align:center; background:#080808;">
-                            <i class="bi bi-files mb-2" style="font-size:24px; color:#333; display:block;"></i>
-                            <input type="file" name="archivos_entrega[]" id="archivos_entrega" class="form-control-file" multiple style="font-size:11px; color:#555;">
-                            <small style="display:block; margin-top:10px; color:#444; font-size:10px;">Puedes seleccionar varios archivos</small>
+                        <label style="color:#fff; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Cargar Archivos Directos (Opcional)</label>
+                        
+                        <div class="upload-area-simple" id="area-subida-entrega" style="border:2px dashed #222; border-radius:15px; padding:30px; text-align:center; background:#050505; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.borderColor='var(--amarillo)'; this.style.background='#080808';" onmouseout="this.style.borderColor='#222'; this.style.background='#050505';">
+                            <i class="bi bi-cloud-plus-fill mb-2" style="font-size:32px; color:var(--amarillo); display:block;"></i>
+                            <span style="color:#eee; font-weight:600; font-size:13px;">Click para agregar archivos</span>
+                            <p style="color:#444; font-size:10px; margin:5px 0 0;">Puedes seleccionar varios archivos (Imágenes, PDF, etc.)</p>
                         </div>
+                        
+                        <input type="file" name="archivos_entrega[]" id="archivos_entrega" class="d-none" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.zip">
+                        
+                        <div id="lista-archivos-entrega" style="margin-top:15px; display:flex; flex-direction:column; gap:8px;"></div>
                     </div>
 
                     <div class="form-group">
-                        <label class="kb-modal-label">Mensaje para el administrador</label>
-                        <textarea name="notas" id="notas" class="form-control" placeholder="Escribe detalles sobre la entrega o instrucciones especiales..." rows="3"></textarea>
+                        <label style="color:#fff; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Mensaje para el administrador</label>
+                        <textarea name="notas" id="notas" class="form-control" 
+                            style="background:#000; border:1px solid #222; color:#fff; border-radius:12px; padding:15px; font-size:14px; resize:none;" 
+                            placeholder="Describe detalles sobre la entrega o instrucciones especiales..." rows="3"></textarea>
                     </div>
                 </form>
             </div>
         `);
+
+    // Lógica para el input de archivos
+    const area = document.getElementById("area-subida-entrega");
+    const input = document.getElementById("archivos_entrega");
+    const lista = document.getElementById("lista-archivos-entrega");
+
+    area.addEventListener("click", () => input.click());
+
+    input.addEventListener("change", () => {
+      lista.innerHTML = "";
+      Array.from(input.files).forEach((f) => {
+        lista.innerHTML += `
+                    <div style="background:#111; border:1px solid #222; border-radius:8px; padding:10px 15px; display:flex; align-items:center; gap:12px; color:#aaa; font-size:12px;">
+                        <i class="bi bi-file-earmark-check" style="color:var(--amarillo); font-size:16px;"></i>
+                        <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f.name}</span>
+                        <small style="color:#444;">${(f.size / 1024 / 1024).toFixed(2)} MB</small>
+                    </div>
+                `;
+      });
+    });
+
     pie.append(
       `<button class="task-primary-btn btn-deliver" onclick="ejecutarAccion(${id}, 'entregar')">FINALIZAR Y ENTREGAR</button>`,
     );
@@ -219,6 +249,20 @@ function ejecutarAccion(id, tipo) {
     const link = $("#url_entrega").val();
     const files = $("#archivos_entrega")[0].files;
     const notas = $("#notas").val();
+
+    if (link) {
+      const urlPattern = /^(https?:\/\/)/i;
+      if (!urlPattern.test(link)) {
+        Swal.fire({
+          icon: "warning",
+          title: "URL Inválida",
+          text: "El enlace debe comenzar con http:// o https://",
+          background: "#0a0a0a",
+          color: "#fff",
+        });
+        return;
+      }
+    }
 
     if (!link && files.length === 0) {
       Swal.fire({

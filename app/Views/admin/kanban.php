@@ -91,9 +91,15 @@
                             </div>
 
                             <?php if (($p['num_modificaciones'] ?? 0) > 0): ?>
-                                <div class="kb-returned-banner">
-                                    <i class="bi bi-arrow-counterclockwise"></i> CORRECCIÓN SOLICITADA
-                                </div>
+                                <?php if ($estado === 'en_proceso'): ?>
+                                    <div class="kb-returned-banner">
+                                        <i class="bi bi-arrow-counterclockwise"></i> CORRECCIÓN SOLICITADA
+                                    </div>
+                                <?php elseif ($estado === 'en_revision'): ?>
+                                    <div class="kb-corrected-banner">
+                                        <i class="bi bi-check-all"></i> CORRECCIÓN REALIZADA
+                                    </div>
+                                <?php endif ?>
                             <?php endif ?>
 
                             <div class="kb-card-tags">
@@ -109,21 +115,6 @@
                                 </span>
                             </div>
 
-                            <div class="kb-card-progress">
-                                <?php 
-                                    $prog = 0;
-                                    if($estado === 'pendiente_sin_asignar') $prog = 25;
-                                    elseif($estado === 'en_proceso') $prog = 50;
-                                    elseif($estado === 'en_revision') $prog = 75;
-                                    elseif($estado === 'finalizado') $prog = 100;
-                                ?>
-                                <div class="kb-progress-bar">
-                                    <div class="kb-progress-fill" style="width: <?= $prog ?>%; background: <?= 
-                                        ($estado === 'finalizado') ? '#10b981' : 
-                                        (($estado === 'en_revision') ? '#f97316' : 
-                                        (($estado === 'en_proceso') ? '#a855f7' : '#F5C400')) ?>"></div>
-                                </div>
-                            </div>
 
                             <div class="kb-card-footer">
                                 <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
@@ -261,7 +252,7 @@
                 <div class="exp-card">
                     <div class="exp-card-header"><i class="bi bi-file-text"></i> <span>DESCRIPCIÓN DEL REQUERIMIENTO</span></div>
                     <div class="exp-card-body">
-                        <div class="data-value tpl-descripcion" style="white-space:pre-wrap; font-size:13px; color:#ccc;"></div>
+                        <div class="data-value tpl-descripcion" style="font-size:13px; color:#ccc;"></div>
                     </div>
                 </div>
 
@@ -332,10 +323,27 @@
                     </div>
                 </div>
 
-                <!-- Auditoría -->
+                <!-- Auditoría y Gestión -->
                 <div class="exp-card">
-                    <div class="exp-card-header"><i class="bi bi-shield-check"></i> <span>CONTROL</span></div>
+                    <div class="exp-card-header"><i class="bi bi-shield-check"></i> <span>CONTROL Y GESTIÓN</span></div>
                     <div class="exp-card-body">
+                        
+                        <!-- Prioridad  -->
+                        <div class="priority-manager">
+                            <span class="data-label">PRIORIDAD</span>
+                            <div class="priority-pills">
+                                <button type="button" class="prio-pill btn-prio" data-prio="Alta">
+                                    <span class="prio-dot dot-alta"></span> ALTA
+                                </button>
+                                <button type="button" class="prio-pill btn-prio" data-prio="Media">
+                                    <span class="prio-dot dot-media"></span> MEDIA
+                                </button>
+                                <button type="button" class="prio-pill btn-prio" data-prio="Baja">
+                                    <span class="prio-dot dot-baja"></span> BAJA
+                                </button>
+                            </div>
+                        </div>
+
                         <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:15px; border-radius:12px; border:1px solid #111;">
                             <span class="data-label" style="margin:0;">MODIFICACIONES</span>
                             <span class="tpl-modificaciones" style="background:#F5C400; color:#000; padding:4px 12px; border-radius:8px; font-weight:900; font-size:14px;"></span>

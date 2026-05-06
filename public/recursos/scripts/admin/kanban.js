@@ -19,6 +19,26 @@ const KB_ICONS = {
   default: "bi-file-earmark",
 };
 
+// ── SISTEMA DE NOTIFICACIONES POST-CARGA ──
+$(document).ready(function() {
+    const msg = localStorage.getItem('kanban_msg');
+    if (msg) {
+        Swal.fire({
+            icon: 'success',
+            title: msg,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true,
+            background: '#0a0a0a',
+            color: '#fff'
+        });
+        localStorage.removeItem('kanban_msg');
+    }
+});
+
+
 // ════════════════════════════════════════════════════════
 // ═══ ADMIN — Solo envía el pedido a un ÁREA          ═══
 //     El empleado queda vacío. El responsable asigna. ═══
@@ -164,13 +184,13 @@ async function verDetalle(idAtencion) {
     const fSol = d.r_fechacreacion || "---";
     const fIni = d.fechainicio || "---";
     const fFin = d.fechacompletado || "---";
-    
+
     // Formato de fecha con hora: YYYY-MM-DD HH:MM → DD/MM/YYYY HH:MM
     const fmtRaw = (s) => {
       if (!s || s === "---" || s === "—") return s;
       s = String(s).trim();
       if (s.length === 0) return "---";
-      
+
       // Si ya tiene el formato "YYYY-MM-DD HH:MM"
       if (s.length >= 16 && s.includes(' ')) {
         const partes = s.split(' ');
@@ -179,7 +199,7 @@ async function verDetalle(idAtencion) {
           const hora = partes[1];
           return `${fecha} ${hora}`;
         }
-      } 
+      }
       // Si solo tiene fecha "YYYY-MM-DD"
       else if (s.length >= 10) {
         const fecha = s.substring(0, 10).split("-").reverse().join("/");
@@ -388,6 +408,22 @@ async function verDetalle(idAtencion) {
 
     clone.querySelector('.tpl-modificaciones').textContent = d.num_modificaciones || 0;
 
+    // ── Prioridad ──
+    const prioManager = clone.querySelector('.priority-manager');
+    if (d.estado === 'en_revision' || d.estado === 'finalizado') {
+      if (prioManager) prioManager.style.display = 'none';
+    } else {
+      const currentPrio = d.prioridad_admin || d.prioridad || "Media";
+      clone.querySelectorAll('.btn-prio').forEach(btn => {
+        const pVal = btn.getAttribute('data-prio');
+        if (pVal === currentPrio) {
+          btn.classList.add('active');
+          btn.classList.add('prio-' + pVal.toLowerCase());
+        }
+        btn.onclick = () => cambiarPrioridad(d.id, pVal);
+      });
+    }
+
     // Finalmente inyectar en el DOM
     cuerpo.innerHTML = "";
     cuerpo.appendChild(clone);
@@ -402,25 +438,64 @@ async function verDetalle(idAtencion) {
 // ═══════════════════════════════════════
 // ═══ OTRAS ACCIONES                   ══
 // ═══════════════════════════════════════
-async function cambiarPrioridad(id) {
-  const p = document.getElementById("detalle-prioridad").value;
+async function cambiarPrioridad(id, valor) {
   const data = await _post("admin/kanban/cambiarPrioridad", {
     idatencion: id,
-    prioridad: p,
+    prioridad: valor,
   });
   if (data.status === "success") location.reload();
   else alert(data.msg);
 }
 
+
 async function cambiarEstado(id, est, acc) {
-  if (!confirm("Confirmar acción: " + acc)) return;
+  const result = await Swal.fire({
+    title: `¿Confirmar ${acc}?`,
+    text: `¿Estás seguro de que deseas cambiar el estado a ${acc.toLowerCase()}?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: est === 'finalizado' ? '#10b981' : '#F5C400',
+    cancelButtonColor: '#333',
+    confirmButtonText: 'Sí, confirmar',
+    cancelButtonText: 'Cancelar',
+    background: '#0a0a0a',
+    color: '#fff'
+  });
+
+  if (!result.isConfirmed) return;
+
+  // Feedback inmediato de procesamiento
+  Swal.fire({
+    title: 'Procesando...',
+    text: 'Actualizando el tablero, por favor espera.',
+    allowOutsideClick: false,
+    showConfirmButton: false,
+    background: '#0a0a0a',
+    color: '#fff',
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
   const data = await _post("admin/kanban/cambiarEstado", {
     idatencion: id,
     estado: est,
     accion: acc,
   });
-  if (data.status === "success") location.reload();
-  else alert(data.msg);
+
+  if (data.status === "success") {
+    // Guardar mensaje para mostrarlo después del reload
+    localStorage.setItem('kanban_msg', `¡Pedido marcado como ${acc.toLowerCase()} con éxito!`);
+    location.reload();
+  } else {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: data.msg,
+      background: '#0a0a0a',
+      color: '#fff'
+    });
+  }
 }
 
 // ── SOLICITAR RETROALIMENTACIÓN AL REGRESAR A PROCESO ──
@@ -435,9 +510,27 @@ async function enviarRetroalimentacion() {
   const msg = document.getElementById("retro-mensaje").value;
 
   if (!msg.trim()) {
-    alert("Por favor, escribe un mensaje de mejora.");
+    Swal.fire({
+      icon: 'warning',
+      title: 'Campo vacío',
+      text: 'Por favor, escribe un mensaje de mejora.',
+      background: '#0a0a0a',
+      color: '#fff'
+    });
     return;
   }
+
+  // Feedback inmediato
+  Swal.fire({
+    title: 'Enviando corrección...',
+    allowOutsideClick: false,
+    showConfirmButton: false,
+    background: '#0a0a0a',
+    color: '#fff',
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
 
   const data = await _post("admin/kanban/regresarAProceso", {
     idatencion: id,
@@ -445,9 +538,18 @@ async function enviarRetroalimentacion() {
   });
 
   if (data.status === "success") {
+    $("#modalRetro").modal("hide");
+    // Guardar mensaje para mostrarlo después del reload
+    localStorage.setItem('kanban_msg', '¡Corrección enviada correctamente!');
     location.reload();
   } else {
-    alert(data.msg);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: data.msg,
+      background: '#0a0a0a',
+      color: '#fff'
+    });
   }
 }
 

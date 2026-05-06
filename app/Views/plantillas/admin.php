@@ -154,35 +154,33 @@
         </div>
     </div>
 
-    <!-- ═══ MODAL RETROALIMENTACIÓN (Admin -> Empleado) — GLOBAL ═══ -->
+    <!-- ═══ MODAL RETROALIMENTACIÓN (Admin -> Empleado) ═══ -->
     <div class="modal fade" id="modalRetro" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content kb-modal" style="background:#111; border:1px solid #222;">
-                <div class="modal-header kb-modal-header" style="background:#0a0a0a; border-bottom:1px solid #1a1a1a;">
-                    <h6 class="modal-title" style="color: #F5C400;"><i class="bi bi-chat-left-text mr-2"></i>Enviar a
-                        Corrección</h6>
-                    <button type="button" class="close text-white" data-dismiss="modal">
+            <div class="modal-content kb-modal" style="background:#0a0a0a; border:1px solid #222; border-radius:16px; overflow:hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                <div class="modal-header" style="background:#050505; border-bottom:1px solid #111; padding:20px 25px;">
+                    <h6 class="modal-title" style="color: #F5C400; font-family:'Bebas Neue'; font-size:24px; letter-spacing:1px; display:flex; align-items:center; gap:12px;">
+                        <i class="bi bi-arrow-counterclockwise" style="font-size:20px;"></i> SOLICITAR CORRECCIÓN
+                    </h6>
+                    <button type="button" class="close text-white" data-dismiss="modal" style="opacity:0.5; outline:none;">
                         <span>&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding:25px;">
                     <input type="hidden" id="retro-idatencion">
-                    <p style="font-size: 11px; color: #888; margin-bottom: 15px; line-height: 1.4;">
-                        Por favor, indica los puntos específicos que el empleado debe mejorar o corregir en este pedido.
-                    </p>
-                    <div class="form-group">
-                        <label
-                            style="font-size:11px; color:#fff; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; display:block;">Mensaje
-                            de mejora:</label>
-                        <textarea id="retro-mensaje" class="form-control" rows="5"
-                            style="background:#0a0a0a; border:1px solid #222; color:#fff;"
-                            placeholder="Escribe aquí las observaciones..."></textarea>
-                    </div>
+                    <label style="font-size:10px; color:#666; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px; display:block;">Instrucciones para el responsable</label>
+                    <textarea id="retro-mensaje" class="form-control" rows="6"
+                        style="background:#000; border:1px solid #151515; color:#fff; border-radius:12px; padding:15px; font-size:14px; line-height:1.6; resize:none;"
+                        placeholder="Describe detalladamente los cambios o mejoras solicitadas..."></textarea>
                 </div>
-                <div class="modal-footer" style="border-top:1px solid #1a1a1a; background:#0a0a0a;">
-                    <button class="btn"
-                        style="background: #ef4444; color: #fff; font-weight:800; font-size:12px; padding:10px 20px;"
-                        onclick="enviarRetroalimentacion()">Enviar a Corrección</button>
+                <div class="modal-footer" style="border-top:1px solid #111; background:#050505; padding:20px 25px; display:flex; gap:15px;">
+                    <button type="button" class="btn" data-dismiss="modal"
+                        style="flex:1; background: #111; color: #666; font-family:'Bebas Neue'; font-size:18px; letter-spacing:1px; padding:10px; border-radius:10px; border:1px solid #222; transition:all 0.3s;">
+                        CANCELAR
+                    </button>
+                    <button type="button" class="btn"
+                        style="flex:2; background: #ef4444; color: #fff; font-family:'Bebas Neue'; font-size:18px; letter-spacing:1px; padding:10px; border-radius:10px; border:none; transition:all 0.3s; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);"
+                        onclick="enviarRetroalimentacion()">ENVIAR CORRECCIÓN</button>
                 </div>
             </div>
         </div>

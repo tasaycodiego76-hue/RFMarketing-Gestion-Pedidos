@@ -641,24 +641,49 @@ function obtenerIniciales(nombre) {
  */
 function abrirModalEntregar(idAtencion) {
     Swal.fire({
-        title: 'REALIZAR ENTREGA',
+        title: '<i class="bi bi-cloud-arrow-up mr-2" style="color:#F5C400;"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">REALIZAR ENTREGA</span>',
         html: `
-            <div class="text-start" style="font-family: 'Inter', sans-serif;">
-                <div class="mb-3">
-                    <label class="form-label text-white-50" style="font-size: 11px; font-weight: 700; text-transform: uppercase;">Link del Entregable</label>
-                    <input type="text" id="swal-url-entrega" class="form-control" placeholder="Google Drive, Canva, Figma..." style="background: #111; border: 1px solid #333; color: #fff; font-size: 13px;">
+            <div class="text-start p-2" style="font-family: 'Inter', sans-serif;">
+                <div class="mb-4">
+                    <label class="form-label" style="color:#fff; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Enlace del Entregable</label>
+                    <div class="input-group" style="background:#000; border:1px solid #333; border-radius:10px; overflow:hidden;">
+                        <span class="input-group-text" style="background:transparent; border:none; color:#F5C400;"><i class="bi bi-link-45deg"></i></span>
+                        <input type="url" id="swal-url-entrega" class="form-control" placeholder="https://drive.google.com/..." style="background:transparent; border:none; color:#fff; font-size:14px; height:42px;">
+                    </div>
+                    <small style="color:#555; font-size:10px; margin-top:6px; display:block;">Debe comenzar con http:// o https://</small>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label text-white-50" style="font-size: 11px; font-weight: 700; text-transform: uppercase;">Subir Archivos (Opcional)</label>
-                    <input type="file" id="swal-archivos-entrega" class="form-control" multiple style="background: #111; border: 1px solid #333; color: #fff; font-size: 13px;">
+
+                <div class="mb-4">
+                    <label class="form-label" style="color:#fff; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Subir Archivos (Opcional)</label>
+                    <div id="swal-upload-area" style="border:2px dashed #333; border-radius:12px; padding:25px; text-align:center; background:#080808; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.borderColor='#F5C400'; this.style.background='#0d0d0d';" onmouseout="this.style.borderColor='#333'; this.style.background='#080808';">
+                        <i class="bi bi-cloud-arrow-up-fill mb-2" style="font-size:28px; color:#F5C400; display:block;"></i>
+                        <span style="color:#ccc; font-weight:600; font-size:12px;">Seleccionar archivos</span>
+                        <input type="file" id="swal-archivos-entrega" class="d-none" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.zip">
+                    </div>
+                    <div id="swal-file-list" style="margin-top:12px; display:flex; flex-direction:column; gap:6px;"></div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label text-white-50" style="font-size: 11px; font-weight: 700; text-transform: uppercase;">Notas adicionales</label>
-                    <textarea id="swal-notas-entrega" class="form-control" placeholder="Escribe aquí algún detalle..." style="background: #111; border: 1px solid #333; color: #fff; font-size: 13px; height: 80px;"></textarea>
+
+                <div class="mb-2">
+                    <label class="form-label" style="color:#fff; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Notas adicionales</label>
+                    <textarea id="swal-notas-entrega" class="form-control" placeholder="Escribe detalles sobre la entrega..." style="background: #000; border: 1px solid #333; color: #fff; font-size: 14px; height: 90px; border-radius:10px; resize:none;"></textarea>
                 </div>
             </div>
+            <script>
+                document.getElementById('swal-upload-area').onclick = () => document.getElementById('swal-archivos-entrega').click();
+                document.getElementById('swal-archivos-entrega').onchange = (e) => {
+                    const list = document.getElementById('swal-file-list');
+                    list.innerHTML = '';
+                    Array.from(e.target.files).forEach(f => {
+                        list.innerHTML += \`
+                            <div style="background:#111; border:1px solid #222; border-radius:6px; padding:8px 12px; display:flex; align-items:center; gap:10px; color:#999; font-size:11px;">
+                                <i class="bi bi-file-earmark-check" style="color:#F5C400;"></i>
+                                <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">\${f.name}</span>
+                            </div>\`;
+                    });
+                };
+            </script>
         `,
-        background: '#161616',
+        background: '#0a0a0a',
         color: '#fff',
         showCancelButton: true,
         confirmButtonText: 'ENVIAR ENTREGA',
@@ -673,10 +698,9 @@ function abrirModalEntregar(idAtencion) {
             const notas = document.getElementById('swal-notas-entrega').value;
 
             if (url) {
-                try {
-                    new URL(url);
-                } catch (e) {
-                    Swal.showValidationMessage('Por favor ingresa una URL válida (ej: https://...)');
+                const urlPattern = /^(https?:\/\/)/i;
+                if (!urlPattern.test(url)) {
+                    Swal.showValidationMessage('El enlace debe comenzar con http:// o https://');
                     return false;
                 }
             }

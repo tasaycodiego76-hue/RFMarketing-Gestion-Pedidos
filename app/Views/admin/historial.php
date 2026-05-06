@@ -2,121 +2,17 @@
 
 <?= $this->section('styles') ?>
 <link href="<?= base_url('recursos/styles/admin/paginas/usuarios.css') ?>" rel="stylesheet">
-<style>
-    .historial-area-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(245, 196, 0, 0.1);
-        border: 1px solid rgba(245, 196, 0, 0.2);
-        padding: 6px 14px;
-        border-radius: 8px;
-        color: #F5C400;
-        font-weight: 800;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-    }
-    .historial-title {
-        font-size: 16px;
-        font-weight: 800;
-        color: #ffffff !important;
-        margin-bottom: 2px;
-    }
-    .historial-sub-info {
-        font-size: 10px;
-        color: #F5C400;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    /* Mejora de visualización de Empresa con Avatar */
-    .historial-empresa-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .empresa-avatar-mini {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 900;
-        font-size: 14px;
-        color: #000;
-        flex-shrink: 0;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        border: 1px solid rgba(255,255,255,0.1);
-    }
-    .empresa-nombre-text {
-        font-size: 14px;
-        font-weight: 700;
-        color: #f0f0f0;
-    }
-    
-    .btn-expediente {
-        background: #F5C400;
-        border: none;
-        color: #000 !important;
-        font-size: 11px;
-        font-weight: 900;
-        padding: 8px 18px;
-        border-radius: 6px;
-        transition: all 0.2s;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        box-shadow: 0 4px 10px rgba(245, 196, 0, 0.2);
-    }
-    .btn-expediente:hover {
-        background: #fff;
-        color: #000 !important;
-        transform: translateY(-2px);
-    }
-    .input-calendario {
-        background: #0a0a0a !important;
-        border: 1.5px solid #222 !important;
-        color: #fff !important;
-        border-radius: 6px;
-        font-size: 13px;
-        padding: 8px 14px;
-        height: 40px;
-        transition: all 0.2s;
-    }
-    
-    .tabla-usuarios thead th {
-        color: #F5C400 !important;
-        background: #000 !important;
-        font-size: 11px !important;
-    }
-    .tabla-usuarios tbody td {
-        border-bottom: 1px solid #111 !important;
-        padding: 15px 15px !important;
-    }
-</style>
+<link href="<?= base_url('recursos/styles/admin/paginas/kanban.css') ?>" rel="stylesheet">
+<link href="<?= base_url('recursos/styles/admin/paginas/historial.css') ?>" rel="stylesheet">
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-<script src="<?= base_url('recursos/scripts/admin/kanban.js') ?>"></script>
 <script>
-    $(document).ready(function() {
-        $("#busquedaHistorial").on("keyup", function() { filtrarTabla(); });
-        $("#filtroFecha").on("change", function() { filtrarTabla(); });
-
-        function filtrarTabla() {
-            var search = $("#busquedaHistorial").val().toLowerCase();
-            var date = $("#filtroFecha").val();
-            $("#tablaHistorial tbody tr").each(function() {
-                var text = $(this).text().toLowerCase();
-                var rowDate = $(this).data('fecha');
-                var matchesSearch = text.indexOf(search) > -1;
-                var matchesDate = (date === "" || rowDate === date);
-                $(this).toggle(matchesSearch && matchesDate);
-            });
-        }
-    });
+    const AREA_ACTUAL = 0; 
+    const AREA_NOMBRE = "HISTORIAL";
 </script>
+<script src="<?= base_url('recursos/scripts/admin/kanban.js') ?>"></script>
+<script src="<?= base_url('recursos/scripts/admin/historial.js') ?>"></script>
 <?= $this->endSection() ?>
 
 <?= $this->section('contenido') ?>
@@ -183,7 +79,7 @@
                         </td>
                         <td style="text-align: center;">
                             <button class="btn-expediente" onclick="verDetalle(<?= $p['id'] ?>)">
-                                VER EXPEDIENTE
+                                VER PEDIDO
                             </button>
                         </td>
                     </tr>
@@ -194,5 +90,150 @@
 </div>
 
 <div style="height: 50px;"></div>
+
+<!-- ═══ TEMPLATE: DETALLE DE KANBAN ═══ -->
+<template id="template-detalle-kanban">
+    <div class="exp-container">
+        <!-- HEADER SECCIÓN -->
+        <div class="exp-header-layout" style="padding: 40px 30px 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+            <div style="flex: 1; min-width: 0;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <span class="tpl-status-pill"></span>
+                    <span style="color:#444; font-size:11px; font-weight:800;">ID: <span class="tpl-id"></span></span>
+                </div>
+                <h2 class="tpl-titulo" style="font-family:'Bebas Neue'; font-size:48px; color:#fff; letter-spacing:1px; margin:0; line-height:1.1; word-wrap:break-word; overflow-wrap:break-word;"></h2>
+                <div style="margin-top:15px; display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
+                    <span style="color:#F5C400; font-weight:800; font-size:14px;"><i class="bi bi-building"></i> <span class="tpl-empresa"></span></span>
+                    <span style="color:#222;">|</span>
+                    <span style="color:#888; font-size:13px; font-weight:600;">ÁREA: <span class="tpl-area"></span></span>
+                </div>
+            </div>
+            <div style="text-align:right; flex-shrink:0;">
+                <div class="tpl-servicio" style="font-family:'Bebas Neue'; font-size:24px; color:#F5C400;"></div>
+                <div style="color:#444; font-size:10px; font-weight:800; letter-spacing:1px; margin-top:5px;">ATENCIÓN #<span class="tpl-idatencion"></span></div>
+            </div>
+        </div>
+
+        <!-- STEPPER -->
+        <div class="tpl-stepper-container"></div>
+
+        <div class="exp-grid">
+            <!-- COLUMNA PRINCIPAL -->
+            <div class="exp-main-col">
+                
+                <!-- Descripción -->
+                <div class="exp-card">
+                    <div class="exp-card-header"><i class="bi bi-file-text"></i> <span>DESCRIPCIÓN DEL REQUERIMIENTO</span></div>
+                    <div class="exp-card-body">
+                        <div class="data-value tpl-descripcion" style="font-size:13px; color:#ccc;"></div>
+                    </div>
+                </div>
+
+                <!-- Estrategia -->
+                <div class="exp-card">
+                    <div class="exp-card-header"><i class="bi bi-compass"></i> <span>ESTRATEGIA DE COMUNICACIÓN</span></div>
+                    <div class="exp-card-body">
+                        <div class="data-row">
+                            <div class="data-box">
+                                <span class="data-label-large">Objetivo Principal</span>
+                                <div class="data-value tpl-objetivo"></div>
+                            </div>
+                            <div class="data-box">
+                                <span class="data-label-large">Público Objetivo</span>
+                                <div class="data-value tpl-publico"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canales y Formatos -->
+                <div class="data-row">
+                    <div class="exp-card" style="margin-bottom:0;">
+                        <div class="exp-card-header"><i class="bi bi-broadcast"></i> <span>CANALES</span></div>
+                        <div class="exp-card-body tpl-canales"></div>
+                    </div>
+                    <div class="exp-card" style="margin-bottom:0;">
+                        <div class="exp-card-header"><i class="bi bi-layers"></i> <span>FORMATOS</span></div>
+                        <div class="exp-card-body tpl-formatos"></div>
+                    </div>
+                </div>
+
+                <!-- Recursos Cliente -->
+                <div class="exp-card" style="margin-top:25px;">
+                    <div class="exp-card-header"><i class="bi bi-folder-symlink"></i> <span>RECURSOS DEL CLIENTE</span></div>
+                    <div class="exp-card-body tpl-archivos-cliente"></div>
+                </div>
+
+                <!-- Recursos Empleado (Entrega) -->
+                <div class="tpl-entrega-container"></div>
+            </div>
+
+            <!-- SIDEBAR -->
+            <div class="exp-sidebar">
+                
+                <!-- Responsable -->
+                <div class="exp-card">
+                    <div class="exp-card-header"><i class="bi bi-person-badge"></i> <span>RESPONSABLE</span></div>
+                    <div class="exp-card-body tpl-empleado" style="padding:15px;"></div>
+                </div>
+
+                <!-- Cronología -->
+                <div class="exp-card">
+                    <div class="exp-card-header"><i class="bi bi-calendar3"></i> <span>CRONOLOGÍA</span></div>
+                    <div class="exp-card-body">
+                        <div style="display:flex; flex-direction:column; gap:15px;">
+                            <div class="data-box">
+                                <span class="data-label-large">Fecha de Solicitud</span>
+                                <div class="data-value tpl-f-solicitud"></div>
+                            </div>
+                            <div class="data-box" style="border-color:#F5C40033; background:rgba(245,196,0,0.02);">
+                                <span class="data-label" style="color:#F5C400;">Fecha Límite</span>
+                                <div class="data-value tpl-f-limite" style="font-weight:900;"></div>
+                            </div>
+                            <div class="tpl-f-inicio-container"></div>
+                            <div class="tpl-f-fin-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auditoría y Gestión -->
+                <div class="exp-card">
+                    <div class="exp-card-header"><i class="bi bi-shield-check"></i> <span>CONTROL Y GESTIÓN</span></div>
+                    <div class="exp-card-body">
+                        
+                        <!-- Prioridad  -->
+                        <div class="priority-manager">
+                            <span class="data-label">PRIORIDAD</span>
+                            <div class="priority-pills">
+                                <button type="button" class="prio-pill btn-prio" data-prio="Alta">
+                                    <span class="prio-dot dot-alta"></span> ALTA
+                                </button>
+                                <button type="button" class="prio-pill btn-prio" data-prio="Media">
+                                    <span class="prio-dot dot-media"></span> MEDIA
+                                </button>
+                                <button type="button" class="prio-pill btn-prio" data-prio="Baja">
+                                    <span class="prio-dot dot-baja"></span> BAJA
+                                </button>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:15px; border-radius:12px; border:1px solid #111;">
+                            <span class="data-label" style="margin:0;">MODIFICACIONES</span>
+                            <span class="tpl-modificaciones" style="background:#F5C400; color:#000; padding:4px 12px; border-radius:8px; font-weight:900; font-size:14px;"></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- FOOTER ACCIONES -->
+        <div style="margin-top:30px; padding:30px; border-top:1px solid #151515; display:flex; justify-content:center;">
+            <button class="btn" data-dismiss="modal" style="background:#111; border:1px solid #222; font-family:'Bebas Neue'; font-size:20px; letter-spacing:2px; padding:12px 60px; border-radius:12px; color:#F5C400; transition:all 0.3s;">
+                CERRAR EXPEDIENTE DIGITAL
+            </button>
+        </div>
+    </div>
+</template>
 
 <?= $this->endSection() ?>
