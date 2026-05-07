@@ -356,6 +356,98 @@ class AtencionModel extends Model
             ->get()->getResultArray();
     }
 
+    /**
+     * Obtiene datos de productividad por empleado (En Proceso | Completados).
+     * @param int $idAreaAgencia
+     * @return array
+     */
+    public function getMetricasProductividad(int $idAreaAgencia): array
+    {
+        $sql = "
+            SELECT 
+                u.nombre,
+                u.apellidos,
+                COUNT(CASE WHEN a.estado = 'en_proceso' THEN 1 END) as total_proceso,
+                COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) as total_completado,
+                COUNT(a.id) as total_tareas
+            FROM usuarios u
+            LEFT JOIN atencion a ON a.idempleado = u.id
+            WHERE u.idarea_agencia = ?
+              AND u.rol = 'empleado'
+              AND (u.estado = true OR u.estado = 't' OR u.estado = '1')
+            GROUP BY u.id, u.nombre, u.apellidos
+            ORDER BY total_tareas DESC";
+
+        return $this->db->query($sql, [$idAreaAgencia])->getResultArray();
+    }
+
+    /**
+     * Obtiene la distribución de carga actual (Tareas activas por empleado).
+     * @param int $idAreaAgencia
+     * @return array
+     */
+    public function getMetricasDistribucionCarga(int $idAreaAgencia): array
+    {
+        $sql = "
+            SELECT 
+                u.nombre,
+                COUNT(a.id) as cantidad_tareas
+            FROM usuarios u
+            LEFT JOIN atencion a ON a.idempleado = u.id
+            WHERE u.idarea_agencia = ? 
+              AND a.estado NOT IN ('finalizado', 'cancelado')
+              AND (u.estado = true OR u.estado = 't' OR u.estado = '1')
+            GROUP BY u.id, u.nombre
+            HAVING COUNT(a.id) > 0";
+
+        return $this->db->query($sql, [$idAreaAgencia])->getResultArray();
+    }
+
+    /**
+     * Obtiene la tendencia de tareas completadas en los últimos 7 días.
+     * @param int $idAreaAgencia
+     * @return array
+     */
+    public function getMetricasTendenciaSemanal(int $idAreaAgencia): array
+    {
+        // Nota: TO_CHAR es para PostgreSQL. Para MySQL usar DATE_FORMAT.
+        $sql = "
+            SELECT 
+                TO_CHAR(fechacompletado, 'Dy') as dia_semana,
+                COUNT(*) as total_finalizados
+            FROM atencion
+            WHERE idarea_agencia = ?
+              AND estado = 'finalizado'
+              AND fechacompletado >= CURRENT_DATE - INTERVAL '7 days'
+            GROUP BY dia_semana, DATE(fechacompletado)
+            ORDER BY DATE(fechacompletado) ASC";
+
+        return $this->db->query($sql, [$idAreaAgencia])->getResultArray();
+    }
+
+    /**
+     * Obtiene el tiempo promedio de resolución por empleado en horas.
+     * @param int $idAreaAgencia
+     * @return array
+     */
+    public function getMetricasTiempoPromedio(int $idAreaAgencia): array
+    {
+        $sql = "
+            SELECT 
+                u.nombre,
+                ROUND(AVG(EXTRACT(EPOCH FROM (fechacompletado - fechainicio)) / 3600)::numeric, 2) as promedio_horas
+            FROM usuarios u
+            JOIN atencion a ON a.idempleado = u.id
+            WHERE u.idarea_agencia = ?
+              AND a.estado = 'finalizado'
+              AND a.fechainicio IS NOT NULL 
+              AND a.fechacompletado IS NOT NULL
+            GROUP BY u.id, u.nombre
+            ORDER BY promedio_horas ASC";
+
+        return $this->db->query($sql, [$idAreaAgencia])->getResultArray();
+    }
+
     /* EMPLEADO */
 
     /**
@@ -433,4 +525,4 @@ class AtencionModel extends Model
 
         return $this->db->query($sql)->getResultArray();
     }
-}
+}
