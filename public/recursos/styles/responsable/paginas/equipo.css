@@ -36,8 +36,8 @@
 /* ===== GRID DE TARJETAS ===== */
 .team-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
 }
 
 /* ===== TARJETA DE EMPLEADO ===== */
@@ -45,7 +45,7 @@
   background: #151515;
   border: 1px solid #2a2a2a;
   border-radius: 12px;
-  padding: 24px;
+  padding: 16px;
   position: relative;
   transition: all 0.2s ease;
 }
@@ -92,10 +92,10 @@
   flex: 1;
 }
 .employee-name {
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #f5f5f5;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .employee-role {
   display: inline-block;
@@ -126,7 +126,7 @@
 }
 .metric {
   text-align: center;
-  padding: 12px 4px;
+  padding: 8px 4px;
   background: #111;
   border-radius: 8px;
   border: 1px solid #222;
@@ -136,9 +136,9 @@
 }
 .metric-value {
   display: block;
-  font-size: 1.6rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 .metric-value.warning {
   color: #f59e0b;
@@ -417,4 +417,91 @@
 }
 .vertical-align-middle {
   vertical-align: middle;
+}
+
+/* LISTA DE TAREAS PREMIUM EN MODAL */
+.task-row-premium {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: background 0.2s ease;
+}
+
+.task-row-premium:hover {
+    background: rgba(245, 196, 0, 0.02);
+}
+
+.task-title-premium {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f0f0f0;
+    margin-bottom: 2px;
+}
+
+.task-subtitle-premium {
+    font-size: 11px;
+    color: #777;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.service-chip-premium {
+    font-size: 11px;
+    padding: 3px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    color: #aaa;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Badges de Estado Premium */
+.badge-status-premium {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-status-premium.badge-estado-pendiente { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+.badge-status-premium.badge-estado-proceso { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+.badge-status-premium.badge-estado-finalizado { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+
+/* Badges de Prioridad Premium */
+.badge-priority-premium {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+.badge-priority-premium.badge-prio-alta { color: #ef4444; background: rgba(239, 68, 68, 0.05); }
+.badge-priority-premium.badge-prio-media { color: #f5c400; background: rgba(245, 196, 0, 0.05); }
+.badge-priority-premium.badge-prio-baja { color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+
+/* Date Box Premium (Estilo Calendario) */
+.date-box-premium {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 4px 8px;
+    width: 45px;
+    margin: 0 auto;
+}
+
+.date-day-premium {
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+}
+
+.date-month-premium {
+    font-size: 8px;
+    font-weight: 800;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    margin-top: 2px;
 }

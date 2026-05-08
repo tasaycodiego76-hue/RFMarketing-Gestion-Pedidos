@@ -874,7 +874,7 @@ window.validarMaxCanales = function (checkbox) {
 
 /**
  * Guarda los cambios desde el panel de en proceso
- */
+*/
 function guardarEdicionRequerimientoEnProceso() {
     const req = window.requerimientoActualEnProceso;
     const btn = event.currentTarget;

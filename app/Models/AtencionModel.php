@@ -367,7 +367,7 @@ class AtencionModel extends Model
             SELECT 
                 u.nombre,
                 u.apellidos,
-                COUNT(CASE WHEN a.estado = 'en_proceso' THEN 1 END) as total_proceso,
+                COUNT(CASE WHEN a.estado IN ('en_proceso', 'pendiente_asignado') THEN 1 END) as total_proceso,
                 COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) as total_completado,
                 COUNT(a.id) as total_tareas
             FROM usuarios u
@@ -390,15 +390,14 @@ class AtencionModel extends Model
     {
         $sql = "
             SELECT 
-                u.nombre,
+                CONCAT(u.nombre, ' ' ,u.apellidos) AS nombre_completo,
                 COUNT(a.id) as cantidad_tareas
             FROM usuarios u
-            LEFT JOIN atencion a ON a.idempleado = u.id
+            LEFT JOIN atencion a ON a.idempleado = u.id AND a.estado NOT IN ('finalizado', 'cancelado')
             WHERE u.idarea_agencia = ? 
-              AND a.estado NOT IN ('finalizado', 'cancelado')
               AND (u.estado = true OR u.estado = 't' OR u.estado = '1')
-            GROUP BY u.id, u.nombre
-            HAVING COUNT(a.id) > 0";
+              AND u.rol = 'empleado'
+            GROUP BY u.id, u.nombre, u.apellidos";
 
         return $this->db->query($sql, [$idAreaAgencia])->getResultArray();
     }

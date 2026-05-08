@@ -387,6 +387,8 @@
   color: #ddd;
   font-size: 14px;
   line-height: 1.6;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .kd-pill {
   display: inline-block;

@@ -176,7 +176,7 @@
                                         <button class="kb-btn kb-btn-danger" onclick="solicitarRetroalimentacion(<?= $p['id'] ?>)" title="Regresar">
                                             <i class="bi bi-arrow-counterclockwise"></i>
                                         </button>
-                                        <button class="kb-btn kb-btn-success" onclick="cambiarEstado(<?= $p['id'] ?>, 'finalizado', 'Aprobar')" title="Aprobar">
+                                        <button class="kb-btn kb-btn-success" onclick="cambiarEstado(<?= $p['id'] ?>, 'finalizado', 'Aprobado')" title="Aprobar">
                                             <i class="bi bi-check-lg"></i> OK
                                         </button>
                                     </div>

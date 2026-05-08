@@ -27,7 +27,7 @@ class RequerimientoController extends BaseClienteController
 
         $userData = $auth['userData'];
 
-        // Instanciar modelos necesarios
+        // Instanciar modelos
         $reqModel = new RequerimientoModel();
         $archivoModel = new ArchivoModel();
 
@@ -248,7 +248,7 @@ class RequerimientoController extends BaseClienteController
             $trackingModel->insert([
                 'idatencion'     => $idAtn,
                 'idusuario'      => $idUsuario,
-                'accion'         => "Solicitud registrada exitosamente.\nSu requerimiento ha sido recibido y se encuentra en cola de asignación.\nRecibirá notificación cuando sea procesado.",
+                'accion'         => "Solicitud registrada exitosamente.\nSu requerimiento ha sido recibido y se encuentra en cola de asignación.",
                 'estado'         => 'pendiente_sin_asignar',
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s'),
             ]);

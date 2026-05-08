@@ -70,6 +70,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 $routes->group('responsable', ['filter' => 'auth'], function ($routes) {
     // DASHBOARD
     $routes->get('dashboard', 'Responsable\PedidosAreaController::index');
+    $routes->get('dashboard/metricas', 'Responsable\PedidosAreaController::getMetricasDashboard');
 
     // BANDEJA DE ENTRADA
     // Vistas

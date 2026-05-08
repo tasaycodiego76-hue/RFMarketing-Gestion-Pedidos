@@ -182,7 +182,9 @@ class EquipoController extends BaseResponsableController
                 // Unimos con el detalle del requerimiento (cliente, empresa, etc)
                 $detalle = $requerimientoModel->getDetalleCompleto($tarea['idrequerimiento']);
                 if ($detalle) {
-                    $tareaConDetalle = array_merge($tarea, $detalle);
+                    // El array_merge de derecha a izquierda sobreescribe claves. 
+                    // Ponemos $tarea al final para que su 'id' (de atencion) no sea pisado por el 'id' de requerimiento.
+                    $tareaConDetalle = array_merge($detalle, $tarea);
                     // Identificador único para el frontend (evitar colisiones de IDs en listas)
                     $tareaConDetalle['identificador_unico'] = 'EMP_' . $empleado['id'] . '_TAREA_' . $tarea['id'] . '_' . date('His');
                     $tareasDetalladas[] = $tareaConDetalle;
@@ -245,7 +247,8 @@ class EquipoController extends BaseResponsableController
         foreach ($tareas as $tarea) {
             $detalle = $requerimientoModel->getDetalleCompleto($tarea['idrequerimiento']);
             if ($detalle) {
-                $tareaConDetalle = array_merge($tarea, $detalle);
+                // Ponemos $tarea al final para preservar el 'id' correcto de la atención
+                $tareaConDetalle = array_merge($detalle, $tarea);
                 $tareaConDetalle['identificador_unico'] = 'EMP_' . $idEmpleado . '_T_' . $tarea['id'];
                 $tareasDetalladas[] = $tareaConDetalle;
             }

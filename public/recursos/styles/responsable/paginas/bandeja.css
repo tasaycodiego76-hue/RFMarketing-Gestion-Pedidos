@@ -17,17 +17,17 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--text-muted);
-  font-size: 14px;
+  color: #d0d0d0;
+  font-size: 18px;
 }
 .input-buscar-responsable {
   width: 100%;
   background: #1a1a1a;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 10px 12px 10px 36px;
-  color: var(--text-primary);
-  font-size: 13px;
+  padding: 14px 16px 14px 40px;
+  color: #e0e0e0;
+  font-size: 16px;
   transition: var(--transition);
 }
 .input-buscar-responsable:focus {
@@ -42,26 +42,26 @@
 .tabla-rf-responsable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 14px;
 }
 .tabla-rf-responsable thead {
   background: #0f0f0f;
 }
 .tabla-rf-responsable th {
-  padding: 14px 16px;
+  padding: 22px 24px;
   text-align: left;
   font-weight: 600;
-  color: var(--text-secondary);
-  font-size: 11px;
+  color: #e0e0e0;
+  font-size: 15px;
   text-transform: uppercase;
   letter-spacing: 1px;
   border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
 }
 .tabla-rf-responsable td {
-  padding: 16px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--border-color);
-  color: var(--text-primary);
+  color: #f0f0f0;
   vertical-align: middle;
 }
 .tabla-rf-responsable tbody tr:hover {
@@ -104,9 +104,9 @@
 .prioridad-alta,
 .prioridad-media,
 .prioridad-baja {
-  padding: 5px 12px;
+  padding: 10px 18px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -114,27 +114,27 @@
   align-items: center;
 }
 .prioridad-alta {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.15);
+  color: #ff6b6b;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 .prioridad-media {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: rgba(245, 158, 11, 0.15);
+  color: #ffc107;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 .prioridad-baja {
-  background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
-  border: 1px solid rgba(34, 197, 94, 0.2);
+  background: rgba(34, 197, 94, 0.15);
+  color: #52d869;
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 /* Botones de acción */
 .btn-asignar,
 .btn-ver-detalle {
-  padding: 5px 10px;
+  padding: 10px 18px;
   border-radius: 5px;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
@@ -143,18 +143,18 @@
   gap: 5px;
 }
 .btn-asignar {
-  background: rgba(245, 196, 0, 0.1);
+  background: rgba(245, 196, 0, 0.15);
   border: 1px solid var(--accent-primary);
-  color: var(--accent-primary);
+  color: #ffd700;
 }
 .btn-asignar:hover {
   background: var(--accent-primary);
   color: #000;
 }
 .btn-ver-detalle {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(59, 130, 246, 0.15);
   border: 1px solid #3b82f6;
-  color: #3b82f6;
+  color: #5eb8ff;
 }
 .btn-ver-detalle:hover {
   background: #3b82f6;
@@ -196,9 +196,9 @@
   font-weight: 700;
 }
 .modal-rf-header .modal-title {
-  font-size: 16px;
+  font-size: 24px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #ffffff;
   word-break: break-word;
   overflow-wrap: break-word;
 }
@@ -222,16 +222,16 @@
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
 }
 .hp-label {
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: 1.2px;
-  color: #666;
+  color: #999;
   text-transform: uppercase;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 .hp-val {
-  font-size: 14px;
-  color: #fff;
+  font-size: 19px;
+  color: #ffffff;
   font-weight: 600;
 }
 .text-oro {
@@ -287,14 +287,14 @@
   flex: 1;
 }
 .empleado-nombre {
-  font-size: 15px;
+  font-size: 19px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #e8e8e8;
   margin-bottom: 2px;
 }
 .empleado-rol {
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: 16px;
+  color: #b0b0b0;
 }
 .empleado-workload {
   margin-top: 4px;
@@ -354,37 +354,37 @@
 }
 .badge-type {
   background: rgba(245, 196, 0, 0.15);
-  color: var(--accent-primary);
-  padding: 4px 8px;
+  color: #ffd700;
+  padding: 8px 16px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 .badge-priority {
-  padding: 4px 8px;
+  padding: 8px 16px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 600;
   text-transform: uppercase;
 }
 .prio-alta {
   background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  color: #ff6b6b;
 }
 .prio-media {
   background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
+  color: #ffc107;
 }
 .prio-baja {
   background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  color: #52d869;
 }
 .main-project-title {
-  font-size: 24px;
+  font-size: 32px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #ffffff;
   margin: 0;
   line-height: 1.2;
 }
@@ -397,13 +397,13 @@
   margin-bottom: 10px;
 }
 .label-tiny {
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: #999;
   text-transform: uppercase;
   letter-spacing: 1px;
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 .content-box {
   background: #0d0d0d;
@@ -416,9 +416,9 @@
   min-height: auto;
 }
 .content-box .content-text {
-  color: #ddd;
-  font-size: 16px;
-  line-height: 1.4;
+  color: #e8e8e8;
+  font-size: 14px;
+  line-height: 1.6;
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
@@ -428,11 +428,11 @@
 .brief-container {
   background: #0d0d0d;
   border: 1px solid #1a1a1a;
-  padding: 6px 10px;
+  padding: 12px 16px;
   border-radius: 8px;
-  color: #ddd;
-  font-size: 16px;
-  line-height: 1.4;
+  color: #e8e8e8;
+  font-size: 14px;
+  line-height: 1.6;
   word-wrap: break-word;
   white-space: pre-wrap;
   overflow-wrap: break-word;
@@ -476,25 +476,25 @@
   margin-top: 2px;
 }
 .t-label {
-  font-size: 10px;
-  color: var(--text-muted);
+  font-size: 14px;
+  color: #999;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 .t-value {
-  font-size: 13px;
-  color: var(--text-primary);
+  font-size: 14px;
+  color: #e0e0e0;
   font-weight: 500;
 }
 .tag-outline {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  padding: 4px 8px;
+  color: #d0d0d0;
+  padding: 8px 16px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 500;
 }
 .tag-outline.special {
@@ -519,8 +519,8 @@
   background: rgba(245, 196, 0, 0.05);
 }
 .archivo-adjunto-card i {
-  font-size: 20px;
-  color: var(--text-muted);
+  font-size: 24px;
+  color: #b0b0b0;
   flex-shrink: 0;
 }
 .archivo-info {
@@ -528,22 +528,22 @@
   min-width: 0;
 }
 .archivo-nombre {
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: #e0e0e0;
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .archivo-peso {
-  font-size: 10px;
-  color: var(--text-muted);
+  font-size: 14px;
+  color: #999;
 }
 .archivo-open {
-  font-size: 14px;
-  color: var(--text-muted);
+  font-size: 16px;
+  color: #b0b0b0;
   flex-shrink: 0;
 }
 
@@ -590,9 +590,151 @@
   justify-content: flex-end;
 }
 .text-muted-small {
-  color: #a1a1aa;
-  font-size: 14px;
+  color: #b0b0b0;
+  font-size: 15px;
 }
+
+/* =================================================================
+   MODALES EXPANDIDOS - MEJOR VISUALIZACIÓN
+   ================================================================= */
+
+/* Modal de Asignar - Expandido */
+#modal-asignar .modal-dialog {
+  max-width: 600px !important;
+  width: 82vw !important;
+}
+
+#modal-asignar .modal-body {
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+#modal-asignar .lista-empleados {
+  max-height: 55vh;
+}
+
+#modal-asignar .empleado-item {
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+#modal-asignar .empleado-avatar {
+  width: 56px;
+  height: 56px;
+  font-size: 18px;
+}
+
+#modal-asignar .empleado-nombre {
+  font-size: 20px;
+}
+
+#modal-asignar .empleado-rol {
+  font-size: 16px;
+}
+
+/* Modal de Detalle - MUCHO MÁS GRANDE */
+#modal-ver-detalle .modal-dialog {
+  max-width: 860px !important;
+  width: 90vw !important;
+  margin-top: 2vh !important;
+  margin-bottom: 2vh !important;
+}
+
+#modal-ver-detalle .modal-header {
+  padding: 28px 32px;
+}
+
+#modal-ver-detalle .modal-body {
+  max-height: 80vh;
+  padding: 40px !important;
+}
+
+#modal-ver-detalle .case-card {
+  padding: 36px;
+  margin-bottom: 24px;
+}
+
+#modal-ver-detalle .case-section-title {
+  font-size: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+}
+
+#modal-ver-detalle .main-project-title {
+  font-size: 24px;
+  margin-bottom: 14px;
+}
+
+#modal-ver-detalle .case-label {
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+
+#modal-ver-detalle .case-value {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+#modal-ver-detalle .content-box {
+  padding: 12px 14px;
+}
+
+#modal-ver-detalle .content-box .content-text {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+#modal-ver-detalle .brief-container {
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+}
+
+#modal-ver-detalle .t-label {
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+#modal-ver-detalle .t-value {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+#modal-ver-detalle .tag-outline {
+  font-size: 12px;
+  padding: 6px 14px;
+  margin-bottom: 6px;
+  display: inline-block;
+}
+
+#modal-ver-detalle .archivo-nombre {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+#modal-ver-detalle .archivo-peso {
+  font-size: 12px;
+}
+
+#modal-ver-detalle .case-file-link {
+  font-size: 13px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+}
+
+/* Aumentar tamaño de botones en modales */
+.modal-footer .btn {
+  font-size: 16px;
+  padding: 12px 24px;
+}
+
+.modal-footer .btn-rf {
+  font-size: 16px;
+  padding: 12px 28px;
+}
+
 /* ==========================================================================
    SISTEMA DE DISEÑO: AGENCIA PREMIUM (MODALES)
    ========================================================================== */
@@ -619,31 +761,33 @@
 
 .case-section-title {
   font-family: "Bebas Neue", sans-serif;
-  font-size: 22px;
+  font-size: 17px;
   letter-spacing: 1.5px;
   color: var(--accent-primary);
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   border-bottom: 1px solid rgba(245, 196, 0, 0.15);
-  padding-bottom: 12px;
+  padding-bottom: 10px;
 }
 
 .case-label {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 800;
-  color: rgba(255, 255, 255, 0.4);
+  color: #999;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   display: block;
 }
 
 .case-value {
-  color: #eee;
+  color: #e8e8e8;
   font-size: 14px;
   line-height: 1.6;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .case-value-box {
@@ -655,23 +799,24 @@
 }
 
 .case-sidebar-item {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 3px solid rgba(245, 196, 0, 0.25);
+  transition: all 0.25s ease;
 }
 
 .case-sidebar-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  border-left-color: rgba(245, 196, 0, 0.5);
 }
 
 .case-badge {
-  padding: 7px 14px;
+  padding: 12px 20px;
   border-radius: 10px;
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -687,11 +832,11 @@
   gap: 12px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 12px 18px;
+  padding: 16px 20px;
   border-radius: 14px;
-  color: #ddd;
+  color: #e0e0e0;
   text-decoration: none !important;
-  font-size: 12px;
+  font-size: 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -852,4 +997,435 @@
   background: rgba(34, 197, 94, 0.15);
   color: #22c55e;
   border-color: rgba(34, 197, 94, 0.3);
+}
+
+/* ENCABEZADOS HERO DE SECCIÓN*/
+
+/* Hero principal de la bandeja */
+.bandeja-header-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bandeja-header-hero::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  left: -40px;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(245, 196, 0, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Variante para "Esperando Revisión" */
+.bandeja-revision-header {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.bandeja-revision-header::before {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%);
+}
+
+.bandeja-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Ícono circular con glow */
+.bandeja-icono-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: none;
+  transition: all 0.3s ease;
+}
+
+.bandeja-icono-wrap:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Ícono para sección revisión (púrpura) */
+.bandeja-icono-revision {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  box-shadow: none;
+}
+
+/* Título principal grande */
+.bandeja-titulo-principal {
+  font-family: "Bebas Neue", "Inter", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1.5px;
+  margin: 0 0 2px 0;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+/* Subtítulo descriptivo */
+.bandeja-subtitulo {
+  font-size: 13px;
+  color: #999;
+  margin: 0;
+  line-height: 1.4;
+  font-weight: 400;
+  max-width: 480px;
+}
+
+/* Contador hero (badge grande) */
+.contador-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 16px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  box-shadow: none;
+  transition: all 0.3s ease;
+}
+
+.contador-hero i {
+  font-size: 18px;
+}
+
+.contador-hero .contador-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  opacity: 0.8;
+}
+
+/* GRID DE INFORMACIÓN EN MODAL ASIGNAR (2x2) */
+
+.assign-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.assign-info-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s ease;
+}
+
+.assign-info-item:hover {
+  border-color: rgba(245, 196, 0, 0.2);
+}
+
+.assign-info-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #888;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.assign-info-label i {
+  color: var(--accent-primary);
+  font-size: 12px;
+}
+
+.assign-info-val {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f0f0f0;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* Responsivo: grid 1 columna en pantallas pequeñas */
+@media (max-width: 576px) {
+  .assign-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bandeja-titulo-principal {
+    font-size: 1.5rem;
+  }
+
+  .bandeja-icono-wrap {
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+  }
+
+  .bandeja-subtitulo {
+    font-size: 13px;
+  }
+
+  .contador-hero {
+    padding: 10px 16px;
+    font-size: 18px;
+  }
+}
+
+/* SIDEBAR RESUMEN TÉCNICO — MODAL DETALLE */
+
+/* (ancho controlado en sección principal arriba — 860px) */
+
+/* Contenedor principal del sidebar */
+.sidebar-resumen {
+  background: linear-gradient(160deg, #111111 0%, #0d0d0d 100%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Título del sidebar */
+.sidebar-title {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--accent-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 18px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(245, 196, 0, 0.15);
+}
+
+.sidebar-title i {
+  font-size: 17px;
+}
+
+/* Bloque de campo individual */
+.sidebar-bloque {
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-bloque:last-of-type {
+  border-bottom: none;
+}
+
+/* Label de campo */
+.sidebar-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  color: #777;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidebar-label i {
+  color: var(--accent-primary);
+  font-size: 12px;
+}
+
+/* Fila de persona (cliente/técnico) con avatar */
+.sidebar-persona {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Avatar circular con iniciales */
+.sidebar-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-avatar-blue {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(59, 130, 246, 0.1));
+  border: 1.5px solid rgba(59, 130, 246, 0.4);
+  color: #93c5fd;
+}
+
+.sidebar-avatar-gold {
+  background: linear-gradient(135deg, rgba(245, 196, 0, 0.3), rgba(245, 196, 0, 0.1));
+  border: 1.5px solid rgba(245, 196, 0, 0.4);
+  color: var(--accent-primary);
+}
+
+.sidebar-persona-nombre {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f0f0f0;
+  line-height: 1.3;
+}
+
+.sidebar-persona-area {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+}
+
+/* Empresa */
+.sidebar-empresa {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+/* Chip de categoría */
+.sidebar-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #d0d0d0;
+  width: fit-content;
+}
+
+/* Sin asignar */
+.sidebar-sin-asignar {
+  font-size: 14px;
+  color: #555;
+  display: flex;
+  align-items: center;
+  font-style: italic;
+}
+
+/* Grilla de fechas (2 columnas) */
+.sidebar-fechas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-fecha-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-fecha-limite {
+  border-color: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.sidebar-fecha-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #777;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sidebar-fecha-label i {
+  font-size: 12px;
+  color: var(--accent-primary);
+}
+
+.sidebar-fecha-limite .sidebar-fecha-label i {
+  color: #f87171;
+}
+
+.sidebar-fecha-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e8e8e8;
+  line-height: 1.2;
+}
+
+.sidebar-fecha-val-warn {
+  color: #f87171;
+}
+
+/* Link de referencia rediseñado */
+.case-ref-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(245, 196, 0, 0.08);
+  border: 1px solid rgba(245, 196, 0, 0.25);
+  border-radius: 8px;
+  color: var(--accent-primary);
+  font-size: 13px;
+  text-decoration: none;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  margin-top: 6px;
+}
+
+.case-ref-link:hover {
+  background: rgba(245, 196, 0, 0.15);
+  color: #fff;
+}
+
+/* Responsive sidebar: fechas en 1 columna en pantalla pequeña */
+@media (max-width: 768px) {
+  .sidebar-fechas {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-resumen {
+    margin-top: 16px;
+  }
 }

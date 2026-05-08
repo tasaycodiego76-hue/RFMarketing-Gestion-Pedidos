@@ -181,26 +181,10 @@
                         </div>
                         <div class="field mb-3">
                             <label class="mb-3">PRIORIDAD DEL REQUERIMIENTO</label>
-                            <div class="d-flex align-items-center gap-4 flex-wrap">
-                                <div class="prioridad-opciones">
-                                    <label class="prio-opcion">
-                                        <input type="radio" name="prioridad" value="Baja">
-                                        <span class="prio-badge prio-baja">Baja</span>
-                                    </label>
-                                    <label class="prio-opcion">
-                                        <input type="radio" name="prioridad" value="Media" checked>
-                                        <span class="prio-badge prio-media">Media</span>
-                                    </label>
-                                    <label class="prio-opcion">
-                                        <input type="radio" name="prioridad" value="Alta">
-                                        <span class="prio-badge prio-alta">Alta</span>
-                                    </label>
-                                </div>
-                                <div class="prio-consejo-box">
-                                    <i class="bi bi-info-circle-fill text-warning"></i>
-                                    <p class="m-0">Referencial según criterio del cliente. Sujeto a cambios por el
-                                        administrador.</p>
-                                </div>
+                            <input type="hidden" name="prioridad" value="Media">
+                            <div class="prio-consejo-box">
+                                <i class="bi bi-info-circle-fill text-warning"></i>
+                                <p class="m-0">La prioridad se aplica por defecto como <strong>Media</strong>. Si deseas un cambio especial en la prioridad, comunícate con el administrador.</p>
                             </div>
                         </div>
                         <div class="field mb-3">
@@ -337,7 +321,7 @@
                                 <span class="resumen-numero">1</span>
                                 <span class="resumen-card-titulo">Información Principal</span>
                             </div>
-                            <div class="resumen-card-body">
+                            <div class="resumen-card-body" >
                                 <div class="resumen-fila">
                                     <span class="resumen-label">Servicio</span>
                                     <span class="resumen-valor" id="res-servicio">—</span>
