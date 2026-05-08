@@ -546,11 +546,156 @@
 }
 
 
-.punto-responsable {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #28a745;
-    margin-right: 5px;
+/* ─── MODAL REASIGNAR (Rediseño Premium) ─────────────────── */
+#modal-reasignar .modal-content {
+    border: 1px solid #333;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.7);
 }
+
+#modal-reasignar .modal-header {
+    background: #0a0a0a;
+    border-bottom: 2px solid #F5C400;
+}
+
+#modal-reasignar .modal-title {
+    color: #F5C400 !important;
+    font-weight: 800 !important;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#modal-reasignar .modal-title i {
+    font-size: 1.4rem;
+}
+
+#modal-reasignar .close {
+    color: #fff !important;
+    opacity: 1 !important;
+}
+
+#modal-reasignar .modal-body {
+    background: #111 !important;
+    padding: 25px !important;
+}
+
+.rea-form-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.rea-form-section-line {
+    width: 4px;
+    height: 20px;
+    border-radius: 2px;
+}
+
+.rea-form-section-line.yellow { background: #F5C400; }
+.rea-form-section-line.purple { background: #a78bfa; }
+
+.rea-form-section-title {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 13px;
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 0;
+}
+
+.rea-input-dark {
+    background-color: #050505 !important;
+    border: 1.5px solid #222 !important;
+    color: #fff !important;
+    font-size: 13px !important;
+}
+
+.rea-input-dark:focus {
+    border-color: #F5C400 !important;
+    box-shadow: 0 0 0 3px rgba(245, 196, 0, .15) !important;
+    background-color: #080808 !important;
+}
+
+.rea-info-box {
+    padding: 14px 18px;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    border-left: 4px solid;
+}
+
+.rea-info-box.yellow {
+    background: rgba(245, 196, 0, 0.04);
+    border-color: #F5C400;
+}
+
+.rea-info-box.purple {
+    background: rgba(167, 139, 250, 0.04);
+    border-color: #a78bfa;
+}
+
+.rea-info-text {
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: #888;
+    margin-bottom: 0;
+}
+
+.timeline-container {
+    max-height: 160px;
+    overflow-y: auto;
+    border: 1px solid #1e1e1e;
+    border-radius: 8px;
+    background: #0a0a0a;
+}
+
+.timeline-table {
+    font-size: 11px !important;
+    margin-bottom: 0;
+}
+
+.timeline-table thead tr {
+    background: #000 !important;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.timeline-table th {
+    color: #777 !important;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 10px !important;
+    border: none !important;
+}
+
+.timeline-table td {
+    padding: 10px !important;
+    border-color: #1a1a1a !important;
+    vertical-align: middle !important;
+}
+
+#modal-reasignar .modal-footer {
+    background: #0a0a0a;
+    border-top: 1px solid #1e1e1e;
+    padding: 15px 25px;
+}
+
+#btn-procesar-reasignar {
+    background: #F5C400 !important;
+    border: none !important;
+    color: #000 !important;
+    font-weight: 800 !important;
+    font-size: 12px !important;
+    letter-spacing: 0.5px;
+    padding: 10px 24px !important;
+    transition: all .25s ease;
+}
+
+#btn-procesar-reasignar:hover {
+    background: #d4a900 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 196, 0, 0.2);
+}

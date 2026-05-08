@@ -118,6 +118,30 @@ class AtencionModel extends Model
     }
 
     /**
+     * Cuenta requerimientos por aprobar (pendiente_sin_asignar) agrupados por área para una empresa.
+     * @param int $idEmpresa
+     * @return array
+     */
+    public function contarPorAprobarPorAreaEmpresa(int $idEmpresa): array
+    {
+        $rows = $this->db->table('atencion a')
+            ->select('a.idarea_agencia, COUNT(*) as total')
+            ->join('requerimiento r', 'r.id = a.idrequerimiento')
+            ->join('usuarios u', 'u.id = r.idusuarioempresa')
+            ->join('areas ar', 'ar.id = u.idarea')
+            ->where('a.estado', 'pendiente_sin_asignar')
+            ->where('ar.idempresa', $idEmpresa)
+            ->groupBy('a.idarea_agencia')
+            ->get()->getResultArray();
+
+        $stats = [];
+        foreach ($rows as $row) {
+            $stats[$row['idarea_agencia']] = (int) $row['total'];
+        }
+        return $stats;
+    }
+
+    /**
      * Genera estadísticas agrupadas para el Kanban de una empresa
      * @param int $idEmpresa
      * @return array|array{activos: int, completados: int, en_revision: int, por_aprobar: int|null}

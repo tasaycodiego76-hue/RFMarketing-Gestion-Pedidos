@@ -48,6 +48,7 @@ class kanban extends Controller
         }
 
         $stats = $atencionModel->estadisticasPorEmpresa((int) $idEmpresa);
+        $statsAreas = $atencionModel->contarPorAprobarPorAreaEmpresa((int) $idEmpresa);
 
         return view('admin/kanban', [
             'titulo' => 'Kanban - ' . $empresa['nombreempresa'],
@@ -61,6 +62,7 @@ class kanban extends Controller
             'idAreaAgencia' => $idAreaAgencia,
             'columnas' => $columnas,
             'stats' => $stats,
+            'stats_areas' => $statsAreas,
         ]);
     }
 
@@ -364,8 +366,8 @@ class kanban extends Controller
 
         $db->query("
             INSERT INTO tracking (idatencion, idusuario, accion, estado)
-            VALUES (?, ?, 'Pedido cancelado', 'cancelado')
-        ", [$idAtencion, $idAdmin]);
+            VALUES (?, ?, 'El pedido ha sido cancelado por la Administración. Motivo: ' || ?, 'cancelado')
+        ", [$idAtencion, $idAdmin, $motivo]);
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Solicitud cancelada, El Motivo:' . $motivo . ' Si tienes dudas, contáctanos']);
     }

@@ -554,14 +554,56 @@ async function enviarRetroalimentacion() {
 }
 
 async function cancelarAtencion(id) {
-  const m = prompt("Motivo de cancelación:");
-  if (!m) return;
+  const { value: motivo } = await Swal.fire({
+    title: 'Cancelar Pedido',
+    text: 'Indica el motivo de la cancelación para informar al cliente:',
+    input: 'textarea',
+    inputPlaceholder: 'Escribe el motivo aquí...',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#333',
+    confirmButtonText: 'Sí, cancelar pedido',
+    cancelButtonText: 'Cerrar',
+    background: '#0a0a0a',
+    color: '#fff',
+    inputAttributes: {
+      'aria-label': 'Escribe el motivo aquí'
+    },
+    preConfirm: (value) => {
+      if (!value) {
+        Swal.showValidationMessage('Debes ingresar un motivo');
+      }
+      return value;
+    }
+  });
+
+  if (!motivo) return;
+
+  Swal.fire({
+    title: 'Cancelando...',
+    text: 'Por favor espera.',
+    allowOutsideClick: false,
+    didOpen: () => { Swal.showLoading(); }
+  });
+
   const data = await _post("admin/kanban/cancelar", {
     idatencion: id,
-    motivo: m,
+    motivo: motivo,
   });
-  if (data.status === "success") location.reload();
-  else alert(data.msg);
+
+  if (data.status === "success") {
+    localStorage.setItem('kanban_msg', 'Pedido cancelado correctamente');
+    location.reload();
+  } else {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: data.msg,
+      background: '#0a0a0a',
+      color: '#fff'
+    });
+  }
 }
 
 // ═══════════════════════════════════════

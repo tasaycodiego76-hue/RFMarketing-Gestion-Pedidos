@@ -48,10 +48,15 @@
 
 <!-- ═══ TABS ÁREAS AGENCIA ═══ -->
 <div class="kb-areas">
-    <?php foreach ($areasAgencia as $a): ?>
-        <a href="<?= site_url('admin/kanban/' . $idEmpresa . '/' . $a['id']) ?>"
-            class="kb-area-tab <?= $a['id'] == $areaActual['id'] ? 'activo' : '' ?>">
-            <?= esc($a['nombre']) ?>
+    <?php foreach ($areasAgencia as $area): ?>
+        <?php $countNuevasArea = $stats_areas[$area['id']] ?? 0; ?>
+        <a href="<?= site_url('admin/kanban/' . $idEmpresa . '/' . $area['id']) ?>"
+            class="kb-area-tab <?= $idAreaAgencia == $area['id'] ? 'activo' : '' ?>"
+            style="position: relative;">
+            <?= esc($area['nombre']) ?>
+            <?php if ($countNuevasArea > 0): ?>
+                <span class="area-badge-notif"><?= $countNuevasArea ?></span>
+            <?php endif ?>
         </a>
     <?php endforeach ?>
 </div>
@@ -161,9 +166,14 @@
 
                             <div class="kb-card-actions">
                                 <?php if ($estado === 'pendiente_sin_asignar'): ?>
-                                    <button class="kb-btn kb-btn-primary" onclick="verDetalle(<?= $p['id'] ?>)">
-                                        <i class="bi bi-search"></i> REVISAR
-                                    </button>
+                                    <div class="kb-action-group">
+                                        <button class="kb-btn kb-btn-primary" onclick="verDetalle(<?= $p['id'] ?>)" style="flex-grow: 1;">
+                                            <i class="bi bi-search"></i> REVISAR
+                                        </button>
+                                        <button class="kb-btn kb-btn-danger" onclick="cancelarAtencion(<?= $p['id'] ?>)" title="Cancelar Requerimiento">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
                                 <?php elseif ($estado === 'en_proceso'): ?>
                                     <button class="kb-btn kb-btn-secondary" onclick="verDetalle(<?= $p['id'] ?>)">
                                         <i class="bi bi-info-circle"></i> DETALLES

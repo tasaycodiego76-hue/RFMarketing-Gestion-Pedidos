@@ -54,7 +54,7 @@
                     </div>
                     <div class="form-group">
                         <label>Teléfono</label>
-                        <input type="text" class="form-control" id="telefono" maxlength="20">
+                        <input type="text" class="form-control" id="telefono" maxlength="9" minlength="9" placeholder="9 dígitos">
                     </div>
                 </form>
             </div>

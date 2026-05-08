@@ -201,25 +201,36 @@ document.addEventListener('DOMContentLoaded', function () {
             tipodoc.innerHTML = '<option value="RUC">RUC</option>';
         }
 
-        actualizarDoc(tipodoc.value);
+        actualizarValidacionDoc(tipodoc.value, '#numerodoc');
     }
 
-    function actualizarDoc(tipo) {
-        const nd = document.querySelector('#numerodoc');
+    function actualizarValidacionDoc(tipo, inputSelector) {
+        const nd = document.querySelector(inputSelector);
+        if (!nd) return;
+        
         const limites = {
             DNI: { max: '8', min: '8', ph: '8 dígitos' },
             RUC: { max: '11', min: '11', ph: '11 dígitos' },
             CE: { max: '12', min: '9', ph: '9-12 caracteres' }
         };
+        
         const l = limites[tipo];
         if (!l) return;
+        
         nd.setAttribute('maxlength', l.max);
         nd.setAttribute('minlength', l.min);
         nd.placeholder = l.ph;
     }
 
-    document.querySelector('#tipodoc').addEventListener('change', () =>
-        actualizarDoc(document.querySelector('#tipodoc').value));
+    // Listener para modal principal
+    document.querySelector('#tipodoc').addEventListener('change', function() {
+        actualizarValidacionDoc(this.value, '#numerodoc');
+    });
+
+    // Listener para modal reasignar
+    document.querySelector('#rea-tipodoc').addEventListener('change', function() {
+        actualizarValidacionDoc(this.value, '#rea-numerodoc');
+    });
 
     // Función para mostrar un mensaje informativo sobre el estado del área
     async function verificarEstadoArea(idArea, excludeId = null) {
@@ -386,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelector('#tipodoc').value = u.tipodoc ?? '';
             document.querySelector('#numerodoc').value = u.numerodoc ?? '';
             document.querySelector('#usuario').value = u.usuario ?? '';
-            actualizarDoc(u.tipodoc);
+            actualizarValidacionDoc(u.tipodoc, '#numerodoc');
         }, 50);
 
         $('#modal-usuario').modal('show');
@@ -460,6 +471,9 @@ document.addEventListener('DOMContentLoaded', function () {
             formEmpleado.style.display = 'none';
             historialDiv.style.display = 'none';
             btnProcesar.dataset.tipo = data.tipo;
+
+            // Inicializar validación de documento para el modal de reasignar
+            actualizarValidacionDoc(document.querySelector('#rea-tipodoc').value, '#rea-numerodoc');
 
             const formatFecha = (f) => f ? new Date(f).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
 
