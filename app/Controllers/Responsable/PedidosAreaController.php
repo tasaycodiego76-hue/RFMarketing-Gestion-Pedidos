@@ -8,6 +8,7 @@ use App\Models\TrackingModel;
 use App\Models\RequerimientoModel;
 use App\Models\ArchivoModel;
 use App\Models\ServicioModel;
+use App\Models\EmpresaModel;
 
 class PedidosAreaController extends BaseResponsableController
 {
@@ -69,6 +70,10 @@ class PedidosAreaController extends BaseResponsableController
         $totalActivo = $metrics['en_proceso'] + $metrics['pendientes_asignar'];
         $totalGeneral = max(1, $totalActivo + $metrics['enRevision'] + $metrics['completados']);
 
+        // Datos adicionales para los filtros del reporte
+        $empresaModel = new EmpresaModel();
+        $servicioModel = new ServicioModel();
+
         $data = array_merge([
             'titulo' => 'Panel de Control - Gestión de Pedidos',
             'tituloPagina' => 'Resumen Operativo',
@@ -79,6 +84,9 @@ class PedidosAreaController extends BaseResponsableController
             'prioridadBaja' => $prioridadBaja,
             'totalActivo' => $totalActivo,
             'totalGeneral' => $totalGeneral,
+            'empresas' => $empresaModel->where('estado', true)->findAll(),
+            'servicios' => $servicioModel->where('activo', true)->findAll(),
+            'empleados' => $empleados,
         ], $metrics);
 
         return view('Responsable/dashboard', $data);

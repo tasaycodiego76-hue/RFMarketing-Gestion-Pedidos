@@ -66,17 +66,22 @@ class BaseResponsableController extends BaseController
         $atencionModel = new AtencionModel();
         $usuarioModel = new UsuarioModel();
 
-        $pendientes = count($atencionModel->obtenerBandejaResponsable($idAreaAgencia));
-        $enProceso = $atencionModel->where('idarea_agencia', $idAreaAgencia)
+        // Pedidos SIN delegación (en bandeja de entrada del responsable)
+        $pendientesSinDelegar = count($atencionModel->obtenerBandejaResponsable($idAreaAgencia));
+        
+        // Pedidos DELEGADOS (ya están en manos del responsable/técnico)
+        // Solo contar los que han sido asignados a un técnico y están pendientes o en proceso
+        $pendientesDelegados = $atencionModel->where('idarea_agencia', $idAreaAgencia)
             ->whereIn('estado', ['en_proceso', 'pendiente_asignado'])
             ->where('idempleado >', 0)
             ->countAllResults();
 
         return [
-            'pendientes_asignar' => $pendientes,
-            'porAsignar' => $pendientes, // Alias para el Dashboard
-            'en_proceso' => $enProceso,
-            'enProceso' => $enProceso,  // Alias para el Dashboard
+            'pendientes_asignar' => $pendientesSinDelegar,
+            'porAsignar' => $pendientesSinDelegar, // Alias para el Dashboard
+            'pendientes' => $pendientesDelegados,  // Cambio CRÍTICO: Ahora muestra solo delegados
+            'en_proceso' => $pendientesDelegados,
+            'enProceso' => $pendientesDelegados,  // Alias para el Dashboard
             'enRevision' => $atencionModel->where('idarea_agencia', $idAreaAgencia)->where('estado', 'en_revision')->countAllResults(),
             'completados' => $atencionModel->where('idarea_agencia', $idAreaAgencia)->where('estado', 'finalizado')->countAllResults(),
             'totalMiembros' => count($usuarioModel->obtenerAsignablesPorAreaAgencia($idAreaAgencia)),

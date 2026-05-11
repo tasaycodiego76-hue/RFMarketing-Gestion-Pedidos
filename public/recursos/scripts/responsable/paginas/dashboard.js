@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
         data: {
           labels: distribucion.map(
             (e) =>
-              `${e.nombre_completo} (${Math.round((e.cantidad_tareas / totalCarga) * 100)}%)`,
+              `${e.nombre_completo} (${totalCarga > 0 ? Math.round((e.cantidad_tareas / totalCarga) * 100) : 0}%)`,
           ),
           datasets: [
             {
@@ -137,15 +137,25 @@ document.addEventListener("DOMContentLoaded", function () {
         ],
       });
 
-      // GRÁFICO C: Tendencia semanal
+      // GRÁFICO C: Tendencia semanal (Semana Actual)
+      const diasSemanaStr = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+      const tendenciaFinal = [0, 0, 0, 0, 0];
+      
+      tendencia.forEach(d => {
+        const numDia = parseInt(d.numero_dia);
+        if (numDia >= 1 && numDia <= 5) {
+          tendenciaFinal[numDia - 1] = parseInt(d.total_finalizados);
+        }
+      });
+
       const GraficoC = new Chart(graficoTendencia, {
         type: "line",
         data: {
-          labels: tendencia.map((d) => d.dia_semana),
+          labels: diasSemanaStr,
           datasets: [
             {
               label: "Tareas Finalizadas",
-              data: tendencia.map((d) => d.total_finalizados),
+              data: tendenciaFinal,
               borderColor: "rgba(104,109,224,1)",
               backgroundColor: "rgba(104,109,224,0.1)",
               tension: 0.4,

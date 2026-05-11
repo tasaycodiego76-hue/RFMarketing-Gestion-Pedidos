@@ -102,6 +102,9 @@ $routes->group('responsable', ['filter' => 'auth'], function ($routes) {
     // RECURSOS
     $routes->get('archivos/vista-previa/(:num)', 'Responsable\PedidosAreaController::vistaPrevia/$1');
     $routes->get('servicios/listar', 'Responsable\PedidosAreaController::listarServicios');
+
+    // REPORTES PDF
+    $routes->get('reporte-gestion', 'Responsable\ReporteController::generarReporte');
 });
 
 // Rutas para el Empleado
