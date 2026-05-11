@@ -84,6 +84,11 @@
                 class="nav-enlace <?= ($paginaActual == 'historial') ? 'activo' : '' ?>">
                 <i class="bi bi-clock-history"></i> Historial
             </a>
+
+            <a href="<?= site_url('admin/reportes') ?>"
+                class="nav-enlace <?= ($paginaActual == 'reportes') ? 'activo' : '' ?>">
+                <i class="bi bi-graph-up"></i> Reportes
+            </a>
         </nav>
 
         <div class="sidebar-usuario">

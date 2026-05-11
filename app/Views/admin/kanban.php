@@ -38,10 +38,10 @@
         </div>
     </div>
     <div class="kb-head-stats">
-        <div class="kb-stat"><span class="st-morado"><?= $stats['por_aprobar'] ?? 0 ?></span><small>REVISAR</small>
+        <div class="kb-stat"><span class="st-amarillo"><?= $stats['por_aprobar'] ?? 0 ?></span><small>SOLICITUDES</small>
         </div>
-        <div class="kb-stat"><span class="st-amarillo"><?= $stats['activos'] ?? 0 ?></span><small>ACTIVOS</small></div>
-        <div class="kb-stat"><span class="st-naranja"><?= $stats['en_revision'] ?? 0 ?></span><small>EN REVISIÓN</small>
+        <div class="kb-stat"><span class="st-morado"><?= $stats['activos'] ?? 0 ?></span><small>PROCESO</small></div>
+        <div class="kb-stat"><span class="st-naranja"><?= $stats['en_revision'] ?? 0 ?></span><small>REVISIÓN</small>
         </div>
         <div class="kb-stat"><span class="st-verde"><?= $stats['completados'] ?? 0 ?></span><small>COMPLETADOS</small>
         </div>
@@ -50,7 +50,7 @@
     <!-- ═══ WIDGET DE SATURACIÓN  ═══ -->
     <div class="kb-saturation-widget">
         <div
-            style="font-size: 9px; color: #444; font-weight: 800; text-align: right; line-height: 1.2; letter-spacing: 0.5px;">
+            style="font-size: 9px; color: #fff; font-weight: 800; text-align: right; line-height: 1.2; letter-spacing: 0.5px;">
             CARGA DE<br>TRABAJO
         </div>
         <div class="kb-saturation-item">
@@ -59,7 +59,7 @@
             $clHoy = ($valHoy >= 40) ? 'sat-high' : (($valHoy >= 30) ? 'sat-mid' : 'sat-low');
             ?>
             <span class="kb-saturation-val <?= $clHoy ?>"><?= $valHoy ?></span>
-            <span class="kb-saturation-label">HOY</span>
+            <span class="kb-saturation-label" style="color:#fff;">HOY</span>
         </div>
         <div style="width:1px; height:25px; background:#1a1a1a;"></div>
         <div class="kb-saturation-item">
@@ -68,31 +68,53 @@
             $clMan = ($valMan >= 40) ? 'sat-high' : (($valMan >= 30) ? 'sat-mid' : 'sat-low');
             ?>
             <span class="kb-saturation-val <?= $clMan ?>"><?= $valMan ?></span>
-            <span class="kb-saturation-label">MAÑANA</span>
+            <span class="kb-saturation-label" style="color:#fff;">MAÑANA</span>
         </div>
     </div>
 
     <!-- ═══ FILTROS RÁPIDOS  ═══ -->
     <div class="kb-quick-filters"
         style="display:flex; align-items:center; gap:8px; margin-left: 25px; border-left: 1px solid #1a1a1a; padding-left: 20px;">
-        <button onclick="filterKanban('all')" class="kb-filter-btn active" id="btn-filter-all">TODO</button>
+        <button onclick="filterKanban('all')" class="kb-filter-btn active" id="btn-filter-all" >TODO</button>
         <button onclick="filterKanban('hoy')" class="kb-filter-btn" id="btn-filter-hoy">HOY</button>
         <button onclick="filterKanban('manana')" class="kb-filter-btn" id="btn-filter-manana">MAÑANA</button>
+
     </div>
 </div>
 
-<!-- ═══ LEYENDA DE COLORES  ═══ -->
-<div class="kb-legend"
-    style="display:flex; gap:20px; margin-bottom:20px; padding: 0 10px; font-size:10px; font-weight:800; color:#555; text-transform:uppercase; letter-spacing:0.5px;">
-    <span style="display:flex; align-items:center; gap:6px;"><span
-            style="width:10px; height:10px; border-radius:3px; background:#ff4d4d; box-shadow: 0 0 5px rgba(255,77,77,0.4);"></span>
-        VENCE HOY</span>
-    <span style="display:flex; align-items:center; gap:6px;"><span
-            style="width:10px; height:10px; border-radius:3px; background:#ffcc00; box-shadow: 0 0 5px rgba(255,204,0,0.4);"></span>
-        VENCE MAÑANA</span>
-    <span style="display:flex; align-items:center; gap:6px;"><span
-            style="width:10px; height:10px; border-radius:3px; background:#10b981; box-shadow: 0 0 5px rgba(16,185,129,0.4);"></span>
-        EN TIEMPO</span>
+<!-- ═══ LEYENDA + ALERTA ATRASADOS ═══ -->
+<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:18px; padding:10px 14px; background:#0a0a0a; border:1px solid #151515; border-radius:12px;">
+    
+    <!-- Leyenda de colores -->
+    <div style="display:flex; align-items:center; gap:22px;">
+        <span style="display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#ff4d4d; letter-spacing:0.3px;">
+            <span style="width:12px; height:12px; border-radius:4px; background:#ff4d4d; box-shadow:0 0 6px rgba(255,77,77,0.35);"></span>
+            Atrasado
+        </span>
+        <span style="display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#f97316; letter-spacing:0.3px;">
+            <span style="width:12px; height:12px; border-radius:4px; background:#f97316; box-shadow:0 0 6px rgba(249,115,22,0.35);"></span>
+            Vence Hoy
+        </span>
+        <span style="display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#ffcc00; letter-spacing:0.3px;">
+            <span style="width:12px; height:12px; border-radius:4px; background:#ffcc00; box-shadow:0 0 6px rgba(255,204,0,0.35);"></span>
+            Vence Mañana
+        </span>
+        <span style="display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#10b981; letter-spacing:0.3px;">
+            <span style="width:12px; height:12px; border-radius:4px; background:#10b981; box-shadow:0 0 6px rgba(16,185,129,0.35);"></span>
+            En Tiempo
+        </span>
+    </div>
+
+    <!-- Botón Atrasados -->
+    <?php if (!empty($atrasados)): ?>
+    <button onclick="document.getElementById('modalAtrasados').style.display='flex'"
+        style="display:flex; align-items:center; gap:8px; background:rgba(255,77,77,0.1); border:1px solid rgba(255,77,77,0.35); color:#ff4d4d; padding:7px 16px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer; letter-spacing:0.4px; transition:all 0.25s;"
+        onmouseover="this.style.background='rgba(255,77,77,0.22)'; this.style.borderColor='#ff4d4d';"
+        onmouseout="this.style.background='rgba(255,77,77,0.1)'; this.style.borderColor='rgba(255,77,77,0.35)';">
+        <i class="bi bi-exclamation-triangle-fill" style="font-size:13px;"></i>
+        VER ATRASADOS (<?= count($atrasados) ?>)
+    </button>
+    <?php endif ?>
 </div>
 
 <!-- ═══ TABS ÁREAS AGENCIA ═══ -->
@@ -112,10 +134,36 @@
 <!-- ═══ TABLERO KANBAN ═══ -->
 <div class="kb-board">
     <?php foreach ($columnas as $estado => $col): ?>
+        <?php
+        // --- PROCESAMIENTO DE ITEMS POR COLUMNA ---
+        if ($estado === 'finalizado') {
+            // Ordenar por fecha de finalización (más reciente primero)
+            usort($col['items'], function ($a, $b) {
+                $tA = strtotime($a['fechacompletado'] ?? $a['fechacreacion']);
+                $tB = strtotime($b['fechacompletado'] ?? $b['fechacreacion']);
+                return $tB <=> $tA;
+            });
+            // Limitamos estrictamente a los últimos 5 para evitar acumulación
+            $col['items'] = array_slice($col['items'], 0, 5);
+        } else {
+            // Orden por PRIORIDAD DEL ADMIN (Alta > Media > Baja), luego por fecha de creación (más antiguo primero)
+            usort($col['items'], function ($a, $b) {
+                $prios = ['Alta' => 1, 'Media' => 2, 'Baja' => 3];
+                $vA = $prios[$a['prioridad_admin'] ?? ($a['prioridad'] ?? 'Media')] ?? 2;
+                $vB = $prios[$b['prioridad_admin'] ?? ($b['prioridad'] ?? 'Media')] ?? 2;
+                if ($vA !== $vB) return $vA <=> $vB;
+                // Si misma prioridad, el más antiguo va primero
+                $tA = strtotime($a['fechacreacion'] ?? '2099-01-01');
+                $tB = strtotime($b['fechacreacion'] ?? '2099-01-01');
+                return $tA <=> $tB;
+            });
+        }
+        $countItems = count($col['items']);
+        ?>
         <div class="kb-col" data-estado="<?= $estado ?>">
             <div class="kb-col-head">
                 <span class="kb-col-title"><?= $col['label'] ?></span>
-                <span class="kb-col-count"><?= count($col['items']) ?></span>
+                <span class="kb-col-count"><?= $countItems ?></span>
             </div>
 
             <div class="kb-col-body" data-estado="<?= $estado ?>">
@@ -125,24 +173,6 @@
                         <span>No hay requerimientos en esta etapa</span>
                     </div>
                 <?php else: ?>
-                    <?php
-                    usort($col['items'], function ($a, $b) {
-                        // 1. Priorizar por Fecha de Entrega (Urgencia)
-                        $tA = !empty($a['fecharequerida']) ? strtotime(date('Y-m-d', strtotime($a['fecharequerida']))) : 9999999999;
-                        $tB = !empty($b['fecharequerida']) ? strtotime(date('Y-m-d', strtotime($b['fecharequerida']))) : 9999999999;
-
-                        if ($tA !== $tB) {
-                            return $tA <=> $tB;
-                        }
-
-                        // 2. Si la fecha es igual, priorizar por Prioridad manual (Alta > Media > Baja)
-                        $prios = ['Alta' => 1, 'Media' => 2, 'Baja' => 3];
-                        $vA = $prios[$a['prioridad_admin'] ?? ($a['prioridad'] ?? 'Media')] ?? 2;
-                        $vB = $prios[$b['prioridad_admin'] ?? ($b['prioridad'] ?? 'Media')] ?? 2;
-
-                        return $vA <=> $vB;
-                    });
-                    ?>
                     <?php foreach ($col['items'] as $p): ?>
                         <?php
                         // Cálculo de SLA para Filtros y Colores
@@ -158,7 +188,7 @@
                                 $slaType = 'hoy';
                                 $slaText = ' • ATRASADO';
                             } elseif ($diff_dias == 0) {
-                                $slaCls = 'sla-critico';
+                                $slaCls = 'sla-urgente';
                                 $slaType = 'hoy';
                                 $slaText = ' • HOY';
                             } elseif ($diff_dias == 1) {
@@ -181,8 +211,7 @@
                                     style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px; margin-left: 10px;">
                                     <div class="kb-card-id">#<?= $p['id'] ?></div>
                                     <?php if (!empty($p['fecharequerida'])): ?>
-                                        <div class="sla-badge <?= $slaCls ?>"
-                                            style="font-size: 8px; padding: 2px 6px; border-radius: 4px; border: 1px solid currentColor; font-weight: 900; text-transform: uppercase; white-space: nowrap;">
+                                        <div class="sla-badge <?= $slaCls ?>">
                                             <?= date('d/m', strtotime($p['fecharequerida'])) ?>                 <?= $slaText ?>
                                         </div>
                                     <?php endif ?>
@@ -240,7 +269,7 @@
                                                 </span>
                                             </div>
                                         </div>
-                                    <?php else: ?>
+                                    <?php elseif ($estado !== 'pendiente_sin_asignar'): ?>
                                         <div class="kb-card-user">
                                             <div class="kb-user-avatar-wrapper sin-asignar">
                                                 <span class="kb-user-avatar"><i class="bi bi-person-dash"></i></span>
@@ -292,6 +321,17 @@
                             </div>
                         </div>
                     <?php endforeach ?>
+
+                    <?php if ($estado === 'finalizado'): ?>
+                        <div style="padding: 15px; text-align: center;">
+                            <a href="<?= site_url('admin/historial') ?>" 
+                               style="display: block; padding: 12px; border: 1px dashed #333; border-radius: 12px; color: #F5C400; font-family: 'Bebas Neue'; font-size: 16px; text-decoration: none; transition: all 0.3s; letter-spacing: 1px;"
+                               onmouseover="this.style.borderColor='#F5C400'; this.style.background='rgba(245,196,0,0.05)';"
+                               onmouseout="this.style.borderColor='#333'; this.style.background='transparent';">
+                                <i class="bi bi-clock-history"></i> VER HISTORIAL COMPLETO
+                            </a>
+                        </div>
+                    <?php endif ?>
                 <?php endif ?>
             </div>
         </div>
@@ -508,5 +548,88 @@
         });
     }
 </script>
+
+<!-- ═══ MODAL: PEDIDOS ATRASADOS ═══ -->
+<?php if (!empty($atrasados)): ?>
+<div id="modalAtrasados" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#0d0d0d; border:1px solid #1a1a1a; border-radius:20px; width:100%; max-width:800px; max-height:85vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 30px 60px rgba(0,0,0,0.6);">
+        
+        <!-- Header -->
+        <div style="padding:25px 30px; border-bottom:1px solid #1a1a1a; display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:14px;">
+                <div style="width:44px; height:44px; border-radius:12px; background:rgba(255,77,77,0.12); display:flex; align-items:center; justify-content:center;">
+                    <i class="bi bi-exclamation-triangle-fill" style="color:#ff4d4d; font-size:22px;"></i>
+                </div>
+                <div>
+                    <div style="font-family:'Bebas Neue'; font-size:26px; color:#fff; letter-spacing:1px;">PEDIDOS ATRASADOS</div>
+                    <div style="font-size:12px; color:#666;"><?= esc($empresa['nombreempresa']) ?> — <?= count($atrasados) ?> pedido<?= count($atrasados) > 1 ? 's' : '' ?> vencido<?= count($atrasados) > 1 ? 's' : '' ?></div>
+                </div>
+            </div>
+            <button onclick="document.getElementById('modalAtrasados').style.display='none'" 
+                style="background:none; border:none; color:#555; font-size:28px; cursor:pointer; transition:color 0.2s;"
+                onmouseover="this.style.color='#ff4d4d'" onmouseout="this.style.color='#555'">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:20px 30px; overflow-y:auto; flex:1;">
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr style="border-bottom:2px solid #1a1a1a;">
+                        <th style="padding:10px 8px; text-align:left; font-size:11px; color:#555; font-weight:800; letter-spacing:1px;">ID</th>
+                        <th style="padding:10px 8px; text-align:left; font-size:11px; color:#555; font-weight:800; letter-spacing:1px;">PEDIDO</th>
+                        <th style="padding:10px 8px; text-align:left; font-size:11px; color:#555; font-weight:800; letter-spacing:1px;">ÁREA</th>
+                        <th style="padding:10px 8px; text-align:center; font-size:11px; color:#555; font-weight:800; letter-spacing:1px;">PRIORIDAD</th>
+                        <th style="padding:10px 8px; text-align:center; font-size:11px; color:#555; font-weight:800; letter-spacing:1px;">FECHA LÍMITE</th>
+                        <th style="padding:10px 8px; text-align:center; font-size:11px; color:#555; font-weight:800; letter-spacing:1px;">ATRASO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($atrasados as $at): ?>
+                    <?php 
+                        $diasAtraso = (int)((strtotime(date('Y-m-d')) - strtotime(date('Y-m-d', strtotime($at['fecharequerida'])))) / 86400);
+                        $prioColor = match($at['prioridad']) {
+                            'Alta' => '#ff4d4d',
+                            'Media' => '#f97316',
+                            'Baja' => '#10b981',
+                            default => '#666'
+                        };
+                    ?>
+                    <tr style="border-bottom:1px solid #111; transition:background 0.2s;" onmouseover="this.style.background='#111'" onmouseout="this.style.background='transparent'">
+                        <td style="padding:14px 8px; color:#555; font-weight:700; font-size:13px;">#<?= $at['id'] ?></td>
+                        <td style="padding:14px 8px;">
+                            <div style="color:#fff; font-weight:700; font-size:14px; margin-bottom:2px;"><?= esc($at['titulo']) ?></div>
+                            <div style="color:#444; font-size:11px;"><?= str_replace('_', ' ', ucfirst($at['estado'])) ?></div>
+                        </td>
+                        <td style="padding:14px 8px; color:#888; font-size:12px; font-weight:600;"><?= esc($at['nombre_area'] ?? '—') ?></td>
+                        <td style="padding:14px 8px; text-align:center;">
+                            <span style="background:<?= $prioColor ?>22; color:<?= $prioColor ?>; padding:3px 10px; border-radius:6px; font-size:11px; font-weight:800;"><?= $at['prioridad'] ?></span>
+                        </td>
+                        <td style="padding:14px 8px; text-align:center; color:#ff4d4d; font-weight:700; font-size:13px;">
+                            <?= date('d/m/Y', strtotime($at['fecharequerida'])) ?>
+                        </td>
+                        <td style="padding:14px 8px; text-align:center;">
+                            <span style="background:rgba(255,77,77,0.12); color:#ff4d4d; padding:4px 12px; border-radius:8px; font-weight:900; font-size:13px;">
+                                <?= $diasAtraso ?> día<?= $diasAtraso > 1 ? 's' : '' ?>
+                            </span>
+                        </td>
+                    </tr>
+                    <?php endforeach ?>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div style="padding:20px 30px; border-top:1px solid #1a1a1a; text-align:center;">
+            <button onclick="document.getElementById('modalAtrasados').style.display='none'"
+                style="background:#111; border:1px solid #222; font-family:'Bebas Neue'; font-size:18px; letter-spacing:2px; padding:12px 50px; border-radius:12px; color:#ff4d4d; cursor:pointer; transition:all 0.3s;"
+                onmouseover="this.style.background='#ff4d4d'; this.style.color='#000';" onmouseout="this.style.background='#111'; this.style.color='#ff4d4d';">
+                CERRAR
+            </button>
+        </div>
+    </div>
+</div>
+<?php endif ?>
 
 <?= $this->endSection() ?>

@@ -9,7 +9,26 @@ class UsuariosSeeder extends Seeder
     public function run()
     {
         $this->db->query("TRUNCATE TABLE usuarios RESTART IDENTITY CASCADE");
+
+        // Buscar IDs reales de áreas para los clientes
+        $areaUAI = $this->db->table('areas')
+            ->select('areas.id')
+            ->where('areas.nombre', 'BIBLIOTECA')
+            ->join('empresas', 'empresas.id = areas.idempresa')
+            ->where('empresas.nombreempresa', 'UNIVERSIDAD AUTÓNOMA DE ICA')
+            ->get()->getRow();
+        $idAreaUAI = $areaUAI ? $areaUAI->id : 1;
+
+        $areaByron = $this->db->table('areas')
+            ->select('areas.id')
+            ->where('areas.nombre', 'ATENCIÓN AL CLIENTE')
+            ->join('empresas', 'empresas.id = areas.idempresa')
+            ->where('empresas.nombreempresa', 'COLEGIO ADA BYRON')
+            ->get()->getRow();
+        $idAreaByron = $areaByron ? $areaByron->id : 2;
+
         $data = [
+            // ID 1: ADMIN
             [
                 'nombre' => 'ADMIN',
                 'apellidos' => 'SUPER ADMIN',
@@ -25,6 +44,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
+            // ID 2: RODRIGO (Fotografía, responsable)
             [
                 'nombre' => 'RODRIGO ALEXANDER',
                 'apellidos' => 'FELIX HUAMAN',
@@ -40,6 +60,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => true,
                 'estado' => true,
             ],
+            // ID 3: NOEMI (Creación de Contenido, responsable)
             [
                 'nombre' => 'NOEMI',
                 'apellidos' => 'TORRES TINEDO',
@@ -55,6 +76,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => true,
                 'estado' => true,
             ],
+            // ID 4: MARIA (Creación de Contenido)
             [
                 'nombre' => 'MARIA',
                 'apellidos' => 'PIA CASTILLA',
@@ -70,6 +92,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
+            // ID 5: JHENINFER (Creación de Contenido)
             [
                 'nombre' => 'JHENINFER MIRELLI',
                 'apellidos' => 'CCOICCA ALVAREZ',
@@ -85,6 +108,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
+            // ID 6: NICOL (Creación de Contenido)
             [
                 'nombre' => 'NICOL MICHELLE',
                 'apellidos' => 'GUERRERO TORREALBA',
@@ -100,6 +124,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
+            // ID 7: SONIA (Edición y Postproducción)
             [
                 'nombre' => 'SONIA ALEJANDRA',
                 'apellidos' => 'TELLO ROJAS',
@@ -115,6 +140,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
+            // ID 8: JOSE (Edición y Postproducción)
             [
                 'nombre' => 'JOSE',
                 'apellidos' => 'GUERRA CHACÓN',
@@ -130,6 +156,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
+            // ID 9: JONATHAN (Edición y Postproducción, responsable)
             [
                 'nombre' => 'JONATHAN',
                 'apellidos' => 'MEDINA CAMPOS',
@@ -145,6 +172,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => true,
                 'estado' => true,
             ],
+            // ID 10: FABRIZIO (Diseño Gráfico)
             [
                 'nombre' => 'FABRIZIO',
                 'apellidos' => 'RAMOS TIPISMANA',
@@ -160,6 +188,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
+            // ID 11: NAYRU (Diseño Gráfico)
             [
                 'nombre' => 'NAYRU',
                 'apellidos' => 'GOMEZ MAGALLANES',
@@ -175,6 +204,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
+            // ID 12: JESUS (Diseño Gráfico, responsable)
             [
                 'nombre' => 'JESUS',
                 'apellidos' => 'DE LA CRUZ GARCÍA',
@@ -190,6 +220,8 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => true,
                 'estado' => true,
             ],
+            // === CLIENTES (representantes de empresa) ===
+            // ID 13: ANA (cliente de UNIVERSIDAD AUTÓNOMA DE ICA)
             [
                 'nombre' => 'ANA',
                 'apellidos' => 'FLORES QUISPE',
@@ -201,10 +233,11 @@ class UsuariosSeeder extends Seeder
                 'clave' => password_hash('rf_62345678', PASSWORD_DEFAULT),
                 'rol' => 'cliente',
                 'idarea_agencia' => null,
-                'idarea' => 4,
+                'idarea' => $idAreaUAI,
                 'esresponsable' => false,
                 'estado' => true,
             ],
+            // ID 14: LUIS (cliente de COLEGIO ADA BYRON)
             [
                 'nombre' => 'LUIS',
                 'apellidos' => 'MENDOZA RIVAS',
@@ -216,7 +249,7 @@ class UsuariosSeeder extends Seeder
                 'clave' => password_hash('rf_63456789', PASSWORD_DEFAULT),
                 'rol' => 'cliente',
                 'idarea_agencia' => null,
-                'idarea' => 52,
+                'idarea' => $idAreaByron,
                 'esresponsable' => false,
                 'estado' => true,
             ],

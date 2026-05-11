@@ -51,6 +51,24 @@ class kanban extends Controller
         $statsAreas = $atencionModel->contarPorAprobarPorAreaEmpresa((int) $idEmpresa);
         $cargaDiaria = $atencionModel->obtenerCargaPorFecha((int) $idAreaAgencia);
 
+        // Pedidos atrasados de TODA la empresa (todas las áreas)
+        $db = \Config\Database::connect();
+        $hoy = date('Y-m-d');
+        $atrasados = $db->query("
+            SELECT a.id, a.titulo, a.prioridad, a.estado, a.fechacreacion,
+                   r.fecharequerida, aa.nombre as nombre_area, e.nombreempresa
+            FROM atencion a
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
+            INNER JOIN usuarios u ON u.id = r.idusuarioempresa
+            INNER JOIN areas ar ON ar.id = u.idarea
+            INNER JOIN empresas e ON e.id = ar.idempresa
+            LEFT JOIN areas_agencia aa ON aa.id = a.idarea_agencia
+            WHERE ar.idempresa = ?
+              AND r.fecharequerida < ?
+              AND a.estado NOT IN ('finalizado', 'cancelado')
+            ORDER BY r.fecharequerida ASC
+        ", [$idEmpresa, $hoy])->getResultArray();
+
         return view('admin/kanban', [
             'titulo' => 'Kanban - ' . $empresa['nombreempresa'],
             'tituloPagina' => 'TABLERO KANBAN',
@@ -65,6 +83,7 @@ class kanban extends Controller
             'stats' => $stats,
             'stats_areas' => $statsAreas,
             'carga_diaria' => $cargaDiaria,
+            'atrasados' => $atrasados,
         ]);
     }
 

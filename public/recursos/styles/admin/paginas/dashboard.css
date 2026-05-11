@@ -383,23 +383,16 @@
     z-index: 10;
 }
 
-/* Scroll horizontal */
-.emp-scroll-wrap {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scroll-behavior: smooth;
+/* Scroll horizontal → Grid responsivo */
+.emp-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
-    padding: 10px 5px 25px 5px;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    padding: 10px 0 25px 0;
 }
 
-.emp-scroll-wrap::-webkit-scrollbar { display: none; }
-
-.emp-scroll-wrap .emp-card {
-    min-width: 350px;
-    flex-shrink: 0;
+.emp-grid .emp-card {
+    width: 100%;
 }
 
 .nav-btn {
@@ -422,13 +415,34 @@
 /* ══════════════════════════════════════
    RESPONSIVO
 ══════════════════════════════════════ */
+@media (max-width: 1200px) {
+    .emp-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 992px) {
     .graf-body { height: 200px; }
-    .emp-scroll-wrap .emp-card { min-width: 310px; }
+    .emp-grid {
+        grid-template-columns: 1fr;
+    }
+    .emp-stat-num { font-size: 36px; }
+    .emp-nombre { font-size: 20px; }
 }
 
 @media (max-width: 576px) {
     .met-num { font-size: 40px; }
-    .emp-scroll-wrap .emp-card { min-width: 280px; }
+    .emp-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .emp-stat-num { font-size: 30px; }
+    .emp-nombre { font-size: 18px; letter-spacing: 1px; }
+    .emp-ruc { font-size: 11px; }
+    .emp-head { padding: 12px 14px; }
+    .emp-stat { padding: 12px 6px; }
+    .area-btn { font-size: 10px; padding: 8px 3px; }
     .graf-body { height: 180px; }
+    .scroll-nav { display: none; }
 }
+

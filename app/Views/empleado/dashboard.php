@@ -51,12 +51,12 @@
 
         <?php if (empty($pedidos_recientes)): ?>
             <div class="card p-5 text-center"
-                style="background: rgba(0,0,0,0.1); border: 2px dashed #222; border-radius: 16px;">
-                <i class="bi bi-rocket-takeoff mb-3" style="font-size: 40px; color: var(--amarillo); opacity: 0.3;"></i>
-                <h6 style="letter-spacing: 2px; text-transform: uppercase; font-size: 11px; color: var(--texto-3);">No
-                    tienes tareas activas ahora</h6>
-                <a href="<?= base_url('empleado/mis_pedidos') ?>" class="btn-yellow mt-3 d-inline-block"
-                    style="text-decoration:none;">EXPLORAR PROYECTOS</a>
+                style="background: rgba(255,255,255,0.02); border: 1px dashed #222; border-radius: 16px;">
+                <div class="mb-3">
+                    <i class="bi bi-stars" style="font-size: 42px; color: var(--amarillo); opacity: 0.8;"></i>
+                </div>
+                <h6 style="letter-spacing: 2px; text-transform: uppercase; font-size: 13px; color: #fff; font-weight: 700;">¡Todo al día por ahora!</h6>
+                <p style="font-size: 11px; color: var(--texto-3); max-width: 250px; margin: 10px auto 0;">No tienes tareas pendientes de inicio o en proceso. Descansa o revisa tu historial.</p>
             </div>
         <?php else: ?>
             <?php foreach (array_slice($pedidos_recientes, 0, 3) as $pedido): ?>
@@ -71,21 +71,34 @@
                         <div class="task-client"><i class="bi bi-building"></i> <?= esc($pedido['empresa_nombre']) ?></div>
                         <span class="task-status-pill <?= $pillCls ?>"><?= $pillTxt ?></span>
                     </div>
-                    <div class="task-title" style="font-size: 20px;"><?= esc($pedido['titulo']) ?></div>
+                    <div class="task-title"><?= esc($pedido['titulo']) ?></div>
+                    
+                    <div class="task-meta">
+                        <div class="task-meta-item">
+                            <i class="bi bi-calendar-event"></i> 
+                            Límite: <?= date('d M Y', strtotime($pedido['fechafin'] ?? $pedido['fecharequerida'])) ?>
+                        </div>
+                    </div>
+
                     <div class="task-actions">
-                        <div class="task-meta-item"><i class="bi bi-calendar-event"></i> Límite:
-                            <?= isset($pedido['fechafin']) ? date('d M', strtotime($pedido['fechafin'])) : '---' ?></div>
-                        <?php if ($esNuevo): ?>
-                            <button class="task-primary-btn btn-start"
-                                onclick="window.location.href='<?= base_url('empleado/mis_pedidos') ?>'">
-                                <i class="bi bi-play-fill"></i> COMENZAR
+                        <div>
+                            <button class="kb-btn" onclick="verDetalleSolicitud(<?= $pedido['id'] ?>)">
+                                <i class="bi bi-eye mr-1"></i> VER BRIEF
                             </button>
-                        <?php else: ?>
-                            <button class="task-primary-btn btn-start"
-                                onclick="window.location.href='<?= base_url('empleado/mis_pedidos') ?>'">
-                                CONTINUAR <i class="bi bi-arrow-right"></i>
-                            </button>
-                        <?php endif; ?>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <?php if ($esNuevo): ?>
+                                <button class="btn-yellow btn-start-quick" data-id="<?= $pedido['id'] ?>" style="font-size: 13px; padding: 6px 20px;">
+                                    <i class="bi bi-play-fill"></i> COMENZAR
+                                </button>
+                            <?php else: ?>
+                                <button class="btn-yellow btn-continue-quick" 
+                                    onclick="window.location.href='<?= base_url('empleado/mis_pedidos') ?>'" 
+                                    style="font-size: 13px; padding: 6px 20px; background: #fff !important; color: #000 !important;">
+                                    CONTINUAR <i class="bi bi-arrow-right ml-1"></i>
+                                </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -125,4 +138,54 @@
     </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="<?= base_url('recursos/scripts/empleado/misPedidos.js') ?>"></script>
+<script>
+document.querySelectorAll('.btn-start-quick').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const idAtencion = this.getAttribute('data-id');
+        
+        Swal.fire({
+            title: '¿Iniciar esta tarea?',
+            text: "Se marcará como 'En Proceso' y se notificará el inicio del trabajo.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#f5c400',
+            cancelButtonColor: '#333',
+            confirmButtonText: 'Sí, comenzar ya',
+            cancelButtonText: 'Ahora no',
+            background: '#111',
+            color: '#fff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Loader
+                Swal.fire({
+                    title: 'Iniciando...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                fetch(`<?= base_url('empleado/pedido-iniciar') ?>/${idAtencion}`, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        window.location.href = '<?= base_url('empleado/mis_pedidos') ?>';
+                    } else {
+                        Swal.fire('Error', data.message || 'No se pudo iniciar', 'error');
+                    }
+                })
+                .catch(err => {
+                    Swal.fire('Error', 'Error de conexión', 'error');
+                });
+            }
+        });
+    });
+});
+</script>
 <?= $this->endSection() ?>

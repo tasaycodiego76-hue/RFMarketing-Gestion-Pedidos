@@ -22,62 +22,83 @@ function verDetalleSolicitud(id) {
       );
 
       let html = `
-                <div style="font-family:'DM Sans', sans-serif;">
-                    <!-- CABECERA RÁPIDA -->
+                <div style="font-family:'DM Sans', sans-serif; padding: 10px;">
+                    <!-- CABECERA -->
                     <div class="mb-4" style="background:rgba(245, 196, 0, 0.03); border:1px solid rgba(245, 196, 0, 0.1); border-radius:12px; padding:20px;">
                         <div class="row align-items-center">
                             <div class="col-md-8">
-                                <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; letter-spacing:1px; font-size:10px;">PROYECTO</small>
-                                <h4 style="color:#fff; font-weight:700; margin:5px 0 0; font-size:20px;">${d.titulo}</h4>
+                                <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; letter-spacing:1px; font-size:10px;">PROYECTO ASIGNADO</small>
+                                <h4 style="color:#fff; font-weight:700; margin:5px 0 0; font-size:22px;">${d.titulo}</h4>
                                 <p style="color:var(--amarillo); font-weight:600; margin:5px 0 0; font-size:13px; text-transform:uppercase;">${d.nombreempresa} — ${d.servicio}</p>
                             </div>
                             <div class="col-md-4 text-md-right mt-3 mt-md-0">
-                                <span class="task-status-pill pill-process" style="padding:6px 12px; font-size:11px;">${d.estado.replace("_", " ")}</span>
+                                <span class="task-status-pill pill-process" style="padding:8px 16px; font-size:12px;">${d.estado.replace("_", " ").toUpperCase()}</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- CUERPO DETALLE -->
-                    <div class="row">
-                        <div class="col-md-12 mb-4">
-                            <h6 style="color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:16px; border-left:3px solid var(--amarillo); padding-left:10px; margin-bottom:15px;">OBJETIVO Y DESCRIPCIÓN</h6>
-                            <div style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e;">
-                                <div class="mb-4">
-                                    <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:8px;">Lo que el cliente busca:</small>
-                                    <p style="color:#eee; font-size:14px; line-height:1.6; margin:0;">${d.objetivo_comunicacion || "No especificado"}</p>
+                    <!-- 1. DESCRIPCIÓN -->
+                    <div class="mb-4">
+                        <h6 style="color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                            <span style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-card-text"></i></span>
+                            DESCRIPCIÓN DEL REQUERIMIENTO
+                        </h6>
+                        <div style="background:#0d0d0d; padding:25px; border-radius:12px; border:1px solid #1e1e1e; color:#bbb; font-size:14px; line-height:1.7; white-space:pre-wrap;">${d.descripcion || "Sin descripción detallada."}</div>
+                    </div>
+
+                    <!-- 2. ESTRATEGIA -->
+                    <div class="mb-4">
+                        <h6 style="color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                            <span style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-compass"></i></span>
+                            ESTRATEGIA DE COMUNICACIÓN
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e; height:100%;">
+                                    <small style="color:var(--amarillo); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:10px; letter-spacing:1px;">OBJETIVO PRINCIPAL</small>
+                                    <p style="color:#eee; font-size:14px; font-weight:600; margin:0; line-height:1.5;">${d.objetivo_comunicacion || "No especificado"}</p>
                                 </div>
-                                <hr style="border-top:1px solid #1a1a1a; margin:15px 0;">
-                                <div>
-                                    <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:8px;">Instrucciones / Brief:</small>
-                                    <div style="color:#bbb; font-size:13px; line-height:1.7; white-space:pre-wrap;">${d.descripcion || "Sin descripción detallada."}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e; height:100%;">
+                                    <small style="color:var(--amarillo); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:10px; letter-spacing:1px;">PÚBLICO OBJETIVO</small>
+                                    <p style="color:#eee; font-size:14px; font-weight:600; margin:0; line-height:1.5;">${d.publico_objetivo || "No especificado"}</p>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="col-md-6 mb-4">
-                            <h6 style="color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:16px; border-left:3px solid var(--amarillo); padding-left:10px; margin-bottom:15px;">DETALLES TÉCNICOS</h6>
-                            <div style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e; height:calc(100% - 31px);">
-                                <div class="mb-3">
-                                    <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:4px;">Canales:</small>
-                                    <p style="color:#eee; font-size:13px; margin:0;">${d.canales_difusion ? JSON.parse(d.canales_difusion).join(", ") : "---"}</p>
-                                </div>
-                                <div class="mb-3">
-                                    <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:4px;">Formatos:</small>
-                                    <p style="color:#eee; font-size:13px; margin:0;">${d.formatos_solicitados ? JSON.parse(d.formatos_solicitados).join(", ") : "---"}</p>
-                                </div>
-                                <div>
-                                    <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:4px;">Público:</small>
-                                    <p style="color:#eee; font-size:13px; margin:0;">${d.publico_objetivo || "---"}</p>
-                                </div>
+                    <!-- 3. TÉCNICO -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-4 mb-md-0">
+                            <h6 style="color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                                <span style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-broadcast"></i></span>
+                                CANALES
+                            </h6>
+                            <div id="canales-container" style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e; display:flex; flex-wrap:wrap; gap:8px;">
+                                ${d.canales_difusion ? JSON.parse(d.canales_difusion).map(c => `<span style="background:#1a1a1a; color:#fff; border:1px solid #333; padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${c}</span>`).join("") : '<span style="color:#444; font-size:11px; font-style:italic;">No especificados</span>'}
                             </div>
                         </div>
-
-                        <div class="col-md-6 mb-4">
-                            <h6 style="color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:16px; border-left:3px solid var(--amarillo); padding-left:10px; margin-bottom:15px;">RECURSOS Y ADJUNTOS</h6>
-                            <div style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e; height:calc(100% - 31px);">
-                                <div id="lista-archivos-requerimiento" class="mb-3"></div>
-                                <div id="lista-enlaces-requerimiento"></div>
+                        <div class="col-md-6">
+                            <h6 style="color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                                <span style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-layers"></i></span>
+                                FORMATOS
+                            </h6>
+                            <div id="formatos-container" style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e; display:flex; flex-wrap:wrap; gap:8px;">
+                                ${d.formatos_solicitados ? JSON.parse(d.formatos_solicitados).map(f => `<span style="background:#1a1a1a; color:#fff; border:1px solid #333; padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${f}</span>`).join("") : '<span style="color:#444; font-size:11px; font-style:italic;">No especificados</span>'}
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. RECURSOS -->
+                    <div class="mb-2">
+                        <h6 style="color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                            <span style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-folder2-open"></i></span>
+                            RECURSOS DEL CLIENTE
+                        </h6>
+                        <div style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e;">
+                            <div id="lista-archivos-requerimiento" class="mb-3"></div>
+                            <div id="lista-enlaces-requerimiento"></div>
                         </div>
                     </div>
                 </div>
@@ -85,7 +106,7 @@ function verDetalleSolicitud(id) {
 
       cuerpo.html(html);
       pie.html(
-        '<button class="task-primary-btn btn-view" data-dismiss="modal">ENTENDIDO, VOLVER</button>',
+        '<button class="btn-yellow" data-dismiss="modal" style="width:100%;">ENTENDIDO, VOLVER</button>',
       );
 
       // Archivos
@@ -152,21 +173,22 @@ function abrirModalAccion(id, tipo) {
   );
 
   if (tipo === "iniciar") {
-    titulo.html(
-      '<i class="bi bi-play-circle mr-2"></i> Confirmar Inicio de Trabajo',
-    );
-    cuerpo.html(`
-            <div class="text-center py-4">
-                <div style="width:60px; height:60px; background:rgba(245, 196, 0, 0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
-                    <i class="bi bi-lightning-charge-fill" style="color:var(--amarillo); font-size:24px;"></i>
-                </div>
-                <h5 style="color:#fff; font-weight:700;">¿Estás listo para empezar?</h5>
-                <p style="color:var(--texto-3); font-size:13px;">Se notificará al administrador que has tomado este pedido y comenzarás a trabajar en él ahora mismo.</p>
-            </div>
-        `);
-    pie.append(
-      `<button class="task-primary-btn btn-start" onclick="ejecutarAccion(${id}, 'iniciar')">SÍ, EMPEZAR AHORA</button>`,
-    );
+    Swal.fire({
+      title: '¿Iniciar esta tarea?',
+      text: "Se notificará el inicio del trabajo.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#f5c400',
+      confirmButtonText: 'Sí, empezar ahora',
+      cancelButtonText: 'Cancelar',
+      background: '#111',
+      color: '#fff'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        ejecutarAccion(id, 'iniciar');
+      }
+    });
+    return;
   } else if (tipo === "entregar") {
     titulo.html(
       '<i class="bi bi-cloud-arrow-up mr-2" style="color:var(--amarillo);"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">ENVIAR TRABAJO TERMINADO</span>',

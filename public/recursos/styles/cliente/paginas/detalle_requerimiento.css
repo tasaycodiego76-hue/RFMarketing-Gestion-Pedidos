@@ -363,10 +363,24 @@
 
 .label-tiny {
   font-size: 12px;
-  font-weight: 700;
-  color: #d0d0d0;
-  letter-spacing: 1.2px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
+  position: relative;
+  padding-left: 12px;
+}
+
+.label-tiny::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 12px;
+  background: var(--accent-yellow);
+  border-radius: 2px;
 }
 
 .content-text {
@@ -402,27 +416,35 @@
 }
 
 .timeline-item i {
-  color: #999;
-  font-size: 1.2rem;
-}
-.timeline-item.active-step i {
-  color: #28a745;
+  color: var(--accent-yellow);
+  font-size: 1.1rem;
+  width: 24px;
+  text-align: center;
 }
 
 .t-label {
   display: block;
-  font-size: 11px;
-  color: #ccc;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-size: 10px;
+  color: #888;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
 }
+
 .t-value {
   display: block;
   font-size: 15px;
   color: #fff;
   font-weight: 700;
-  margin-top: 2px;
   word-break: break-all;
+}
+
+.t-value-accent {
+  color: var(--accent-yellow);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
 }
 
 /* Badges */

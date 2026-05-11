@@ -872,6 +872,12 @@
     text-shadow: 0 0 8px rgba(255, 77, 77, 0.2);
 }
 
+.sla-urgente {
+    color: #f97316 !important;
+    border-color: rgba(249, 115, 22, 0.4) !important;
+    background: rgba(249, 115, 22, 0.05);
+}
+
 .sla-advertencia {
     color: #ffcc00 !important;
     border-color: rgba(255, 204, 0, 0.4) !important;
@@ -888,9 +894,19 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Inter', sans-serif;
-    letter-spacing: 0.5px;
-    /* Eliminado shadow para evitar efecto brilloso */
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 1px;
+    font-size: 10px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.sla-badge:hover {
+    transform: scale(1.05);
 }
 
 /* Indicador de Saturación en Header */

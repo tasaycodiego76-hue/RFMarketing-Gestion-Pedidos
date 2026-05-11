@@ -175,7 +175,7 @@ class AtencionModel extends Model
         $sql = "
             SELECT
                 a.id, a.titulo, a.estado, a.prioridad, a.fechafin, a.num_modificaciones,
-                a.fechainicio, a.fechacreacion, a.idempleado, a.idrequerimiento,
+                a.fechainicio, a.fechacreacion, a.fechacompletado, a.idempleado, a.idrequerimiento,
                 a.idarea_agencia,
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
                 r.fecharequerida,

@@ -101,57 +101,55 @@
         <p>No hay empresas registradas todavía.</p>
     </div>
 <?php else: ?>
-    <div class="emp-scroll-wrap mb-4" id="empScroll">
+    <div class="emp-grid mb-4" id="empScroll">
         <?php foreach ($empresas as $idx => $empresa): ?>
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="emp-card h-100" style="animation-delay: <?= $idx * 0.08 ?>s;">
-                    <div class="emp-head">
-                        <div class="emp-inicial" style="background: <?= $empresa['color'] ?>; color: #000;">
-                            <?= $empresa['inicial'] ?>
-                        </div>
-                        <div class="emp-info">
-                            <div class="emp-nombre"><?= esc($empresa['nombreempresa']) ?></div>
-                            <div class="emp-ruc">RUC <?= esc($empresa['ruc']) ?></div>
-                        </div>
-                        <?php if ($empresa['por_aprobar'] > 0): ?>
-                            <div class="emp-badge ms-auto">
-                                <span class="badge-punto" style="background: <?= $empresa['color'] ?>;"></span>
-                                <?= $empresa['por_aprobar'] ?> nueva<?= $empresa['por_aprobar'] > 1 ? 's' : '' ?>
-                            </div>
-                        <?php endif ?>
+            <div class="emp-card" style="animation-delay: <?= $idx * 0.08 ?>s;">
+                <div class="emp-head">
+                    <div class="emp-inicial" style="background: <?= $empresa['color'] ?>; color: #000;">
+                        <?= $empresa['inicial'] ?>
                     </div>
+                    <div class="emp-info">
+                        <div class="emp-nombre"><?= esc($empresa['nombreempresa']) ?></div>
+                        <div class="emp-ruc">RUC <?= esc($empresa['ruc']) ?></div>
+                    </div>
+                    <?php if ($empresa['por_aprobar'] > 0): ?>
+                        <div class="emp-badge ms-auto">
+                            <span class="badge-punto" style="background: <?= $empresa['color'] ?>;"></span>
+                            <?= $empresa['por_aprobar'] ?> nueva<?= $empresa['por_aprobar'] > 1 ? 's' : '' ?>
+                        </div>
+                    <?php endif ?>
+                </div>
 
-                    <div class="emp-stats">
-                        <div class="emp-stat">
-                            <div class="emp-stat-num morado"><?= $empresa['por_aprobar'] ?></div>
-                            <div class="emp-stat-label">Pendiente</div>
-                        </div>
-                        <div class="emp-stat">
-                            <div class="emp-stat-num amarillo"><?= $empresa['activos'] ?></div>
-                            <div class="emp-stat-label">Activos</div>
-                        </div>
-                        <div class="emp-stat">
-                            <div class="emp-stat-num naranja"><?= $empresa['en_revision'] ?></div>
-                            <div class="emp-stat-label">Revisión</div>
-                        </div>
-                        <div class="emp-stat">
-                            <div class="emp-stat-num verde"><?= $empresa['completados'] ?></div>
-                            <div class="emp-stat-label">Finalizado</div>
-                        </div>
+                <div class="emp-stats">
+                    <div class="emp-stat">
+                        <div class="emp-stat-num morado"><?= $empresa['por_aprobar'] ?></div>
+                        <div class="emp-stat-label">Pendiente</div>
                     </div>
+                    <div class="emp-stat">
+                        <div class="emp-stat-num amarillo"><?= $empresa['activos'] ?></div>
+                        <div class="emp-stat-label">Activos</div>
+                    </div>
+                    <div class="emp-stat">
+                        <div class="emp-stat-num naranja"><?= $empresa['en_revision'] ?></div>
+                        <div class="emp-stat-label">Revisión</div>
+                    </div>
+                    <div class="emp-stat">
+                        <div class="emp-stat-num verde"><?= $empresa['completados'] ?></div>
+                        <div class="emp-stat-label">Finalizado</div>
+                    </div>
+                </div>
 
-                    <div class="emp-areas">
-                        <?php foreach ($areas as $area): ?>
-                            <?php $countNuevas = $empresa['stats_areas'][$area['id']] ?? 0; ?>
-                            <button class="area-btn"
-                                onclick="window.location.href='<?= site_url('admin/kanban/' . $empresa['id'] . '/' . $area['id']) ?>'">
-                                <?= esc($area['nombre']) ?>
-                                <?php if ($countNuevas > 0): ?>
-                                    <span class="area-badge-notif"><?= $countNuevas ?></span>
-                                <?php endif ?>
-                            </button>
-                        <?php endforeach ?>
-                    </div>
+                <div class="emp-areas">
+                    <?php foreach ($areas as $area): ?>
+                        <?php $countNuevas = $empresa['stats_areas'][$area['id']] ?? 0; ?>
+                        <button class="area-btn"
+                            onclick="window.location.href='<?= site_url('admin/kanban/' . $empresa['id'] . '/' . $area['id']) ?>'">
+                            <?= esc($area['nombre']) ?>
+                            <?php if ($countNuevas > 0): ?>
+                                <span class="area-badge-notif"><?= $countNuevas ?></span>
+                            <?php endif ?>
+                        </button>
+                    <?php endforeach ?>
                 </div>
             </div>
         <?php endforeach ?>
@@ -165,7 +163,7 @@
         <div class="card graf-card h-100">
             <div class="graf-head">
                 <div class="graf-titulo">Carga de Trabajo</div>
-                <div class="graf-subtitulo">Requerimientos por cliente</div>
+                <div class="graf-subtitulo">Requerimientos por empresa</div>
             </div>
             <div class="graf-body">
                 <canvas id="chartEmpresas"></canvas>

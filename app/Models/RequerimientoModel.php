@@ -49,6 +49,7 @@ class RequerimientoModel extends Model
             a.fechainicio,
             a.fechafin,
             a.fechacompletado,
+            a.idempleado,
             COALESCE(s.nombre, r.servicio_personalizado) AS nombre_servicio,
             u_sol.nombre AS nombre_cliente,
             u_sol.apellidos AS apellidos_cliente,
@@ -87,8 +88,9 @@ class RequerimientoModel extends Model
             a.prioridad,
             a.fechacreacion,
             a.fechacompletado,
+            a.idempleado,
             s.nombre AS nombre_servicio,
-            u.nombre AS empleado_nombre
+            CONCAT(u.nombre, ' ', u.apellidos) AS empleado_nombre
         FROM requerimiento r
         INNER JOIN atencion a ON a.idrequerimiento = r.id
         LEFT JOIN servicios s ON s.id = a.idservicio

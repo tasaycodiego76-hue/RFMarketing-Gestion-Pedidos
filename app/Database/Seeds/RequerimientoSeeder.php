@@ -12,7 +12,7 @@ class RequerimientoSeeder extends Seeder
 
         $data = [
             [
-                'idusuarioempresa' => 11,
+                'idusuarioempresa' => 13, // ANA FLORES (cliente UAI, idarea=4)
                 'idservicio' => 3,
                 'titulo' => 'Campaña Intriga Verano',
                 'objetivo_comunicacion' => 'Generar expectativa sobre la nueva colección de ropa de verano.',
@@ -30,7 +30,7 @@ class RequerimientoSeeder extends Seeder
                 'servicio_personalizado' => null
             ],
             [
-                'idusuarioempresa' => 12,
+                'idusuarioempresa' => 14, // LUIS MENDOZA (cliente BYRON, idarea=52)
                 'idservicio' => 2,
                 'titulo' => 'Video Reel Bienvenida',
                 'objetivo_comunicacion' => 'Dar la bienvenida a los nuevos estudiantes del ciclo 2026-I.',
@@ -81,6 +81,79 @@ class RequerimientoSeeder extends Seeder
                 'fechacreacion' => '2026-03-25 10:00:00',
                 'fecharequerida' => '2026-03-30 00:00:00',
                 'prioridad' => 'Media',
+                'servicio_personalizado' => null
+            ],
+            // --- PEDIDOS PARA PRUEBA DE SLA (11/05/2026) ---
+            [
+                'idusuarioempresa' => 13,
+                'idservicio' => 1,
+                'titulo' => 'TEST: PEDIDO ATRASADO',
+                'objetivo_comunicacion' => 'Prueba Rojo',
+                'descripcion' => 'Este pedido debe verse ROJO porque venció ayer.',
+                'tipo_requerimiento' => 'Prueba',
+                'canales_difusion' => '["Web"]',
+                'publico_objetivo' => 'Interno',
+                'tiene_materiales' => false,
+                'url_subida' => null,
+                'formatos_solicitados' => '["Digital"]',
+                'formato_otros' => '',
+                'fechacreacion' => '2026-05-01 10:00:00',
+                'fecharequerida' => '2026-05-10 23:59:59', // Ayer
+                'prioridad' => 'Alta',
+                'servicio_personalizado' => null
+            ],
+            [
+                'idusuarioempresa' => 13,
+                'idservicio' => 1,
+                'titulo' => 'TEST: VENCE HOY',
+                'objetivo_comunicacion' => 'Prueba Naranja',
+                'descripcion' => 'Este pedido debe verse NARANJA porque vence hoy.',
+                'tipo_requerimiento' => 'Prueba',
+                'canales_difusion' => '["Web"]',
+                'publico_objetivo' => 'Interno',
+                'tiene_materiales' => false,
+                'url_subida' => null,
+                'formatos_solicitados' => '["Digital"]',
+                'formato_otros' => '',
+                'fechacreacion' => '2026-05-11 08:00:00',
+                'fecharequerida' => '2026-05-11 23:59:59', // Hoy
+                'prioridad' => 'Media',
+                'servicio_personalizado' => null
+            ],
+            [
+                'idusuarioempresa' => 13,
+                'idservicio' => 1,
+                'titulo' => 'TEST: VENCE MAÑANA',
+                'objetivo_comunicacion' => 'Prueba Amarillo',
+                'descripcion' => 'Este pedido debe verse AMARILLO porque vence mañana.',
+                'tipo_requerimiento' => 'Prueba',
+                'canales_difusion' => '["Web"]',
+                'publico_objetivo' => 'Interno',
+                'tiene_materiales' => false,
+                'url_subida' => null,
+                'formatos_solicitados' => '["Digital"]',
+                'formato_otros' => '',
+                'fechacreacion' => '2026-05-11 08:00:00',
+                'fecharequerida' => '2026-05-12 23:59:59', // Mañana
+                'prioridad' => 'Media',
+                'servicio_personalizado' => null
+            ],
+            [
+                'idusuarioempresa' => 13,
+                'idservicio' => 1,
+                'titulo' => 'TEST: EN TIEMPO',
+                'objetivo_comunicacion' => 'Prueba Verde',
+                'descripcion' => 'Este pedido debe verse VERDE porque falta tiempo.',
+                'tipo_requerimiento' => 'Prueba',
+                'canales_difusion' => '["Web"]',
+                'publico_objetivo' => 'Interno',
+                'tiene_materiales' => false,
+                'url_subida' => null,
+                'formatos_solicitados' => '["Digital"]',
+                'formato_otros' => '',
+                'fechacreacion' => '2026-05-11 08:00:00',
+                'fecharequerida' => '2026-05-15 23:59:59', // A tiempo
+                'prioridad' => 'Baja',
                 'servicio_personalizado' => null
             ]
         ];

@@ -64,6 +64,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('empresas/toggleEstado', 'Administrador\EmpresasController::toggleEstado');
 
     $routes->get('historial', 'Administrador\HistorialController::index');
+    $routes->get('reportes', 'Administrador\ReportesController::index');
 });
 
 // Rutas para el Responsable (Jefe de Área)
@@ -140,4 +141,4 @@ $routes->group('cliente', ['filter' => 'auth'], function ($routes) {
 
     // RECURSOS
     $routes->get('archivos/(:num)', 'Cliente\RequerimientoController::verArchivo/$1');
-});
+}); 
