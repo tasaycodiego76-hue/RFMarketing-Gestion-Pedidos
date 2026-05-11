@@ -81,25 +81,35 @@ class RequerimientoModel extends Model
         $sql = "
         SELECT 
             r.*,
+            a.id AS idatencion,
+            a.titulo,
             a.estado,
-            COALESCE(a.prioridad, r.prioridad) AS prioridad,
-            a.num_modificaciones,
-            a.url_entrega,
-            a.fechainicio,
-            a.fechafin,
+            a.prioridad,
             a.fechacreacion,
             a.fechacompletado,
             s.nombre AS nombre_servicio,
             u.nombre AS empleado_nombre
         FROM requerimiento r
         INNER JOIN atencion a ON a.idrequerimiento = r.id
-        LEFT JOIN usuarios u_sol ON u_sol.id = r.idusuarioempresa  -- quien solicitó
+        LEFT JOIN servicios s ON s.id = a.idservicio
+        LEFT JOIN usuarios u_sol ON u_sol.id = r.idusuarioempresa
         LEFT JOIN areas ar ON ar.id = u_sol.idarea
-        LEFT JOIN empresas e ON e.id = ar.idempresa
-        LEFT JOIN servicios s ON s.id = r.idservicio
         LEFT JOIN usuarios u ON u.id = a.idempleado
         WHERE r.id = ?
         ";
         return $this->db->query($sql, [$RequerimientoID])->getRowArray();
+    }
+
+    /**
+     * Transfiere todos los requerimientos de un usuario a otro.
+     * @param int $idUsuarioAnterior
+     * @param int $idUsuarioNuevo
+     * @return bool
+     */
+    public function transferirRequerimientos(int $idUsuarioAnterior, int $idUsuarioNuevo): bool
+    {
+        return $this->db->table($this->table)
+            ->where('idusuarioempresa', $idUsuarioAnterior)
+            ->update(['idusuarioempresa' => $idUsuarioNuevo]);
     }
 }

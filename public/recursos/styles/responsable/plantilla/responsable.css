@@ -172,6 +172,9 @@ body {
   display: block;
   font-size: 10px;
   color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Navegación */
@@ -310,6 +313,9 @@ body {
   margin-left: var(--sidebar-width);
   min-height: 100vh;
   transition: var(--transition);
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Topbar */
@@ -371,6 +377,10 @@ body {
 .page-subtitle {
   font-size: 10px;
   color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
 }
 
 /* Lado derecho del topbar */
@@ -420,6 +430,10 @@ body {
   color: #fff;
   letter-spacing: 2px;
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
 }
 
 .user-avatar-top {

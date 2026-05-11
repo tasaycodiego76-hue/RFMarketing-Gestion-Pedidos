@@ -15,9 +15,9 @@ class AtencionSeeder extends Seeder
             [
                 'idrequerimiento'        => 1,
                 'idadmin'                => 1,
-                'idempleado'             => 6, // Nicol - completado y entregado al cliente
+                'idempleado'             => 6, 
                 'idservicio'             => 3,
-                'idarea_agencia'         => 3, // Creación de Contenido
+                'idarea_agencia'         => 3, 
                 'servicio_personalizado' => 'Campaña Intriga Verano',
                 'titulo'                 => 'Lanzamiento Colección 2026',
                 'prioridad'              => 'Baja',
@@ -27,8 +27,8 @@ class AtencionSeeder extends Seeder
                 'url_entrega'            => 'https://drive.google.com/campaña_verano_final.zip',
                 'fechacreacion'          => '2026-03-01 09:00:00',
                 'fechainicio'            => '2026-03-02 09:00:00',
-                'fechafin'               => '2026-03-08 17:00:00', // Terminó y envió a revisión
-                'fechacompletado'        => '2026-03-09 11:30:00', // Cliente aprobó y se completó
+                'fechafin'               => '2026-03-08 17:00:00', 
+                'fechacompletado'        => '2026-03-09 11:30:00', 
                 'cancelacionmotivo'      => null,
                 'fechacancelacion'       => null,
             ],
@@ -37,9 +37,9 @@ class AtencionSeeder extends Seeder
             [
                 'idrequerimiento'        => 2,
                 'idadmin'                => 1,
-                'idempleado'             => 7, // Sonia - terminó y envió a revisión
+                'idempleado'             => 7, 
                 'idservicio'             => 2,
-                'idarea_agencia'         => 2, // Edición y Video
+                'idarea_agencia'         => 2, 
                 'servicio_personalizado' => null,
                 'titulo'                 => 'Video Reel Bienvenida',
                 'prioridad'              => 'Alta',
@@ -49,7 +49,7 @@ class AtencionSeeder extends Seeder
                 'url_entrega'            => 'https://drive.google.com/entrega/reel_bienvenida_v1.mp4',
                 'fechacreacion'          => '2026-03-15 11:00:00',
                 'fechainicio'            => '2026-03-16 10:00:00',
-                'fechafin'               => '2026-03-20 16:30:00', // Terminó y envió a revisión
+                'fechafin'               => '2026-03-20 16:30:00', 
                 'fechacompletado'        => null,
                 'cancelacionmotivo'      => null,
                 'fechacancelacion'       => null,
@@ -59,9 +59,9 @@ class AtencionSeeder extends Seeder
             [
                 'idrequerimiento'        => 3,
                 'idadmin'                => 1,
-                'idempleado'             => 10, // Fabrizio - trabajando actualmente
+                'idempleado'             => 10, 
                 'idservicio'             => 1,
-                'idarea_agencia'         => 1, // Diseño Gráfico
+                'idarea_agencia'         => 1, 
                 'servicio_personalizado' => null,
                 'titulo'                 => 'Logo Aniversario UAI',
                 'prioridad'              => 'Media',
@@ -71,7 +71,7 @@ class AtencionSeeder extends Seeder
                 'url_entrega'            => null,
                 'fechacreacion'          => '2026-03-21 09:00:00',
                 'fechainicio'            => '2026-03-22 14:00:00',
-                'fechafin'               => null, // Aún no termina
+                'fechafin'               => null, 
                 'fechacompletado'        => null,
                 'cancelacionmotivo'      => null,
                 'fechacancelacion'       => null,
@@ -81,9 +81,9 @@ class AtencionSeeder extends Seeder
             [
                 'idrequerimiento'        => 4,
                 'idadmin'                => 1,
-                'idempleado'             => null, // Aún no asignado
+                'idempleado'             => null, 
                 'idservicio'             => 1,
-                'idarea_agencia'         => 1, // Diseño Gráfico
+                'idarea_agencia'         => 1, 
                 'servicio_personalizado' => null,
                 'titulo'                 => 'Infografía Académica',
                 'prioridad'              => 'Media',

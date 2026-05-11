@@ -127,6 +127,11 @@ ul { list-style: none; padding: 0; }
     border: 2px solid var(--negro-2);
 }
 
+.profile-info {
+    min-width: 0;
+    flex: 1;
+}
+
 .profile-name {
     font-size: 15px; font-weight: 600;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -139,7 +144,8 @@ ul { list-style: none; padding: 0; }
     letter-spacing: 1.5px; text-transform: uppercase;
     color: var(--amarillo); opacity: 0.9;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    max-width: 160px;
+    max-width: 100%;
+    display: block;
 }
 
 /* ── Menú de navegación */
@@ -209,7 +215,10 @@ ul { list-style: none; padding: 0; }
     /* Empuja el contenido a la derecha del sidebar */
     margin-left: var(--sidebar-w);
     min-height: 100vh;
-    display: flex; flex-direction: column;
+    display: flex; 
+    flex-direction: column;
+    transition: var(--trans);
+    position: relative;
 }
 
 .topbar {
@@ -299,7 +308,10 @@ ul { list-style: none; padding: 0; }
 
 
 /* 5. CONTENIDO PRINCIPAL */
-.page-content { flex: 1; padding: 32px 36px; }
+.page-content { 
+    flex: 1; 
+    padding: 32px 36px;
+}
 
 
 /*  6. COMPONENTES REUTILIZABLES*/
@@ -365,8 +377,8 @@ ul { list-style: none; padding: 0; }
 ::-webkit-scrollbar-thumb:hover { background: var(--texto-3); }
 
 
-/* 7. RESPONSIVE — MÓVIL (pantallas < 900px) */
-@media (max-width: 900px) {
+/* 7. RESPONSIVE — MÓVIL (pantallas < 992px) */
+@media (max-width: 991px) {
 
     /* Sidebar oculto hacia la izquierda por defecto */
     .sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
@@ -378,7 +390,9 @@ ul { list-style: none; padding: 0; }
     .sidebar-close-btn { display: flex; align-items: center; justify-content: center; }
 
     /* El contenido ocupa todo el ancho (sin margen del sidebar) */
-    .main-wrapper { margin-left: 0 !important; }
+    .main-wrapper { 
+        margin-left: 0 !important; 
+    }
 
     /* Mostrar el hamburger en el topbar */
     .hamburger-btn { display: flex; }

@@ -49,6 +49,7 @@ class kanban extends Controller
 
         $stats = $atencionModel->estadisticasPorEmpresa((int) $idEmpresa);
         $statsAreas = $atencionModel->contarPorAprobarPorAreaEmpresa((int) $idEmpresa);
+        $cargaDiaria = $atencionModel->obtenerCargaPorFecha((int) $idAreaAgencia);
 
         return view('admin/kanban', [
             'titulo' => 'Kanban - ' . $empresa['nombreempresa'],
@@ -63,6 +64,7 @@ class kanban extends Controller
             'columnas' => $columnas,
             'stats' => $stats,
             'stats_areas' => $statsAreas,
+            'carga_diaria' => $cargaDiaria,
         ]);
     }
 

@@ -116,6 +116,8 @@
     gap: 10px;
     margin-bottom: 25px;
     padding-bottom: 10px;
+    padding-top: 8px; /* Espacio para que el badge no se corte */
+    padding-right: 10px;
     overflow-x: auto;
     /* Scroll horizontal en movil */
     -webkit-overflow-scrolling: touch;
@@ -131,7 +133,7 @@
 }
 
 .kb-area-tab {
-    padding: 8px 22px;
+    padding: 8px 18px;
     border-radius: 10px;
     text-decoration: none;
     color: #888;
@@ -141,6 +143,9 @@
     border: 1px solid #1a1a1a;
     transition: all 0.3s ease;
     white-space: nowrap;
+    display: inline-flex; /* Alineación natural al lado del nombre */
+    align-items: center;
+    gap: 8px;
 }
 
 .kb-area-tab:hover {
@@ -152,7 +157,22 @@
     background: #F5C400;
     color: #000;
     border-color: #F5C400;
-    box-shadow: 0 4px 15px rgba(245, 196, 0, 0.3);
+}
+
+/* Notificación de pedidos (Círculo rojo sólido, al lado del nombre) */
+.area-badge-notif {
+    background: #dc2626; 
+    color: #fff;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: none; /* Estilo opaco/mate */
 }
 
 /* --- Tablero --- */
@@ -249,8 +269,8 @@
 .kb-card:hover {
     border-color: #333;
     background: #121212;
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    transform: translateY(-1px);
+    box-shadow: none; /* Totalmente opaco */
 }
 
 .kb-card-top {
@@ -839,3 +859,141 @@
 .prio-pill.active .dot-alta { box-shadow: 0 0 10px #ef4444; }
 .prio-pill.active .dot-media { box-shadow: 0 0 10px #F5C400; }
 .prio-pill.active .dot-baja { box-shadow: 0 0 10px #10b981; }
+
+/* ======================================================
+   SLA & SATURATION CONTROL
+   ====================================================== */
+
+/* Semáforo de SLA (Traffic Light) - Compacto */
+.sla-critico {
+    color: #ff4d4d !important;
+    border-color: rgba(255, 77, 77, 0.4) !important;
+    background: rgba(255, 77, 77, 0.05);
+    text-shadow: 0 0 8px rgba(255, 77, 77, 0.2);
+}
+
+.sla-advertencia {
+    color: #ffcc00 !important;
+    border-color: rgba(255, 204, 0, 0.4) !important;
+    background: rgba(255, 204, 0, 0.05);
+}
+
+.sla-normal {
+    color: #10b981 !important;
+    border-color: rgba(16, 185, 129, 0.4) !important;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.sla-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.5px;
+    /* Eliminado shadow para evitar efecto brilloso */
+}
+
+/* Indicador de Saturación en Header */
+.kb-saturation-widget {
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-left: auto;
+}
+
+.kb-saturation-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.kb-saturation-val {
+    font-family: 'Bebas Neue';
+    font-size: 20px;
+    line-height: 1;
+}
+
+.kb-saturation-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sat-high { color: #ef4444; font-weight: 900; }
+.sat-mid { color: #f5c400; font-weight: 900; }
+.sat-low { color: #10b981; font-weight: 900; }
+
+@media (max-width: 900px) {
+    .kb-saturation-widget {
+        width: 100%;
+        justify-content: space-around;
+        margin-left: 0;
+    }
+}
+
+/* Indicador de Saturación en Header */
+.kb-saturation-widget {
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-left: auto;
+}
+
+.kb-saturation-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* --- Botones de Filtro Rápido --- */
+.kb-filter-btn {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    color: #555;
+    font-size: 10px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 800;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 1px;
+    font-family: 'Bebas Neue', cursive;
+}
+.kb-filter-btn:hover { border-color: #333; color: #aaa; background: #111; }
+.kb-filter-btn.active {
+    background: #F5C400;
+    color: #000;
+    border-color: #F5C400;
+    box-shadow: 0 0 15px rgba(245, 196, 0, 0.3);
+}
+
+/* Fix para nombres de empresa largos */
+.kb-card-empresa {
+    font-size: 9px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+
+.kb-card-title {
+    font-size: 14px !important;
+    margin-top: 2px;
+}
+
+.kb-card-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}

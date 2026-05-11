@@ -457,4 +457,29 @@ class AtencionModel extends Model
 
         return $this->db->query($sql)->getResultArray();
     }
-}
+
+    /**
+     * Obtiene la carga de trabajo (pedidos venciendo) para hoy y mañana.
+     * @param int $idAreaAgencia
+     * @return array
+     */
+    public function obtenerCargaPorFecha(int $idAreaAgencia): array
+    {
+        $hoy = date('Y-m-d');
+        $manana = date('Y-m-d', strtotime('+1 day'));
+
+        $sql = "
+            SELECT 
+                COUNT(CASE WHEN CAST(r.fecharequerida AS DATE) = ? THEN 1 END) as hoy,
+                COUNT(CASE WHEN CAST(r.fecharequerida AS DATE) = ? THEN 1 END) as manana
+            FROM atencion a
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
+            WHERE a.idarea_agencia = ? 
+              AND a.estado != 'cancelado'
+              AND a.estado != 'finalizado'
+        ";
+
+        return $this->db->query($sql, [$hoy, $manana, $idAreaAgencia])->getRowArray();
+    }
+}
+

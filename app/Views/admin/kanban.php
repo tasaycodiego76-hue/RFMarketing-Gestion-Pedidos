@@ -30,8 +30,10 @@
             <div class="kb-emp-nombre"><?= esc(strtoupper($empresa['nombreempresa'])) ?></div>
             <div class="kb-emp-meta">
                 RUC <span style="color:#fff;"><?= esc($empresa['ruc'] ?? '—') ?></span>
-                <?php if (!empty($empresa['correo'])): ?> · <span style="color:#fff;"><?= esc($empresa['correo']) ?></span><?php endif ?>
-                <?php if (!empty($empresa['telefono'])): ?> · <span style="color:#fff;"><?= esc($empresa['telefono']) ?></span><?php endif ?>
+                <?php if (!empty($empresa['correo'])): ?> · <span
+                        style="color:#fff;"><?= esc($empresa['correo']) ?></span><?php endif ?>
+                <?php if (!empty($empresa['telefono'])): ?> · <span
+                        style="color:#fff;"><?= esc($empresa['telefono']) ?></span><?php endif ?>
             </div>
         </div>
     </div>
@@ -44,6 +46,53 @@
         <div class="kb-stat"><span class="st-verde"><?= $stats['completados'] ?? 0 ?></span><small>COMPLETADOS</small>
         </div>
     </div>
+
+    <!-- ═══ WIDGET DE SATURACIÓN  ═══ -->
+    <div class="kb-saturation-widget">
+        <div
+            style="font-size: 9px; color: #444; font-weight: 800; text-align: right; line-height: 1.2; letter-spacing: 0.5px;">
+            CARGA DE<br>TRABAJO
+        </div>
+        <div class="kb-saturation-item">
+            <?php
+            $valHoy = $carga_diaria['hoy'] ?? 0;
+            $clHoy = ($valHoy >= 40) ? 'sat-high' : (($valHoy >= 30) ? 'sat-mid' : 'sat-low');
+            ?>
+            <span class="kb-saturation-val <?= $clHoy ?>"><?= $valHoy ?></span>
+            <span class="kb-saturation-label">HOY</span>
+        </div>
+        <div style="width:1px; height:25px; background:#1a1a1a;"></div>
+        <div class="kb-saturation-item">
+            <?php
+            $valMan = $carga_diaria['manana'] ?? 0;
+            $clMan = ($valMan >= 40) ? 'sat-high' : (($valMan >= 30) ? 'sat-mid' : 'sat-low');
+            ?>
+            <span class="kb-saturation-val <?= $clMan ?>"><?= $valMan ?></span>
+            <span class="kb-saturation-label">MAÑANA</span>
+        </div>
+    </div>
+
+    <!-- ═══ FILTROS RÁPIDOS  ═══ -->
+    <div class="kb-quick-filters"
+        style="display:flex; align-items:center; gap:8px; margin-left: 25px; border-left: 1px solid #1a1a1a; padding-left: 20px;">
+        <button onclick="filterKanban('all')" class="kb-filter-btn active" id="btn-filter-all">TODO</button>
+        <button onclick="filterKanban('hoy')" class="kb-filter-btn" id="btn-filter-hoy">HOY</button>
+        <button onclick="filterKanban('manana')" class="kb-filter-btn" id="btn-filter-manana">MAÑANA</button>
+    </div>
+</div>
+
+<!-- ═══ LEYENDA DE COLORES  ═══ -->
+<div class="kb-legend"
+    style="display:flex; gap:20px; margin-bottom:20px; padding: 0 10px; font-size:10px; font-weight:800; color:#555; text-transform:uppercase; letter-spacing:0.5px;">
+    <span style="display:flex; align-items:center; gap:6px;"><span
+            style="width:10px; height:10px; border-radius:3px; background:#ff4d4d; box-shadow: 0 0 5px rgba(255,77,77,0.4);"></span>
+        VENCE HOY</span>
+    <span style="display:flex; align-items:center; gap:6px;"><span
+            style="width:10px; height:10px; border-radius:3px; background:#ffcc00; box-shadow: 0 0 5px rgba(255,204,0,0.4);"></span>
+        VENCE MAÑANA</span>
+    <span style="display:flex; align-items:center; gap:6px;"><span
+            style="width:10px; height:10px; border-radius:3px; background:#10b981; box-shadow: 0 0 5px rgba(16,185,129,0.4);"></span>
+        EN TIEMPO</span>
 </div>
 
 <!-- ═══ TABS ÁREAS AGENCIA ═══ -->
@@ -51,8 +100,7 @@
     <?php foreach ($areasAgencia as $area): ?>
         <?php $countNuevasArea = $stats_areas[$area['id']] ?? 0; ?>
         <a href="<?= site_url('admin/kanban/' . $idEmpresa . '/' . $area['id']) ?>"
-            class="kb-area-tab <?= $idAreaAgencia == $area['id'] ? 'activo' : '' ?>"
-            style="position: relative;">
+            class="kb-area-tab <?= $idAreaAgencia == $area['id'] ? 'activo' : '' ?>">
             <?= esc($area['nombre']) ?>
             <?php if ($countNuevasArea > 0): ?>
                 <span class="area-badge-notif"><?= $countNuevasArea ?></span>
@@ -79,20 +127,66 @@
                 <?php else: ?>
                     <?php
                     usort($col['items'], function ($a, $b) {
+                        // 1. Priorizar por Fecha de Entrega (Urgencia)
+                        $tA = !empty($a['fecharequerida']) ? strtotime(date('Y-m-d', strtotime($a['fecharequerida']))) : 9999999999;
+                        $tB = !empty($b['fecharequerida']) ? strtotime(date('Y-m-d', strtotime($b['fecharequerida']))) : 9999999999;
+
+                        if ($tA !== $tB) {
+                            return $tA <=> $tB;
+                        }
+
+                        // 2. Si la fecha es igual, priorizar por Prioridad manual (Alta > Media > Baja)
                         $prios = ['Alta' => 1, 'Media' => 2, 'Baja' => 3];
                         $vA = $prios[$a['prioridad_admin'] ?? ($a['prioridad'] ?? 'Media')] ?? 2;
                         $vB = $prios[$b['prioridad_admin'] ?? ($b['prioridad'] ?? 'Media')] ?? 2;
+
                         return $vA <=> $vB;
                     });
                     ?>
                     <?php foreach ($col['items'] as $p): ?>
-                        <div class="kb-card <?= ($estado === 'pendiente_sin_asignar') ? 'js-draggable' : '' ?>" data-id="<?= $p['id'] ?>">
+                        <?php
+                        // Cálculo de SLA para Filtros y Colores
+                        $slaCls = 'sla-normal';
+                        $slaType = 'tiempo';
+                        $slaText = ' • EN TIEMPO';
+                        if (!empty($p['fecharequerida'])) {
+                            $t_hoy = strtotime(date('Y-m-d'));
+                            $t_vence = strtotime(date('Y-m-d', strtotime($p['fecharequerida'])));
+                            $diff_dias = ($t_vence - $t_hoy) / 86400;
+                            if ($diff_dias < 0) {
+                                $slaCls = 'sla-critico';
+                                $slaType = 'hoy';
+                                $slaText = ' • ATRASADO';
+                            } elseif ($diff_dias == 0) {
+                                $slaCls = 'sla-critico';
+                                $slaType = 'hoy';
+                                $slaText = ' • HOY';
+                            } elseif ($diff_dias == 1) {
+                                $slaCls = 'sla-advertencia';
+                                $slaType = 'manana';
+                                $slaText = ' • MAÑANA';
+                            }
+                        }
+                        ?>
+                        <div class="kb-card <?= ($estado === 'pendiente_sin_asignar') ? 'js-draggable' : '' ?>"
+                            data-id="<?= $p['id'] ?>" data-sla="<?= $slaType ?>" style="display: block;">
                             <div class="kb-card-top">
-                                <div class="kb-card-info">
-                                    <span class="kb-card-empresa"><?= esc($p['nombreempresa']) ?></span>
-                                    <span class="kb-card-title"><?= esc($p['titulo'] ?? 'Sin título') ?></span>
+                                <div class="kb-card-info" style="flex: 1; min-width: 0;">
+                                    <span class="kb-card-empresa"
+                                        style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%;"><?= esc($p['nombreempresa']) ?></span>
+                                    <span class="kb-card-title"
+                                        style="white-space: normal; word-break: break-word;"><?= esc($p['titulo'] ?? 'Sin título') ?></span>
                                 </div>
-                                <div class="kb-card-id">#<?= $p['id'] ?></div>
+                                <div
+                                    style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px; margin-left: 10px;">
+                                    <div class="kb-card-id">#<?= $p['id'] ?></div>
+                                    <?php if (!empty($p['fecharequerida'])): ?>
+                                        <div class="sla-badge <?= $slaCls ?>"
+                                            style="font-size: 8px; padding: 2px 6px; border-radius: 4px; border: 1px solid currentColor; font-weight: 900; text-transform: uppercase; white-space: nowrap;">
+                                            <?= date('d/m', strtotime($p['fecharequerida'])) ?>                 <?= $slaText ?>
+                                        </div>
+                                    <?php endif ?>
+                                </div>
                             </div>
 
                             <?php if (($p['num_modificaciones'] ?? 0) > 0): ?>
@@ -120,14 +214,13 @@
                                 </span>
                             </div>
 
-
                             <div class="kb-card-footer">
                                 <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                                     <?php if ($p['idempleado']): ?>
-                                        <?php 
-                                            $nombreComp = $p['empleado_nombre'] . ' ' . ($p['empleado_apellidos'] ?? '');
-                                            $empIni = mb_strtoupper(mb_substr($p['empleado_nombre'], 0, 1) . (mb_substr($p['empleado_apellidos'] ?? '', 0, 1))); 
-                                            $enDesarrolloReal = (!empty($p['fechainicio']) && $estado === 'en_proceso');
+                                        <?php
+                                        $nombreComp = $p['empleado_nombre'] . ' ' . ($p['empleado_apellidos'] ?? '');
+                                        $empIni = mb_strtoupper(mb_substr($p['empleado_nombre'], 0, 1) . (mb_substr($p['empleado_apellidos'] ?? '', 0, 1)));
+                                        $enDesarrolloReal = (!empty($p['fechainicio']) && $estado === 'en_proceso');
                                         ?>
                                         <div class="kb-card-user <?= $enDesarrolloReal ? 'en-desarrollo' : '' ?>">
                                             <div class="kb-user-avatar-wrapper">
@@ -140,9 +233,9 @@
                                                     </span>
                                                 <?php endif ?>
                                                 <span class="kb-user-name">
-                                                    <?php 
-                                                        $primerApellido = explode(' ', trim($p['empleado_apellidos'] ?? ''))[0];
-                                                        echo esc($p['empleado_nombre'] . ' ' . $primerApellido);
+                                                    <?php
+                                                    $primerApellido = explode(' ', trim($p['empleado_apellidos'] ?? ''))[0];
+                                                    echo esc($p['empleado_nombre'] . ' ' . $primerApellido);
                                                     ?>
                                                 </span>
                                             </div>
@@ -155,38 +248,39 @@
                                             <span class="kb-user-name sin-asignar-text">Pendiente</span>
                                         </div>
                                     <?php endif ?>
-
-                                    <?php if (!empty($p['fecharequerida'])): ?>
-                                        <div class="kb-card-fecha" style="margin-bottom:0; font-size:10px;">
-                                            <i class="bi bi-clock"></i> Límite: <?= date('d/m', strtotime($p['fecharequerida'])) ?>
-                                        </div>
-                                    <?php endif ?>
                                 </div>
                             </div>
 
                             <div class="kb-card-actions">
                                 <?php if ($estado === 'pendiente_sin_asignar'): ?>
-                                    <div class="kb-action-group">
-                                        <button class="kb-btn kb-btn-primary" onclick="verDetalle(<?= $p['id'] ?>)" style="flex-grow: 1;">
+                                    <div class="kb-action-group" style="width: 100%; display: flex; gap: 8px;">
+                                        <button class="kb-btn kb-btn-primary" onclick="verDetalle(<?= $p['id'] ?>)"
+                                            style="flex: 1; min-width: 120px;">
                                             <i class="bi bi-search"></i> REVISAR
                                         </button>
-                                        <button class="kb-btn kb-btn-danger" onclick="cancelarAtencion(<?= $p['id'] ?>)" title="Cancelar Requerimiento">
+                                        <button class="kb-btn kb-btn-danger" onclick="cancelarAtencion(<?= $p['id'] ?>)"
+                                            title="Cancelar Requerimiento" style="width: 40px; flex-shrink: 0;">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
                                     </div>
                                 <?php elseif ($estado === 'en_proceso'): ?>
-                                    <button class="kb-btn kb-btn-secondary" onclick="verDetalle(<?= $p['id'] ?>)">
-                                        <i class="bi bi-info-circle"></i> DETALLES
-                                    </button>
+                                    <div class="kb-action-group" style="width: 100%; display: flex; gap: 8px;">
+                                        <button class="kb-btn kb-btn-secondary" onclick="verDetalle(<?= $p['id'] ?>)"
+                                            style="flex: 1; min-width: 120px;">
+                                            <i class="bi bi-info-circle"></i> DETALLES
+                                        </button>
+                                    </div>
                                 <?php elseif ($estado === 'en_revision'): ?>
                                     <div class="kb-action-group">
                                         <button class="kb-btn kb-btn-view" onclick="verDetalle(<?= $p['id'] ?>)" title="Ver">
                                             <i class="bi bi-eye"></i>
                                         </button>
-                                        <button class="kb-btn kb-btn-danger" onclick="solicitarRetroalimentacion(<?= $p['id'] ?>)" title="Regresar">
+                                        <button class="kb-btn kb-btn-danger" onclick="solicitarRetroalimentacion(<?= $p['id'] ?>)"
+                                            title="Regresar">
                                             <i class="bi bi-arrow-counterclockwise"></i>
                                         </button>
-                                        <button class="kb-btn kb-btn-success" onclick="cambiarEstado(<?= $p['id'] ?>, 'finalizado', 'Aprobar')" title="Aprobar">
+                                        <button class="kb-btn kb-btn-success"
+                                            onclick="cambiarEstado(<?= $p['id'] ?>, 'finalizado', 'Aprobar')" title="Aprobar">
                                             <i class="bi bi-check-lg"></i> OK
                                         </button>
                                     </div>
@@ -232,22 +326,28 @@
 <template id="template-detalle-kanban">
     <div class="exp-container">
         <!-- HEADER SECCIÓN -->
-        <div class="exp-header-layout" style="padding: 40px 30px 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+        <div class="exp-header-layout"
+            style="padding: 40px 30px 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
             <div style="flex: 1; min-width: 0;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                     <span class="tpl-status-pill"></span>
                     <span style="color:#444; font-size:11px; font-weight:800;">ID: <span class="tpl-id"></span></span>
                 </div>
-                <h2 class="tpl-titulo" style="font-family:'Bebas Neue'; font-size:48px; color:#fff; letter-spacing:1px; margin:0; line-height:1.1; word-wrap:break-word; overflow-wrap:break-word;"></h2>
+                <h2 class="tpl-titulo"
+                    style="font-family:'Bebas Neue'; font-size:48px; color:#fff; letter-spacing:1px; margin:0; line-height:1.1; word-wrap:break-word; overflow-wrap:break-word;">
+                </h2>
                 <div style="margin-top:15px; display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
-                    <span style="color:#F5C400; font-weight:800; font-size:14px;"><i class="bi bi-building"></i> <span class="tpl-empresa"></span></span>
+                    <span style="color:#F5C400; font-weight:800; font-size:14px;"><i class="bi bi-building"></i> <span
+                            class="tpl-empresa"></span></span>
                     <span style="color:#222;">|</span>
-                    <span style="color:#888; font-size:13px; font-weight:600;">ÁREA: <span class="tpl-area"></span></span>
+                    <span style="color:#888; font-size:13px; font-weight:600;">ÁREA: <span
+                            class="tpl-area"></span></span>
                 </div>
             </div>
             <div style="text-align:right; flex-shrink:0;">
                 <div class="tpl-servicio" style="font-family:'Bebas Neue'; font-size:24px; color:#F5C400;"></div>
-                <div style="color:#444; font-size:10px; font-weight:800; letter-spacing:1px; margin-top:5px;">ATENCIÓN #<span class="tpl-idatencion"></span></div>
+                <div style="color:#444; font-size:10px; font-weight:800; letter-spacing:1px; margin-top:5px;">ATENCIÓN
+                    #<span class="tpl-idatencion"></span></div>
             </div>
         </div>
 
@@ -257,10 +357,11 @@
         <div class="exp-grid">
             <!-- COLUMNA PRINCIPAL -->
             <div class="exp-main-col">
-                
+
                 <!-- Descripción -->
                 <div class="exp-card">
-                    <div class="exp-card-header"><i class="bi bi-file-text"></i> <span>DESCRIPCIÓN DEL REQUERIMIENTO</span></div>
+                    <div class="exp-card-header"><i class="bi bi-file-text"></i> <span>DESCRIPCIÓN DEL
+                            REQUERIMIENTO</span></div>
                     <div class="exp-card-body">
                         <div class="data-value tpl-descripcion" style="font-size:13px; color:#ccc;"></div>
                     </div>
@@ -268,7 +369,8 @@
 
                 <!-- Estrategia -->
                 <div class="exp-card">
-                    <div class="exp-card-header"><i class="bi bi-compass"></i> <span>ESTRATEGIA DE COMUNICACIÓN</span></div>
+                    <div class="exp-card-header"><i class="bi bi-compass"></i> <span>ESTRATEGIA DE COMUNICACIÓN</span>
+                    </div>
                     <div class="exp-card-body">
                         <div class="data-row">
                             <div class="data-box">
@@ -297,7 +399,8 @@
 
                 <!-- Recursos Cliente -->
                 <div class="exp-card" style="margin-top:25px;">
-                    <div class="exp-card-header"><i class="bi bi-folder-symlink"></i> <span>RECURSOS DEL CLIENTE</span></div>
+                    <div class="exp-card-header"><i class="bi bi-folder-symlink"></i> <span>RECURSOS DEL CLIENTE</span>
+                    </div>
                     <div class="exp-card-body tpl-archivos-cliente"></div>
                 </div>
 
@@ -307,7 +410,7 @@
 
             <!-- SIDEBAR -->
             <div class="exp-sidebar">
-                
+
                 <!-- Responsable -->
                 <div class="exp-card">
                     <div class="exp-card-header"><i class="bi bi-person-badge"></i> <span>RESPONSABLE</span></div>
@@ -337,7 +440,7 @@
                 <div class="exp-card">
                     <div class="exp-card-header"><i class="bi bi-shield-check"></i> <span>CONTROL Y GESTIÓN</span></div>
                     <div class="exp-card-body">
-                        
+
                         <!-- Prioridad  -->
                         <div class="priority-manager">
                             <span class="data-label">PRIORIDAD</span>
@@ -354,9 +457,11 @@
                             </div>
                         </div>
 
-                        <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:15px; border-radius:12px; border:1px solid #111;">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:15px; border-radius:12px; border:1px solid #111;">
                             <span class="data-label" style="margin:0;">MODIFICACIONES</span>
-                            <span class="tpl-modificaciones" style="background:#F5C400; color:#000; padding:4px 12px; border-radius:8px; font-weight:900; font-size:14px;"></span>
+                            <span class="tpl-modificaciones"
+                                style="background:#F5C400; color:#000; padding:4px 12px; border-radius:8px; font-weight:900; font-size:14px;"></span>
                         </div>
                     </div>
                 </div>
@@ -366,11 +471,42 @@
 
         <!-- FOOTER ACCIONES -->
         <div style="margin-top:30px; padding:30px; border-top:1px solid #151515; display:flex; justify-content:center;">
-            <button class="btn" data-dismiss="modal" style="background:#111; border:1px solid #222; font-family:'Bebas Neue'; font-size:20px; letter-spacing:2px; padding:12px 60px; border-radius:12px; color:#F5C400; transition:all 0.3s;">
+            <button class="btn" data-dismiss="modal"
+                style="background:#111; border:1px solid #222; font-family:'Bebas Neue'; font-size:20px; letter-spacing:2px; padding:12px 60px; border-radius:12px; color:#F5C400; transition:all 0.3s;">
                 CERRAR EXPEDIENTE DIGITAL
             </button>
         </div>
     </div>
 </template>
+
+<script>
+    /**
+     * Filtra las tarjetas del Kanban según su estado de SLA
+     */
+    function filterKanban(type) {
+        const cards = document.querySelectorAll('.kb-card');
+        const buttons = document.querySelectorAll('.kb-filter-btn');
+
+        // 1. Actualizar estado visual de los botones
+        buttons.forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.getElementById('btn-filter-' + type);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        // 2. Filtrar tarjetas
+        cards.forEach(card => {
+            if (type === 'all') {
+                card.style.display = 'block'; // Volver al estado original
+                card.style.opacity = '1';
+            } else {
+                if (card.dataset.sla === type) {
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                } else {
+                    card.style.display = 'none';
+                }
+            }
+        });
+    }
+</script>
 
 <?= $this->endSection() ?>
