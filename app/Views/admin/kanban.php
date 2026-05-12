@@ -374,20 +374,39 @@
                     <span style="color:#444; font-size:11px; font-weight:800;">ID: <span class="tpl-id"></span></span>
                 </div>
                 <h2 class="tpl-titulo"
-                    style="font-family:'Bebas Neue'; font-size:48px; color:#fff; letter-spacing:1px; margin:0; line-height:1.1; word-wrap:break-word; overflow-wrap:break-word;">
-                </h2>
+                    style="font-family:'Bebas Neue'; font-size:48px; color:#fff; letter-spacing:1px; margin:0; line-height:1.1; word-wrap:break-word; overflow-wrap:break-word;"></h2>
+                
                 <div style="margin-top:15px; display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
-                    <span style="color:#F5C400; font-weight:800; font-size:14px;"><i class="bi bi-building"></i> <span
-                            class="tpl-empresa"></span></span>
+                    <!-- Empresa y Área -->
+                    <span style="color:#F5C400; font-weight:800; font-size:14px;"><i class="bi bi-building"></i> <span class="tpl-empresa"></span></span>
                     <span style="color:#222;">|</span>
-                    <span style="color:#888; font-size:13px; font-weight:600;">ÁREA: <span
-                            class="tpl-area"></span></span>
+                    <span style="color:#888; font-size:13px; font-weight:600; letter-spacing:0.5px;">ÁREA: <span class="tpl-area"></span></span>
+                    
+                    <!-- Separador con Contacto -->
+                    <span style="width:1px; height:15px; background:rgba(255,255,255,0.1); margin:0 5px;"></span>
+                    
+                    <!-- Contacto del Responsable -->
+                    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <span style="color:#fff; font-size:12px; font-weight:700;">
+                            <i class="bi bi-person-fill" style="color:#F5C400; margin-right:4px;"></i>
+                            <span class="tpl-cliente-nombre"></span>
+                        </span>
+                        <span style="color:#222;">|</span>
+                        <span style="color:#fff; font-size:12px; font-weight:700;">
+                            <i class="bi bi-telephone-fill" style="color:#F5C400; margin-right:4px;"></i>
+                            <span class="tpl-cliente-telefono"></span>
+                        </span>
+                        <span style="color:#222;">|</span>
+                        <span style="color:#fff; font-size:12px; font-weight:700;">
+                            <i class="bi bi-envelope-fill" style="color:#F5C400; margin-right:4px;"></i>
+                            <span class="tpl-cliente-correo"></span>
+                        </span>
+                    </div>
                 </div>
             </div>
             <div style="text-align:right; flex-shrink:0;">
-                <div class="tpl-servicio" style="font-family:'Bebas Neue'; font-size:24px; color:#F5C400;"></div>
-                <div style="color:#444; font-size:10px; font-weight:800; letter-spacing:1px; margin-top:5px;">ATENCIÓN
-                    #<span class="tpl-idatencion"></span></div>
+                <div class="tpl-servicio" style="font-family:'Bebas Neue'; font-size:28px; color:#F5C400; line-height:1;"></div>
+                <div style="color:#444; font-size:11px; font-weight:800; letter-spacing:1px; margin-top:8px;">ATENCIÓN #<span class="tpl-idatencion"></span></div>
             </div>
         </div>
 
@@ -552,37 +571,28 @@
 <!-- ═══ MODAL: PEDIDOS ATRASADOS ═══ -->
 <?php if (!empty($atrasados)): ?>
 <div id="modalAtrasados" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#0d0d0d; border:1px solid #1a1a1a; border-radius:20px; width:100%; max-width:800px; max-height:85vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 30px 60px rgba(0,0,0,0.6);">
+    <div style="background:#080808; width:95%; max-width:1100px; max-height:85vh; border:1px solid #222; border-radius:12px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 15px 40px rgba(0,0,0,0.7);">
         
         <!-- Header -->
-        <div style="padding:25px 30px; border-bottom:1px solid #1a1a1a; display:flex; align-items:center; justify-content:space-between;">
-            <div style="display:flex; align-items:center; gap:14px;">
-                <div style="width:44px; height:44px; border-radius:12px; background:rgba(255,77,77,0.12); display:flex; align-items:center; justify-content:center;">
-                    <i class="bi bi-exclamation-triangle-fill" style="color:#ff4d4d; font-size:22px;"></i>
-                </div>
-                <div>
-                    <div style="font-family:'Bebas Neue'; font-size:26px; color:#fff; letter-spacing:1px;">PEDIDOS ATRASADOS</div>
-                    <div style="font-size:12px; color:#666;"><?= esc($empresa['nombreempresa']) ?> — <?= count($atrasados) ?> pedido<?= count($atrasados) > 1 ? 's' : '' ?> vencido<?= count($atrasados) > 1 ? 's' : '' ?></div>
-                </div>
-            </div>
-            <button onclick="document.getElementById('modalAtrasados').style.display='none'" 
-                style="background:none; border:none; color:#555; font-size:28px; cursor:pointer; transition:color 0.2s;"
-                onmouseover="this.style.color='#ff4d4d'" onmouseout="this.style.color='#555'">
-                <i class="bi bi-x-lg"></i>
-            </button>
+        <div style="padding:20px 30px; background:#0f0f0f; border-bottom:1px solid #222; display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="margin:0; font-family:'Bebas Neue'; font-size:24px; color:#fff; letter-spacing:1px; text-transform:uppercase;">
+                <?= esc($empresa['nombreempresa']) ?> — <span style="color:#ff4d4d;"><?= count($atrasados) ?> PEDIDOS VENCIDOS</span>
+            </h3>
+            <button onclick="document.getElementById('modalAtrasados').style.display='none'" style="background:transparent; border:none; color:#555; font-size:24px; cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">&times;</button>
         </div>
 
         <!-- Body -->
-        <div style="padding:20px 30px; overflow-y:auto; flex:1;">
+        <div style="padding:15px 25px; overflow-y:auto; flex:1; background:#080808;">
             <table style="width:100%; border-collapse:collapse;">
                 <thead>
-                    <tr style="border-bottom:2px solid #1a1a1a;">
-                        <th style="padding:10px 8px; text-align:left; font-size:11px; color:#555; font-weight:800; letter-spacing:1px;">ID</th>
-                        <th style="padding:10px 8px; text-align:left; font-size:11px; color:#555; font-weight:800; letter-spacing:1px;">PEDIDO</th>
-                        <th style="padding:10px 8px; text-align:left; font-size:11px; color:#555; font-weight:800; letter-spacing:1px;">ÁREA</th>
-                        <th style="padding:10px 8px; text-align:center; font-size:11px; color:#555; font-weight:800; letter-spacing:1px;">PRIORIDAD</th>
-                        <th style="padding:10px 8px; text-align:center; font-size:11px; color:#555; font-weight:800; letter-spacing:1px;">FECHA LÍMITE</th>
-                        <th style="padding:10px 8px; text-align:center; font-size:11px; color:#555; font-weight:800; letter-spacing:1px;">ATRASO</th>
+                    <tr style="border-bottom:1px solid #222;">
+                        <th style="padding:12px 10px; text-align:left; font-size:11px; color:#F5C400; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">ID</th>
+                        <th style="padding:12px 10px; text-align:left; font-size:11px; color:#F5C400; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">PEDIDO</th>
+                        <th style="padding:12px 10px; text-align:left; font-size:11px; color:#F5C400; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">ÁREA</th>
+                        <th style="padding:12px 10px; text-align:center; font-size:11px; color:#F5C400; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">PRIORIDAD</th>
+                        <th style="padding:12px 10px; text-align:center; font-size:11px; color:#F5C400; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">SOLICITUD</th>
+                        <th style="padding:12px 10px; text-align:center; font-size:11px; color:#F5C400; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">FECHA LÍMITE</th>
+                        <th style="padding:12px 10px; text-align:center; font-size:11px; color:#F5C400; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;">ATRASO</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -593,26 +603,29 @@
                             'Alta' => '#ff4d4d',
                             'Media' => '#f97316',
                             'Baja' => '#10b981',
-                            default => '#666'
+                            default => '#fff'
                         };
                     ?>
-                    <tr style="border-bottom:1px solid #111; transition:background 0.2s;" onmouseover="this.style.background='#111'" onmouseout="this.style.background='transparent'">
-                        <td style="padding:14px 8px; color:#555; font-weight:700; font-size:13px;">#<?= $at['id'] ?></td>
-                        <td style="padding:14px 8px;">
-                            <div style="color:#fff; font-weight:700; font-size:14px; margin-bottom:2px;"><?= esc($at['titulo']) ?></div>
-                            <div style="color:#444; font-size:11px;"><?= str_replace('_', ' ', ucfirst($at['estado'])) ?></div>
+                    <tr style="border-bottom:1px solid #1a1a1a; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                        <td style="padding:15px 10px; color:#888; font-weight:700; font-size:13px;">#<?= $at['id'] ?></td>
+                        <td style="padding:15px 10px;">
+                            <div style="color:#fff; font-weight:700; font-size:14px; margin-bottom:3px;"><?= esc($at['titulo']) ?></div>
+                            <div style="color:#F5C400; font-size:10px; font-weight:700; text-transform:uppercase; opacity:0.8;"><?= str_replace('_', ' ', ucfirst($at['estado'])) ?></div>
                         </td>
-                        <td style="padding:14px 8px; color:#888; font-size:12px; font-weight:600;"><?= esc($at['nombre_area'] ?? '—') ?></td>
-                        <td style="padding:14px 8px; text-align:center;">
-                            <span style="background:<?= $prioColor ?>22; color:<?= $prioColor ?>; padding:3px 10px; border-radius:6px; font-size:11px; font-weight:800;"><?= $at['prioridad'] ?></span>
+                        <td style="padding:15px 10px; color:#fff; font-size:13px; font-weight:600; opacity:0.9;"><?= esc($at['nombre_area'] ?? '—') ?></td>
+                        <td style="padding:15px 10px; text-align:center;">
+                            <span style="background:<?= $prioColor ?>; color:#000; padding:3px 10px; border-radius:4px; font-size:10px; font-weight:800; text-transform:uppercase; display:inline-block; min-width:70px;"><?= $at['prioridad'] ?></span>
                         </td>
-                        <td style="padding:14px 8px; text-align:center; color:#ff4d4d; font-weight:700; font-size:13px;">
+                        <td style="padding:15px 10px; text-align:center; color:#fff; font-weight:600; font-size:13px; opacity:0.7;">
+                            <?= date('d/m/Y', strtotime($at['fechacreacion'])) ?>
+                        </td>
+                        <td style="padding:15px 10px; text-align:center; color:#fff; font-weight:800; font-size:13px;">
                             <?= date('d/m/Y', strtotime($at['fecharequerida'])) ?>
                         </td>
-                        <td style="padding:14px 8px; text-align:center;">
-                            <span style="background:rgba(255,77,77,0.12); color:#ff4d4d; padding:4px 12px; border-radius:8px; font-weight:900; font-size:13px;">
-                                <?= $diasAtraso ?> día<?= $diasAtraso > 1 ? 's' : '' ?>
-                            </span>
+                        <td style="padding:15px 10px; text-align:center;">
+                            <div style="background:#ff4d4d; color:#fff; padding:5px 12px; border-radius:4px; font-weight:800; font-size:12px; display:inline-block;">
+                                <?= $diasAtraso ?> DÍAS
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach ?>
@@ -621,11 +634,11 @@
         </div>
 
         <!-- Footer -->
-        <div style="padding:20px 30px; border-top:1px solid #1a1a1a; text-align:center;">
+        <div style="padding:15px 30px; border-top:1px solid #222; text-align:center; background:#0f0f0f;">
             <button onclick="document.getElementById('modalAtrasados').style.display='none'"
-                style="background:#111; border:1px solid #222; font-family:'Bebas Neue'; font-size:18px; letter-spacing:2px; padding:12px 50px; border-radius:12px; color:#ff4d4d; cursor:pointer; transition:all 0.3s;"
-                onmouseover="this.style.background='#ff4d4d'; this.style.color='#000';" onmouseout="this.style.background='#111'; this.style.color='#ff4d4d';">
-                CERRAR
+                style="background:#111; border:1px solid #222; font-family:'Bebas Neue'; font-size:16px; letter-spacing:1px; padding:10px 40px; border-radius:8px; color:#F5C400; cursor:pointer; transition:all 0.3s;"
+                onmouseover="this.style.background='#F5C400'; this.style.color='#000';" onmouseout="this.style.background='#111'; this.style.color='#F5C400';">
+                CERRAR LISTADO
             </button>
         </div>
     </div>

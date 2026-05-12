@@ -297,6 +297,11 @@ async function verDetalle(idAtencion) {
     clone.querySelector('.tpl-idatencion').textContent = d.id.toString().padStart(5, "0");
     clone.querySelector('.tpl-descripcion').textContent = d.descripcion || "Sin descripción adicional.";
 
+    // ── Datos del Cliente Responsable (Contacto) ──
+    clone.querySelector('.tpl-cliente-nombre').textContent = (d.cliente_nombre + " " + (d.cliente_apellidos || "")).toUpperCase();
+    clone.querySelector('.tpl-cliente-telefono').textContent = d.cliente_telefono || "SIN NÚMERO";
+    clone.querySelector('.tpl-cliente-correo').textContent = (d.cliente_correo || "SIN CORREO").toLowerCase();
+
     // ── Estrategia ──
     clone.querySelector('.tpl-objetivo').textContent = d.objetivo_comunicacion && d.objetivo_comunicacion.trim() !== '' ? d.objetivo_comunicacion : '---';
     clone.querySelector('.tpl-publico').textContent = d.publico_objetivo && d.publico_objetivo.trim() !== '' ? d.publico_objetivo : '---';

@@ -124,11 +124,14 @@ class kanban extends Controller
                 r.url_subida,
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
                 e.nombreempresa,
-                u_sol.nombre AS cliente_nombre,
-                ar.nombre AS area_solicitante_nombre,
-                aa.nombre AS area_nombre,
-                u.nombre    AS empleado_nombre,
-                u.apellidos AS empleado_apellidos
+                u_sol.nombre    AS cliente_nombre,
+                u_sol.apellidos AS cliente_apellidos,
+                u_sol.correo    AS cliente_correo,
+                u_sol.telefono  AS cliente_telefono,
+                ar.nombre       AS area_solicitante_nombre,
+                aa.nombre       AS area_nombre,
+                u.nombre        AS empleado_nombre,
+                u.apellidos     AS empleado_apellidos
             FROM atencion a
             LEFT JOIN requerimiento r  ON r.id     = a.idrequerimiento
             LEFT JOIN usuarios u_sol   ON u_sol.id = r.idusuarioempresa

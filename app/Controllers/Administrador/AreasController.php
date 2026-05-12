@@ -5,6 +5,7 @@
   use CodeIgniter\Controller;
   use App\Models\AreasAgenciaModel;
   use App\Models\EmpresaModel;
+  use App\Models\ServicioModel;
 
   class AreasController extends Controller
   {
@@ -112,13 +113,35 @@
       {
           $json  = $this->request->getJSON(true);
           $model = new AreasAgenciaModel();
+          $servicioModel = new ServicioModel();
 
+          // 1. Obtener nombre anterior para la sincronización
+          $areaAntigua = $model->find($id);
+          $nombreAnterior = $areaAntigua ? $areaAntigua['nombre'] : null;
+
+          // 2. Actualizar el área
           $model->update($id, [
               'nombre'      => $json['nombre'],
               'descripcion' => $json['descripcion'] ?? null,
           ]);
 
-          return $this->response->setJSON(['success' => true, 'message' => 'Área actualizada']);
+          // 3. Sincronizar nombres de servicios asociados
+          if ($nombreAnterior) {
+              $servicios = $servicioModel->findAll();
+              foreach ($servicios as $s) {
+                  // Si el servicio estaba vinculado a esta área (por ID o por nombre exacto anterior)
+                  if ($servicioModel->getAreaAgenciaByServicio((int)$s['id']) == $id || 
+                      mb_strtolower(trim($s['nombre'])) == mb_strtolower(trim($nombreAnterior))) {
+                      
+                      $servicioModel->update($s['id'], [
+                          'nombre' => $json['nombre'],
+                          'descripcion' => $json['descripcion'] ?? $s['descripcion']
+                      ]);
+                  }
+              }
+          }
+
+          return $this->response->setJSON(['success' => true, 'message' => 'Área y servicios actualizados correctamente']);
       }
 
       /**
@@ -129,11 +152,23 @@
     {
         $json  = $this->request->getJSON(true);
         $model = new AreasAgenciaModel();
+        $servicioModel = new ServicioModel();
 
         $idArea      = $json['id'];
         $nuevoEstado = (bool) $json['estado'];
 
         if ($model->cambiarEstado($idArea, $nuevoEstado)) {
+            // Sincronizar estado de los servicios asociados
+            $area = $model->find($idArea);
+            if ($area) {
+                $servicios = $servicioModel->findAll();
+                foreach ($servicios as $s) {
+                    if ($servicioModel->getAreaAgenciaByServicio((int)$s['id']) == $idArea) {
+                        $servicioModel->update($s['id'], ['activo' => $nuevoEstado]);
+                    }
+                }
+            }
+
             $msg = $nuevoEstado ? 'habilitada' : 'deshabilitada';
             return $this->response->setJSON([
                 'success' => true,

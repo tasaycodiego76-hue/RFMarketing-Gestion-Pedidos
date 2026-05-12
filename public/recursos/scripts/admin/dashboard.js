@@ -9,14 +9,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnNext = document.getElementById('btnNext');
 
     if (empScroll && btnPrev && btnNext) {
-        const scrollAmount = 375;
+        // Cálculo dinámico del ancho de scroll basado en la tarjeta + gap
+        const getScrollAmount = () => {
+            const card = empScroll.querySelector('.emp-card');
+            return card ? card.offsetWidth + 24 : 375;
+        };
 
         btnNext.addEventListener('click', () => {
-            empScroll.scrollLeft += scrollAmount;
+            empScroll.scrollLeft += getScrollAmount();
         });
 
         btnPrev.addEventListener('click', () => {
-            empScroll.scrollLeft -= scrollAmount;
+            empScroll.scrollLeft -= getScrollAmount();
         });
     }
 

@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Construimos el HTML de las cards recorriendo los datos recibidos.
       let html = datos.map(s => `
-        <div class="servicio-card" data-id="${s.id}" data-nombre="${s.nombre}">
+        <div class="servicio-card" data-id="${s.id}" data-nombre="${s.nombre}" data-area="${s.idarea_agencia || 0}">
           <div class="servicio-card-info">
             <p class="servicio-card-nombre">${s.nombre}</p>
             <p class="servicio-card-desc">${s.descripcion || ""}</p>
@@ -261,8 +261,19 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // Se activa al hacer clic en un servicio (ej: Diseño). Prepara todo para el Paso 1.
-  const elegirServicio = (id, nombre) => {
+  const elegirServicio = (id, nombre, idAreaAgencia = 0) => {
     nombreServicioSeleccionado = nombre || "Personalizado";
+
+    // Si el ID del área no viene explícito, intentamos deducirlo por el ID del servicio
+    // o por el nombre (para el caso de Personalizado)
+    let areaId = parseInt(idAreaAgencia);
+    if (!areaId) {
+      if (id == "1") areaId = 1;
+      else if (id == "2") areaId = 2;
+      else if (id == "3") areaId = 3;
+      else if (id == "4") areaId = 4;
+      else areaId = 0; // Genérico
+    }
 
     document.getElementById("form-idservicio").value = id; // Guardamos el ID del servicio para Envio Final
     document.getElementById("wbadge-container").textContent = nombreServicioSeleccionado; // Colocamos el Servicio en una Etiqueta para el Modal
@@ -280,9 +291,10 @@ document.addEventListener("DOMContentLoaded", function () {
         <span>${op}</span>
       </label>`).join("");
 
-    // Llenamos la lista de formatos (checks) según el servicio que eligió.
+    // Llenamos la lista de formatos (checks) según el ÁREA que eligió.
     const cf = document.getElementById("formatos-checks");
-    const listaFormatos = FORMATOS[id] || FORMATOS[0];
+    // REGLA: Todas las nuevas áreas usan el formulario de DISEÑO (1), excepto Audiovisual (2).
+    const listaFormatos = (areaId == 2) ? FORMATOS[2] : FORMATOS[1];
     if (cf) cf.innerHTML = listaFormatos.map(op => `
       <label class="check-item">
         <input type="checkbox" name="formatos[]" value="${op}">
@@ -290,8 +302,12 @@ document.addEventListener("DOMContentLoaded", function () {
       </label>`).join("");
 
     // Cargamos las opciones de complejidad (Adaptación, Creación) en el selector.
+    // Si es área Audiovisual (2), usamos sus tipos. Si es Diseño (1) o cualquier otra nueva área, 
+    // usamos TIPOS_DISENO como base (que son los universales de creación/adaptación).
+    const tiposOpciones = (areaId == 2) ? TIPOS_AUDIOVISUAL : TIPOS_DISENO;
+    
     selectTipoReq.innerHTML = '<option value="" selected disabled>Seleccionar...</option>' +
-      Object.entries(id == "2" ? TIPOS_AUDIOVISUAL : TIPOS_DISENO)
+      Object.entries(tiposOpciones)
         .map(([k, v]) => `<option value="${k}">${v.label} — ${v.dias} días hábiles</option>`).join("");
 
     // Ocultamos el cuadro de info técnica por si estaba abierto de antes.
@@ -457,7 +473,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Detecta el clic en cualquier card de servicio para iniciar el Wizard.
   listaServicios?.addEventListener("click", (e) => {
     const card = e.target.closest(".servicio-card");
-    if (card) elegirServicio(card.dataset.id, card.dataset.nombre);
+    if (card) elegirServicio(card.dataset.id, card.dataset.nombre, card.dataset.area);
   });
 
   // Al cambiar EL Tipo Req, actualizamos la descripción técnica abajo del select.
@@ -580,7 +596,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
     // Si el servicio es personalizado, usamos ese título, si no, el normal
     let tituloFinal = inputTitulo?.value || "";
-    if (nombreServicioSeleccionado === "Otro (Personalizado)") {
+    if (nombreServicioSeleccionado === "Personalizado") {
         tituloFinal = inputTituloPerso?.value || tituloFinal;
     }
 
