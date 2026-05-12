@@ -1,0 +1,204 @@
+/* VARIABLES GLOBALES - TEMA CLARO */
+
+[data-theme="light"] {
+    --bg-primary: #f2f0ec;      /* fondo general — crema suave */
+    --bg-secondary: #faf9f7;    /* fondo sidebar y topbar — blanco cálido */
+    --bg-card: #ffffff;         /* fondo tarjetas */
+    --bg-hover: #ebe9e4;        /* hover de items */
+    --border-color: #e0dcd5;    /* líneas divisorias — tono cálido */
+
+    /* Colores de texto */
+    --text-primary: #1a1a2e;    /* texto principal */
+    --text-secondary: #4a4a5a;  /* texto secundario */
+    --text-muted: #7a7a8a;      /* texto tenue (labels) */
+
+    /* Colores de estado — ligeramente más saturados para fondo claro */
+    --success: #2ebd6b;
+    --warning: #d47a48;
+    --danger: #d44848;
+    --info: #3b8fd4;
+    
+    /* Colores de acento */
+    --accent-glow: rgba(232, 184, 0, 0.2);
+}
+
+/* COMPONENTES BÁSICOS */
+
+/* Tarjetas */
+[data-theme="light"] .card-rf,
+[data-theme="light"] .metrica-card {
+    background: #ffffff;
+    border-color: #e0dcd5;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
+
+/* Sidebar y Topbar (sombras y bordes) */
+[data-theme="light"] .sidebar {
+    background: var(--bg-secondary);
+    border-right-color: var(--border-color);
+    box-shadow: 2px 0 20px rgba(0,0,0,.08);
+}
+
+[data-theme="light"] .topbar {
+    background: var(--bg-secondary);
+    border-bottom-color: var(--border-color);
+    box-shadow: 0 1px 8px rgba(0,0,0,.06);
+}
+
+/* Botones en Sidebar (Hamburguesa, X, y menú) */
+[data-theme="light"] .hamburger-btn span {
+    background: var(--text-primary);
+}
+
+[data-theme="light"] .sidebar-close-btn,
+[data-theme="light"] .nav-link-item,
+[data-theme="light"] .logout-link {
+    color: var(--text-secondary);
+}
+
+[data-theme="light"] .nav-link-item:hover,
+[data-theme="light"] .logout-link:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .nav-link-item.active {
+    background: rgba(232, 184, 0, .10);
+    color: var(--accent-primary);
+    border-left-color: var(--accent-primary);
+}
+
+[data-theme="light"] .logout-link:hover {
+    color: var(--danger);
+}
+
+/* Textos específicos */
+[data-theme="light"] .brand-marketing,
+[data-theme="light"] .nav-section-label,
+[data-theme="light"] .profile-rol {
+    color: var(--text-muted);
+}
+
+[data-theme="light"] .page-subtitle {
+    color: var(--text-muted);
+}
+
+[data-theme="light"] .user-name {
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .user-role-text {
+    color: var(--accent-primary);
+}
+
+[data-theme="light"] .user-role {
+    color: var(--text-muted);
+}
+
+/* Botones genéricos */
+[data-theme="light"] .btn-rf-outline {
+    border-color: #c9c5bc;
+    color: var(--text-secondary);
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+[data-theme="light"] .btn-rf-outline:hover {
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+}
+
+/* Scrollbars Modales (KD System) */
+[data-theme="light"] .modal-body::-webkit-scrollbar-track {
+    background: #ede9e2;
+}
+
+[data-theme="light"] .modal-body::-webkit-scrollbar-thumb {
+    background: #c9c5bc;
+}
+
+[data-theme="light"] .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #a8a49c;
+}
+
+[data-theme="light"] .kd-sec {
+    background: #ffffff;
+    border-color: #e0dcd5;
+    border-left-color: var(--accent-primary);
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+
+[data-theme="light"] .kd-sec-title {
+    color: var(--accent-primary);
+}
+
+[data-theme="light"] .kd-label {
+    color: var(--text-muted);
+}
+
+[data-theme="light"] .kd-val {
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .kd-hr {
+    border-color: #ede9e3;
+}
+
+[data-theme="light"] .kd-pill {
+    background: #f5f2ec;
+    border-color: #d5d0c8;
+    color: var(--text-secondary);
+}
+
+/* Checkboxes personalizados */
+[data-theme="light"] .custom-check .form-check-input {
+    background-color: #ffffff;
+    border-color: #c9c5bc;
+}
+
+[data-theme="light"] .custom-check .form-check-input:checked {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+[data-theme="light"] .custom-check .form-check-label {
+    color: var(--text-secondary);
+}
+
+/* DASHBOARD */
+
+[data-theme="light"] .form-control-rf {
+    background: #f5f2ec;
+    border-color: #c9c5bc;
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .form-control-rf:focus {
+    background: #ffffff;
+    border-color: var(--accent-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(232, 184, 0, .12);
+}
+
+[data-theme="light"] select.form-control-rf option {
+    background: #ffffff;
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .checkbox-container {
+    color: var(--text-secondary);
+}
+
+[data-theme="light"] .text-muted-rf,
+[data-theme="light"] .text-small-muted {
+    color: var(--text-muted);
+}
+
+[data-theme="light"] .divider-rf {
+    border-color: #e0dcd5;
+}
+
+[data-theme="light"] .metrica-sub {
+    color: var(--text-muted);
+}

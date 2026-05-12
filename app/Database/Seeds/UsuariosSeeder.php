@@ -187,7 +187,7 @@ class UsuariosSeeder extends Seeder
                 'rol' => 'empleado',
                 'idarea_agencia' => 1,
                 'idarea' => null,
-                'esresponsable' => true,
+                'esresponsable' => true,    
                 'estado' => true,
             ],
             [

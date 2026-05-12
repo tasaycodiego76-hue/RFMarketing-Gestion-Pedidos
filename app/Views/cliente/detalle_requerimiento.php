@@ -245,92 +245,29 @@
     </div>
 
     <div class="col-12 mt-4">
-        <div class="card-dark-main p-3">
-            <label class="label-tiny mb-3 d-block">ARCHIVOS ENVIADOS POR EL CLIENTE</label>
-            <?php
-            $archivosCliente = array_filter($archivos ?? [], fn($archivo) => !empty($archivo['idrequerimiento']) && empty($archivo['idatencion']));
-            if (!empty($archivosCliente)):
-                ?>
-                <div class="d-flex flex-wrap gap-2">
-                    <?php foreach ($archivosCliente as $archivo): ?>
-                        <?php
-                        $icono = 'bi-file-earmark';
-                        $mime = $archivo['tipo'] ?? '';
-                        if (str_contains($mime, 'image'))
-                            $icono = 'bi-file-earmark-image';
-                        elseif (str_contains($mime, 'pdf'))
-                            $icono = 'bi-file-earmark-pdf';
-                        elseif (str_contains($mime, 'video'))
-                            $icono = 'bi-file-earmark-play';
-                        elseif (str_contains($mime, 'word'))
-                            $icono = 'bi-file-earmark-word';
-                        elseif (str_contains($mime, 'sheet') || str_contains($mime, 'excel'))
-                            $icono = 'bi-file-earmark-excel';
-
-                        $kb = number_format(($archivo['tamano'] ?? 0) / 1024, 1);
-                        ?>
-                        <a href="<?= base_url('cliente/archivos/' . ($archivo['id'] ?? '')) ?>" target="_blank"
-                            class="archivo-adjunto-card cliente-file" title="<?= esc($archivo['nombre']) ?>">
-                            <i class="bi <?= $icono ?>"></i>
-                            <div class="archivo-info">
-                                <span class="archivo-nombre"><?= esc($archivo['nombre']) ?></span>
-                                <span class="archivo-peso"><?= $kb ?> KB</span>
-                            </div>
-                            <i class="bi bi-box-arrow-up-right archivo-open"></i>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <div class="text-muted text-center py-3">No hay materiales de referencia</div>
-            <?php endif; ?>
-
-            <?php if (!empty($requerimiento['url_subida'])): ?>
-                <div class="mt-3">
-                    <label class="label-tiny mb-2 d-block">ENLACE DE REFERENCIA</label>
-                    <a href="<?= esc($requerimiento['url_subida']) ?>" target="_blank"
-                        class="archivo-adjunto-card url-card-full">
-                        <i class="bi bi-globe"></i>
-                        <div class="archivo-info flex-1">
-                            <span
-                                class="archivo-nombre text-ellipsis-simple"><?= esc($requerimiento['url_subida']) ?></span>
-                            <span class="archivo-peso">Haz clic para abrir</span>
-                        </div>
-                        <i class="bi bi-box-arrow-up-right archivo-open"></i>
-                    </a>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <!-- Archivos de Entrega del Especialista -->
-    <?php if (in_array(($requerimiento['estado'] ?? ''), ['finalizado', 'completado'])): ?>
-        <div class="col-12 mt-4">
-            <div class="card-dark-main p-3">
-                <label class="label-tiny mb-3 d-block"> ARCHIVOS DE ENTREGA DEL ESPECIALISTA </label>
+        <div class="card-dark-main p-4">
+            <label class="label-tiny mb-4 d-block">ARCHIVOS ENVIADOS POR EL CLIENTE</label>
+            
+            <div class="files-container-clean">
                 <?php
-                $archivosEmpleado = array_filter($archivos ?? [], fn($archivo) => !empty($archivo['idatencion']));
-                if (!empty($archivosEmpleado)):
+                $archivosCliente = array_filter($archivos ?? [], fn($archivo) => !empty($archivo['idrequerimiento']) && empty($archivo['idatencion']));
+                if (!empty($archivosCliente) || !empty($requerimiento['url_subida'])):
                     ?>
-                    <div class="d-flex flex-wrap gap-2">
-                        <?php foreach ($archivosEmpleado as $archivo): ?>
+                    <div class="d-flex flex-wrap gap-3">
+                        <?php foreach ($archivosCliente as $archivo): ?>
                             <?php
                             $icono = 'bi-file-earmark';
                             $mime = $archivo['tipo'] ?? '';
-                            if (str_contains($mime, 'image'))
-                                $icono = 'bi-file-earmark-image';
-                            elseif (str_contains($mime, 'pdf'))
-                                $icono = 'bi-file-earmark-pdf';
-                            elseif (str_contains($mime, 'video'))
-                                $icono = 'bi-file-earmark-play';
-                            elseif (str_contains($mime, 'word'))
-                                $icono = 'bi-file-earmark-word';
-                            elseif (str_contains($mime, 'sheet') || str_contains($mime, 'excel'))
-                                $icono = 'bi-file-earmark-excel';
+                            if (str_contains($mime, 'image')) $icono = 'bi-file-earmark-image';
+                            elseif (str_contains($mime, 'pdf')) $icono = 'bi-file-earmark-pdf';
+                            elseif (str_contains($mime, 'video')) $icono = 'bi-file-earmark-play';
+                            elseif (str_contains($mime, 'word')) $icono = 'bi-file-earmark-word';
+                            elseif (str_contains($mime, 'sheet') || str_contains($mime, 'excel')) $icono = 'bi-file-earmark-excel';
 
                             $kb = number_format(($archivo['tamano'] ?? 0) / 1024, 1);
                             ?>
                             <a href="<?= base_url('cliente/archivos/' . ($archivo['id'] ?? '')) ?>" target="_blank"
-                                class="archivo-adjunto-card empleado-file" title="<?= esc($archivo['nombre']) ?>">
+                                class="archivo-adjunto-card" title="<?= esc($archivo['nombre']) ?>">
                                 <i class="bi <?= $icono ?>"></i>
                                 <div class="archivo-info">
                                     <span class="archivo-nombre"><?= esc($archivo['nombre']) ?></span>
@@ -339,26 +276,78 @@
                                 <i class="bi bi-box-arrow-up-right archivo-open"></i>
                             </a>
                         <?php endforeach; ?>
+
+                        <?php if (!empty($requerimiento['url_subida'])): ?>
+                            <a href="<?= esc($requerimiento['url_subida']) ?>" target="_blank"
+                                class="archivo-adjunto-card">
+                                <i class="bi bi-globe"></i>
+                                <div class="archivo-info">
+                                    <span class="archivo-nombre">Enlace de Referencia</span>
+                                    <span class="archivo-peso">Abrir URL</span>
+                                </div>
+                                <i class="bi bi-box-arrow-up-right archivo-open"></i>
+                            </a>
+                        <?php endif; ?>
                     </div>
                 <?php else: ?>
-                    <div class="text-muted text-center py-3"> No se subieron archivos físicos para esta entrega. </div>
+                    <div class="text-muted text-center py-2" style="font-size: 14px; opacity: 0.6;">
+                        <i class="bi bi-folder2-open me-2"></i> No hay materiales adjuntos
+                    </div>
                 <?php endif; ?>
+            </div>
+        </div>
+    </div>
 
-                <?php if (!empty($requerimiento['url_entrega'])): ?>
-                    <div class="mt-3">
-                        <label class="label-tiny mb-2 d-block"> ENLACE DE ENTREGA (ENTREGABLE FINAL) </label>
-                        <a href="<?= esc($requerimiento['url_entrega']) ?>" target="_blank"
-                            class="archivo-adjunto-card url-card-full">
-                            <i class="bi bi-rocket-takeoff-fill"></i>
-                            <div class="archivo-info flex-1">
-                                <span class="archivo-nombre text-ellipsis-simple"
-                                    style=" font-weight: 700;"><?= esc($requerimiento['url_entrega']) ?></span>
-                                <span class="archivo-peso">Haz clic para abrir el recurso</span>
+    <!-- Entrega Final del Especialista -->
+    <?php if (in_array(($requerimiento['estado'] ?? ''), ['finalizado', 'completado'])): ?>
+        <div class="col-12 mt-4">
+            <div class="card-dark-main p-4 border-success-simple">
+                <label class="label-tiny mb-4 d-block text-success">ENTREGA FINAL DEL ESPECIALISTA</label>
+
+                <div class="d-flex flex-wrap gap-3">
+                    <!-- Archivos Entregados -->
+                    <?php
+                    $archivosEmpleado = array_filter($archivos ?? [], fn($archivo) => !empty($archivo['idatencion']));
+                    foreach ($archivosEmpleado as $archivo):
+                        $icono = 'bi-file-earmark';
+                        $mime = $archivo['tipo'] ?? '';
+                        if (str_contains($mime, 'image')) $icono = 'bi-file-earmark-image';
+                        elseif (str_contains($mime, 'pdf')) $icono = 'bi-file-earmark-pdf';
+                        elseif (str_contains($mime, 'video')) $icono = 'bi-file-earmark-play';
+                        elseif (str_contains($mime, 'word')) $icono = 'bi-file-earmark-word';
+                        elseif (str_contains($mime, 'sheet') || str_contains($mime, 'excel')) $icono = 'bi-file-earmark-excel';
+                        $kb = number_format(($archivo['tamano'] ?? 0) / 1024, 1);
+                        ?>
+                        <a href="<?= base_url('cliente/archivos/' . ($archivo['id'] ?? '')) ?>" target="_blank"
+                            class="archivo-adjunto-card success" title="<?= esc($archivo['nombre']) ?>">
+                            <i class="bi <?= $icono ?>"></i>
+                            <div class="archivo-info">
+                                <span class="archivo-nombre"><?= esc($archivo['nombre']) ?></span>
+                                <span class="archivo-peso"><?= $kb ?> KB</span>
                             </div>
                             <i class="bi bi-box-arrow-up-right archivo-open"></i>
                         </a>
-                    </div>
-                <?php endif; ?>
+                    <?php endforeach; ?>
+
+                    <!-- Enlace de Entrega -->
+                    <?php if (!empty($requerimiento['url_entrega'])): ?>
+                        <a href="<?= esc($requerimiento['url_entrega']) ?>" target="_blank"
+                            class="archivo-adjunto-card success">
+                            <i class="bi bi-link-45deg"></i>
+                            <div class="archivo-info">
+                                <span class="archivo-nombre">Recurso / Enlace Final</span>
+                                <span class="archivo-peso">Ver entrega en línea</span>
+                            </div>
+                            <i class="bi bi-box-arrow-up-right archivo-open"></i>
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if (empty($archivosEmpleado) && empty($requerimiento['url_entrega'])): ?>
+                        <div class="text-muted text-center w-100 py-2" style="font-size: 14px; opacity: 0.6;">
+                            <i class="bi bi-check2-circle me-2"></i> El requerimiento ha sido finalizado correctamente
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     <?php endif; ?>

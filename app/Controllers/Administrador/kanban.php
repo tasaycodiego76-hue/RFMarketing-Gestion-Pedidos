@@ -432,7 +432,7 @@ class kanban extends Controller
         $trackingModel->insert([
             'idatencion' => $idAtencion,
             'idusuario' => $idAdmin,
-            'accion' => "Pedido regresado a proceso con observaciones: " . $mensaje,
+            'accion' => "El Requerimiento a regresado al Area Correspondiente para su Correción",
             'estado' => 'en_proceso',
             'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
         ]);

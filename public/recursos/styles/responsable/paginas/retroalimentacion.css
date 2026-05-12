@@ -272,6 +272,16 @@
 }
 .text-pre-wrap {
   white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.kd-val {
+  color: #ddd;
+  font-size: 14px;
+  line-height: 1.6;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .font-bebas {
   font-family: "Bebas Neue", sans-serif;

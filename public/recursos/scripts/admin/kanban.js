@@ -450,7 +450,7 @@ async function cambiarPrioridad(id, valor) {
 
 async function cambiarEstado(id, est, acc) {
   const result = await Swal.fire({
-    title: `¿Confirmar ${acc}?`,
+    title: `¿Confirmar la Aprobacion del Requerimiento?`,
     text: `¿Estás seguro de que deseas cambiar el estado a ${acc.toLowerCase()}?`,
     icon: 'question',
     showCancelButton: true,
@@ -666,7 +666,7 @@ document.addEventListener("DOMContentLoaded", () => {
         _post("admin/kanban/cambiarEstado", {
           idatencion: idAtencion,
           estado: "pendiente_asignado",
-          accion: "Aprobado vía arrastre",
+          accion: "Su solicitud ha sido aprobada por Administrador y enviada al área correspondiente para su gestión.",
           idareaagencia: AREA_ACTUAL,
         })
           .then(() => location.reload())

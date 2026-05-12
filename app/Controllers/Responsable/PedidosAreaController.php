@@ -8,6 +8,7 @@ use App\Models\TrackingModel;
 use App\Models\RequerimientoModel;
 use App\Models\ArchivoModel;
 use App\Models\ServicioModel;
+use App\Models\EmpresaModel;
 
 class PedidosAreaController extends BaseResponsableController
 {
@@ -21,7 +22,7 @@ class PedidosAreaController extends BaseResponsableController
         // Validación de sesión y rol
         $userS = $this->ValidarSesion_DatosUser();
         if (!$userS['ok'])
-            return redirect()->to('login');
+            return redirect()->to('auth/login');
 
         $user = $userS['user'];
         $userData = $userS['userData'];
@@ -69,6 +70,10 @@ class PedidosAreaController extends BaseResponsableController
         $totalActivo = $metrics['en_proceso'] + $metrics['pendientes_asignar'];
         $totalGeneral = max(1, $totalActivo + $metrics['enRevision'] + $metrics['completados']);
 
+        // Datos adicionales para los filtros del reporte
+        $empresaModel = new EmpresaModel();
+        $servicioModel = new ServicioModel();
+
         $data = array_merge([
             'titulo' => 'Panel de Control - Gestión de Pedidos',
             'tituloPagina' => 'Resumen Operativo',
@@ -79,9 +84,44 @@ class PedidosAreaController extends BaseResponsableController
             'prioridadBaja' => $prioridadBaja,
             'totalActivo' => $totalActivo,
             'totalGeneral' => $totalGeneral,
+            'empresas' => $empresaModel->where('estado', true)->findAll(),
+            'servicios' => $servicioModel->where('activo', true)->findAll(),
+            'empleados' => $empleados,
         ], $metrics);
 
         return view('Responsable/dashboard', $data);
+    }
+
+    /**
+     * Endpoint: Recopila las 4 métricas de análisis del equipo,
+     * para alimentar los gráficos del Dashboard del Responsable.
+     * @return \CodeIgniter\HTTP\RedirectResponse|\CodeIgniter\HTTP\ResponseInterface
+     */
+    public function getMetricasDashboard()
+    {
+        // Validación de sesión y rol
+        $userS = $this->ValidarSesion_DatosUser();
+        if (!$userS['ok']) {
+            return redirect()->to('auth/login');
+        }
+
+        $idAreaAgencia = $userS['user']['idarea_agencia'];
+        $atencion_model = new AtencionModel();
+
+        //Metricas para Graficos
+        $MProductividad = $atencion_model->getMetricasProductividad($idAreaAgencia);
+        $MDistribucionCarga = $atencion_model->getMetricasDistribucionCarga($idAreaAgencia);
+        $MTendenciasSemanal = $atencion_model->getMetricasTendenciaSemanal($idAreaAgencia);
+        $MTiempoPromedio = $atencion_model->getMetricasTiempoPromedio($idAreaAgencia);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'productividad' => $MProductividad,
+            'distribucion_carga' => $MDistribucionCarga,
+            'tendencias_Semanal' => $MTendenciasSemanal,
+            'tiempopromedio' => $MTiempoPromedio
+        ]);
+
     }
 
     /**
@@ -193,7 +233,7 @@ class PedidosAreaController extends BaseResponsableController
             $trackingModel->insert([
                 'idatencion' => $idAtencion,
                 'idusuario' => $userS['user']['id'],
-                'accion' => "Pedido delegado al técnico: " . trim($empleado['nombre'] . ' ' . $empleado['apellidos']) . ". Pendiente de inicio por parte del especialista.",
+                'accion' => "Pedido delegado al Empleado: " . trim($empleado['nombre'] . ' ' . $empleado['apellidos']) . ".\n Estadi Pendiente de inicio por parte del Empleado.",
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
@@ -346,7 +386,7 @@ class PedidosAreaController extends BaseResponsableController
             $tracking = $trackingModel->where('idatencion', $idAtencion)->orderBy('fecha_registro', 'DESC')->findAll();
 
             // Formatear respuesta amigable para el Frontend
-            $dataCompleta = array_merge((array)$atencion, (array)$detalle, [
+            $dataCompleta = array_merge((array) $atencion, (array) $detalle, [
                 'empleado_asignado' => $empleadoAsignado,
                 'empleado_nombre' => $empleadoAsignado ? trim($empleadoAsignado['nombre'] . ' ' . $empleadoAsignado['apellidos']) : '---',
                 'servicio' => $detalle['nombre_servicio'] ?? $detalle['servicio_personalizado'] ?? 'N/A',
@@ -383,9 +423,19 @@ class PedidosAreaController extends BaseResponsableController
         $atencionModel = new AtencionModel();
         $pedido = $atencionModel->find($id);
 
-        // Solo el empleado asignado puede iniciar su propio trabajo (o el responsable si es el ejecutor)
-        if (!$pedido || $pedido['idempleado'] != $userS['user']['id']) {
-            return $this->response->setJSON(['status' => 'error', 'message' => 'Solo el especialista asignado puede marcar el inicio de este trabajo.']);
+        // Validar si es el empleado asignado O si es el responsable del área del pedido
+        // Agregamos [DEBUG] para entender exactamente por qué falla si hay conflicto de credenciales
+        $idUsuarioSesion = (int) $userS['user']['id'];
+        $idAreaSesion = (int) $userS['user']['idarea_agencia'];
+        $idAreaPedido = (int) $pedido['idarea_agencia'];
+        $idEmpleadoPedido = (int) $pedido['idempleado'];
+
+        $esAsignado = ($idEmpleadoPedido === $idUsuarioSesion);
+        $esJefeDelArea = ($idAreaPedido === $idAreaSesion);
+
+        if (!$pedido || (!$esAsignado && !$esJefeDelArea)) {
+            $debugInfo = "SesionID: $idUsuarioSesion, AreaSesion: $idAreaSesion | Pedido_EmpID: $idEmpleadoPedido, AreaPedido: $idAreaPedido";
+            return $this->response->setJSON(['status' => 'error', 'message' => "Conflicto de Identidad. No tienes permisos. [$debugInfo]"]);
         }
 
         $data = [
@@ -398,7 +448,7 @@ class PedidosAreaController extends BaseResponsableController
             $trackingModel->insert([
                 'idatencion' => $id,
                 'idusuario' => $userS['user']['id'],
-                'accion' => '¡Trabajo iniciado! El especialista ha comenzado con la ejecución.',
+                'accion' => '¡Trabajo iniciado! El Empleado ha comenzado con la ejecución del Requerimiento.',
                 'estado' => 'en_proceso',
                 'fecha_registro' => $data['fechainicio']
             ]);

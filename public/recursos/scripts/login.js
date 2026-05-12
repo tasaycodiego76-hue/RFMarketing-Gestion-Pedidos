@@ -26,7 +26,6 @@ function initLoginForm() {
     inputs.forEach(input => {
         input.addEventListener('focus', () => input.parentElement.classList.add('focused'));
         input.addEventListener('blur', () => input.parentElement.classList.remove('focused'));
-        input.addEventListener('keydown', handleKeyNavigation);
     });
 
     function handleSubmit(e) {

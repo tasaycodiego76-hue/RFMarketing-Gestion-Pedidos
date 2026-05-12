@@ -519,23 +519,25 @@
 .archivo-adjunto-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: 12px;
+  padding: 12px 16px;
   background: #0d0d0d;
   border: 1px solid #2a2a2a;
-  border-radius: 10px;
+  border-radius: 12px;
   text-decoration: none;
   color: #ccc;
   transition: all 0.2s ease;
-  min-width: 180px;
+  min-width: 220px;
+  max-width: 300px;
 }
 .archivo-adjunto-card:hover {
   border-color: #f5c400;
   color: #fff;
   background: #141414;
+  transform: translateY(-2px);
 }
 .archivo-adjunto-card > .bi:first-child {
-  font-size: 22px;
+  font-size: 24px;
   color: #f5c400;
   flex-shrink: 0;
 }
@@ -543,25 +545,44 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 .archivo-nombre {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 140px;
+  color: #fff;
 }
 .archivo-peso {
-  font-size: 12px;
-  color: #c0c0c0;
+  font-size: 11px;
+  color: #888;
+  font-weight: 500;
 }
 .archivo-open {
   font-size: 12px;
   color: #333;
+  transition: 0.2s;
 }
 .archivo-adjunto-card:hover .archivo-open {
   color: #f5c400;
+}
+
+/* Versión Success (Verde) para Entregas */
+.archivo-adjunto-card.success:hover {
+  border-color: #22c55e;
+}
+.archivo-adjunto-card.success > .bi:first-child {
+  color: #22c55e;
+}
+.archivo-adjunto-card.success:hover .archivo-open {
+  color: #22c55e;
+}
+
+.border-success-simple {
+  border: 1px solid rgba(34, 197, 94, 0.2) !important;
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.02) 0%, transparent 100%);
 }
 
 /* Mejoras para textos largos en el detalle */
@@ -804,4 +825,281 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ===== ESTILOS MEJORADOS PARA ENTREGA FINAL ===== */
+
+/* Borde verde para sección de entrega */
+.border-success-custom {
+  border: 1px solid #22c55e !important;
+  border-top-width: 3px !important;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, transparent 100%);
+}
+
+/* Color de éxito */
+.text-success {
+  color: #22c55e !important;
+}
+
+/* Caja de información de entrega */
+.entrega-info-box {
+  background: #0d0d0d;
+  border: 1px solid #1a1a1a;
+  padding: 14px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.entrega-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #888;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.entrega-valor {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  word-break: break-word;
+}
+
+/* Grid para archivos de entrega */
+.archivos-entrega-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+/* Tarjeta individual de archivo en entrega */
+.archivo-entrega-card {
+  background: #0d0d0d;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
+  padding: 12px;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.archivo-entrega-card:hover {
+  border-color: #22c55e;
+  background: #0f0f0f;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Vista previa de imagen */
+.archivo-preview-link {
+  display: block;
+  width: 100%;
+  height: 140px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  position: relative;
+  text-decoration: none;
+}
+
+.archivo-thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.archivo-preview-link:hover .archivo-thumbnail {
+  transform: scale(1.05);
+}
+
+/* Caja de icono para archivos no-imagen */
+.archivo-icon-box {
+  width: 100%;
+  height: 140px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #1a1a1a;
+  font-size: 48px;
+  color: #22c55e;
+}
+
+/* Detalles del archivo en tarjeta */
+.archivo-details-entrega {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 60px;
+}
+
+.archivo-nombre-entrega {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  white-space: normal;
+  word-break: break-word;
+  text-decoration: none;
+  line-height: 1.3;
+  transition: color 0.2s;
+}
+
+.archivo-entrega-card:hover .archivo-nombre-entrega {
+  color: #22c55e;
+}
+
+.archivo-peso-entrega {
+  font-size: 12px;
+  color: #888;
+  font-weight: 600;
+}
+
+/* Acciones en tarjeta */
+.archivo-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.btn-ver-archivo {
+  flex: 1;
+  padding: 8px 12px;
+  background: #1a1a1a;
+  color: #22c55e;
+  border: 1px solid #22c55e;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.btn-ver-archivo:hover {
+  background: #22c55e;
+  color: #000;
+}
+
+/* Texto muted personalizado */
+.text-muted-custom {
+  color: #666;
+}
+
+/* Separador */
+.border-dark {
+  border-color: #1a1a1a !important;
+}
+
+/* Botón de entrega final */
+.btn-entrega-final {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+  border: 2px solid #22c55e;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #fff;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-entrega-final::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(34, 197, 94, 0.1);
+  transition: left 0.3s ease;
+  z-index: 0;
+}
+
+.btn-entrega-final:hover::before {
+  left: 100%;
+}
+
+.btn-entrega-final > * {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-entrega-final i:first-child {
+  font-size: 24px;
+  color: #22c55e;
+}
+
+.btn-entrega-final i:last-child {
+  margin-left: auto;
+  font-size: 16px;
+  color: #22c55e;
+}
+
+.entrega-link-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.entrega-link-titulo {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.entrega-link-url {
+  display: block;
+  font-size: 12px;
+  color: #22c55e;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.btn-entrega-final:hover {
+  border-color: #fff;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+}
+
+.btn-entrega-final:hover .entrega-link-url,
+.btn-entrega-final:hover i {
+  color: #fff;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .archivos-entrega-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
+  .btn-entrega-final {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .btn-entrega-final i:last-child {
+    margin-left: 0;
+  }
 }

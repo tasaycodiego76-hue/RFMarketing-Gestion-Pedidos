@@ -85,7 +85,7 @@
     window.base_url = base_url;
     window.empleadosData = empleadosData;
     window.tareasData = tareasData;
-    window.currentUserId = <?= json_encode(request()->getGet('test_user') ?? session()->get('id') ?? 0); ?>;
+    window.currentUserId = <?= json_encode($user['id'] ?? 0); ?>;
 </script>
 
 <?= $this->endSection() ?>

@@ -49,7 +49,7 @@ function renderizarEquipo(empleados) {
     contenedor.innerHTML = empleados.map((emp, i) => {
         const iniciales = obtenerIniciales(emp.nombre_completo);
         const colorAvatar = emp.esresponsable ? 'blue' : colores[i % colores.length];
-        const total = (emp.pendientes || 0) + (emp.en_proceso || 0) + (emp.completados || 0);
+        const totalActivas = (parseInt(emp.pendientes) || 0) + (parseInt(emp.en_proceso) || 0);
 
         return `
             <div class="employee-card ${emp.esresponsable ? 'jefe' : ''}">
@@ -63,13 +63,13 @@ function renderizarEquipo(empleados) {
                 </div>
               </div>
               <div class="metrics">
+                <div class="metric"><span class="metric-value info">${emp.pendientes || 0}</span><span class="metric-label">En espera</span></div>
                 <div class="metric"><span class="metric-value warning">${emp.en_proceso || 0}</span><span class="metric-label">En proceso</span></div>
-                <div class="metric"><span class="metric-value success">${emp.completados || 0}</span><span class="metric-label">Completados</span></div>
-                <div class="metric"><span class="metric-value info">${total}</span><span class="metric-label">Total</span></div>
+                <div class="metric"><span class="metric-value success">${emp.completados || 0}</span><span class="metric-label">Listos</span></div>
               </div>
-              <div class="card-actions">
-                <button class="btn btn-secondary w-full" onclick="verDetalleMiembro(${emp.id})">
-                    <i class="bi bi-list-task"></i> VER TAREAS
+              <div class="card-actions mt-2">
+                <button class="btn btn-outline-light btn-sm w-full" onclick="verDetalleMiembro(${emp.id})" style="border-radius: 6px; font-size: 11px; letter-spacing: 1px; padding: 6px 0; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);">
+                    <i class="bi bi-list-task me-1"></i> VER TAREAS (${totalActivas})
                 </button>
               </div>
             </div>
@@ -141,16 +141,43 @@ function renderizarModalTareas(emp, tareas) {
         tbody.innerHTML = tareas.map(t => {
             const e = estMap[t.estado] || { t: t.estado, c: 'badge-estado-pendiente' };
             const p = priMap[t.prioridad] || 'badge-estado-pendiente';
+            
+            // Iconos por estado
+            const iconMap = {
+                'pendiente': 'bi-clock-history',
+                'en_proceso': 'bi-play-circle-fill',
+                'en_revision': 'bi-eye-fill',
+                'finalizado': 'bi-check-circle-fill',
+                'completado': 'bi-check-circle-fill'
+            };
+            const icon = iconMap[t.estado] || 'bi-circle';
+
             return `
-                <tr>
-                    <td class="vertical-align-middle">
-                        <div class="font-weight-500 text-truncate-rf" title="${escaparHtml(t.titulo)}">${escaparHtml(t.titulo)}</div>
-                        <div class="text-small-dim">${escaparHtml(t.empresa_nombre || '---')}</div>
+                <tr class="task-row-premium">
+                    <td class="vertical-align-middle ps-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi ${icon} text-oro" style="font-size: 1.1rem;"></i>
+                            <div>
+                                <div class="task-title-premium" title="${escaparHtml(t.titulo)}">${escaparHtml(t.titulo)}</div>
+                                <div class="task-subtitle-premium"><i class="bi bi-building"></i> ${escaparHtml(t.empresa_nombre || '---')}</div>
+                            </div>
+                        </div>
                     </td>
-                    <td class="vertical-align-middle text-dim-85">${escaparHtml(t.servicio_nombre || '-')}</td>
-                    <td class="vertical-align-middle"><span class="badge-rf ${e.c}">${e.t}</span></td>
-                    <td class="vertical-align-middle"><span class="badge-rf ${p}">${t.prioridad || '-'}</span></td>
-                    <td class="vertical-align-middle text-extra-small-dim">${t.fechainicio ? t.fechainicio.split(' ')[0] : '---'}</td>
+                    <td class="vertical-align-middle">
+                        <span class="service-chip-premium">${escaparHtml(t.servicio_nombre || '-')}</span>
+                    </td>
+                    <td class="vertical-align-middle">
+                        <span class="badge-status-premium ${e.c}">${e.t}</span>
+                    </td>
+                    <td class="vertical-align-middle">
+                        <span class="badge-priority-premium ${p}">${t.prioridad || '-'}</span>
+                    </td>
+                    <td class="vertical-align-middle text-center pe-3">
+                        <div style="font-size: 12px; color: #aaa; line-height: 1.4;">
+                            <i class="bi bi-calendar-event me-1"></i> ${t.fechainicio ? t.fechainicio.split(' ')[0] : '---'}<br>
+                            <i class="bi bi-clock me-1"></i> ${t.fechainicio ? t.fechainicio.split(' ')[1].substring(0, 5) : '--:--'}
+                        </div>
+                    </td>
                 </tr>
             `;
         }).join('');
@@ -202,4 +229,12 @@ function obtenerIniciales(n) {
     if (!n) return '?';
     const p = n.trim().split(' ');
     return ((p[0]?.[0] || '') + (p[1]?.[0] || '')).toUpperCase();
+}
+
+// Obtiene el mes abreviado (Ene, Feb, etc)
+function obtenerMesCorto(f) {
+    if (!f) return '---';
+    const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+    const d = new Date(f);
+    return meses[d.getMonth()] || '---';
 }

@@ -1,12 +1,12 @@
 // Variables Globales
-let empleadosBandejaData = [];   // Lista de Empleados del área + Carga Trabajo
-let requerimientosData = [];     // Pedidos sin asignar
-let revisionData = [];           // Pedidos en revision
+let empleadosBandejaData = []; // Lista de Empleados del área + Carga Trabajo
+let requerimientosData = []; // Pedidos sin asignar
+let revisionData = []; // Pedidos en revision
 let empleadoSeleccionado = null; // ID del Empleado elegido en el modal de asignación.
 let requerimientoSeleccionado = null; // Rquerimiento el cual se opera actualmente
 
 document.addEventListener("DOMContentLoaded", function () {
-  cargarBandeja();   // Carga inicial de Requerimientos y revisión.
+  cargarBandeja(); // Carga inicial de Requerimientos y revisión.
   cargarEmpleados(); // Carga la lista de Empleados disponibles para asignar.
 
   // El buscador
@@ -47,8 +47,8 @@ function cargarBandeja() {
   if (tbodyRev) tbodyRev.innerHTML = generarSkeletonFilas();
 
   fetch(`${base_url}responsable/pedidos/bandeja-json`)
-    .then(r => r.json())
-    .then(data => {
+    .then((r) => r.json())
+    .then((data) => {
       if (data.success) {
         // Guardamos los datos
         requerimientosData = data.data || [];
@@ -56,7 +56,7 @@ function cargarBandeja() {
 
         // Mostramos "Bandeja Vacía" o Renderizamos en la Tabla
         if (requerimientosData.length === 0) {
-          mostrarEstadoVacio()
+          mostrarEstadoVacio();
         } else {
           renderizarBandeja(requerimientosData);
         }
@@ -70,7 +70,7 @@ function cargarBandeja() {
         mostrarError(data.message || "Error al cargar la bandeja");
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.error("Error crítico en cargarBandeja:", err);
       mostrarError("Error de conexión con el servidor");
     });
@@ -82,18 +82,18 @@ function cargarBandeja() {
  */
 function cargarEmpleados() {
   fetch(`${base_url}responsable/empleados/mi-area-json`)
-    .then(r => r.json())
-    .then(data => {
+    .then((r) => r.json())
+    .then((data) => {
       if (data.success) empleadosBandejaData = data.data || [];
     })
-    .catch(err => console.error("Error al cargar lista de técnicos:", err));
+    .catch((err) => console.error("Error al cargar lista de técnicos:", err));
 }
 
 /* FUNCIONES DE RENDERIZADO (VISTA) */
 
 /**
  * Genera el HTML de las filas para la tabla de "Pedidos Pendientes".
- * @param {*} data 
+ * @param {*} data
  */
 function renderizarBandeja(data) {
   const tbody = document.getElementById("contenido-bandeja");
@@ -101,11 +101,13 @@ function renderizarBandeja(data) {
   estadoVacio?.classList.add("d-none");
 
   // El método .map recorre el array y devuelve un bloque HTML por cada item.
-  tbody.innerHTML = data.map(item => `
+  tbody.innerHTML = data
+    .map(
+      (item) => `
         <tr>
             <td>
                 <div class="fw-semibold">${escaparHtml(item.titulo || "Sin título")}</div>
-                ${item.observacion_revision ? '<span class="badge bg-danger mt-1" style="font-size:9px;">DEVUELTO</span>' : ''}
+                ${item.observacion_revision ? '<span class="badge bg-danger mt-1" style="font-size:9px;">DEVUELTO</span>' : ""}
             </td>
             <td>${escaparHtml(item.nombreempresa || "N/A")}</td>
             <td>${escaparHtml(item.cliente_nombre || "Usuario")}</td>
@@ -122,18 +124,22 @@ function renderizarBandeja(data) {
                 </div>
             </td>
         </tr>
-    `).join(""); // Convierte el array de filas en un solo bloque de texto.
+    `,
+    )
+    .join(""); // Convierte el array de filas en un solo bloque de texto.
 }
 
 /**
  * Genera el HTML de las filas para la tabla de "Esperando Revisión".
- * @param {*} data 
- * @returns 
+ * @param {*} data
+ * @returns
  */
 function renderizarRevision(data) {
   const tbody = document.getElementById("contenido-revision");
   const estadoVacio = document.getElementById("estado-vacio-revision");
-  if (!tbody) { return };
+  if (!tbody) {
+    return;
+  }
 
   if (data.length === 0) {
     tbody.innerHTML = "";
@@ -142,7 +148,9 @@ function renderizarRevision(data) {
   }
 
   estadoVacio?.classList.add("d-none");
-  tbody.innerHTML = data.map(item => `
+  tbody.innerHTML = data
+    .map(
+      (item) => `
         <tr>
             <td>
                 <div class="fw-semibold">${escaparHtml(item.titulo || "Sin título")}</div>
@@ -150,7 +158,6 @@ function renderizarRevision(data) {
             </td>
             <td>
                 <div class="d-flex align-items-center gap-2">
-                    <div class="avatar-sm">${obtenerIniciales(item.empleado_nombre)}</div>
                     <span style="font-size:12px;">${escaparHtml(item.empleado_nombre || "---")}</span>
                 </div>
             </td>
@@ -162,7 +169,9 @@ function renderizarRevision(data) {
                 </button>
             </td>
         </tr>
-    `).join("");
+    `,
+    )
+    .join("");
 }
 
 // FUNCIONES PARA ASIGNACION DE TAREAS
@@ -173,14 +182,16 @@ function renderizarRevision(data) {
  */
 function abrirModalAsignar(idAtencion) {
   // Buscamos el pedido
-  const req = requerimientosData.find(r => parseInt(r.idatencion) === parseInt(idAtencion));
+  const req = requerimientosData.find(
+    (r) => parseInt(r.idatencion) === parseInt(idAtencion),
+  );
   if (!req) {
     Swal.fire({
       icon: "error",
       title: "Error",
       text: "Pedido no localizado en memoria local.",
       background: "#161616",
-      color: "#fff"
+      color: "#fff",
     });
     return;
   }
@@ -189,11 +200,20 @@ function abrirModalAsignar(idAtencion) {
 
   // Llenamos los datos fijos del modal (Banner de Proyecto).
   document.getElementById("idatencion-seleccionado").value = idAtencion;
-  document.getElementById("modal-titulo-requerimiento").textContent = escaparHtml(req.titulo || "Sin título");
-  document.getElementById("info-empresa").innerHTML = `<i class="bi bi-building me-1 text-oro"></i> ${escaparHtml(req.nombreempresa || "---")}`;
+  document.getElementById("modal-titulo-requerimiento").textContent =
+    escaparHtml(req.titulo || "Sin título");
+  document.getElementById("info-empresa").innerHTML =
+    `<i class="bi bi-building me-1 text-oro"></i> ${escaparHtml(req.nombreempresa || "---")}`;
+
+  // Área y solicitante (si los datos están disponibles)
+  const areaEl = document.getElementById("info-area");
+  if (areaEl) areaEl.textContent = req.area_nombre || req.nombre_area || "---";
+  const solEl = document.getElementById("info-solicitante");
+  if (solEl) solEl.textContent = req.cliente_nombre || req.nombre_cliente || "---";
 
   const p = (req.prioridad || "media").toLowerCase();
-  document.getElementById("info-prioridad").innerHTML = `<span class="badge-prioridad-pro ${p}"><i class="bi bi-lightning-fill"></i> PRIORIDAD ${p.toUpperCase()}</span>`;
+  document.getElementById("info-prioridad").innerHTML =
+    `<span class="badge-prioridad-pro ${p}"><i class="bi bi-lightning-fill"></i> PRIORIDAD ${p.toUpperCase()}</span>`;
 
   empleadoSeleccionado = null; // Reiniciar selección.
   renderizarListaEmpleados(); // Pintar los técnicos disponibles.
@@ -204,7 +224,7 @@ function abrirModalAsignar(idAtencion) {
 /**
  * Renderiza las tarjetas de los técnicos dentro del modal de asignación.
  * Muestra visualmente quién está saturado y quién tiene tiempo disponible.
- * @returns 
+ * @returns
  */
 function renderizarListaEmpleados() {
   const contenedor = document.getElementById("lista-empleados");
@@ -213,15 +233,21 @@ function renderizarListaEmpleados() {
     return;
   }
 
-  contenedor.innerHTML = `<div class="row g-3">` + empleadosBandejaData.map(emp => {
-    const isSelected = empleadoSeleccionado === emp.id ? "seleccionado" : "";
-    const totalTareas = (parseInt(emp.en_proceso) || 0) + (parseInt(emp.pendientes) || 0);
+  contenedor.innerHTML =
+    `<div class="row g-3">` +
+    empleadosBandejaData
+      .map((emp) => {
+        const isSelected =
+          empleadoSeleccionado === emp.id ? "seleccionado" : "";
+        const totalTareas =
+          (parseInt(emp.en_proceso) || 0) + (parseInt(emp.pendientes) || 0);
 
-    // Decidimos el color de la etiqueta de carga (Rojo = saturado, Verde = libre).
-    const workloadClass = totalTareas > 0 ? "workload-med" : "workload-low";
-    const workloadText = totalTareas > 0 ? `${totalTareas} TAREAS` : "SIN TAREAS";
+        // Decidimos el color de la etiqueta de carga (Rojo = saturado, Verde = libre).
+        const workloadClass = totalTareas > 0 ? "workload-med" : "workload-low";
+        const workloadText =
+          totalTareas > 0 ? `${totalTareas} TAREAS` : "SIN TAREAS";
 
-    return `
+        return `
             <div class="col-12">
                 <div class="empleado-card-premium ${isSelected}" onclick="seleccionarEmpleado(${emp.id})" data-id="${emp.id}">
                     <div class="d-flex align-items-center gap-3 w-100">
@@ -243,28 +269,37 @@ function renderizarListaEmpleados() {
                 </div>
             </div>
         `;
-  }).join("") + `</div>`;
+      })
+      .join("") +
+    `</div>`;
 }
 
 /**
  * Marca visualmente al técnico elegido y habilita el botón de confirmar.
- * @param {*} idEmpleado 
+ * @param {*} idEmpleado
  */
 function seleccionarEmpleado(idEmpleado) {
   empleadoSeleccionado = idEmpleado;
-  document.querySelectorAll(".empleado-card-premium").forEach(el =>
-    el.classList.toggle("seleccionado", parseInt(el.dataset.id) === idEmpleado)
-  );
+  document
+    .querySelectorAll(".empleado-card-premium")
+    .forEach((el) =>
+      el.classList.toggle(
+        "seleccionado",
+        parseInt(el.dataset.id) === idEmpleado,
+      ),
+    );
   document.getElementById("btn-confirmar-asignacion").disabled = false;
 }
 
 /**
  * Envía la orden de asignación al servidor.
  * Registra quién hará el trabajo y libera el pedido de la bandeja.
- * @returns 
+ * @returns
  */
 function confirmarAsignacion() {
-  if (!empleadoSeleccionado || !requerimientoSeleccionado) { return; }
+  if (!empleadoSeleccionado || !requerimientoSeleccionado) {
+    return;
+  }
 
   const btn = document.getElementById("btn-confirmar-asignacion");
   btn.disabled = true;
@@ -277,12 +312,14 @@ function confirmarAsignacion() {
   fetch(`${base_url}responsable/pedidos/asignar`, {
     method: "POST",
     body: formData,
-    headers: { "X-Requested-With": "XMLHttpRequest" }
+    headers: { "X-Requested-With": "XMLHttpRequest" },
   })
-    .then(r => r.json())
-    .then(data => {
+    .then((r) => r.json())
+    .then((data) => {
       if (data.success) {
-        bootstrap.Modal.getInstance(document.getElementById("modal-asignar")).hide();
+        bootstrap.Modal.getInstance(
+          document.getElementById("modal-asignar"),
+        ).hide();
         Swal.fire({
           icon: "success",
           title: "¡Tarea Delegada!",
@@ -290,16 +327,29 @@ function confirmarAsignacion() {
           background: "#161616",
           color: "#fff",
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
         setTimeout(() => cargarBandeja(), 500); // Recargar bandeja para ver los cambios.
       } else {
-        Swal.fire({ icon: "error", title: "Error", text: data.message, background: "#161616", color: "#fff" });
-        btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-lg"></i> Confirmar Asignación';
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.message,
+          background: "#161616",
+          color: "#fff",
+        });
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-lg"></i> Confirmar Asignación';
       }
     })
     .catch(() => {
-      Swal.fire({ icon: "error", title: "Error", text: "Fallo en la comunicación con el servidor.", background: "#161616", color: "#fff" });
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Fallo en la comunicación con el servidor.",
+        background: "#161616",
+        color: "#fff",
+      });
       btn.disabled = false;
     });
 }
@@ -308,81 +358,74 @@ function confirmarAsignacion() {
 
 /**
  * Trae los detalles extendidos de un pedido (archivos, descripción, tracking).
- * @param {*} idAtencion 
- * @returns 
+ * @param {*} idAtencion
+ * @returns
  */
 function verDetalleRequerimiento(idAtencion) {
   // Buscamos si el pedido está en Pendientes o en Revisión.
-  let req = requerimientosData.find(r => parseInt(r.idatencion) === parseInt(idAtencion)) ||
-    revisionData.find(r => parseInt(r.id) === parseInt(idAtencion));
+  let req =
+    requerimientosData.find(
+      (r) => parseInt(r.idatencion) === parseInt(idAtencion),
+    ) || revisionData.find((r) => parseInt(r.id) === parseInt(idAtencion));
   if (!req) return;
 
-  const modal = new bootstrap.Modal(document.getElementById("modal-ver-detalle"));
-  document.getElementById("detalle-contenido").innerHTML = `<div class="text-center py-5"><div class="spinner-border text-warning" role="status"></div><p class="mt-3 text-muted">Construyendo expediente...</p></div>`;
-  document.getElementById("detalle-titulo-requerimiento").textContent = escaparHtml(req.titulo || "Sin título");
+  const modal = new bootstrap.Modal(
+    document.getElementById("modal-ver-detalle"),
+  );
+  document.getElementById("detalle-contenido").innerHTML =
+    `<div class="text-center py-5"><div class="spinner-border text-warning" role="status"></div><p class="mt-3 text-muted">Construyendo expediente...</p></div>`;
+  document.getElementById("detalle-titulo-requerimiento").textContent =
+    escaparHtml(req.titulo || "Sin título");
   modal.show();
 
   // Solicitud para traer el detalle completo (incluyendo archivos adjuntos)
   fetch(`${base_url}responsable/pedidos/detalle?id=${idAtencion}`)
-    .then(r => r.json())
-    .then(data => {
+    .then((r) => r.json())
+    .then((data) => {
       if (data.success) {
         window.requerimientoActual = data.data; // Guardamos en memoria global para el modo edición.
         renderizarDetalleRequerimiento(data.data, data.archivos);
-      }
-      else document.getElementById("detalle-contenido").innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+      } else
+        document.getElementById("detalle-contenido").innerHTML =
+          `<div class="alert alert-danger">${data.message}</div>`;
     })
-    .catch(() => document.getElementById("detalle-contenido").innerHTML = `<div class="alert alert-danger">Error de conexión al obtener detalles</div>`);
+    .catch(
+      () =>
+      (document.getElementById("detalle-contenido").innerHTML =
+        `<div class="alert alert-danger">Error de conexión al obtener detalles</div>`),
+    );
 }
 
 /**
  * Maqueta visualmente el "Expediente Digital" en dos columnas.
- * @param {*} req 
- * @param {*} archivos 
+ * @param {*} req
+ * @param {*} archivos
  */
 function renderizarDetalleRequerimiento(req, archivos) {
-  const archivosCliente = archivos.filter(a => !a.idatencion); // Adjuntos originales.
-  const archivosEmpleado = archivos.filter(a => a.idatencion); // Adjuntos de la entrega final.
+  const archivosCliente = archivos.filter((a) => !a.idatencion); // Adjuntos originales.
+  const archivosEmpleado = archivos.filter((a) => a.idatencion); // Adjuntos de la entrega final.
 
   // Mapeo de estilos según el estado actual.
   const esMap = {
-    'pendiente': { l: 'PENDIENTE', c: '#ef4444', i: 'bi-clock' },
-    'pendiente_asignado': { l: 'ASIGNADO', c: '#3b82f6', i: 'bi-person-check' },
-    'en_proceso': { l: 'EN PROCESO', c: '#f5c400', i: 'bi-play-circle' },
-    'en_revision': { l: 'EN REVISIÓN', c: '#a855f7', i: 'bi-eye' },
-    'finalizado': { l: 'FINALIZADO', c: '#22c55e', i: 'bi-check-circle' }
+    pendiente: { l: "PENDIENTE", c: "#ef4444", i: "bi-clock" },
+    pendiente_asignado: { l: "ASIGNADO", c: "#3b82f6", i: "bi-person-check" },
+    en_proceso: { l: "EN PROCESO", c: "#f5c400", i: "bi-play-circle" },
+    en_revision: { l: "EN REVISIÓN", c: "#a855f7", i: "bi-eye" },
+    finalizado: { l: "FINALIZADO", c: "#22c55e", i: "bi-check-circle" },
   };
-  const es = esMap[req.estado] || { l: (req.estado || '').toUpperCase(), c: '#999', i: 'bi-question' };
+  const es = esMap[req.estado] || {
+    l: (req.estado || "").toUpperCase(),
+    c: "#999",
+    i: "bi-question",
+  };
 
-  const p = (req.prioridad || 'media').toLowerCase();
+  const p = (req.prioridad || "media").toLowerCase();
   const prMap = {
-    'alta': { l: 'ALTA', c: '#ef4444', i: 'bi-chevron-double-up' },
-    'media': { l: 'MEDIA', c: '#f5c400', i: 'bi-chevron-up' },
-    'baja': { l: 'BAJA', c: '#3b82f6', i: 'bi-chevron-down' }
+    alta: { l: "ALTA", c: "#ef4444", i: "bi-chevron-double-up" },
+    media: { l: "MEDIA", c: "#f5c400", i: "bi-chevron-up" },
+    baja: { l: "BAJA", c: "#3b82f6", i: "bi-chevron-down" },
   };
-  const pri = prMap[p] || { l: p.toUpperCase(), c: '#999', i: 'bi-dash' };
-
-  // Bloque destacado para cuando ya hay una entrega realizada.
-  let entregaHtml = '';
-  if (req.estado === 'en_revision' || req.estado === 'finalizado') {
-    entregaHtml = `
-            <div class="case-card mb-4" style="border-left: 4px solid #22c55e; background: rgba(34, 197, 94, 0.05);">
-                <div class="case-section-title" style="color: #22c55e; border-bottom-color: rgba(34, 197, 94, 0.2);"><i class="bi bi-send-check-fill"></i> INFORMACIÓN DE LA ENTREGA</div>
-                <div class="row g-4">
-                    <div class="col-12">
-                        <span class="case-label">Enlace de Entrega</span>
-                        ${req.url_entrega ? `<a href="${req.url_entrega}" target="_blank" class="btn btn-sm btn-success px-4" style="font-weight:800; border-radius:10px;"><i class="bi bi-link-45deg"></i> VER ENTREGABLE</a>` : '<div class="case-value text-muted">No se proporcionó URL.</div>'}
-                    </div>
-                    <div class="col-12"><span class="case-label">Notas del Especialista</span><div class="case-value-box"><div class="case-value">${escaparHtml(req.observacion_revision || 'Sin observaciones.')}</div></div></div>
-                    <div class="col-12">
-                        <span class="case-label">Archivos del Entregable</span>
-                        <div class="d-flex flex-wrap gap-2 mt-2">
-                            ${archivosEmpleado.map(a => `<a href="${base_url}responsable/archivos/vista-previa/${a.id}" target="_blank" class="case-file-link"><i class="bi bi-file-earmark-check-fill text-success"></i> ${escaparHtml(a.nombre)}</a>`).join('') || '<span class="text-muted small">Sin adjuntos en la entrega.</span>'}
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-  }
+  const pri = prMap[p] || { l: p.toUpperCase(), c: "#999", i: "bi-dash" };
 
   // Estructura principal del expediente.
   document.getElementById("detalle-contenido").innerHTML = `
@@ -395,20 +438,22 @@ function renderizarDetalleRequerimiento(req, archivos) {
                         <span class="case-badge" style="background:${pri.c}15; color:${pri.c}; border-color:${pri.c}44;"><i class="bi ${pri.i} me-1"></i>PRIORIDAD ${pri.l}</span>
                     </div>
 
-                    ${entregaHtml}
-
                     <div class="case-card">
                         <div class="case-section-title"><i class="bi bi-file-earmark-text"></i> REQUERIMIENTO ORIGINAL</div>
                         <div class="row g-4">
-                            <div class="col-md-6"><span class="case-label">Objetivo</span><div class="case-value">${escaparHtml(req.objetivo_comunicacion || '---')}</div></div>
-                            <div class="col-md-6"><span class="case-label">Público</span><div class="case-value">${escaparHtml(req.publico_objetivo || '---')}</div></div>
-                            <div class="col-12"><span class="case-label">Instrucciones</span><div class="case-value-box"><div class="case-value" style="white-space:pre-wrap;">${escaparHtml(req.descripcion || 'Sin descripción.')}</div></div></div>
+                            <div class="col-md-6"><span class="case-label">Objetivo</span><div class="case-value">${escaparHtml(req.objetivo_comunicacion || "---")}</div></div>
+                            <div class="col-md-6"><span class="case-label">Público</span><div class="case-value">${escaparHtml(req.publico_objetivo || "---")}</div></div>
+                            <div class="col-12"><span class="case-label">Instrucciones</span><div class="case-value-box"><div class="case-value" style="white-space:pre-wrap;">${escaparHtml(req.descripcion || "Sin descripción.")}</div></div></div>
                             <div class="col-md-6"><span class="case-label">Canales</span><div class="d-flex flex-wrap gap-2 mt-2">${formatearLista(req.canales_difusion)}</div></div>
                             <div class="col-md-6"><span class="case-label">Formatos</span><div class="d-flex flex-wrap gap-2 mt-2">${formatearLista(req.formatos_solicitados)}</div></div>
                             <div class="col-12">
                                 <span class="case-label">Materiales Adjuntos (Cliente)</span>
                                 <div class="d-flex flex-wrap gap-2 mt-2">
-                                    ${archivosCliente.map(a => `<a href="${base_url}responsable/archivos/vista-previa/${a.id}" target="_blank" class="case-file-link"><i class="bi bi-paperclip text-oro"></i> ${escaparHtml(a.nombre)}</a>`).join('') || '<span class="text-muted small">Sin adjuntos del cliente.</span>'}
+                                    ${archivosCliente.map((a) => `<a href="${base_url}responsable/archivos/vista-previa/${a.id}" target="_blank" class="case-file-link"><i class="bi bi-paperclip text-oro"></i> ${escaparHtml(a.nombre)}</a>`).join("") || '<span class="text-muted small">Sin adjuntos del cliente.</span>'}
+                                </div>
+                                <div class="col-12 mt-3">
+                                  <span class="case-label">Link de Referencia (Cliente)</span>
+                                  ${!req.url_subida ? `'<span class="text-muted small">Sin link de referencia.</span>'` : `<a href="${req.url_subida}" target="_blank" class="btn btn-sm btn-outline-warning"><i class="bi bi-link-45deg"></i>${req.url_subida}</a>`}
                                 </div>
                             </div>
                         </div>
@@ -420,23 +465,58 @@ function renderizarDetalleRequerimiento(req, archivos) {
                         <div class="case-section-title"><i class="bi bi-info-circle"></i> RESUMEN TÉCNICO</div>
                         <div class="case-sidebar-item">
                             <span class="case-label">Cliente / Solicitante</span>
-                            <div class="case-value font-weight-700">${escaparHtml(req.nombre_cliente || '---')}</div>
-                            <div class="text-muted small" style="font-size:11px;">${escaparHtml(req.nombre_area || '---')}</div>
+                            <div class="case-value font-weight-700">${escaparHtml(req.nombre_cliente || "---")}</div>
+                            <div class="text-muted small" style="font-size:11px;">${escaparHtml(req.nombre_area || "---")}</div>
                         </div>
                         <div class="case-sidebar-item"><span class="case-label">Empresa</span><div class="case-value font-weight-700 text-oro">${escaparHtml(req.nombre_empresa)}</div></div>
                         <div class="case-sidebar-item"><span class="case-label">Categoría</span><div class="case-value">${escaparHtml(req.nombre_servicio || req.servicio)}</div></div>
                         <div class="case-sidebar-item">
                             <span class="case-label">Técnico Asignado</span>
-                            <div class="case-value" style="color:${req.empleado_nombre ? 'var(--amarillo)' : '#666'};">
-                                <i class="bi bi-person-badge me-1"></i> ${escaparHtml(req.empleado_nombre || 'Pendiente')}
+                            <div class="case-value" style="color:${req.empleado_nombre ? "var(--amarillo)" : "#666"};">
+                                <i class="bi bi-person-badge me-1"></i> ${escaparHtml(req.empleado_nombre || "Pendiente")}
                             </div>
                         </div>
-                        <div class="mt-auto pt-4 border-top border-secondary">
-                            <div class="d-flex justify-content-between mb-2"><span class="case-label mb-0">Solicitado:</span><span class="case-value small">${formatearFecha(req.fechacreacion)}</span></div>
-                            <div class="d-flex justify-content-between"><span class="case-label mb-0">Límite:</span><span class="case-value font-weight-800 text-warning" style="font-size:16px;">${formatearFecha(req.fecharequerida)}</span></div>
+                        <div class="case-sidebar-item mt-3">
+                            <div class="mb-3">
+                                <span class="case-label mb-1">Solicitado:</span>
+                                <div class="case-value" style="font-size:13px; line-height:1.4;">${formatearFecha(req.fechacreacion)}</div>
+                            </div>
+                            <div>
+                                <span class="case-label mb-1">Límite:</span>
+                                <div class="case-value font-weight-800 text-warning" style="font-size:14px; line-height:1.4;">${formatearFecha(req.fecharequerida)}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Sección de Entrega (Si existe) -->
+                ${(req.estado === 'en_revision' || req.estado === 'finalizado') ? `
+                <div class="col-12 mt-2">
+                    <div class="case-card" style="border-left: 4px solid #22c55e; background: rgba(34, 197, 94, 0.03);">
+                        <div class="case-section-title" style="color: #22c55e;"><i class="bi bi-send-check-fill"></i> INFORMACIÓN DE LA ENTREGA</div>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <span class="case-label">Enlace de Entrega</span>
+                                <div class="mt-2">
+                                    ${req.url_entrega ? `<a href="${req.url_entrega}" target="_blank" class="case-ref-link" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.2); color: #22c55e;"><i class="bi bi-link-45deg"></i> Ver Trabajo en Línea</a>` : '<span class="text-muted small">No se proporcionó URL.</span>'}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <span class="case-label">Notas del Especialista</span>
+                                <div class="case-value-box mt-2" style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+                                    <div class="case-value" style="font-size: 13px;">${escaparHtml(req.notas_tecnicas || "Sin observaciones adicionales.")}</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <span class="case-label">Archivos del Entregable</span>
+                                <div class="d-flex flex-wrap gap-2 mt-2">
+                                    ${archivosEmpleado.map((a) => `<a href="${base_url}responsable/archivos/vista-previa/${a.id}" target="_blank" class="case-file-link" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.2);"><i class="bi bi-file-earmark-check text-success"></i> ${escaparHtml(a.nombre)}</a>`).join("") || '<span class="text-muted small">Sin archivos adjuntos en la entrega.</span>'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
             </div>
         </div>`;
 }
@@ -445,52 +525,69 @@ function renderizarDetalleRequerimiento(req, archivos) {
 
 /**
  * Filtra los requerimientos según el texto ingresado en el buscador.
- * @returns 
+ * @returns
  */
 function filtrarBandeja() {
-  const busqueda = document.getElementById("buscador-bandeja").value.toLowerCase().trim();
-  if (!busqueda) { renderizarBandeja(requerimientosData); return; }
+  const busqueda = document
+    .getElementById("buscador-bandeja")
+    .value.toLowerCase()
+    .trim();
+  if (!busqueda) {
+    renderizarBandeja(requerimientosData);
+    return;
+  }
 
-  const filtrados = requerimientosData.filter(item =>
-    (item.titulo || "").toLowerCase().includes(busqueda) ||
-    (item.nombreempresa || "").toLowerCase().includes(busqueda) ||
-    (item.cliente_nombre || "").toLowerCase().includes(busqueda) ||
-    String(item.idatencion).includes(busqueda)
+  const filtrados = requerimientosData.filter(
+    (item) =>
+      (item.titulo || "").toLowerCase().includes(busqueda) ||
+      (item.nombreempresa || "").toLowerCase().includes(busqueda) ||
+      (item.cliente_nombre || "").toLowerCase().includes(busqueda) ||
+      String(item.idatencion).includes(busqueda),
   );
   renderizarBandeja(filtrados);
 }
 
 /**
  * Formatea fechas cortas (DD/MM/YYYY)
- * @param {*} f 
- * @returns 
+ * @param {*} f
+ * @returns
  */
 function formatearFechaLimpia(f) {
-  if (!f) { return "---"; }
+  if (!f) {
+    return "---";
+  }
   const d = new Date(f);
-  if (isNaN(d.getTime())) { return f; }
-  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+  if (isNaN(d.getTime())) {
+    return f;
+  }
+  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
 }
 
 /**
  * Formatea fechas con hora (DD/MM/YYYY HH:MM)
- * @param {*} f 
- * @returns 
+ * @param {*} f
+ * @returns
  */
 function formatearFecha(f) {
-  if (!f) { return '---'; }
+  if (!f) {
+    return "---";
+  }
   const d = new Date(f);
-  if (isNaN(d.getTime())) { return f; }
-  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  if (isNaN(d.getTime())) {
+    return f;
+  }
+  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}<br><span style="opacity:0.6; font-size:0.9em;">${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}</span>`;
 }
 
 /**
  * Sanitiza texto para evitar ataques XSS e inyecciones
- * @param {*} t 
- * @returns 
+ * @param {*} t
+ * @returns
  */
 function escaparHtml(t) {
-  if (!t) { return ""; }
+  if (!t) {
+    return "";
+  }
   const div = document.createElement("div");
   div.textContent = t;
   return div.innerHTML;
@@ -498,34 +595,41 @@ function escaparHtml(t) {
 
 /**
  * Genera las iniciales de un nombre
- * @param {*} n 
- * @returns 
+ * @param {*} n
+ * @returns
  */
 function obtenerIniciales(n) {
-  if (!n) { return "??"; }
+  if (!n) {
+    return "??";
+  }
   const p = n.trim().split(" ");
-  return (p.length >= 2 ? (p[0][0] + p[1][0]) : (p[0]?.[0] || "?")).toUpperCase();
+  return (p.length >= 2 ? p[0][0] + p[1][0] : p[0]?.[0] || "?").toUpperCase();
 }
 
 /**
  * Técnica de optimización para retardar la ejecución de una función
- * @param {*} fn 
- * @param {*} w 
- * @returns 
+ * @param {*} fn
+ * @param {*} w
+ * @returns
  */
 function debounce(fn, w) {
   let t;
-  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), w); };
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), w);
+  };
 }
 
 /**
  * Actualiza el contador numérico de la cabecera
- * @param {*} c 
+ * @param {*} c
  */
 function actualizarContador(c) {
   const el = document.getElementById("contador-pendientes");
+  const num = document.getElementById("contador-num");
+  if (num) num.textContent = c;
   if (el) {
-    el.innerHTML = `<i class="bi bi-inbox"></i> ${c} pendiente${c !== 1 ? "s" : ""}`;
+    el.innerHTML = `<i class="bi bi-inbox"></i> <span>${c}</span> <span class="contador-label">pendiente${c !== 1 ? "s" : ""}</span>`;
   }
 }
 
@@ -540,36 +644,48 @@ function mostrarEstadoVacio() {
 
 /**
  * Muestra un mensaje de error visual dentro de la tabla
- * @param {*} m 
+ * @param {*} m
  */
 function mostrarError(m) {
-  document.getElementById("contenido-bandeja").innerHTML = `<tr><td colspan="6" class="text-center py-4" style="color:#ef4444;"><i class="bi bi-exclamation-triangle-fill mb-2 d-block fs-3"></i>${escaparHtml(m)}</td></tr>`;
+  document.getElementById("contenido-bandeja").innerHTML =
+    `<tr><td colspan="6" class="text-center py-4" style="color:#ef4444;"><i class="bi bi-exclamation-triangle-fill mb-2 d-block fs-3"></i>${escaparHtml(m)}</td></tr>`;
 }
 
 /**
  * Genera filas con spinners para indicar carga activa
- * @param {*} c 
- * @returns 
+ * @param {*} c
+ * @returns
  */
 function generarSkeletonFilas(c) {
-  return Array(c).fill(0).map(() => `<tr><td colspan="6" class="py-3 text-center"><div class="spinner-border spinner-border-sm text-warning"></div></td></tr>`).join("");
+  return Array(c)
+    .fill(0)
+    .map(
+      () =>
+        `<tr><td colspan="6" class="py-3 text-center"><div class="spinner-border spinner-border-sm text-warning"></div></td></tr>`,
+    )
+    .join("");
 }
 
 /**
  * Convierte una cadena separada por comas en etiquetas (pills) visuales
- * @param {*} v 
- * @returns 
+ * @param {*} v
+ * @returns
  */
 function formatearLista(v) {
-  if (!v) return '';
+  if (!v) return "";
   let items = [];
   try {
     const p = JSON.parse(v);
     items = Array.isArray(p) ? p : [String(p)];
   } catch (e) {
-    items = v.split(',').map(s => s.trim()).filter(s => s);
+    items = v
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s);
   }
-  return items.map(i => `<span class="badge-tag">${escaparHtml(i)}</span>`).join('');
+  return items
+    .map((i) => `<span class="badge-tag">${escaparHtml(i)}</span>`)
+    .join("");
 }
 
 // FUNCIONES AL ÁMBITO GLOBAL (WINDOW)

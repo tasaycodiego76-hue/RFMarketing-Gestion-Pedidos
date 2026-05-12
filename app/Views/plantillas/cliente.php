@@ -20,8 +20,17 @@
         rel="stylesheet">
     <!-- CSS Plantilla -->
     <link rel="stylesheet" href="<?= base_url('recursos/styles/cliente/plantilla/cliente.css') ?>">
+    <!-- CSS Tema Claro (overrides) -->
+    <link rel="stylesheet" href="<?= base_url('recursos/styles/cliente/plantilla/cliente-light.css') ?>">
     <!-- Agregar CSS -->
     <?= $this->renderSection('estilos') ?>
+    <!-- Aplicar tema guardado ANTES del render (evita flash) -->
+    <script>
+    (function(){
+        var t = localStorage.getItem('rf-cliente-theme');
+        if(t === 'light') document.documentElement.setAttribute('data-theme','light');
+    })();
+    </script>
 </head>
 
 <body>
@@ -136,6 +145,12 @@
             </div>
 
             <div class="topbar-right">
+                <!-- Toggle Tema Claro/Oscuro -->
+                <button class="theme-toggle-btn" id="themeToggleBtn" title="Cambiar tema">
+                    <i class="bi bi-sun-fill theme-icon icon-sun"></i>
+                    <i class="bi bi-moon-fill theme-icon icon-moon"></i>
+                </button>
+
                 <!-- Notificaciones -->
                 <a href="<?= base_url('cliente/notificaciones') ?>" class="topbar-icon-btn notif-btn">
                     <i class="bi bi-bell"></i>

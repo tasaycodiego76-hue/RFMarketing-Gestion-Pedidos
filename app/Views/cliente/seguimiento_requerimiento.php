@@ -37,7 +37,8 @@
                     <?php foreach ($historial as $item): ?>
                         <div class="timeline-item-seg">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="timeline-estado estado-<?= str_replace(['pendiente_sin_asignar','pendiente_asignado','en_proceso','en_revision'], ['pendiente', 'pendiente', 'proceso', 'revision'], strtolower($item['estado'] ?? 'default')) ?>">
+                                <span
+                                    class="timeline-estado estado-<?= str_replace(['pendiente_sin_asignar', 'pendiente_asignado', 'en_proceso', 'en_revision'], ['pendiente', 'pendiente', 'proceso', 'revision'], strtolower($item['estado'] ?? 'default')) ?>">
                                     <?= strtoupper(str_replace('_', ' ', esc($item['estado'] ?? 'Estado actualizado'))) ?>
                                 </span>
                                 <small class="text-muted-timeline">

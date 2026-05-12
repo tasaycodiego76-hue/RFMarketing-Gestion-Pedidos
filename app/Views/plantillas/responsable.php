@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-bs-theme="dark">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -21,8 +21,18 @@
 
     <!-- Estilos base del Responsable -->
     <link href="<?= base_url('recursos/styles/responsable/plantilla/responsable.css') ?>" rel="stylesheet">
+    <!-- CSS Tema Claro (overrides) -->
+    <link rel="stylesheet" href="<?= base_url('recursos/styles/responsable/plantilla/responsable-light.css') ?>">
 
     <?= $this->renderSection('estilos') ?>
+    
+    <!-- Aplicar tema guardado ANTES del render (evita flash) -->
+    <script>
+    (function(){
+        var t = localStorage.getItem('rf-responsable-theme');
+        if(t === 'light') document.documentElement.setAttribute('data-theme','light');
+    })();
+    </script>
 </head>
 
 <body>
@@ -197,6 +207,11 @@
             </div>
 
             <div class="topbar-right">
+                <!-- Toggle Tema Claro/Oscuro -->
+                <button class="theme-toggle-btn" id="themeToggleBtn" title="Cambiar tema">
+                    <i class="bi bi-sun-fill theme-icon icon-sun"></i>
+                    <i class="bi bi-moon-fill theme-icon icon-moon"></i>
+                </button>
                 <div class="topbar-profile">
                     <div class="profile-text">
                         <span class="user-name"><?= esc($nombre) ?></span>

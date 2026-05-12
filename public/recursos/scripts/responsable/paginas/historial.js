@@ -22,7 +22,7 @@ async function verDetalleHistorial(idAtencion) {
         Swal.close();
 
         if (res.success) {
-            renderizarDetalleHistorialPremium(res.data, res.archivos, res.tracking);
+            renderizarDetalleHistorial(res.data, res.archivos, res.tracking);
         } else {
             Swal.fire({ icon: 'error', title: 'Error', text: res.message, background: '#0d0d0d', color: '#fff' });
         }

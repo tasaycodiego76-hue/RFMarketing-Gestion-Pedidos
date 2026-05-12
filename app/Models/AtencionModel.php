@@ -30,7 +30,7 @@ class AtencionModel extends Model
         'url_entrega',
         'idarea_agencia'
     ];
-    
+
     /* CLIENTE */
 
     /**
@@ -203,7 +203,7 @@ class AtencionModel extends Model
     }
 
     /* RESPONSABLE_AREA */
-    
+
     /**
      * Obtiene pedidos para la vista de resumen del Responsable de Área.
      * @param int $idAreaAgencia
@@ -356,6 +356,272 @@ class AtencionModel extends Model
             ->get()->getResultArray();
     }
 
+    /**
+     * Obtiene datos de productividad por empleado (En Proceso | Completados).
+     * @param int $idAreaAgencia
+     * @return array
+     */
+    public function getMetricasProductividad(int $idAreaAgencia): array
+    {
+        $sql = "
+            SELECT 
+                u.nombre,
+                u.apellidos,
+                COUNT(CASE WHEN a.estado IN ('en_proceso', 'pendiente_asignado') THEN 1 END) as total_proceso,
+                COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) as total_completado,
+                COUNT(a.id) as total_tareas
+            FROM usuarios u
+            LEFT JOIN atencion a ON a.idempleado = u.id
+            WHERE u.idarea_agencia = ?
+              AND u.rol = 'empleado'
+              AND (u.estado = true OR u.estado = 't' OR u.estado = '1')
+            GROUP BY u.id, u.nombre, u.apellidos
+            ORDER BY total_tareas DESC";
+
+        return $this->db->query($sql, [$idAreaAgencia])->getResultArray();
+    }
+
+    /**
+     * Obtiene la distribución de carga actual (Tareas activas por empleado).
+     * @param int $idAreaAgencia
+     * @return array
+     */
+    public function getMetricasDistribucionCarga(int $idAreaAgencia): array
+    {
+        $sql = "
+            SELECT 
+                CONCAT(u.nombre, ' ' ,u.apellidos) AS nombre_completo,
+                COUNT(a.id) as cantidad_tareas
+            FROM usuarios u
+            LEFT JOIN atencion a ON a.idempleado = u.id AND a.estado NOT IN ('finalizado', 'cancelado')
+            WHERE u.idarea_agencia = ? 
+              AND (u.estado = true OR u.estado = 't' OR u.estado = '1')
+              AND u.rol = 'empleado'
+            GROUP BY u.id, u.nombre, u.apellidos";
+
+        return $this->db->query($sql, [$idAreaAgencia])->getResultArray();
+    }
+
+    /**
+     * Obtiene la tendencia de tareas completadas en los últimos 7 días.
+     * @param int $idAreaAgencia
+     * @return array
+     */
+    public function getMetricasTendenciaSemanal(int $idAreaAgencia): array
+    {
+        // Obtenemos solo la semana actual (desde el Lunes) usando date_trunc
+        // ISODOW devuelve 1 para Lunes, 2 para Martes, etc.
+        $sql = "
+            SELECT 
+                EXTRACT(ISODOW FROM fechacompletado) as numero_dia,
+                COUNT(*) as total_finalizados
+            FROM atencion
+            WHERE idarea_agencia = ?
+              AND estado = 'finalizado'
+              AND fechacompletado >= date_trunc('week', CURRENT_DATE)
+            GROUP BY numero_dia
+            ORDER BY numero_dia ASC";
+
+        return $this->db->query($sql, [$idAreaAgencia])->getResultArray();
+    }
+
+    /**
+     * Obtiene el tiempo promedio de resolución por empleado en horas.
+     * @param int $idAreaAgencia
+     * @return array
+     */
+    public function getMetricasTiempoPromedio(int $idAreaAgencia): array
+    {
+        $sql = "
+            SELECT 
+                u.nombre,
+                COALESCE(ROUND(AVG(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600)::numeric, 2), 0) as promedio_horas
+            FROM usuarios u
+            LEFT JOIN atencion a ON a.idempleado = u.id 
+                AND a.estado = 'finalizado'
+                AND a.fechainicio IS NOT NULL 
+                AND a.fechacompletado IS NOT NULL
+            WHERE u.idarea_agencia = ?
+              AND u.rol = 'empleado'
+              AND (u.estado = true OR u.estado = 't' OR u.estado = '1')
+            GROUP BY u.id, u.nombre
+            ORDER BY promedio_horas ASC";
+
+        return $this->db->query($sql, [$idAreaAgencia])->getResultArray();
+    }
+
+    /**
+     * Obtiene el listado de Requerimientos para el reporte detallado, agrupado por empresa
+     * @param int $idAreaAgencia
+     * @param mixed $desde
+     * @param mixed $hasta
+     * @param array $filtros
+     * @return array
+     */
+    public function obtenerReporteDetallado(int $idAreaAgencia, ?string $desde = null, ?string $hasta = null, array $filtros = []): array
+    {
+        $params = [$idAreaAgencia];
+        $where = " WHERE a.idarea_agencia = ? ";
+
+        // Filtros de fecha opcionales
+        if (!empty($desde)) {
+            $where .= " AND a.fechacreacion >= ? ";
+            $params[] = $desde . ' 00:00:00';
+        }
+        if (!empty($hasta)) {
+            $where .= " AND a.fechacreacion <= ? ";
+            $params[] = $hasta . ' 23:59:59';
+        }
+
+        // Otros filtros dinámicos
+        if (!empty($filtros['idempresa'])) {
+            $where .= " AND e.id = ? ";
+            $params[] = $filtros['idempresa'];
+        }
+        if (!empty($filtros['idempleado'])) {
+            $where .= " AND a.idempleado = ? ";
+            $params[] = $filtros['idempleado'];
+        }
+        if (!empty($filtros['idservicio'])) {
+            $where .= " AND a.idservicio = ? ";
+            $params[] = $filtros['idservicio'];
+        }
+        if (!empty($filtros['solo_completados'])) {
+            $where .= " AND a.estado = 'finalizado' ";
+        }
+        if (!empty($filtros['solo_retrasos'])) {
+            $where .= " AND (
+                (a.estado = 'pendiente_asignado' AND a.fechacreacion < CURRENT_DATE - INTERVAL '3 days') OR
+                (a.estado = 'en_proceso' AND r.fecharequerida < CURRENT_DATE)
+            ) ";
+        }
+        
+        // Manejo de cancelados (Por defecto no se incluyen)
+        if (empty($filtros['incluir_cancelados'])) {
+            $where .= " AND a.estado != 'cancelado' ";
+        }
+
+        $sql = "
+            SELECT 
+                a.id, a.titulo, a.estado, a.prioridad, a.fechacreacion, a.fechainicio, a.fechacompletado, 
+                a.observacion_revision, a.idempleado,
+                COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre,
+                e.nombreempresa as empresa_nombre,
+                u_emp.nombre as empleado_nombre,
+                u_emp.apellidos as empleado_apellidos,
+                CASE 
+                    WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL 
+                    THEN ROUND(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600, 2)
+                    ELSE 0 
+                END as horas_usadas
+            FROM atencion a
+            JOIN requerimiento r ON r.id = a.idrequerimiento
+            JOIN usuarios u_cli ON r.idusuarioempresa = u_cli.id
+            JOIN areas ar_cli ON u_cli.idarea = ar_cli.id
+            JOIN empresas e ON ar_cli.idempresa = e.id
+            LEFT JOIN servicios s ON s.id = a.idservicio
+            LEFT JOIN usuarios u_emp ON u_emp.id = a.idempleado
+            $where
+            ORDER BY e.nombreempresa ASC, a.fechacreacion DESC
+        ";
+
+        return $this->db->query($sql, $params)->getResultArray();
+    }
+
+    /**
+     * Obtiene métricas de rendimiento por técnico en un periodo
+     * @param int $idAreaAgencia
+     * @param mixed $desde
+     * @param mixed $hasta
+     * @return array
+     */
+    public function obtenerMetricasTecnicosReporte(int $idAreaAgencia, ?string $desde = null, ?string $hasta = null): array
+    {
+        $whereFecha = "";
+        $params = [];
+
+        if (!empty($desde) && !empty($hasta)) {
+            $whereFecha = " AND a.fechacreacion >= ? AND a.fechacreacion <= ? ";
+            $params[] = $desde . ' 00:00:00';
+            $params[] = $hasta . ' 23:59:59';
+        }
+
+        $params[] = $idAreaAgencia;
+
+        $sql = "
+            SELECT 
+                u.nombre, u.apellidos,
+                COUNT(a.id) as asignados,
+                COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) as completados,
+                COUNT(CASE WHEN a.estado = 'en_proceso' THEN 1 END) as en_proceso,
+                CASE 
+                    WHEN COUNT(a.id) > 0 THEN ROUND((COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END)::numeric / COUNT(a.id)) * 100, 1)
+                    ELSE 0 
+                END as eficiencia,
+                COALESCE(SUM(CASE 
+                    WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL 
+                    THEN EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600
+                    ELSE 0 
+                END), 0) as horas_totales
+            FROM usuarios u
+            LEFT JOIN atencion a ON a.idempleado = u.id $whereFecha
+            WHERE u.idarea_agencia = ? 
+              AND u.rol = 'empleado'
+              AND (u.estado = true OR u.estado = 't' OR u.estado = '1')
+            GROUP BY u.id, u.nombre, u.apellidos
+            ORDER BY asignados DESC, eficiencia DESC
+        ";
+
+        return $this->db->query($sql, $params)->getResultArray();
+    }
+
+    /**
+     *Identifica casos críticos (retrasos o falta de info) para la sección de Alertas.
+     * @param int $idAreaAgencia
+     * @return array
+     */
+    public function obtenerAlertasReporte(int $idAreaAgencia, ?string $desde = null, ?string $hasta = null): array
+    {
+        $params = [$idAreaAgencia];
+        $whereFecha = "";
+
+        if (!empty($desde) && !empty($hasta)) {
+            $whereFecha = " AND a.fechacreacion >= ? AND a.fechacreacion <= ? ";
+            $params[] = $desde . ' 00:00:00';
+            $params[] = $hasta . ' 23:59:59';
+        }
+
+        $sql = "
+            SELECT 
+                a.id, a.titulo, a.estado,
+                e.nombreempresa as empresa,
+                a.fechacreacion, 
+                r.fecharequerida,
+                CASE 
+                    WHEN a.estado = 'pendiente_asignado' AND a.fechacreacion < CURRENT_DATE - INTERVAL '3 days' THEN 'Esperando más de 3 días por asignación'
+                    WHEN a.estado = 'en_proceso' AND r.fecharequerida < CURRENT_DATE THEN 'Pedido con fecha vencida'
+                    WHEN a.observacion_revision IS NOT NULL AND a.estado != 'finalizado' THEN 'Requiere correcciones técnicas'
+                    ELSE 'Revisión pendiente'
+                END as motivo_alerta
+            FROM atencion a
+            JOIN requerimiento r ON r.id = a.idrequerimiento
+            JOIN usuarios u ON u.id = r.idusuarioempresa
+            JOIN areas ar ON ar.id = u.idarea
+            JOIN empresas e ON e.id = ar.idempresa
+            WHERE a.idarea_agencia = ?
+              $whereFecha
+              AND a.estado NOT IN ('finalizado', 'cancelado')
+              AND (
+                (a.estado = 'pendiente_asignado' AND a.fechacreacion < CURRENT_DATE - INTERVAL '3 days') OR
+                (a.estado = 'en_proceso' AND r.fecharequerida < CURRENT_DATE) OR
+                (a.observacion_revision IS NOT NULL AND a.observacion_revision != '')
+              )
+            LIMIT 10
+        ";
+
+        return $this->db->query($sql, $params)->getResultArray();
+    }
+
     /* EMPLEADO */
 
     /**
@@ -404,6 +670,7 @@ class AtencionModel extends Model
             ->orderBy('fechainicio', 'DESC')
             ->findAll();
     }
+    
     /**
      * Obtiene el historial de pedidos finalizados con información detallada de empresa, área y empleado.
      * @return array
@@ -433,4 +700,4 @@ class AtencionModel extends Model
 
         return $this->db->query($sql)->getResultArray();
     }
-}
+}

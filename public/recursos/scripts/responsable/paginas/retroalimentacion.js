@@ -48,12 +48,12 @@ function renderizarDetalleRetro(req, archivos, tracking) {
 
     // Mapeo de estados y prioridades
     const configEstado = {
-        'pendiente_asignado': { label: 'POR ASIGNAR', icon: 'bi-hourglass-split', color: '#f59e0b' },
-        'en_proceso': { label: 'EN DESARROLLO', icon: 'bi-lightning-charge-fill', color: '#F5C400' },
-        'en_revision': { label: 'EN REVISIÓN', icon: 'bi-eye-fill', color: '#8b5cf6' },
-        'finalizado': { label: 'COMPLETADO', icon: 'bi-check2-circle', color: '#22c55e' }
+        'pendiente_asignado': { label: 'POR ASIGNAR', color: '#f59e0b' },
+        'en_proceso': { label: 'EN DESARROLLO', color: '#F5C400' },
+        'en_revision': { label: 'EN REVISIÓN', color: '#8b5cf6' },
+        'finalizado': { label: 'COMPLETADO', color: '#22c55e' }
     };
-    const est = configEstado[req.estado] || { label: req.estado, icon: 'bi-circle', color: '#aaa' };
+    const est = configEstado[req.estado] || { label: req.estado, color: '#aaa' };
     
     const prioColor = req.prioridad?.toLowerCase() === 'alta' ? '#ef4444' : (req.prioridad?.toLowerCase() === 'baja' ? '#3b82f6' : '#f59e0b');
 
@@ -62,9 +62,7 @@ function renderizarDetalleRetro(req, archivos, tracking) {
     <div class="p-4">
         <div class="mb-4">
             <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                <span class="retro-badge" style="background: ${est.color}15; color: ${est.color}; border: 1px solid ${est.color}33;">
-                    <i class="bi ${est.icon} me-1"></i>${est.label}
-                </span>
+                <span class="retro-badge" style="background: ${est.color}15; color: ${est.color}; border: 1px solid ${est.color}33;">${est.label}</span>
                 <span class="retro-badge" style="background: ${prioColor}15; color: ${prioColor}; border: 1px solid ${prioColor}33;">
                     PRIORIDAD ${req.prioridad?.toUpperCase() || 'MEDIA'}
                 </span>

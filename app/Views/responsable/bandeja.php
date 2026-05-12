@@ -10,14 +10,21 @@
 
 <div class="container-fluid p-0">
     <!-- Encabezado Principal -->
-    <div class="d-flex justify-content-between align-items-end mb-4 pb-2 border-bottom border-dark">
-        <div>
-            <h1 class="seccion-titulo text-uppercase">Bandeja de Entrada</h1>
-            <p class="text-muted-small mb-0">Gestión y asignación de nuevos requerimientos de clientes</p>
+    <div class="bandeja-header-hero mb-5">
+        <div class="bandeja-header-left">
+            <div class="bandeja-icono-wrap">
+                <i class="bi bi-inbox-fill"></i>
+            </div>
+            <div>
+                <h1 class="bandeja-titulo-principal">Bandeja de Entrada</h1>
+                <p class="bandeja-subtitulo">Gestión y asignación de nuevos requerimientos de clientes</p>
+            </div>
         </div>
         <div class="d-flex align-items-center">
-            <span class="badge-rf estado-por-asignar px-3 py-2 shadow-sm" id="contador-pendientes">
-                <i class="bi bi-inbox-fill me-2"></i> 0 PENDIENTES
+            <span class="contador-hero" id="contador-pendientes">
+                <i class="bi bi-inbox"></i>
+                <span id="contador-num">0</span>
+                <span class="contador-label">PENDIENTES</span>
             </span>
         </div>
     </div>
@@ -59,9 +66,18 @@
     </div>
 
     <!-- Sección: Pendientes de Revisión -->
-    <div class="mt-5 pt-4">
-        <h2 class="seccion-titulo text-oro text-uppercase mb-1">Esperando Revisión</h2>
-        <p class="text-muted-small mb-4">Entregas de especialistas que requieren tu validación final</p>
+    <div class="mt-5 pt-2">
+        <div class="bandeja-header-hero bandeja-revision-header mb-4">
+            <div class="bandeja-header-left">
+                <div class="bandeja-icono-wrap bandeja-icono-revision">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <div>
+                    <h2 class="bandeja-titulo-principal">Esperando Revisión</h2>
+                    <p class="bandeja-subtitulo">Entregas de especialistas que requieren tu validación final</p>
+                </div>
+            </div>
+        </div>
 
         <div class="card-rf overflow-hidden">
             <div class="table-responsive">
@@ -105,14 +121,22 @@
             <div class="modal-body modal-rf-body p-4">
                 <input type="hidden" id="idatencion-seleccionado">
 
-                <div class="hp-sec mb-4">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="hp-label">Empresa:</span>
-                        <span class="hp-val" id="info-empresa">---</span>
+                <div class="assign-info-grid mb-4">
+                    <div class="assign-info-item">
+                        <span class="assign-info-label"><i class="bi bi-building me-1"></i>Empresa</span>
+                        <span class="assign-info-val" id="info-empresa">---</span>
                     </div>
-                    <div class="d-flex justify-content-between">
-                        <span class="hp-label">Prioridad:</span>
+                    <div class="assign-info-item">
+                        <span class="assign-info-label"><i class="bi bi-lightning-fill me-1"></i>Prioridad</span>
                         <span id="info-prioridad">---</span>
+                    </div>
+                    <div class="assign-info-item">
+                        <span class="assign-info-label"><i class="bi bi-diagram-3 me-1"></i>Área</span>
+                        <span class="assign-info-val" id="info-area">---</span>
+                    </div>
+                    <div class="assign-info-item">
+                        <span class="assign-info-label"><i class="bi bi-person me-1"></i>Solicitado por</span>
+                        <span class="assign-info-val" id="info-solicitante">---</span>
                     </div>
                 </div>
 
