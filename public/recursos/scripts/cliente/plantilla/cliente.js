@@ -41,6 +41,38 @@ if (sidebarCloseBtn) {
   sidebarCloseBtn.addEventListener("click", cerrarSidebar);
 }
 
+// TOGGLE TEMA CLARO / OSCURO
+
+(function () {
+  const STORAGE_KEY = "rf-cliente-theme";
+  const html = document.documentElement; // <html>
+  const toggleBtn = document.getElementById("themeToggleBtn");
+
+  // Al cargar la página, aplicar el tema guardado (si existe)
+  const temaGuardado = localStorage.getItem(STORAGE_KEY);
+  if (temaGuardado) {
+    html.setAttribute("data-theme", temaGuardado);
+  }
+  // Si no hay tema guardado, se mantiene el oscuro (por defecto, sin atributo data-theme)
+
+  // Click en el botón toggle
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", function () {
+      const temaActual = html.getAttribute("data-theme");
+
+      if (temaActual === "light") {
+        // Cambiar a oscuro
+        html.removeAttribute("data-theme");
+        localStorage.setItem(STORAGE_KEY, "dark");
+      } else {
+        // Cambiar a claro
+        html.setAttribute("data-theme", "light");
+        localStorage.setItem(STORAGE_KEY, "light");
+      }
+    });
+  }
+})();
+
 // Confirmación de cierre de sesión
 document.addEventListener("DOMContentLoaded", function() {
   const logoutBtn = document.querySelector(".logout-btn");
@@ -49,17 +81,20 @@ document.addEventListener("DOMContentLoaded", function() {
       e.preventDefault();
       const url = this.getAttribute("href");
 
+      // Detectar tema actual para SweetAlert
+      const esClaro = document.documentElement.getAttribute("data-theme") === "light";
+
       Swal.fire({
         title: "¿Estás seguro?",
         text: "Se cerrará tu sesión actual.",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#f5c400",
-        cancelButtonColor: "#333",
+        confirmButtonColor: "#E8B800",
+        cancelButtonColor: esClaro ? "#6a6a7a" : "#333",
         confirmButtonText: "Sí, salir",
         cancelButtonText: "Cancelar",
-        background: "#111",
-        color: "#fff"
+        background: esClaro ? "#faf7f2" : "#111",
+        color: esClaro ? "#1a1a2e" : "#fff"
       }).then((result) => {
         if (result.isConfirmed) {
           window.location.href = url;

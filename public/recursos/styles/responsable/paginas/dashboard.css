@@ -1,3 +1,32 @@
+.form-control-rf {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.checkbox-container {
+  font-size: 13px;
+  color: #ccc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-container input {
+  width: 16px;
+  height: 16px;
+  accent-color: #e67e22;
+}
+
+.seccion-titulo {
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-weight: bold;
+  color: #eee;
+}
 .estado-pendiente_especificacion {
   background: #f59e0b;
   color: #000;

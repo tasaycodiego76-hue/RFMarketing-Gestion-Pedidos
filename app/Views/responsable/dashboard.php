@@ -2,37 +2,6 @@
 
 <?= $this->section('estilos') ?>
 <link rel="stylesheet" href="<?= base_url('recursos/styles/responsable/paginas/dashboard.css') ?>">
-<style>
-    .form-control-rf {
-        background: #1a1a1a;
-        border: 1px solid #333;
-        color: white;
-        padding: 10px;
-        border-radius: 6px;
-    }
-
-    .checkbox-container {
-        font-size: 13px;
-        color: #ccc;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .checkbox-container input {
-        width: 16px;
-        height: 16px;
-        accent-color: #e67e22;
-    }
-
-    .seccion-titulo {
-        margin-top: 20px;
-        margin-bottom: 15px;
-        font-weight: bold;
-        color: #eee;
-    }
-</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('contenido') ?>
@@ -64,15 +33,6 @@
             <div class="metrica-sub">Completados</div>
         </div>
     </div>
-</div>
-
-<!-- Bienvenida -->
-<div class="card-rf mb-4">
-    <h5 class="mb-2">¡Bienvenido <?= esc($user['nombre']) ?>!</h5>
-    <p class="text-muted-rf mb-0">
-        Área: <strong
-            class="color-amarillo"><?= esc($user['nombre_area'] ?? $user['nombre_areaagencia'] ?? 'Sin área') ?></strong>
-    </p>
 </div>
 
 <!-- Gráficos de Dashboard (Restaurados) -->

@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-
   const sidebar = document.getElementById("sidebar");
   const sidebarOverlay = document.getElementById("sidebarOverlay");
   const hamburgerBtn = document.getElementById("hamburgerBtn");
@@ -66,7 +65,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
-
 
   // ToolTips Boostrap
   const tooltipTriggerList = document.querySelectorAll(

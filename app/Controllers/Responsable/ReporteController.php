@@ -55,7 +55,7 @@ class ReporteController extends BaseResponsableController
         ];
 
         // Preparar la Vista HTML
-        $html = view('Responsable/reportes/pdf_gestion', [
+        $html = view('Responsable/reporte_area', [
             'titulo'    => 'REPORTE DE GESTIÓN OPERATIVA',
             'area'      => $userS['userData']['nombre_areaagencia'] ?? 'Área no asignada',
             'jefe'      => trim($userS['user']['nombre'] . ' ' . $userS['user']['apellidos']),
@@ -74,7 +74,7 @@ class ReporteController extends BaseResponsableController
             // Renderizar el HTML
             $html2pdf->writeHTML($html);
             // Output: I = Vista previa en navegador
-            $nombreArchivo = 'Reporte_Gestion_' . date('Ymd_His') . '.pdf';
+            $nombreArchivo = 'Gestion_Reporte_' . date('Ymd_His') . '.pdf';
             ob_end_clean(); 
             $html2pdf->output($nombreArchivo, 'I');
             exit();

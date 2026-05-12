@@ -348,12 +348,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
           return `
           <tr>
-            <td class="fw-bold text-light">#${num}</td>
+            <td class="fw-bold">#${num}</td>
             <td><span class="fw-semibold fs-6">${pedido.titulo || "Sin título"}</span></td>
             <td>${servicio}</td>
             <td><span class="badge-estado ${cfgEstado.clase}">${cfgEstado.texto.toUpperCase()}</span></td>
             <td><span class="badge-prio ${cfgPrioridad.clase}">${cfgPrioridad.etiqueta}</span></td>
-            <td class="text-light small">${pedido.fechacreacion.substring(0, 10)}</td>
+            <td class="small">${pedido.fechacreacion.substring(0, 10)}</td>
             <td>
               <div class="d-flex gap-2">
                 <button onclick="verDetalle(${pedido.idrequerimiento})" class="btn-ver" title="Ver Detalle"><i class="bi bi-eye"></i></button>
