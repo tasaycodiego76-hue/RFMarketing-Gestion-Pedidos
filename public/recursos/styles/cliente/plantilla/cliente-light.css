@@ -736,9 +736,7 @@
     font-weight: 900 !important;
 }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* COLORES DE MÉTRICAS - MÁS VIBRANTES EN TEMA CLARO            */
-/* ══════════════════════════════════════════════════════════════ */
+/* COLORES DE MÉTRICAS - MÁS VIBRANTES EN TEMA CLARO */
 
 [data-theme="light"] .amarillo {
     color: #FFA500 !important;
@@ -1042,9 +1040,7 @@
     color: #E8B800 !important;
 }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* WIZARD / MODAL INTERIOR — TEMA CLARO                          */
-/* ═══════════════════════════════════════════════════════════════ */
+/* WIZARD / MODAL INTERIOR — TEMA CLARO */
 
 /* Scrollbar del wizard en modo claro */
 [data-theme="light"] .wizard-section::-webkit-scrollbar-track {

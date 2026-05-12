@@ -720,9 +720,71 @@ body {
   color: var(--info);
 }
 
-/* ==========================================================================
-   SISTEMA DE DISEÑO PREMIUM (KD) - USADO EN MODALES DE DETALLE Y EDICIÓN
-   ========================================================================== */
+/* BOTÓN TEMA CLARO / OSCURO */
+.theme-toggle-btn {
+    position: relative;
+    width: 38px; height: 38px;
+    border-radius: var(--border-radius);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-secondary); font-size: 18px;
+    background: none; border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    overflow: hidden;
+}
+.theme-toggle-btn:hover {
+    color: var(--accent-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.theme-toggle-btn .theme-icon {
+    position: absolute;
+    transition: transform 0.4s cubic-bezier(.4,0,.2,1), opacity 0.3s ease;
+}
+
+.theme-toggle-btn .icon-sun {
+    transform: translateY(0) rotate(0);
+    opacity: 1;
+}
+.theme-toggle-btn .icon-moon {
+    transform: translateY(30px) rotate(90deg);
+    opacity: 0;
+}
+
+[data-theme="light"] .theme-toggle-btn .icon-sun {
+    transform: translateY(-30px) rotate(-90deg);
+    opacity: 0;
+}
+[data-theme="light"] .theme-toggle-btn .icon-moon {
+    transform: translateY(0) rotate(0);
+    opacity: 1;
+}
+
+.theme-toggle-btn::after {
+    content: 'Modo Claro';
+    position: absolute;
+    bottom: -32px; left: 50%;
+    transform: translateX(-50%) scale(0.85);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 11px; font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+}
+[data-theme="light"] .theme-toggle-btn::after {
+    content: 'Modo Oscuro';
+}
+.theme-toggle-btn:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+
+/* SISTEMA DE DISEÑO - USADO EN MODALES DE DETALLE Y EDICIÓN */
 
 .kd-main {
   display: flex;

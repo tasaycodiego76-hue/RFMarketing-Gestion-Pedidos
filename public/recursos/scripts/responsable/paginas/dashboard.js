@@ -23,6 +23,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const tendencia = resp.tendencias_Semanal;
       const tiempoPromedio = resp.tiempopromedio;
 
+      // Detectar Tema
+      const esClaro = document.documentElement.getAttribute("data-theme") === "light";
+      const textColor = esClaro ? "#4a4a5a" : "#d1d1d6";
+      const gridColor = esClaro ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)";
+      const centerTextColor = esClaro ? "#1a1a2e" : "#ffffff";
+
       // GRÁFICO A: Productividad por empleado
       const graficoA = new Chart(graficoProductividad, {
         type: "bar",
@@ -51,16 +57,16 @@ document.addEventListener("DOMContentLoaded", function () {
           plugins: {
             legend: {
               position: "top",
-              labels: { color: "#e4e4e7" },
+              labels: { color: textColor },
             },
           },
           scales: {
             y: {
-              grid: { color: "rgba(255,255,255,0.05)" },
-              ticks: { color: "#d1d1d6" },
+              grid: { color: gridColor },
+              ticks: { color: textColor },
             },
             x: {
-              ticks: { color: "#d1d1d6" },
+              ticks: { color: textColor },
             },
           },
         },
@@ -104,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
               position: "bottom",
               align: "center",
               labels: {
-                color: "#e4e4e7",
+                color: textColor,
                 padding: 20,
                 boxWidth: 12,
                 font: { size: 12 },
@@ -125,10 +131,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 ctx.font = "bold 3rem Bebas Neue, sans-serif";
                 ctx.textBaseline = "middle";
                 ctx.textAlign = "center";
-                ctx.fillStyle = "#ffffff";
+                ctx.fillStyle = centerTextColor;
                 ctx.fillText(totalCarga, x, y - 8);
                 ctx.font = "700 0.85rem Inter, sans-serif";
-                ctx.fillStyle = "#d1d1d6";
+                ctx.fillStyle = textColor;
                 ctx.fillText("TAREAS", x, y + 25);
                 ctx.restore();
               }
@@ -166,17 +172,17 @@ document.addEventListener("DOMContentLoaded", function () {
         options: {
           responsive: true,
           plugins: {
-            legend: { position: "top", labels: { color: "#e4e4e7" } },
+            legend: { position: "top", labels: { color: textColor } },
           },
           scales: {
             y: {
               beginAtZero: true,
-              grid: { color: "rgba(255,255,255,0.05)" },
-              ticks: { color: "#d1d1d6" },
+              grid: { color: gridColor },
+              ticks: { color: textColor },
             },
             x: {
               grid: { display: false },
-              ticks: { color: "#d1d1d6" },
+              ticks: { color: textColor },
             },
           },
         },
@@ -212,17 +218,17 @@ document.addEventListener("DOMContentLoaded", function () {
           scales: {
             x: {
               beginAtZero: true,
-              grid: { color: "rgba(255,255,255,0.05)" },
-              ticks: { color: "#d1d1d6" },
+              grid: { color: gridColor },
+              ticks: { color: textColor },
               title: {
                 display: true,
                 text: "Horas",
-                color: "#d1d1d6",
+                color: textColor,
               },
             },
             y: {
               grid: { display: false },
-              ticks: { color: "#d1d1d6" },
+              ticks: { color: textColor },
             },
           },
         },

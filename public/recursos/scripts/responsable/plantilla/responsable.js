@@ -41,11 +41,36 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // TOGGLE TEMA CLARO / OSCURO
+  (function () {
+    const STORAGE_KEY = "rf-responsable-theme";
+    const html = document.documentElement;
+    const toggleBtn = document.getElementById("themeToggleBtn");
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", function () {
+        const temaActual = html.getAttribute("data-theme");
+
+        if (temaActual === "light") {
+          // Cambiar a oscuro
+          html.removeAttribute("data-theme");
+          localStorage.setItem(STORAGE_KEY, "dark");
+        } else {
+          // Cambiar a claro
+          html.setAttribute("data-theme", "light");
+          localStorage.setItem(STORAGE_KEY, "light");
+        }
+      });
+    }
+  })();
+
   // Cerrar Sesion - (Confirmacion Sweet Alert)
   const logoutLink = document.querySelector(".logout-link");
   if (logoutLink) {
     logoutLink.addEventListener("click", function (e) {
       e.preventDefault();
+      
+      const esClaro = document.documentElement.getAttribute("data-theme") === "light";
 
       Swal.fire({
         title: "¿Cerrar sesión?",
@@ -53,11 +78,11 @@ document.addEventListener("DOMContentLoaded", function () {
         icon: "question",
         showCancelButton: true,
         confirmButtonColor: "#F5C400",
-        cancelButtonColor: "#71717a",
+        cancelButtonColor: esClaro ? "#6a6a7a" : "#71717a",
         confirmButtonText: "Sí, salir",
         cancelButtonText: "Cancelar",
-        background: "#161616",
-        color: "#ffffff",
+        background: esClaro ? "#faf7f2" : "#161616",
+        color: esClaro ? "#1a1a2e" : "#ffffff",
       }).then((result) => {
         if (result.isConfirmed) {
           window.location.href = this.href;
