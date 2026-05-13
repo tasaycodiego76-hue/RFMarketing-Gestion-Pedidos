@@ -89,6 +89,10 @@ $routes->group('responsable', ['filter' => 'auth'], function ($routes) {
     $routes->get('tareas/en-proceso', 'Responsable\EquipoController::tareasEnProceso');
     $routes->get('tareas/empleado/(:num)', 'Responsable\EquipoController::tareasPorEmpleado/$1');
     $routes->get('equipo/miembro/(:num)', 'Responsable\EquipoController::detalleMiembro/$1');
+    // Reasignación
+    $routes->post('pedidos/reasignar', 'Responsable\EquipoController::reasignarTarea');
+    $routes->get('empleados/para-reasignar', 'Responsable\EquipoController::empleadosParaReasignar');
+    $routes->get('empleados/historial-asignaciones', 'Responsable\EquipoController::historialAsignaciones');
 
     // GESTIÓN OPERATIVA (TAREAS)
     $routes->post('pedidos/asignar', 'Responsable\PedidosAreaController::asignarPedido');

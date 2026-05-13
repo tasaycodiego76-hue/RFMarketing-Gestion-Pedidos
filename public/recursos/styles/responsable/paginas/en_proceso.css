@@ -1,4 +1,4 @@
-/* ===== ESTADÍSTICAS ===== */
+/* ESTADÍSTICAS */
 .stat-card {
     background: linear-gradient(145deg, #1e1e1e 0%, #161616 100%);
     border: 1px solid #2a2a2a;
@@ -32,7 +32,7 @@
     opacity: 0.7;
 }
 
-/* ===== EMPLEADO CARD ===== */
+/* EMPLEADO CARD */
 .card-dark-main {
     background: #1a1a1a;
     border: 1px solid #2a2a2a;
@@ -75,7 +75,7 @@
     box-shadow: 0 10px 40px rgba(245, 196, 0, 0.08);
 }
 
-/* ===== TARJETAS DE TAREAS ===== */
+/* TARJETAS DE TAREAS */
 .tarea-item {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid #2a2a2a;
@@ -97,7 +97,7 @@
     line-height: 1.4;
 }
 
-/* ===== MODAL DETALLE ===== */
+/* MODAL DETALLE */
 .modal-detalle-content {
     background: #111 !important;
     border: 1px solid #2a2a2a;
@@ -497,9 +497,7 @@
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* ==========================================================================
-   ESTILOS DE METADATOS (Empresa, Área, Fechas)
-   ========================================================================== */
+/* ESTILOS DE METADATOS (Empresa, Área, Fechas) */
 .ep-meta-text {
     font-size: 11px;
     letter-spacing: 0.3px;
@@ -550,3 +548,449 @@
     color: #ffffff !important;
     font-size: 16px !important;
 }
+
+/* MODAL REASIGNACIÓN DE TAREA*/
+
+#modal-reasignar .modal-content {
+    background: #0d0d0d !important;
+    border: 1px solid #2a2a2a !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Cabecera con línea ámbar decorativa */
+#modal-reasignar .modal-header {
+    background: linear-gradient(90deg, #141414 0%, #0d0d0d 100%) !important;
+    border-bottom: 1px solid #1e1e1e !important;
+    padding: 22px 28px !important;
+    position: relative;
+}
+
+#modal-reasignar .modal-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #f5c400, transparent);
+    border-radius: 0 2px 2px 0;
+}
+
+#modal-reasignar .modal-title {
+    font-family: 'Bebas Neue', sans-serif !important;
+    font-size: 20px !important;
+    letter-spacing: 2px !important;
+    color: #ffffff !important;
+}
+
+#modal-reasignar .modal-title i {
+    color: #f5c400 !important;
+}
+
+/* Cuerpo del modal */
+#modal-reasignar .modal-body {
+    background: #0d0d0d !important;
+    padding: 28px !important;
+}
+
+/* Texto descriptivo de la tarea */
+#reasignar-titulo-tarea {
+    background: rgba(245, 196, 0, 0.05) !important;
+    border-left: 3px solid #f5c400 !important;
+    padding: 10px 14px !important;
+    border-radius: 0 8px 8px 0 !important;
+    color: #a0a0a0 !important;
+    font-size: 12px !important;
+    margin-bottom: 20px !important;
+}
+
+/* Labels de los campos */
+#modal-reasignar .form-label {
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: 1.2px !important;
+    color: #555 !important;
+    text-transform: uppercase !important;
+    margin-bottom: 6px !important;
+}
+
+/* Select de nuevo especialista */
+#select-nuevo-empleado {
+    background: #161616 !important;
+    color: #f0f0f0 !important;
+    border: 1px solid #2a2a2a !important;
+    border-radius: 10px !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+    appearance: auto !important;
+}
+
+#select-nuevo-empleado:focus {
+    border-color: #f5c400 !important;
+    box-shadow: 0 0 0 3px rgba(245, 196, 0, 0.1) !important;
+    background: #1a1a1a !important;
+    outline: none !important;
+}
+
+#select-nuevo-empleado option {
+    background: #1a1a1a;
+    color: #f0f0f0;
+}
+
+/* Textarea de motivo */
+#input-motivo-reasignacion {
+    background: #161616 !important;
+    color: #f0f0f0 !important;
+    border: 1px solid #2a2a2a !important;
+    border-radius: 10px !important;
+    padding: 12px 16px !important;
+    font-size: 13px !important;
+    transition: all 0.3s ease !important;
+    resize: none !important;
+}
+
+#input-motivo-reasignacion:focus {
+    border-color: #f5c400 !important;
+    box-shadow: 0 0 0 3px rgba(245, 196, 0, 0.1) !important;
+    background: #1a1a1a !important;
+    outline: none !important;
+}
+
+#input-motivo-reasignacion::placeholder {
+    color: #444 !important;
+    font-style: italic;
+}
+
+/* Hint de advertencia */
+#modal-reasignar .modal-body small {
+    color: #444 !important;
+    font-size: 11px !important;
+}
+
+/* Footer del modal */
+#modal-reasignar .modal-footer {
+    background: #111 !important;
+    border-top: 1px solid #1e1e1e !important;
+    padding: 16px 28px !important;
+    gap: 10px !important;
+}
+
+/* Botón Cancelar */
+#modal-reasignar .btn-secondary {
+    background: #1e1e1e !important;
+    border: 1px solid #333 !important;
+    color: #888 !important;
+    border-radius: 8px !important;
+    padding: 8px 20px !important;
+    font-size: 13px !important;
+    transition: all 0.2s ease !important;
+}
+
+#modal-reasignar .btn-secondary:hover {
+    background: #2a2a2a !important;
+    color: #ccc !important;
+}
+
+/* Botón Confirmar Reasignación */
+#modal-reasignar .btn-warning {
+    background: linear-gradient(135deg, #f5c400, #e0a800) !important;
+    color: #000 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 8px 22px !important;
+    font-family: 'Bebas Neue', sans-serif !important;
+    font-size: 15px !important;
+    letter-spacing: 1.5px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(245, 196, 0, 0.2) !important;
+}
+
+#modal-reasignar .btn-warning:hover:not(:disabled) {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(245, 196, 0, 0.35) !important;
+}
+
+#modal-reasignar .btn-warning:disabled {
+    opacity: 0.7 !important;
+    cursor: not-allowed !important;
+}
+
+/* Tema Claro — override para el modal de reasignación */
+[data-theme="light"] #modal-reasignar .modal-content {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-theme="light"] #modal-reasignar .modal-header {
+    background: #f8fafc !important;
+    border-bottom-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] #modal-reasignar .modal-title {
+    color: #1e293b !important;
+}
+
+[data-theme="light"] #modal-reasignar .modal-body {
+    background: #ffffff !important;
+}
+
+[data-theme="light"] #reasignar-titulo-tarea {
+    color: #64748b !important;
+}
+
+[data-theme="light"] #select-nuevo-empleado,
+[data-theme="light"] #input-motivo-reasignacion {
+    background: #f8fafc !important;
+    color: #1e293b !important;
+    border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] #modal-reasignar .modal-footer {
+    background: #f8fafc !important;
+    border-top-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] #modal-reasignar .btn-secondary {
+    background: #e2e8f0 !important;
+    border-color: #cbd5e1 !important;
+    color: #475569 !important;
+}
+
+/* HISTORIAL DE ASIGNACIONES — ULTRA PREMIUM DARK */
+
+.hist-asig-section {
+    margin-top: 36px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Cabecera */
+.hist-asig-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.hist-asig-header-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: #3a3a3a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hist-asig-header-label i { color: #f5c400; font-size: 14px; }
+
+.hist-asig-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, #2a2a2a, transparent);
+}
+
+.hist-asig-count {
+    background: linear-gradient(135deg, rgba(245,196,0,0.15), rgba(245,196,0,0.05));
+    color: #f5c400;
+    border: 1px solid rgba(245,196,0,0.25);
+    border-radius: 20px;
+    font-size: 10px;
+    padding: 2px 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+/* TIMELINE */
+.hist-asig-timeline {
+    position: relative;
+    padding-left: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.hist-asig-timeline::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 12px;
+    bottom: 12px;
+    width: 2px;
+    background: linear-gradient(to bottom, #f5c400, rgba(245,196,0,0.15), transparent);
+    border-radius: 2px;
+}
+
+/* ITEM */
+.hist-asig-item {
+    position: relative;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.02);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.hist-asig-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: transparent;
+    border-radius: 12px 0 0 12px;
+    transition: background 0.25s ease;
+}
+
+.hist-asig-item:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+    transform: translateX(3px);
+}
+.hist-asig-item:hover::before { background: rgba(245,196,0,0.4); }
+
+/* ITEM MÁS RECIENTE */
+.hist-asig-item--latest {
+    background: linear-gradient(135deg, rgba(245,196,0,0.07), rgba(245,196,0,0.02), transparent) !important;
+    border-color: rgba(245,196,0,0.2) !important;
+    box-shadow: 0 0 30px rgba(245,196,0,0.04);
+}
+.hist-asig-item--latest::before { background: #f5c400 !important; }
+
+/* Punto de la línea de tiempo */
+.hist-asig-dot {
+    position: absolute;
+    left: -22px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    border: 2px solid #333;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.hist-asig-item--latest .hist-asig-dot {
+    background: #f5c400;
+    border-color: #f5c400;
+    box-shadow: 0 0 0 3px rgba(245,196,0,0.15), 0 0 14px rgba(245,196,0,0.5);
+    animation: pulse-asig-dot 2.2s ease-in-out infinite;
+}
+
+@keyframes pulse-asig-dot {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(245,196,0,0.15), 0 0 14px rgba(245,196,0,0.5); }
+    50%       { box-shadow: 0 0 0 6px rgba(245,196,0,0.07), 0 0 22px rgba(245,196,0,0.35); }
+}
+
+/* Badge RECIENTE */
+.hist-asig-badge-latest {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: rgba(245,196,0,0.1);
+    color: #f5c400;
+    border: 1px solid rgba(245,196,0,0.2);
+    margin-bottom: 8px;
+}
+
+/* TRANSFERENCIA */
+.hist-asig-transfer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.hist-asig-from {
+    font-size: 13px !important;
+    color: #a0a0a0 !important;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: line-through;
+    text-decoration-color: #555;
+}
+.hist-asig-from::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #555;
+    flex-shrink: 0;
+}
+
+.hist-asig-arrow {
+    color: #f5c400;
+    font-size: 11px;
+    opacity: 0.6;
+    flex-shrink: 0;
+}
+
+.hist-asig-to {
+    font-size: 15px !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+.hist-asig-to::before {
+    content: '';
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #f5c400;
+    flex-shrink: 0;
+}
+
+/* MOTIVO */
+.hist-asig-motivo {
+    font-size: 13px !important;
+    color: #e0e0e0 !important;
+    font-style: normal !important;
+    line-height: 1.7;
+    padding: 10px 14px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-left: 3px solid #f5c400 !important;
+    border-radius: 0 8px 8px 0 !important;
+    margin-bottom: 12px !important;
+    font-weight: 500;
+}
+.hist-asig-item--latest .hist-asig-motivo {
+    border-left-color: #f5c400 !important;
+    color: #ffffff !important;
+    background: rgba(245, 196, 0, 0.08) !important;
+}
+
+/* META */
+.hist-asig-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 11px !important;
+    color: #b0b0b0 !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+.hist-asig-meta i { color: #666; }
+.hist-asig-sep { color: #444; }
+.hist-asig-meta-name { color: #f5c400 !important; font-weight: 700; }
+.hist-asig-meta-date { color: #888 !important; }

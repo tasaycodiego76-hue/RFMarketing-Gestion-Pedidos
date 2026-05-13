@@ -232,9 +232,7 @@
     font-weight: 900 !important;
 }
 
-/* ==========================================================================
-   BANDEJA DE ENTRADA (Inbox) - LIGHT MODE
-   ========================================================================== */
+/*  BANDEJA DE ENTRADA - LIGHT MODE */
 
 [data-theme="light"] .tabla-header-responsable,
 [data-theme="light"] .tabla-rf-responsable thead {
@@ -777,9 +775,7 @@
     border-color: #e2e8f0 !important;
 }
 
-/* ==========================================================================
-   HISTORIAL - LIGHT MODE
-   ========================================================================== */
+/* HISTORIAL - LIGHT MODE */
 
 [data-theme="light"] .historial-tabs {
     background: #ffffff !important;
@@ -1082,9 +1078,7 @@
     border-color: #e5e7eb !important;
 }
 
-/* ==========================================================================
-   ESTILOS PREMIUM (MODO CLARO) - REFINAMIENTO DE VISIBILIDAD
-   ========================================================================== */
+/* MODO CLARO - REFINAMIENTO DE VISIBILIDAD */
 
 /* Sección de Entrega - Verde Profesional */
 [data-theme="light"] .case-card[style*="border-left: 4px solid #22c55e"],

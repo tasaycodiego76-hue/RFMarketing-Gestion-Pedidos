@@ -314,7 +314,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
-            // ID 20: MILAGROS (cliente de COLEGIO ADA BYRON)
+            // ID 20: MILAGROS (cliente de URBANO & MODERNO)
             [
                 'nombre' => 'MILAGROS ROCIO',
                 'apellidos' => 'ANCHANTE GOMEZ',
@@ -330,7 +330,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
-            // ID 21: JORGE (cliente de COLEGIO ADA BYRON)
+            // ID 21: JORGE (cliente de URBANO & MODERNO)
             [
                 'nombre' => 'JORGE LUIS',
                 'apellidos' => 'CARRANZA NAVARRO',

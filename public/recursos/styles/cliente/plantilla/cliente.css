@@ -351,7 +351,6 @@ ul {
     border-radius: 0 3px 3px 0;
 }
 
-/* En tema claro el active necesita más contraste */
 /* En tema claro el sidebar mantiene su estilo oscuro */
 [data-theme="light"] .nav-link-item.active {
     background: var(--sb-active-bg);
@@ -517,11 +516,18 @@ ul {
     position: absolute;
     top: 7px;
     right: 7px;
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     background: var(--rojo);
     border-radius: 50%;
     border: 2px solid var(--negro-2);
+    animation: ping-notif 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping-notif {
+    0% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.8); }
+    70% { box-shadow: 0 0 0 6px rgba(255, 82, 82, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); }
 }
 
 /* Sección usuario del topbar (avatar + nombre + empresa) */
@@ -622,7 +628,7 @@ ul {
     margin-bottom: 0;
 }
 
-/* ── Badges de ESTADO del pedido */
+/* Badges de ESTADO del pedido */
 .badge-estado {
     display: inline-flex;
     align-items: center;

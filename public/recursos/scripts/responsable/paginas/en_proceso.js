@@ -156,38 +156,45 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
                             <i class="bi bi-geo-alt me-1"></i> ${escaparHtml(tarea.nombre_area || "---")}
                         </div>
                     </div>
-                    ${
-                      parseInt(tarea.num_modificaciones) > 0 ||
-                      tarea.observacion_revision
-                        ? `
+                    ${parseInt(tarea.num_modificaciones) > 0 ||
+          tarea.observacion_revision
+          ? `
                         <span class="badge-returned" title="Tarea devuelta con observaciones">DEVUELTO</span>
                     `
-                        : ""
-                    }
+          : ""
+        }
                 </div>
                 <div class="d-flex gap-1">
-                    ${
-                      isMe && !hasStarted
-                        ? `
+                    ${isMe && !hasStarted
+          ? `
                         <button class="btn-header-action bg-warning text-dark" onclick="iniciarTrabajo(${tarea.id})" title="Registrar inicio de trabajo">
                             <i class="bi bi-play-fill me-1"></i> INICIAR TRABAJO
                         </button>
                     `
-                        : `
-                        ${
-                          canDeliver
-                            ? `
+          : `
+                        ${canDeliver
+            ? `
                             <button class="btn btn-sm btn-success ep-btn-entregar" onclick="abrirModalEntregar(${tarea.id})" title="Entregar mi trabajo">
                                 <i class="bi bi-send-fill me-1"></i> ENTREGAR
                             </button>
                         `
-                            : ""
-                        }
+            : ""
+          }
                         <button class="btn btn-sm btn-outline-warning ep-btn-ver" onclick="verDetalleTarea(${tarea.id})" title="Ver detalles">
                             <i class="bi bi-eye ep-text-eye"></i>
                         </button>
                     `
-                    }
+        }
+                    ${!isMe
+          ? `
+                        <button class="btn btn-sm btn-outline-secondary ep-btn-ver" 
+                                onclick="abrirModalReasignar(${tarea.id}, ${tarea.idempleado || 0}, '${escaparHtml(tarea.titulo || 'Sin título').replace(/'/g, "\\'")}')"
+                                title="Reasignar esta tarea a otro especialista">
+                            <i class="bi bi-person-gear"></i>
+                        </button>
+                    `
+          : ""
+        }
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-between mt-1">
@@ -195,15 +202,14 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
                     <span class="badge ep-meta-badge">
                         <i class="bi bi-clock me-1"></i> Entrega: ${formatearFechaLimpia(tarea.fecharequerida) || "Sin fecha"}
                     </span>
-                    ${
-                      hasStarted
-                        ? `
+                    ${hasStarted
+          ? `
                         <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 ep-text-xxs">
                             <i class="bi bi-calendar-check me-1"></i> Iniciado: ${formatearFechaLimpia(tarea.fechainicio)}
                         </span>
                     `
-                        : ""
-                    }
+          : ""
+        }
                 </div>
             </div>
         </div>`;
@@ -283,25 +289,27 @@ function iniciarTrabajo(idAtencion) {
  * @param {*} idAtencion
  */
 function verDetalleTarea(idAtencion) {
-  fetch(`${window.base_url}responsable/pedidos/detalle?id=${idAtencion}`)
-    .then((r) => r.json())
-    .then((data) => {
-      if (data.success) {
-        window.requerimientoActualEnProceso = data.data; // Guardar globalmente
-        mostrarModalDetalle(data.data, data.archivos, data.tracking);
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: data.message || "No se pudieron cargar los detalles",
-          background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#161616",
-          color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
-          confirmButtonColor: "#f5c400",
-          allowOutsideClick: false,
-          allowEscapeKey: false,
-        });
-      }
-    })
+  // Cargamos detalle e historial de asignaciones en paralelo
+  Promise.all([
+    fetch(`${window.base_url}responsable/pedidos/detalle?id=${idAtencion}`).then(r => r.json()),
+    fetch(`${window.base_url}responsable/empleados/historial-asignaciones?idatencion=${idAtencion}`).then(r => r.json()).catch(() => ({ success: false, data: [] }))
+  ]).then(([data, histData]) => {
+    if (data.success) {
+      window.requerimientoActualEnProceso = data.data;
+      mostrarModalDetalle(data.data, data.archivos, data.tracking, histData.data || []);
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: data.message || "No se pudieron cargar los detalles",
+        background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#161616",
+        color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
+        confirmButtonColor: "#f5c400",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      });
+    }
+  })
     .catch(() => {
       Swal.fire({
         icon: "error",
@@ -323,7 +331,7 @@ function verDetalleTarea(idAtencion) {
  * @param {*} archivos
  * @param {*} tracking
  */
-function mostrarModalDetalle(req, archivos, tracking) {
+function mostrarModalDetalle(req, archivos, tracking, historialAsignaciones = []) {
   const cuerpo = document.getElementById("detalle-tarea-content");
 
   // Fechas
@@ -516,18 +524,17 @@ function mostrarModalDetalle(req, archivos, tracking) {
             <!-- IZQUIERDA -->
             <div class="d-flex flex-column gap-1 ep-min-w0">
                 
-                ${
-                  req.observacion_revision &&
-                  (req.estado === "en_proceso" ||
-                    req.estado === "pendiente_asignado")
-                    ? `
+                ${req.observacion_revision &&
+      (req.estado === "en_proceso" ||
+        req.estado === "pendiente_asignado")
+      ? `
                     <div class="feedback-box">
                         <div class="feedback-title"><i class="bi bi-exclamation-triangle-fill"></i> CORRECCIÓN SOLICITADA POR ADMINISTRACIÓN</div>
                         <div class="feedback-content">"${escaparHtml(req.observacion_revision)}"</div>
                     </div>
                 `
-                    : ""
-                }
+      : ""
+    }
 
                 ${entregaHtml}
 
@@ -570,6 +577,10 @@ function mostrarModalDetalle(req, archivos, tracking) {
                 </div>
             </div>
         </div>
+
+        <!-- HISTORIAL DE ASIGNACIONES -->
+        ${_renderHistorialAsignaciones(historialAsignaciones)}
+
     </div>`;
 
   cuerpo.innerHTML = html;
@@ -650,6 +661,54 @@ function _seccion(icon, titulo, color, innerHtml) {
 //Etiqueta pequeña para los subtítulos del modal.
 function _label(texto) {
   return `<span class="kd-label">${texto}</span>`;
+}
+
+/**
+ * Renderiza la sección de historial de asignaciones como una línea de tiempo.
+ * Si no hay historial, muestra un estado vacío limpio.
+ * @param {Array} historial
+ * @returns {string} HTML
+ */
+function _renderHistorialAsignaciones(historial) {
+  if (!historial || historial.length === 0) return '';
+
+  const items = historial.map((h, i) => {
+    const nombreAnterior = h.nombre_anterior
+      ? `${escaparHtml(h.nombre_anterior)} ${escaparHtml(h.apellidos_anterior || '')}`
+      : '<em>Sin asignar</em>';
+    const nombreNuevo = `${escaparHtml(h.nombre_nuevo || '')} ${escaparHtml(h.apellidos_nuevo || '')}`;
+    const responsable = `${escaparHtml(h.nombre_responsable || '')} ${escaparHtml(h.apellidos_responsable || '')}`;
+    const fecha = h.fecha_asignacion ? formatearFechaLimpia(h.fecha_asignacion) : '---';
+
+    return `
+      <div class="hist-asig-item ${i === 0 ? 'hist-asig-item--latest' : ''}">
+        <div class="hist-asig-dot"></div>
+        <div class="hist-asig-body">
+          <div class="hist-asig-transfer">
+            <span class="hist-asig-from">${nombreAnterior}</span>
+            <i class="bi bi-arrow-right hist-asig-arrow"></i>
+            <span class="hist-asig-to">${nombreNuevo}</span>
+          </div>
+          <div class="hist-asig-motivo">"${escaparHtml(h.motivo_cambio || 'Sin motivo registrado')}"</div>
+          <div class="hist-asig-meta">
+            <i class="bi bi-person-gear me-1"></i>${responsable}
+            <span class="hist-asig-sep">·</span>
+            <i class="bi bi-clock me-1"></i>${fecha}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="hist-asig-section">
+      <div class="hist-asig-header">
+        <i class="bi bi-arrow-left-right me-2"></i>HISTORIAL DE REASIGNACIONES
+        <span class="hist-asig-count">${historial.length}</span>
+      </div>
+      <div class="hist-asig-timeline">
+        ${items}
+      </div>
+    </div>`;
 }
 
 /* UTILIDADES Y HELPERS */
@@ -740,11 +799,11 @@ function obtenerIniciales(nombre) {
  * @param {number|string} idAtencion - ID de la atención a entregar.
  */
 function abrirModalEntregar(idAtencion) {
-    const esClaro = document.documentElement.getAttribute("data-theme") === "light";
-    Swal.fire({
-      title:
-        '<i class="bi bi-cloud-arrow-up mr-2" style="color:#F5C400;"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">REALIZAR ENTREGA</span>',
-      html: `
+  const esClaro = document.documentElement.getAttribute("data-theme") === "light";
+  Swal.fire({
+    title:
+      '<i class="bi bi-cloud-arrow-up mr-2" style="color:#F5C400;"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">REALIZAR ENTREGA</span>',
+    html: `
             <div class="text-start" style="font-family: 'Inter', sans-serif;">
                 <div class="mb-3">
                     <label class="form-label ${esClaro ? "text-dark" : "text-white-50"} text-uppercase fw-bold ep-swal-label">Link del Entregable</label>
@@ -774,13 +833,13 @@ function abrirModalEntregar(idAtencion) {
                 };
             </script>
         `,
-      background: esClaro ? "#fff" : "#0a0a0a",
-      color: esClaro ? "#000" : "#fff",
-      showCancelButton: true,
-      confirmButtonText: "ENVIAR ENTREGA",
-      cancelButtonText: "CANCELAR",
-      confirmButtonColor: "#22c55e",
-      cancelButtonColor: esClaro ? "#6c757d" : "#333",
+    background: esClaro ? "#fff" : "#0a0a0a",
+    color: esClaro ? "#000" : "#fff",
+    showCancelButton: true,
+    confirmButtonText: "ENVIAR ENTREGA",
+    cancelButtonText: "CANCELAR",
+    confirmButtonColor: "#22c55e",
+    cancelButtonColor: esClaro ? "#6c757d" : "#333",
     allowOutsideClick: false,
     allowEscapeKey: false,
     preConfirm: () => {
@@ -1027,15 +1086,15 @@ function activarEdicionRequerimientoEnProceso() {
                     <label class="kd-label mb-2">Canales de Difusión</label>
                     <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded ${esClaro ? "bg-white" : "bg-black"}">
                         ${canalesStandard
-                          .map(
-                            (c) => `
+      .map(
+        (c) => `
                             <div class="form-check custom-check">
                                 <input class="form-check-input check-canal" type="checkbox" value="${c}" id="canal-${c.replace(/\s+/g, "")}" ${canalesActuales.includes(c) ? "checked" : ""} onchange="validarMaxCanales(this)">
                                 <label class="form-check-label" for="canal-${c.replace(/\s+/g, "")}">${c}</label>
                             </div>
                         `,
-                          )
-                          .join("")}
+      )
+      .join("")}
                     </div>
                 </div>
 
@@ -1043,15 +1102,15 @@ function activarEdicionRequerimientoEnProceso() {
                     <label class="kd-label mb-2">Formatos Solicitados</label>
                     <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded ${esClaro ? "bg-white" : "bg-black"}">
                         ${formatosStandard
-                          .map(
-                            (f) => `
+      .map(
+        (f) => `
                             <div class="form-check custom-check">
                                 <input class="form-check-input check-formato" type="checkbox" value="${f}" id="formato-${f.replace(/\s+/g, "")}" ${formatosActuales.includes(f) ? "checked" : ""}>
                                 <label class="form-check-label ${esClaro ? "text-dark" : "text-white"}" for="formato-${f.replace(/\s+/g, "")}">${f}</label>
                             </div>
                         `,
-                          )
-                          .join("")}
+      )
+      .join("")}
                         <div class="form-check custom-check">
                             <input class="form-check-input check-formato-otros" type="checkbox" value="Otros" id="formato-Otros" onchange="document.getElementById('container-otros-formatos').classList.toggle('d-none', !this.checked)">
                             <label class="form-check-label" for="formato-Otros">Otros</label>
@@ -1227,45 +1286,158 @@ function guardarEdicionRequerimientoEnProceso() {
  * Busca un parámetro en la URL y resalta la tarea si existe (con reintentos para carga asíncrona)
  */
 function verificarHighlight() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const highlightId = urlParams.get('highlight');
-    if (!highlightId) return;
+  const urlParams = new URLSearchParams(window.location.search);
+  const highlightId = urlParams.get('highlight');
+  if (!highlightId) return;
 
-    let intentos = 0;
-    const maxIntentos = 10; // Intentar durante 5 segundos (500ms * 10)
-    
-    const interval = setInterval(() => {
-        intentos++;
-        const items = document.querySelectorAll('.tarea-item');
-        let target = null;
-        
-        items.forEach(item => {
-            if (item.innerHTML.includes(`verDetalleTarea(${highlightId})`) || 
-                item.innerHTML.includes(`iniciarTrabajo(${highlightId})`)) {
-                target = item;
-            }
-        });
+  let intentos = 0;
+  const maxIntentos = 10; // Intentar durante 5 segundos (500ms * 10)
 
-        if (target) {
-            clearInterval(interval);
-            setTimeout(() => {
-                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                target.style.transition = 'all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-                target.style.border = '3px solid #f5c400';
-                target.style.boxShadow = '0 0 30px rgba(245, 196, 0, 0.6)';
-                target.style.transform = 'scale(1.03)';
-                target.style.zIndex = '100';
-                
-                setTimeout(() => {
-                    target.style.border = 'none';
-                    target.style.boxShadow = 'none';
-                    target.style.transform = 'scale(1)';
-                }, 4000);
-            }, 300);
-        }
+  const interval = setInterval(() => {
+    intentos++;
+    const items = document.querySelectorAll('.tarea-item');
+    let target = null;
 
-        if (intentos >= maxIntentos) {
-            clearInterval(interval);
-        }
-    }, 500);
+    items.forEach(item => {
+      if (item.innerHTML.includes(`verDetalleTarea(${highlightId})`) ||
+        item.innerHTML.includes(`iniciarTrabajo(${highlightId})`)) {
+        target = item;
+      }
+    });
+
+    if (target) {
+      clearInterval(interval);
+      setTimeout(() => {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.style.transition = 'all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+        target.style.border = '3px solid #f5c400';
+        target.style.boxShadow = '0 0 30px rgba(245, 196, 0, 0.6)';
+        target.style.transform = 'scale(1.03)';
+        target.style.zIndex = '100';
+
+        setTimeout(() => {
+          target.style.border = 'none';
+          target.style.boxShadow = 'none';
+          target.style.transform = 'scale(1)';
+        }, 4000);
+      }, 300);
+    }
+
+    if (intentos >= maxIntentos) {
+      clearInterval(interval);
+    }
+  }, 500);
+}
+
+/* REASIGNACIÓN DE TAREAS*/
+
+/**
+ * Abre el modal de reasignación, cargando la lista de empleados disponibles
+ * @param {*} idAtencion 
+ * @param {*} idEmpleadoActual 
+ * @param {*} titulo 
+ */
+async function abrirModalReasignar(idAtencion, idEmpleadoActual, titulo) {
+  // Guardamos los IDs en inputs ocultos para el submit
+  document.getElementById('reasignar-idatencion').value = idAtencion;
+  document.getElementById('reasignar-idempleado-actual').value = idEmpleadoActual;
+
+  // Mostramos el título de la tarea en el modal
+  document.getElementById('reasignar-titulo-tarea').textContent = `Tarea: "${titulo}"`;
+
+  // Limpiamos campos del formulario
+  document.getElementById('input-motivo-reasignacion').value = '';
+  const select = document.getElementById('select-nuevo-empleado');
+  select.innerHTML = '<option value="">Cargando especialistas...</option>';
+
+  // Abrir el modal
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modal-reasignar')).show();
+
+  // Cargar la lista de empleados desde el servidor (excluyendo al actual)
+  try {
+    const url = `${window.base_url}responsable/empleados/para-reasignar?excluir=${idEmpleadoActual}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.success && data.data.length > 0) {
+      select.innerHTML = '<option value="">-- Selecciona un especialista --</option>';
+      data.data.forEach(emp => {
+        const opt = document.createElement('option');
+        opt.value = emp.id;
+        opt.textContent = emp.nombre_completo;
+        select.appendChild(opt);
+      });
+    } else {
+      select.innerHTML = '<option value="">No hay otros especialistas disponibles</option>';
+    }
+  } catch (err) {
+    select.innerHTML = '<option value="">Error al cargar la lista</option>';
+    console.error('Error cargando empleados:', err);
+  }
+}
+
+/**
+ * Envía la solicitud de reasignación al servidor. Se llama desde el botón "Confirmar" dentro del modal.
+ * @returns 
+ */
+async function confirmarReasignacion() {
+  const idAtencion = document.getElementById('reasignar-idatencion').value;
+  const idNuevoEmp = document.getElementById('select-nuevo-empleado').value;
+  const motivo = document.getElementById('input-motivo-reasignacion').value.trim();
+  const idEmpAnterior = document.getElementById('reasignar-idempleado-actual').value;
+
+  // Validaciones en cliente
+  if (!idNuevoEmp) {
+    return Swal.fire({ icon: 'warning', title: 'Falta el especialista', text: 'Selecciona el nuevo especialista.', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400' });
+  }
+  if (!motivo) {
+    return Swal.fire({ icon: 'warning', title: 'Motivo requerido', text: 'Escribe el motivo de la reasignación para que quede en el historial.', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400' });
+  }
+
+  const btn = document.querySelector('#modal-reasignar .btn-warning');
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Procesando...';
+
+  try {
+    const formData = new FormData();
+    formData.append('idatencion', idAtencion);
+    formData.append('idempleado_nuevo', idNuevoEmp);
+    formData.append('motivo', motivo);
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    const res = await fetch(`${window.base_url}responsable/pedidos/reasignar`, {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken },
+      body: formData,
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      // Cerrar modal
+      bootstrap.Modal.getInstance(document.getElementById('modal-reasignar')).hide();
+
+      Swal.fire({
+        icon: 'success',
+        title: '¡Reasignada!',
+        text: data.message,
+        background: '#161616', color: '#fff',
+        timer: 2000, showConfirmButton: false,
+      });
+
+      // Refrescar las tarjetas de AMBOS empleados (el anterior y el nuevo)
+      if (idEmpAnterior) cargarTareasEmpleado(idEmpAnterior);
+      cargarTareasEmpleado(idNuevoEmp);
+
+    } else {
+      Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: '#161616', color: '#fff', confirmButtonColor: '#f5c400' });
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
+  } catch (err) {
+    console.error('Error en reasignación:', err);
+    Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo conectar al servidor.', background: '#161616', color: '#fff', confirmButtonColor: '#f5c400' });
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  }
 }

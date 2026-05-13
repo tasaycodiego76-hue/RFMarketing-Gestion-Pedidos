@@ -20,7 +20,7 @@
   margin-bottom: 0;
 }
 
-/* ===== BADGE DE MIEMBROS ===== */
+/* BADGE DE MIEMBROS */
 .team-count {
   background: #d4af37;
   color: #000;
@@ -33,14 +33,14 @@
   gap: 8px;
 }
 
-/* ===== GRID DE TARJETAS ===== */
+/* GRID DE TARJETAS */
 .team-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
 }
 
-/* ===== TARJETA DE EMPLEADO ===== */
+/* TARJETA DE EMPLEADO */
 .employee-card {
   background: #151515;
   border: 1px solid #2a2a2a;
@@ -57,7 +57,7 @@
   background: rgba(59, 130, 246, 0.03);
 }
 
-/* ===== HEADER DE TARJETA ===== */
+/* HEADER DE TARJETA */
 .card-header {
   display: flex;
   align-items: center;
@@ -117,7 +117,7 @@
   border: 1px solid #10b981;
 }
 
-/* ===== MÉTRICAS ===== */
+/* MÉTRICAS */
 .metrics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -158,7 +158,7 @@
   white-space: nowrap;
 }
 
-/* ===== ACCIONES ===== */
+/* ACCIONES */
 .card-actions {
   display: flex;
   gap: 8px;

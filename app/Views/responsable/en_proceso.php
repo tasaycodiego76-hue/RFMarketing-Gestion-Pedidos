@@ -76,6 +76,48 @@
     </div>
 </div>
 
+<!-- Modal Reasignación de Tarea -->
+<div class="modal fade" id="modal-reasignar" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-detalle-content">
+            <div class="modal-header modal-detalle-header">
+                <h5 class="modal-title text-white">
+                    <i class="bi bi-person-gear me-2 text-warning"></i>Reasignar Tarea
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted mb-3" id="reasignar-titulo-tarea" style="font-size:13px;"></p>
+
+                <div class="mb-3">
+                    <label class="form-label text-white-50 text-uppercase fw-bold" style="font-size:10px; letter-spacing:1px;">Nuevo Especialista</label>
+                    <select id="select-nuevo-empleado" class="form-select bg-dark text-white border-secondary">
+                        <option value="">-- Selecciona un especialista --</option>
+                    </select>
+                </div>
+
+                <div class="mb-1">
+                    <label class="form-label text-white-50 text-uppercase fw-bold" style="font-size:10px; letter-spacing:1px;">Motivo del Cambio <span class="text-warning">*</span></label>
+                    <textarea id="input-motivo-reasignacion" class="form-control bg-dark text-white border-secondary"
+                              rows="3" placeholder="Ej: El especialista tiene sobrecarga de trabajo esta semana..."
+                              style="font-size:13px; resize:none;"></textarea>
+                </div>
+                <small class="text-muted">El motivo queda registrado en el historial de la tarea.</small>
+            </div>
+            <div class="modal-footer modal-detalle-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning btn-sm fw-bold" onclick="confirmarReasignacion()">
+                    <i class="bi bi-person-check-fill me-1"></i> CONFIRMAR REASIGNACIÓN
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Input oculto para guardar el ID de la tarea en curso -->
+<input type="hidden" id="reasignar-idatencion" value="">
+<input type="hidden" id="reasignar-idempleado-actual" value="">
+
 <script>
     let tareasData = [];
     const base_url = '<?= base_url(); ?>';

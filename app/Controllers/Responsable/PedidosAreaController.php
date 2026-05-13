@@ -298,6 +298,12 @@ class PedidosAreaController extends BaseResponsableController
         // Actualizar tabla principal de Requerimiento
         $requerimientoModel->update($idRequerimiento, $data);
 
+        // Actualizar también la tabla Atencion para que las vistas de listas (Dashboard, Tablas) reflejen el cambio
+        $atencionModel->update($atencion['id'], [
+            'titulo' => $data['titulo'],
+            'idservicio' => $data['idservicio']
+        ]);
+
         // Gestión de archivos adicionales subidos por el responsable (material de apoyo)
         $archivosSubidos = $this->request->getFiles();
         if (!empty($archivosSubidos['archivos_responsable'])) {
@@ -386,7 +392,10 @@ class PedidosAreaController extends BaseResponsableController
             $tracking = $trackingModel->where('idatencion', $idAtencion)->orderBy('fecha_registro', 'DESC')->findAll();
 
             // Formatear respuesta amigable para el Frontend
-            $dataCompleta = array_merge((array) $atencion, (array) $detalle, [
+            // Aseguramos que el 'id' final sea el de la atención, no el del requerimiento
+            $dataCompleta = array_merge((array) $detalle, (array) $atencion, [
+                'idatencion' => $atencion['id'],
+                'idrequerimiento' => $atencion['idrequerimiento'],
                 'empleado_asignado' => $empleadoAsignado,
                 'empleado_nombre' => $empleadoAsignado ? trim($empleadoAsignado['nombre'] . ' ' . $empleadoAsignado['apellidos']) : '---',
                 'servicio' => $detalle['nombre_servicio'] ?? $detalle['servicio_personalizado'] ?? 'N/A',

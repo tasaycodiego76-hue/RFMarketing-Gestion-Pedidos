@@ -65,4 +65,35 @@ class TrackingModel extends Model
 
         return $this->db->query($sql, [$idUsuario])->getResultArray();
     }
+
+    /**
+     * Cuenta las notificaciones recientes para el cliente.
+     * Útil para mostrar el indicador de notificaciones no leídas en la campana.
+     * @param mixed $idUsuario
+     * @return int
+     */
+    public function countNotificacionesRecientes($idUsuario)
+    {
+        $session = session();
+        $ultimaVez = $session->get('ultima_vez_visto_notificaciones');
+
+        $sql = "
+            SELECT COUNT(t.id) as total
+            FROM tracking t
+            INNER JOIN atencion a ON a.id = t.idatencion
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
+            WHERE r.idusuarioempresa = ? AND t.idusuario != ?
+        ";
+
+        if ($ultimaVez) {
+            $sql .= " AND t.fecha_registro > ?";
+            $row = $this->db->query($sql, [$idUsuario, $idUsuario, $ultimaVez])->getRowArray();
+        } else {
+            // Fallback de 24 horas si es su primer inicio de sesión
+            $sql .= " AND t.fecha_registro >= NOW() - INTERVAL '24 HOURS'";
+            $row = $this->db->query($sql, [$idUsuario, $idUsuario])->getRowArray();
+        }
+
+        return $row ? (int)$row['total'] : 0;
+    }
 }

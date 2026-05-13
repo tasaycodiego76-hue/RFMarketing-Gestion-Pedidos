@@ -5,6 +5,7 @@ namespace App\Controllers\Cliente;
 use App\Models\UsuarioModel;
 use App\Models\AtencionModel;
 use App\Models\ServicioModel;
+use App\Models\TrackingModel;
 use App\Controllers\BaseController;
 
 class MisPedidosController extends BaseClienteController
@@ -30,6 +31,10 @@ class MisPedidosController extends BaseClienteController
         // Obtener métricas para mostrar contadores en la interfaz (opcional para el index)
         $metrics = $this->_getMetrics($user['id']);
 
+        // Obtener cantidad de notificaciones recientes (no leídas visualmente)
+        $trackingModel = new TrackingModel();
+        $notifNoLeidas = $trackingModel->countNotificacionesRecientes($user['id']);
+
         // Preparar datos para la vista (con datos seguros si fallan los joins)
         // Se formatea el array 'user' para que la vista lo procese fácilmente
         $data = [
@@ -42,7 +47,8 @@ class MisPedidosController extends BaseClienteController
                 'area' => $userData['nombre_area'] ?? 'Sin Área',
                 'empresa' => $userData['nombre_empresa'] ?? 'Sin Empresa'
             ],
-            'metrics' => $metrics // Agregamos las métricas por si la vista las requiere
+            'metrics' => $metrics, // Agregamos las métricas por si la vista las requiere
+            'notif_no_leidas' => $notifNoLeidas
         ];
 
         // Retorna la vista de la bandeja de solicitudes del cliente

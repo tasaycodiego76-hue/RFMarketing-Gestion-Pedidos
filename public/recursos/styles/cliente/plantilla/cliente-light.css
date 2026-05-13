@@ -20,7 +20,7 @@
     color: #1a1a2e !important;
 }
 
-/* ─── TABLAS ─── */
+/* TABLAS */
 [data-theme="light"] .tabla-rf {
     background: #ffffff;
 }
@@ -123,7 +123,7 @@
     opacity: 0.7;
 }
 
-/* ─── MODALES ─── */
+/* MODALES */
 [data-theme="light"] .modal-rf {
     background: #fff;
     border-color: #e0e4ea;
@@ -155,7 +155,7 @@
     color: #333 !important;
 }
 
-/* ─── WIZARD ─── */
+/* WIZARD */
 [data-theme="light"] .step {
     background: #f0f2f5;
     border-color: #ccc;
@@ -174,7 +174,7 @@
     background: #ddd;
 }
 
-/* ─── CHECKBOXES ─── */
+/* CHECKBOXES */
 [data-theme="light"] .check-item {
     background: #f5f6f8;
     border-color: #dde1e6;
@@ -190,7 +190,7 @@
     color: #b38f00;
 }
 
-/* ─── SECCIÓN TÍTULOS ─── */
+/* SECCIÓN TÍTULOS */
 [data-theme="light"] .seccion-titulo {
     color: #555;
 }
@@ -214,7 +214,7 @@
     color: #1a1a2e !important;
 }
 
-/* ─── MÉTRICAS ─── */
+/* MÉTRICAS */
 [data-theme="light"] .met-label {
     color: #1a1a2e !important;
     font-weight: 700 !important;
@@ -228,7 +228,7 @@
     font-weight: 900 !important;
 }
 
-/* ─── SERVICIO CARDS ─── */
+/* SERVICIO CARDS */
 [data-theme="light"] .servicio-card {
     background: #f9fafb;
     border-color: #e0e4ea;
@@ -250,7 +250,7 @@
     color: #E8B800;
 }
 
-/* ─── BOTONES ─── */
+/* BOTONES */
 [data-theme="light"] .btn-ver {
     background: #fff;
     border: 1.5px solid #c9c5bc;
@@ -264,7 +264,7 @@
     box-shadow: 0 2px 8px rgba(232,184,0,.3);
 }
 
-/* ─── UPLOAD ─── */
+/* UPLOAD */
 [data-theme="light"] .upload-area-simple {
     background: #f9fafb;
     border-color: #ccc;
@@ -277,7 +277,7 @@
     color: #333;
 }
 
-/* ─── AUTOFILL ─── */
+/* AUTOFILL */
 [data-theme="light"] .autofill {
     background: rgba(0, 0, 0, .02);
     border-color: #dde1e6;
@@ -292,7 +292,7 @@
     color: #666;
 }
 
-/* ─── RESUMEN ─── */
+/* RESUMEN */
 [data-theme="light"] .resumen-card {
     background: #fff;
     border-color: #e0e4ea;
@@ -334,13 +334,13 @@
     color: #333;
 }
 
-/* ─── ARCHIVOS ADJUNTOS (lista) ─── */
+/* ARCHIVOS ADJUNTOS (lista) */
 [data-theme="light"] #lista-archivos .archivo-item-simple {
     background: #f5f6f8;
     border-color: #dde1e6;
 }
 
-/* ─── FECHA INPUT ─── */
+/* FECHA INPUT */
 [data-theme="light"] .fecha-input-wrapper {
     background: #f5f6f8;
     border-color: #ccc;
@@ -355,7 +355,7 @@
     filter: none;
 }
 
-/* ─── INFO TIPO BOX ─── */
+/* INFO TIPO BOX */
 [data-theme="light"] .info-tipo-box {
     background: linear-gradient(135deg, rgba(232, 184, 0, .08), rgba(232, 184, 0, .02));
     border-color: rgba(232, 184, 0, .3);
@@ -364,32 +364,32 @@
     color: #333;
 }
 
-/* ─── PRIO CONSEJO ─── */
+/* PRIO CONSEJO */
 [data-theme="light"] .prio-consejo-box {
     background: rgba(232, 184, 0, .06);
     border-color: rgba(232, 184, 0, .2);
     color: #333;
 }
 
-/* ─── SERVICIO BADGE CONTAINER ─── */
+/* SERVICIO BADGE CONTAINER */
 [data-theme="light"] .servicio-badge-container {
     background: #f5f6f8;
     border-color: #dde1e6;
 }
 
-/* ─── ALERTA FLEXIBLE ─── */
+/* ALERTA FLEXIBLE */
 [data-theme="light"] .alerta-flexible {
     background: #e9f6ff;
     border-color: #b3d9f2;
     color: #2d6a88;
 }
 
-/* ─── CLIENTE HEADER ─── */
+/* CLIENTE HEADER */
 [data-theme="light"] .cliente-subtitulo {
     color: #777;
 }
 
-/* ─── NOTIFICACIONES ─── */
+/* NOTIFICACIONES */
 [data-theme="light"] .list-group-item {
     background: #ffffff !important;
     border-color: #e0e4ea !important;
@@ -407,7 +407,7 @@
     color: #888 !important;
 }
 
-/* ─── DETALLE REQUERIMIENTO ─── */
+/* DETALLE REQUERIMIENTO */
 [data-theme="light"] .detalle-titulo {
     color: #1a1a2e;
 }
@@ -554,7 +554,7 @@
     background: rgba(255, 255, 255, .7);
 }
 
-/* ─── SEGUIMIENTO ─── */
+/* SEGUIMIENTO */
 [data-theme="light"] .nombre-cliente-titulo {
     color: #1a1a2e;
 }
@@ -618,15 +618,22 @@
 }
 /* Botón Atrás en Wizard */
 [data-theme="light"] .btn-outline-wizard {
-    background: transparent !important;
-    color: #4a4a5a !important;
-    border: 1px solid #c9c5bc !important;
-    font-weight: 600 !important;
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+    border: 2px solid #b8b4ac !important;
+    font-weight: 700 !important;
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
 }
 [data-theme="light"] .btn-outline-wizard:hover {
     background: #f5f2ec !important;
-    border-color: #a8a49c !important;
-    color: #1a1a2e !important;
+    border-color: #E8B800 !important;
+    color: #000 !important;
+    box-shadow: 0 2px 8px rgba(232, 184, 0, 0.2) !important;
 }
 /* Botón secundario ("Atrás" en wizard) */
 [data-theme="light"] .btn-outline-light {
@@ -646,9 +653,7 @@
     background: #e0e4ea;
 }
 
-/* ═══════════════════════════════════════════════════════════════ */
-/* BADGES VIBRANTES EN TEMA CLARO - MÁS VISIBLES Y CON COLOR     */
-/* ══════════════════════════════════════════════════════════════ */
+/*  BADGES VIBRANTES EN TEMA CLARO - MÁS VISIBLES Y CON COLOR */
 
 /* ESTADOS - Fondos más saturados y opacos */
 [data-theme="light"] .badge-estado,
@@ -836,13 +841,13 @@
 /* SBADGE RESUMEN */
 [data-theme="light"] .sbadge-resumen {
     font-weight: 900 !important;
-    border: 2px solid !important;
+    border: 2px solid !important;   
     text-transform: uppercase !important;
 }
 [data-theme="light"] .sbadge-resumen.sd {
     background: #4CAF50 !important;
     color: #fff !important;
-    border-color: #1B5E20 !important;
+    border-color: #1B5E20 !important;   
     box-shadow: 0 2px 6px rgba(76, 175, 80, 0.25) !important;
 }
 [data-theme="light"] .sbadge-resumen.sav {

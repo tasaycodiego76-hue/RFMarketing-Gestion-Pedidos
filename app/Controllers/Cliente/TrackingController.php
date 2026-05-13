@@ -82,11 +82,14 @@ class TrackingController extends BaseClienteController
         $trackingModel = new TrackingModel();
         $historial = $trackingModel->getHistorialCompleto($requerimiento['idatencion'] ?? $requerimiento['id']);
 
+        $notifNoLeidas = $trackingModel->countNotificacionesRecientes($auth['user']['id']);
+
         // Carga la vista de seguimiento con los datos del requerimiento y su historial
         return view('cliente/seguimiento_requerimiento', [
             'requerimiento' => $requerimiento,
             'historial' => $historial,
-            'user' => $userData
+            'user' => $userData,
+            'notif_no_leidas' => $notifNoLeidas
         ]);
     }
 
@@ -106,6 +109,10 @@ class TrackingController extends BaseClienteController
 
         $trackingModel = new TrackingModel();
         $notificaciones = $trackingModel->getNotificacionesPorUsuario($auth['user']['id']);
+
+        // Cuando el cliente ingresa a esta vista, marcamos que "ya leyó" sus notificaciones 
+        // guardando la fecha/hora actual en su sesión
+        session()->set('ultima_vez_visto_notificaciones', (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s'));
 
         // Retorna la vista de notificaciones con la data cargada
         return view('cliente/notificaciones', [

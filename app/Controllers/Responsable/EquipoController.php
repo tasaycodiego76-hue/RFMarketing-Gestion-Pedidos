@@ -5,6 +5,8 @@ namespace App\Controllers\Responsable;
 use App\Models\UsuarioModel;
 use App\Models\AtencionModel;
 use App\Models\RequerimientoModel;
+use App\Models\HistorialAsignacionesModel;
+use App\Models\TrackingModel;
 
 class EquipoController extends BaseResponsableController
 {
@@ -267,8 +269,188 @@ class EquipoController extends BaseResponsableController
 
         return $this->response->setJSON([
             'success' => true, 
-            'data' => $tareasDetalladas,
+            'data'    => $tareasDetalladas,
             'total_tareas' => count($tareasDetalladas)
         ]);
+    }
+
+    /**
+     * Reasigna una tarea de un especialista a otro.
+     * Solo el Responsable de Área puede hacer esto.
+     * Registra el cambio en historial_asignaciones y en tracking.
+     *
+     * POST responsable/pedidos/reasignar
+     * Body: { idatencion, idempleado_nuevo, motivo }
+     *
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function reasignarTarea()
+    {
+        $userS = $this->ValidarSesion_DatosUser();
+        if (!$userS['ok']) {
+            return $this->response->setJSON(['success' => false, 'message' => $userS['message']]);
+        }
+
+        $idResponsable  = (int) $userS['user']['id'];
+        $idAreaAgencia  = (int) $userS['user']['idarea_agencia'];
+
+        $idAtencion      = (int) $this->request->getPost('idatencion');
+        $idNuevoEmpleado = (int) $this->request->getPost('idempleado_nuevo');
+        $motivo          = trim($this->request->getPost('motivo') ?? '');
+
+        // ─── Validaciones básicas ────────────────────────────────────────────
+        if ($idAtencion <= 0 || $idNuevoEmpleado <= 0) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos. Faltan el ID de la tarea o el nuevo especialista.']);
+        }
+
+        if (empty($motivo)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'El motivo de la reasignación es obligatorio.']);
+        }
+
+        $atencionModel  = new AtencionModel();
+        $usuarioModel   = new UsuarioModel();
+        $historialModel = new HistorialAsignacionesModel();
+        $trackingModel  = new TrackingModel();
+
+        // Cargar la tarea
+        $tarea = $atencionModel->find($idAtencion);
+        if (!$tarea) {
+            return $this->response->setJSON(['success' => false, 'message' => 'La tarea no existe.']);
+        }
+
+        // Verificar que la tarea pertenece al área del responsable
+        if ((int) $tarea['idarea_agencia'] !== $idAreaAgencia) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Seguridad: esta tarea no pertenece a tu área.']);
+        }
+
+        // Solo se pueden reasignar tareas activas
+        if (!in_array($tarea['estado'], ['en_proceso', 'pendiente_asignado'])) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Solo se pueden reasignar tareas activas (En proceso o Pendiente de inicio).']);
+        }
+
+        // Verificar que el nuevo empleado exista y pertenezca al área
+        $nuevoEmpleado = $usuarioModel->find($idNuevoEmpleado);
+        if (!$nuevoEmpleado || (int) $nuevoEmpleado['idarea_agencia'] !== $idAreaAgencia) {
+            return $this->response->setJSON(['success' => false, 'message' => 'El especialista seleccionado no pertenece a tu área.']);
+        }
+
+        // No tiene sentido reasignar al mismo empleado
+        if ((int) $tarea['idempleado'] === $idNuevoEmpleado) {
+            return $this->response->setJSON(['success' => false, 'message' => 'La tarea ya está asignada a ese especialista.']);
+        }
+
+        $idEmpleadoAnterior = (int) $tarea['idempleado'];
+        $ahora = (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s');
+
+        // ─── Transacción ────────────────────────────────────────────────────
+        $db = \Config\Database::connect();
+        $db->transBegin();
+
+        try {
+            // 1. Actualizar la atención con el nuevo empleado
+            $atencionModel->update($idAtencion, [
+                'idempleado' => $idNuevoEmpleado,
+                // Reiniciamos la fecha de inicio para que el nuevo empleado registre su propio comienzo
+                'fechainicio' => null,
+                'estado'     => 'pendiente_asignado',
+            ]);
+
+            // 2. Registrar en historial_asignaciones
+            $historialModel->insert([
+                'idatencion'         => $idAtencion,
+                'idempleado_anterior' => $idEmpleadoAnterior ?: null,
+                'idempleado'         => $idNuevoEmpleado,
+                'idadmin'            => $idResponsable,
+                'fecha_asignacion'   => $ahora,
+                'motivo_cambio'      => $motivo,
+            ]);
+
+            // 3. Registrar en tracking para que quede en el historial visible
+            $nombreNuevo = trim($nuevoEmpleado['nombre'] . ' ' . $nuevoEmpleado['apellidos']);
+            $trackingModel->insert([
+                'idatencion'    => $idAtencion,
+                'idusuario'     => $idResponsable,
+                'accion'        => "Tarea reasignada al especialista: $nombreNuevo. Motivo: $motivo",
+                'estado'        => 'pendiente_asignado',
+                'fecha_registro' => $ahora,
+            ]);
+
+            $db->transCommit();
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "¡Tarea reasignada correctamente a $nombreNuevo!",
+            ]);
+
+        } catch (\Throwable $e) {
+            $db->transRollback();
+            log_message('error', '[reasignarTarea] ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Error interno al reasignar: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Devuelve la lista de empleados del área aptos para ser asignados
+     * (excluyendo al actual asignado de la tarea si se pasa su ID).
+     * Usado por el modal de reasignación.
+     *
+     * GET responsable/empleados/para-reasignar?excluir=<idEmpleado>
+     *
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function empleadosParaReasignar()
+    {
+        $userS = $this->ValidarSesion_DatosUser();
+        if (!$userS['ok']) {
+            return $this->response->setJSON(['success' => false, 'message' => $userS['message']]);
+        }
+
+        $excluir      = (int) $this->request->getGet('excluir');
+        $idAreaAgencia = (int) $userS['user']['idarea_agencia'];
+
+        $usuarioModel = new UsuarioModel();
+        $lista = $usuarioModel->obtenerAsignablesPorAreaAgencia($idAreaAgencia);
+
+        $resultado = array_values(array_filter(array_map(function ($u) use ($excluir) {
+            if ((int) $u['id'] === $excluir) return null; // Excluir al asignado actual
+            return [
+                'id'            => (int) $u['id'],
+                'nombre_completo' => trim(($u['nombre'] ?? '') . ' ' . ($u['apellidos'] ?? '')),
+            ];
+        }, $lista)));
+
+        return $this->response->setJSON(['success' => true, 'data' => $resultado]);
+    }
+
+    /**
+    * Devuelve el historial de reasignaciones de una tarea específica.
+     * Solo accesible si la tarea pertenece al área del responsable.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function historialAsignaciones()
+    {
+        $userS = $this->ValidarSesion_DatosUser();
+        if (!$userS['ok']) {
+            return $this->response->setJSON(['success' => false, 'message' => $userS['message']]);
+        }
+
+        $idAtencion   = (int) $this->request->getGet('idatencion');
+        $idAreaAgencia = (int) $userS['user']['idarea_agencia'];
+
+        if ($idAtencion <= 0) {
+            return $this->response->setJSON(['success' => false, 'data' => []]);
+        }
+
+        // Verificar que la tarea pertenece al área del responsable
+        $atencionModel = new AtencionModel();
+        $tarea = $atencionModel->find($idAtencion);
+        if (!$tarea || (int) $tarea['idarea_agencia'] !== $idAreaAgencia) {
+            return $this->response->setJSON(['success' => false, 'data' => [], 'message' => 'Acceso no autorizado.']);
+        }
+
+        $historialModel = new HistorialAsignacionesModel();
+        $historial = $historialModel->obtenerHistorialPorAtencion($idAtencion);
+
+        return $this->response->setJSON(['success' => true, 'data' => $historial]);
     }
 }

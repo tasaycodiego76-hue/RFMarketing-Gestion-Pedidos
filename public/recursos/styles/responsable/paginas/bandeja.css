@@ -594,9 +594,7 @@
   font-size: 15px;
 }
 
-/* =================================================================
-   MODALES EXPANDIDOS - MEJOR VISUALIZACIÓN
-   ================================================================= */
+/* MODALES EXPANDIDOS - MEJOR VISUALIZACIÓN */
 
 /* Modal de Asignar - Expandido */
 #modal-asignar .modal-dialog {
@@ -735,9 +733,7 @@
   padding: 12px 28px;
 }
 
-/* ==========================================================================
-   SISTEMA DE DISEÑO: AGENCIA PREMIUM (MODALES)
-   ========================================================================== */
+/* SISTEMA DE DISEÑO: AGENCIA (MODALES) */
 
 /* Contenedor del Expediente */
 .case-expediente {

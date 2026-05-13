@@ -309,13 +309,14 @@ class AtencionModel extends Model
     public function atencionPerteneceAArea(int $idAtencion, int $idAreaAgencia): bool
     {
         $sql = "
-            SELECT id 
-            FROM atencion 
-            WHERE id = ? 
-              AND idarea_agencia = ? 
+            SELECT a.id 
+            FROM atencion a
+            LEFT JOIN usuarios u ON u.id = a.idempleado
+            WHERE a.id = ? 
+              AND (a.idarea_agencia = ? OR u.idarea_agencia = ?) 
             LIMIT 1";
 
-        $query = $this->db->query($sql, [$idAtencion, $idAreaAgencia]);
+        $query = $this->db->query($sql, [$idAtencion, $idAreaAgencia, $idAreaAgencia]);
 
         return $query->getNumRows() > 0;
     }
