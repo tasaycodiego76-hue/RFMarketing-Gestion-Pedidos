@@ -177,13 +177,25 @@
   justify-content: center;
   gap: 6px;
 }
-.btn-secondary {
-  background: #333;
-  color: #fff;
-  border: 1px solid #444;
-}
 .btn-secondary:hover {
   background: #3f3f3f;
+}
+
+.btn-ver-tareas {
+    border-radius: 6px; 
+    font-size: 11px; 
+    letter-spacing: 1px; 
+    padding: 6px 0; 
+    border: 1px solid rgba(255,255,255,0.1); 
+    background: rgba(255,255,255,0.02);
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.btn-ver-tareas:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #f5c400;
 }
 
 /* Estado vacío */

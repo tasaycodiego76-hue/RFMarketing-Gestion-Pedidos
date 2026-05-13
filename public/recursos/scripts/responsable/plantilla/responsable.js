@@ -60,6 +60,9 @@ document.addEventListener("DOMContentLoaded", function () {
           html.setAttribute("data-theme", "light");
           localStorage.setItem(STORAGE_KEY, "light");
         }
+        
+        // Recargar para que los gráficos y scripts detecten el cambio
+        window.location.reload();
       });
     }
   })();

@@ -205,8 +205,10 @@
   color: #fb923c;
 }
 .estado-completado {
-  background: rgba(34, 197, 94, 0.12);
+  background: rgba(34, 197, 94, 0.2);
   color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  text-shadow: 0 0 8px rgba(34, 197, 94, 0.3);
 }
 .estado-cancelado {
   background: rgba(239, 68, 68, 0.12);
@@ -294,22 +296,43 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   background: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  border: 1px solid #333;
   border-radius: 8px;
   color: #888;
   text-decoration: none;
   transition: all 0.2s ease;
 }
 .btn-ver:hover {
-  background: #f5c400;
-  border-color: #f5c400;
-  color: #000;
+  background: #222;
+  border-color: #444;
+  transform: translateY(-2px);
 }
 .btn-ver i {
-  font-size: 18px;
+  font-size: 20px;
+  transition: all 0.2s ease;
+}
+
+/* Color específico para el ojo (Detalle) */
+.btn-ver i.bi-eye {
+  color: #00d4ff; /* Azul claro vibrante */
+  filter: drop-shadow(0 0 5px rgba(0, 212, 255, 0.4));
+}
+.btn-ver:hover i.bi-eye {
+  color: #80eaff;
+  filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.6));
+}
+
+/* Color específico para el reloj (Seguimiento) */
+.btn-ver i.bi-clock-history {
+  color: #22c55e; /* Verde fuerte */
+  filter: drop-shadow(0 0 5px rgba(34, 197, 94, 0.4));
+}
+.btn-ver:hover i.bi-clock-history {
+  color: #44ff44;
+  filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.6));
 }
 
 /* MODALES */

@@ -255,7 +255,7 @@
                                 <label class="section-title m-0">
                                     <i class="bi bi-broadcast"></i> Canales de Difusión
                                 </label>
-                                <span class="badge bg-dark text-warning border border-warning canales-badge">Máximo 3
+                                <span class="badge badge-wizard-limit canales-badge">Máximo 3
                                     opciones</span>
                             </div>
                             <div class="checks-grid compact" id="canales-checks"></div>
@@ -378,7 +378,7 @@
                 </div>
                 <!-- Modal Footer -->
                 <div class="modal-footer border-0 modal-footer-wizard">
-                    <button type="button" class="btn btn-outline-light d-none" id="btn-atras">
+                    <button type="button" class="btn btn-outline-wizard d-none" id="btn-atras">
                         <i class="bi bi-arrow-left"></i> Atrás
                     </button>
                     <button type="button" class="btn-rf" id="btn-siguiente">Siguiente Paso <i

@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   cargarTareasEnProceso();
+  setTimeout(verificarHighlight, 1500); // Dar tiempo a que las tareas se carguen por AJAX
 });
 
 /* FUNCIONES DE CARGA (API) */
@@ -148,7 +149,13 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <div class="d-flex align-items-center gap-2 flex-grow-1 ep-min-w0">
                     <span class="badge-prio ${(tarea.prioridad || "media").toLowerCase()}">${tarea.prioridad || "Media"}</span>
-                    <span class="tarea-titulo text-truncate">${escaparHtml(tarea.titulo || "Sin título")}</span>
+                    <div class="d-flex flex-column ep-min-w0">
+                        <span class="tarea-titulo text-truncate">${escaparHtml(tarea.titulo || "Sin título")}</span>
+                        <div class="ep-meta-text text-uppercase fw-bold">
+                            <i class="bi bi-building me-1"></i> ${escaparHtml(tarea.nombre_empresa || "---")} | 
+                            <i class="bi bi-geo-alt me-1"></i> ${escaparHtml(tarea.nombre_area || "---")}
+                        </div>
+                    </div>
                     ${
                       parseInt(tarea.num_modificaciones) > 0 ||
                       tarea.observacion_revision
@@ -184,7 +191,10 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-between mt-1">
-                <div class="d-flex align-items-center gap-2 flex-wrap text-muted ep-text-xs">
+                <div class="d-flex align-items-center gap-2 flex-wrap ep-meta-container">
+                    <span class="badge ep-meta-badge">
+                        <i class="bi bi-clock me-1"></i> Entrega: ${formatearFechaLimpia(tarea.fecharequerida) || "Sin fecha"}
+                    </span>
                     ${
                       hasStarted
                         ? `
@@ -215,8 +225,8 @@ function iniciarTrabajo(idAtencion) {
     cancelButtonColor: "#333",
     confirmButtonText: "Sí, ¡empezar!",
     cancelButtonText: "Cancelar",
-    background: "#161616",
-    color: "#fff",
+    background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#161616",
+    color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
   }).then((result) => {
     if (result.isConfirmed) {
       fetch(`${window.base_url}responsable/pedido-iniciar/${idAtencion}`, {
@@ -235,8 +245,8 @@ function iniciarTrabajo(idAtencion) {
               icon: "success",
               title: "¡Trabajo Iniciado!",
               text: data.message,
-              background: "#161616",
-              color: "#fff",
+              background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#161616",
+              color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
               timer: 1500,
               showConfirmButton: false,
             });
@@ -247,8 +257,8 @@ function iniciarTrabajo(idAtencion) {
               icon: "error",
               title: "Error",
               text: data.message,
-              background: "#161616",
-              color: "#fff",
+              background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#161616",
+              color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
             });
           }
         })
@@ -258,8 +268,8 @@ function iniciarTrabajo(idAtencion) {
             icon: "error",
             title: "Error",
             text: "No se pudo conectar con el servidor",
-            background: "#161616",
-            color: "#fff",
+            background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#161616",
+            color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
           });
         });
     }
@@ -284,8 +294,8 @@ function verDetalleTarea(idAtencion) {
           icon: "error",
           title: "Error",
           text: data.message || "No se pudieron cargar los detalles",
-          background: "#161616",
-          color: "#fff",
+          background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#161616",
+          color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
           confirmButtonColor: "#f5c400",
           allowOutsideClick: false,
           allowEscapeKey: false,
@@ -297,8 +307,8 @@ function verDetalleTarea(idAtencion) {
         icon: "error",
         title: "Error",
         text: "Error de conexión",
-        background: "#161616",
-        color: "#fff",
+        background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#161616",
+        color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
         confirmButtonColor: "#f5c400",
         allowOutsideClick: false,
         allowEscapeKey: false,
@@ -467,7 +477,7 @@ function mostrarModalDetalle(req, archivos, tracking) {
     arcSolHtml += "</div>";
   } else {
     arcSolHtml =
-      '<p class="text-muted fst-italic mt-2 mb-0 ep-text-italic-sm">No se adjuntaron archivos.</p>';
+      '<p class="fst-italic mt-2 mb-0 ep-text-italic-sm">No se adjuntaron archivos.</p>';
   }
 
   // URLs del Cliente
@@ -490,12 +500,12 @@ function mostrarModalDetalle(req, archivos, tracking) {
             <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
                 ${_pill(es.i, es.label, es.c, es.c + "18")}
                 ${_pill(priI, pri, priC, priC + "18")}
-                ${req.tipo_requerimiento ? `<span class="badge bg-dark border border-secondary rounded-pill px-3 py-1 text-muted fw-normal ep-detail-badge">${escaparHtml(req.tipo_requerimiento)}</span>` : ""}
+                ${req.tipo_requerimiento ? `<span class="badge bg-dark border border-secondary rounded-pill px-3 py-1 fw-normal ep-detail-badge">${escaparHtml(req.tipo_requerimiento)}</span>` : ""}
             </div>
             <h2 class="font-bebas text-white mb-1 d-flex align-items-center gap-3 ep-detail-title">
                 ${escaparHtml(req.titulo || "Sin Título")}
             </h2>
-            <p class="text-muted fw-bold text-uppercase mb-3 ep-detail-subtitle">
+            <p class="fw-bold text-uppercase mb-3 ep-detail-subtitle">
                 ${escaparHtml(req.nombre_empresa || "Empresa no asignada")} | ${escaparHtml(req.nombre_servicio || req.servicio || "Servicio no especificado")}
             </p>
             ${trabajoHtml}
@@ -524,10 +534,10 @@ function mostrarModalDetalle(req, archivos, tracking) {
                 ${_seccion("", "Tipo de Requerimiento", "#3b82f6", `<div class="kd-val text-white fw-bold">${escaparHtml(req.tipo_requerimiento || "Sin especificar")}</div>`)}
                 ${_seccion("", "Objetivo de Comunicación", "#F5C400", `<div class="kd-val ep-val-prewrap">${escaparHtml(req.objetivo_comunicacion || "---")}</div>`)}
                 ${_seccion("", "Público Objetivo", "#F5C400", `<div class="kd-val ep-val-prewrap">${escaparHtml(req.publico_objetivo || "---")}</div>`)}
-                ${_seccion("", "Descripción", "#555", `<div class="kd-val ep-val-scroll">${escaparHtml(req.descripcion || "Sin descripción.")}</div>`)}
-                ${_seccion("", "Canales de Difusión", "#555", `<div class="d-flex flex-wrap gap-2">${formatearLista(req.canales_difusion)}</div>`)}
-                ${_seccion("", "Formatos Solicitados", "#555", `<div class="d-flex flex-wrap gap-2">${formatearLista(req.formatos_solicitados)}</div>`)}
-                ${_seccion("", "Archivos Adjuntos a la Solicitud", "#374151", arcSolHtml)}
+                ${_seccion("", "Descripción", "#898989ff", `<div class="kd-val ep-val-scroll">${escaparHtml(req.descripcion || "Sin descripción.")}</div>`)}
+                ${_seccion("", "Canales de Difusión", "#898989ff", `<div class="d-flex flex-wrap gap-2">${formatearLista(req.canales_difusion)}</div>`)}
+                ${_seccion("", "Formatos Solicitados", "#898989ff", `<div class="d-flex flex-wrap gap-2">${formatearLista(req.formatos_solicitados)}</div>`)}
+                ${_seccion("", "Archivos Adjuntos a la Solicitud", "#898989ff", arcSolHtml)}
                 ${urlsClienteHtml}
 
             </div>
@@ -535,13 +545,13 @@ function mostrarModalDetalle(req, archivos, tracking) {
             <!-- DERECHA -->
             <div class="ep-sidebar">
                 <div class="bg-black border border-dark rounded p-4 position-sticky top-0">
-                    <div class="font-bebas text-muted mb-4 ep-sidebar-title">INFORMACIÓN DEL PEDIDO</div>
+                    <div class=" text-white mb-4 ep-sidebar-title">INFORMACIÓN DEL PEDIDO</div>
 
                     <div class="mb-4">
                         ${_label("Solicitado por")}
                         <div class="text-white fw-bold mb-3 ep-nombre">${escaparHtml(req.nombre_cliente || "---")}</div>
-                        <div class="mb-2"><span class="d-block text-muted text-uppercase fw-bold mb-1 ep-sidebar-meta-label">Área</span><div class="text-light fw-semibold ep-sidebar-meta-val">${escaparHtml(req.nombre_area || "Área no especificada")}</div></div>
-                        <div><span class="d-block text-muted text-uppercase fw-bold mb-1 ep-sidebar-meta-label">Empresa</span><div class="text-warning fw-bold ep-emp-name">${escaparHtml(req.nombre_empresa || "---")}</div></div>
+                        <div class="mb-2"><span class="d-block text-uppercase fw-bold mb-1 ep-sidebar-meta-label">Área</span><div class="text-light fw-semibold ep-sidebar-meta-val">${escaparHtml(req.nombre_area || "Área no especificada")}</div></div>
+                        <div class="mb-2"><span class="d-block text-uppercase fw-bold mb-1 ep-sidebar-meta-label">Empresa</span><div class="text-warning fw-bold ep-emp-name">${escaparHtml(req.nombre_empresa || "---")}</div></div>
                     </div>
                     <hr class="kd-hr">
                     <div class="mb-4">
@@ -730,28 +740,23 @@ function obtenerIniciales(nombre) {
  * @param {number|string} idAtencion - ID de la atención a entregar.
  */
 function abrirModalEntregar(idAtencion) {
-<<<<<<< HEAD
+    const esClaro = document.documentElement.getAttribute("data-theme") === "light";
     Swal.fire({
-        title: '<i class="bi bi-cloud-arrow-up mr-2" style="color:#F5C400;"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">REALIZAR ENTREGA</span>',
-        html: `
-=======
-  Swal.fire({
-    title:
-      '<i class="bi bi-cloud-arrow-up mr-2" style="color:#F5C400;"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">REALIZAR ENTREGA</span>',
-    html: `
->>>>>>> rama-sandro
+      title:
+        '<i class="bi bi-cloud-arrow-up mr-2" style="color:#F5C400;"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">REALIZAR ENTREGA</span>',
+      html: `
             <div class="text-start" style="font-family: 'Inter', sans-serif;">
                 <div class="mb-3">
-                    <label class="form-label text-white-50 text-uppercase fw-bold ep-swal-label">Link del Entregable</label>
-                    <input type="text" id="swal-url-entrega" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Google Drive, Canva, Figma...">
+                    <label class="form-label ${esClaro ? "text-dark" : "text-white-50"} text-uppercase fw-bold ep-swal-label">Link del Entregable</label>
+                    <input type="text" id="swal-url-entrega" class="form-control form-control-sm ${esClaro ? "bg-white text-dark" : "bg-dark text-white"} border-secondary" placeholder="Google Drive, Canva, Figma...">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label text-white-50 text-uppercase fw-bold ep-swal-label">Subir Archivos (Opcional)</label>
-                    <input type="file" id="swal-archivos-entrega" class="form-control form-control-sm bg-dark text-white border-secondary" multiple>
+                    <label class="form-label ${esClaro ? "text-dark" : "text-white-50"} text-uppercase fw-bold ep-swal-label">Subir Archivos (Opcional)</label>
+                    <input type="file" id="swal-archivos-entrega" class="form-control form-control-sm ${esClaro ? "bg-white text-dark" : "bg-dark text-white"} border-secondary" multiple>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label text-white-50 text-uppercase fw-bold ep-swal-label">Notas adicionales</label>
-                    <textarea id="swal-notas-entrega" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Escribe aquí algún detalle..." rows="3"></textarea>
+                    <label class="form-label ${esClaro ? "text-dark" : "text-white-50"} text-uppercase fw-bold ep-swal-label">Notas adicionales</label>
+                    <textarea id="swal-notas-entrega" class="form-control form-control-sm ${esClaro ? "bg-white text-dark" : "bg-dark text-white"} border-secondary" placeholder="Escribe aquí algún detalle..." rows="3"></textarea>
                 </div>
             </div>
             <script>
@@ -761,7 +766,7 @@ function abrirModalEntregar(idAtencion) {
                     list.innerHTML = '';
                     Array.from(e.target.files).forEach(f => {
                         list.innerHTML += \`
-                            <div style="background:#111; border:1px solid #222; border-radius:6px; padding:8px 12px; display:flex; align-items:center; gap:10px; color:#999; font-size:11px;">
+                            <div style="background:${esClaro ? "#f8f9fa" : "#111"}; border:1px solid ${esClaro ? "#ddd" : "#222"}; border-radius:6px; padding:8px 12px; display:flex; align-items:center; gap:10px; color:${esClaro ? "#333" : "#999"}; font-size:11px;">
                                 <i class="bi bi-file-earmark-check" style="color:#F5C400;"></i>
                                 <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">\${f.name}</span>
                             </div>\`;
@@ -769,13 +774,13 @@ function abrirModalEntregar(idAtencion) {
                 };
             </script>
         `,
-    background: "#0a0a0a",
-    color: "#fff",
-    showCancelButton: true,
-    confirmButtonText: "ENVIAR ENTREGA",
-    cancelButtonText: "CANCELAR",
-    confirmButtonColor: "#22c55e",
-    cancelButtonColor: "#333",
+      background: esClaro ? "#fff" : "#0a0a0a",
+      color: esClaro ? "#000" : "#fff",
+      showCancelButton: true,
+      confirmButtonText: "ENVIAR ENTREGA",
+      cancelButtonText: "CANCELAR",
+      confirmButtonColor: "#22c55e",
+      cancelButtonColor: esClaro ? "#6c757d" : "#333",
     allowOutsideClick: false,
     allowEscapeKey: false,
     preConfirm: () => {
@@ -818,13 +823,14 @@ function ejecutarEntrega(idAtencion, data) {
     formData.append("archivos_entrega[]", data.files[i]);
   }
 
+  const esClaro = document.documentElement.getAttribute("data-theme") === "light";
   Swal.fire({
     title: "Enviando entrega...",
     didOpen: () => {
       Swal.showLoading();
     },
-    background: "#161616",
-    color: "#fff",
+    background: esClaro ? "#fff" : "#161616",
+    color: esClaro ? "#000" : "#fff",
     allowOutsideClick: false,
   });
 
@@ -835,12 +841,13 @@ function ejecutarEntrega(idAtencion, data) {
     .then((r) => r.json())
     .then((res) => {
       if (res.status === "success") {
+        const esClaro = document.documentElement.getAttribute("data-theme") === "light";
         Swal.fire({
           icon: "success",
           title: "¡Éxito!",
           text: res.message,
-          background: "#161616",
-          color: "#fff",
+          background: esClaro ? "#fff" : "#161616",
+          color: esClaro ? "#000" : "#fff",
           confirmButtonColor: "#f5c400",
           allowOutsideClick: false,
           allowEscapeKey: false,
@@ -848,12 +855,13 @@ function ejecutarEntrega(idAtencion, data) {
           location.reload();
         });
       } else {
+        const esClaro = document.documentElement.getAttribute("data-theme") === "light";
         Swal.fire({
           icon: "error",
           title: "Error",
           text: res.message,
-          background: "#161616",
-          color: "#fff",
+          background: esClaro ? "#fff" : "#161616",
+          color: esClaro ? "#000" : "#fff",
           confirmButtonColor: "#f5c400",
           allowOutsideClick: false,
           allowEscapeKey: false,
@@ -861,12 +869,13 @@ function ejecutarEntrega(idAtencion, data) {
       }
     })
     .catch(() => {
+      const esClaro = document.documentElement.getAttribute("data-theme") === "light";
       Swal.fire({
         icon: "error",
         title: "Error",
         text: "Error de conexión al servidor",
-        background: "#161616",
-        color: "#fff",
+        background: esClaro ? "#fff" : "#161616",
+        color: esClaro ? "#000" : "#fff",
         confirmButtonColor: "#f5c400",
         allowOutsideClick: false,
         allowEscapeKey: false,
@@ -980,18 +989,19 @@ function activarEdicionRequerimientoEnProceso() {
 
   const tieneOtrosFormatos = formatosOtrosValues.length > 0;
 
+  const esClaro = document.documentElement.getAttribute("data-theme") === "light";
   leftContainer.innerHTML = `
-        <div class="kd-sec border-warning bg-black ep-edit-sec">
+        <div class="kd-sec border-warning ${esClaro ? "bg-white" : "bg-black"} ep-edit-sec">
             <div class="kd-sec-title text-warning"><i class="bi bi-pencil-square"></i> EDITAR DATOS DEL REQUERIMIENTO</div>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="kd-label">Título del Requerimiento</label>
-                    <input type="text" id="edit-pro-titulo" class="form-control form-control-sm bg-dark text-white border-secondary" value="${escaparHtml(req.titulo)}">
+                    <input type="text" id="edit-pro-titulo" class="form-control form-control-sm ${esClaro ? "bg-white text-dark" : "bg-dark text-white"} border-secondary" value="${escaparHtml(req.titulo)}">
                 </div>
                 <input type="hidden" id="edit-pro-servicio" value="${req.idservicio}">
                 <div class="col-md-6">
                     <label class="kd-label">Tipo de Requerimiento</label>
-                    <select id="edit-pro-tipo-req" class="form-select form-select-sm bg-dark text-white border-secondary">
+                    <select id="edit-pro-tipo-req" class="form-select form-select-sm ${esClaro ? "bg-white text-dark" : "bg-dark text-white"} border-secondary">
                         <option value="" ${!req.tipo_requerimiento ? "selected" : ""}>Seleccionar...</option>
                         <option value="Adaptación de Arte" ${req.tipo_requerimiento === "Adaptación de Arte" ? "selected" : ""}>Adaptación de Arte — 2 días hábiles</option>
                         <option value="Creación de Arte" ${req.tipo_requerimiento === "Creación de Arte" ? "selected" : ""}>Creación de Arte — 4 días hábiles</option>
@@ -1002,20 +1012,20 @@ function activarEdicionRequerimientoEnProceso() {
                 </div>
                 <div class="col-md-6">
                     <label class="kd-label">Objetivo de Comunicación</label>
-                    <textarea id="edit-pro-objetivo" class="form-control form-control-sm bg-dark text-white border-secondary" rows="3">${req.objetivo_comunicacion || ""}</textarea>
+                    <textarea id="edit-pro-objetivo" class="form-control form-control-sm ${esClaro ? "bg-white text-dark" : "bg-dark text-white"} border-secondary" rows="3">${req.objetivo_comunicacion || ""}</textarea>
                 </div>
                 <div class="col-md-6">
                     <label class="kd-label">Público Objetivo</label>
-                    <textarea id="edit-pro-publico" class="form-control form-control-sm bg-dark text-white border-secondary" rows="3">${req.publico_objetivo || ""}</textarea>
+                    <textarea id="edit-pro-publico" class="form-control form-control-sm ${esClaro ? "bg-white text-dark" : "bg-dark text-white"} border-secondary" rows="3">${req.publico_objetivo || ""}</textarea>
                 </div>
                 <div class="col-12">
                     <label class="kd-label">Descripción Detallada</label>
-                    <textarea id="edit-pro-descripcion" class="form-control form-control-sm bg-dark text-white border-secondary" rows="5">${req.descripcion || ""}</textarea>
+                    <textarea id="edit-pro-descripcion" class="form-control form-control-sm ${esClaro ? "bg-white text-dark" : "bg-dark text-white"} border-secondary" rows="5">${req.descripcion || ""}</textarea>
                 </div>
                 
                 <div class="col-12">
                     <label class="kd-label mb-2">Canales de Difusión</label>
-                    <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded bg-black">
+                    <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded ${esClaro ? "bg-white" : "bg-black"}">
                         ${canalesStandard
                           .map(
                             (c) => `
@@ -1031,13 +1041,13 @@ function activarEdicionRequerimientoEnProceso() {
 
                 <div class="col-12">
                     <label class="kd-label mb-2">Formatos Solicitados</label>
-                    <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded bg-black">
+                    <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded ${esClaro ? "bg-white" : "bg-black"}">
                         ${formatosStandard
                           .map(
                             (f) => `
                             <div class="form-check custom-check">
                                 <input class="form-check-input check-formato" type="checkbox" value="${f}" id="formato-${f.replace(/\s+/g, "")}" ${formatosActuales.includes(f) ? "checked" : ""}>
-                                <label class="form-check-label" for="formato-${f.replace(/\s+/g, "")}">${f}</label>
+                                <label class="form-check-label ${esClaro ? "text-dark" : "text-white"}" for="formato-${f.replace(/\s+/g, "")}">${f}</label>
                             </div>
                         `,
                           )
@@ -1047,7 +1057,7 @@ function activarEdicionRequerimientoEnProceso() {
                             <label class="form-check-label" for="formato-Otros">Otros</label>
                         </div>
                         <div id="container-otros-formatos" class="w-100 mt-2 ${tieneOtrosFormatos ? "" : "d-none"}">
-                            <input type="text" id="edit-pro-otros-formatos" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Especifique otros formatos separados por coma..." value="${formatosOtrosValues.join(", ")}">
+                            <input type="text" id="edit-pro-otros-formatos" class="form-control form-control-sm ${esClaro ? "bg-white text-dark" : "bg-dark text-white"} border-secondary" placeholder="Especifique otros formatos separados por coma..." value="${formatosOtrosValues.join(", ")}">
                         </div>
                     </div>
                 </div>
@@ -1071,12 +1081,13 @@ window.validarMaxCanales = function (checkbox) {
   const seleccionados = document.querySelectorAll(".check-canal:checked");
   if (seleccionados.length > 3) {
     checkbox.checked = false;
+    const esClaro = document.documentElement.getAttribute("data-theme") === "light";
     Swal.fire({
       icon: "warning",
       title: "Límite alcanzado",
       text: "Solo puedes seleccionar un máximo de 3 canales de difusión.",
-      background: "#161616",
-      color: "#fff",
+      background: esClaro ? "#fff" : "#161616",
+      color: esClaro ? "#000" : "#fff",
       confirmButtonColor: "#f5c400",
       timer: 2000,
       showConfirmButton: false,
@@ -1168,8 +1179,8 @@ function guardarEdicionRequerimientoEnProceso() {
           icon: "success",
           title: "¡Actualizado!",
           text: data.message,
-          background: "#161616",
-          color: "#fff",
+          background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#161616",
+          color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
           timer: 1500,
           showConfirmButton: false,
           allowOutsideClick: false,
@@ -1187,8 +1198,8 @@ function guardarEdicionRequerimientoEnProceso() {
           icon: "error",
           title: "Error",
           text: data.message,
-          background: "#161616",
-          color: "#fff",
+          background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#161616",
+          color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
           allowOutsideClick: false,
           allowEscapeKey: false,
         });
@@ -1202,12 +1213,59 @@ function guardarEdicionRequerimientoEnProceso() {
         icon: "error",
         title: "Error",
         text: "Error de conexión",
-        background: "#161616",
-        color: "#fff",
+        background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#161616",
+        color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
         allowOutsideClick: false,
         allowEscapeKey: false,
       });
       btn.disabled = false;
       btn.innerHTML = originalHtml;
     });
+}
+
+/**
+ * Busca un parámetro en la URL y resalta la tarea si existe (con reintentos para carga asíncrona)
+ */
+function verificarHighlight() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const highlightId = urlParams.get('highlight');
+    if (!highlightId) return;
+
+    let intentos = 0;
+    const maxIntentos = 10; // Intentar durante 5 segundos (500ms * 10)
+    
+    const interval = setInterval(() => {
+        intentos++;
+        const items = document.querySelectorAll('.tarea-item');
+        let target = null;
+        
+        items.forEach(item => {
+            if (item.innerHTML.includes(`verDetalleTarea(${highlightId})`) || 
+                item.innerHTML.includes(`iniciarTrabajo(${highlightId})`)) {
+                target = item;
+            }
+        });
+
+        if (target) {
+            clearInterval(interval);
+            setTimeout(() => {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                target.style.transition = 'all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
+                target.style.border = '3px solid #f5c400';
+                target.style.boxShadow = '0 0 30px rgba(245, 196, 0, 0.6)';
+                target.style.transform = 'scale(1.03)';
+                target.style.zIndex = '100';
+                
+                setTimeout(() => {
+                    target.style.border = 'none';
+                    target.style.boxShadow = 'none';
+                    target.style.transform = 'scale(1)';
+                }, 4000);
+            }, 300);
+        }
+
+        if (intentos >= maxIntentos) {
+            clearInterval(interval);
+        }
+    }, 500);
 }

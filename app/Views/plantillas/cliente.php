@@ -161,16 +161,16 @@
 
                 <!-- Usuario -->
                 <div class="topbar-user">
-                    <div class="topbar-avatar">
-                        <?= $iniciales ?>
-                    </div>
-                    <div class="topbar-user-info">
+                    <div class="topbar-user-info text-end">
                         <span class="topbar-user-name">
                             <?= esc($nombre . ' ' . $apellidos) ?>
                         </span>
-                        <span class="topbar-user-empresa" style="font-size: 0.7rem; color: #888; display: block;">
+                        <span class="topbar-user-empresa">
                             <?= esc($empresa) ?> | <?= esc($area) ?>
                         </span>
+                    </div>
+                    <div class="topbar-avatar">
+                        <?= $iniciales ?>
                     </div>
                 </div>
 

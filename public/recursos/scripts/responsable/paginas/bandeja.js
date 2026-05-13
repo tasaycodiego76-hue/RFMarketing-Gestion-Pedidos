@@ -186,12 +186,13 @@ function abrirModalAsignar(idAtencion) {
     (r) => parseInt(r.idatencion) === parseInt(idAtencion),
   );
   if (!req) {
+    const esClaro = document.documentElement.getAttribute("data-theme") === "light";
     Swal.fire({
       icon: "error",
       title: "Error",
       text: "Pedido no localizado en memoria local.",
-      background: "#161616",
-      color: "#fff",
+      background: esClaro ? "#fff" : "#161616",
+      color: esClaro ? "#000" : "#fff",
     });
     return;
   }
@@ -320,35 +321,38 @@ function confirmarAsignacion() {
         bootstrap.Modal.getInstance(
           document.getElementById("modal-asignar"),
         ).hide();
+        const esClaro = document.documentElement.getAttribute("data-theme") === "light";
         Swal.fire({
           icon: "success",
           title: "¡Tarea Delegada!",
           text: data.message,
-          background: "#161616",
-          color: "#fff",
+          background: esClaro ? "#fff" : "#161616",
+          color: esClaro ? "#000" : "#fff",
           timer: 2000,
           showConfirmButton: false,
         });
         setTimeout(() => cargarBandeja(), 500); // Recargar bandeja para ver los cambios.
       } else {
+        const esClaro = document.documentElement.getAttribute("data-theme") === "light";
         Swal.fire({
           icon: "error",
           title: "Error",
           text: data.message,
-          background: "#161616",
-          color: "#fff",
+          background: esClaro ? "#fff" : "#161616",
+          color: esClaro ? "#000" : "#fff",
         });
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-check-lg"></i> Confirmar Asignación';
       }
     })
     .catch(() => {
+      const esClaro = document.documentElement.getAttribute("data-theme") === "light";
       Swal.fire({
         icon: "error",
         title: "Error",
         text: "Fallo en la comunicación con el servidor.",
-        background: "#161616",
-        color: "#fff",
+        background: esClaro ? "#fff" : "#161616",
+        color: esClaro ? "#000" : "#fff",
       });
       btn.disabled = false;
     });
@@ -453,7 +457,7 @@ function renderizarDetalleRequerimiento(req, archivos) {
                                 </div>
                                 <div class="col-12 mt-3">
                                   <span class="case-label">Link de Referencia (Cliente)</span>
-                                  ${!req.url_subida ? `'<span class="text-muted small">Sin link de referencia.</span>'` : `<a href="${req.url_subida}" target="_blank" class="btn btn-sm btn-outline-warning"><i class="bi bi-link-45deg"></i>${req.url_subida}</a>`}
+                                  ${!req.url_subida ? `<span class="small">Sin link de referencia.</span>` : `<a href="${req.url_subida}" target="_blank" class="btn btn-sm btn-outline-warning"><i class="bi bi-link-45deg"></i>${req.url_subida}</a>`}
                                 </div>
                             </div>
                         </div>

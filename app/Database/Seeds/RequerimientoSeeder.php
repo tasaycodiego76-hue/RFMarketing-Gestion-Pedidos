@@ -30,7 +30,7 @@ class RequerimientoSeeder extends Seeder
                 'servicio_personalizado' => null
             ],
             [
-                'idusuarioempresa' => 14, // LUIS MENDOZA (cliente BYRON, idarea=52)
+                'idusuarioempresa' => 16, // LUIS MENDOZA (cliente BYRON, idarea=52)
                 'idservicio' => 2,
                 'titulo' => 'Video Reel Bienvenida',
                 'objetivo_comunicacion' => 'Dar la bienvenida a los nuevos estudiantes del ciclo 2026-I.',
@@ -66,7 +66,7 @@ class RequerimientoSeeder extends Seeder
                 'servicio_personalizado' => null
             ],
             [
-                'idusuarioempresa' => 14,
+                'idusuarioempresa' => 16,
                 'idservicio' => 1,
                 'titulo' => 'Infografía Académica',
                 'objetivo_comunicacion' => 'Explicar el proceso de matrícula de forma visual y sencilla.',
@@ -108,7 +108,7 @@ class RequerimientoSeeder extends Seeder
 
             // Requerimiento 2
             [
-                'idusuarioempresa' => 14,
+                'idusuarioempresa' => 16,
                 'idservicio' => 3,
                 'servicio_personalizado' => null,
                 'titulo' => 'Post Anuncio Becas 2026',
@@ -149,7 +149,7 @@ class RequerimientoSeeder extends Seeder
             // ============ MARTES 6 DE MAYO ============
             // Requerimiento 4
             [
-                'idusuarioempresa' => 14,
+                'idusuarioempresa' => 16,
                 'idservicio' => 2,
                 'servicio_personalizado' => null,
                 'titulo' => 'Video Testimonial Estudiante Destacado',
@@ -210,7 +210,7 @@ class RequerimientoSeeder extends Seeder
 
             // Requerimiento 7
             [
-                'idusuarioempresa' => 14,
+                'idusuarioempresa' => 16,
                 'idservicio' => 2,
                 'servicio_personalizado' => null,
                 'titulo' => 'Reel Recorrido Virtual Campus',
@@ -250,7 +250,7 @@ class RequerimientoSeeder extends Seeder
 
             // Requerimiento 9
             [
-                'idusuarioempresa' => 14,
+                'idusuarioempresa' => 16,
                 'idservicio' => null,
                 'servicio_personalizado' => 'Calendario de contenidos semanal',
                 'titulo' => 'Planificación Contenido Semana 19',
@@ -271,7 +271,7 @@ class RequerimientoSeeder extends Seeder
             // ============ JUEVES 8 DE MAYO ============
             // Requerimiento 10
             [
-                'idusuarioempresa' => 14,
+                'idusuarioempresa' => 16,
                 'idservicio' => 4,
                 'servicio_personalizado' => null,
                 'titulo' => 'Cobertura Feria de Ciencias',
@@ -311,7 +311,7 @@ class RequerimientoSeeder extends Seeder
 
             // Requerimiento 12
             [
-                'idusuarioempresa' => 14,
+                'idusuarioempresa' => 16,
                 'idservicio' => null,
                 'servicio_personalizado' => 'Campaña completa admisión',
                 'titulo' => 'Campaña Admisión 2026-II Completa',

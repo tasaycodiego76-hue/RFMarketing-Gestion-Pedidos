@@ -10,9 +10,8 @@
 <div class="header-detalle mb-4">
     <div class="d-flex justify-content-between align-items-center">
         <div>
-            <span class="breadcrumb-text">Mis Pedidos / Detalle del requerimiento</span>
-            <h2 class="nombre-cliente-titulo bebas"><?= esc($user['nombre'] ?? 'ANA FLORES QUISPE') ?></h2>
-            <p class="cliente-rol-sub">Cliente — Detalle del requerimiento</p>
+            <span class="breadcrumb-text">Mis Pedidos / Detalle</span>
+            <h2 class="nombre-cliente-titulo bebas">Detalle del requerimiento</h2>
         </div>
         <a href="<?= base_url('cliente/mis_solicitudes') ?>" class="btn-volver-custom">
             <i class="bi bi-arrow-left"></i> Volver
@@ -264,7 +263,7 @@
             </p>
         </div>
     </div>
-
+    <!-- Archivos del Cliente -->
     <div class="col-12 mt-4">
         <div class="card-dark-main p-4">
             <label class="label-tiny mb-4 d-block">ARCHIVOS ENVIADOS POR EL CLIENTE</label>
@@ -311,19 +310,18 @@
                         <?php endif; ?>
                     </div>
                 <?php else: ?>
-                    <div class="text-muted text-center py-2" style="font-size: 14px; opacity: 0.6;">
+                    <div class="text-center py-2" style="font-size: 18px;">
                         <i class="bi bi-folder2-open me-2"></i> No hay materiales adjuntos
                     </div>
                 <?php endif; ?>
             </div>
         </div>
     </div>
-
-    <!-- Entrega Final del Especialista -->
+    <!-- Entrega Final del Empleado -->
     <?php if (in_array(($requerimiento['estado'] ?? ''), ['finalizado', 'completado'])): ?>
         <div class="col-12 mt-4">
-            <div class="card-dark-main p-4 border-success-simple">
-                <label class="label-tiny mb-4 d-block text-success">ENTREGA FINAL DEL ESPECIALISTA</label>
+            <div class="card-dark-main p-4 border-success">
+                <label class="label-tiny mb-4 d-block text-success">ENTREGA FINAL DEL REQUERIMIENTO</label>
 
                 <div class="d-flex flex-wrap gap-3">
                     <!-- Archivos Entregados -->

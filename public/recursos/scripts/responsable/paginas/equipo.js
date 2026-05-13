@@ -68,7 +68,7 @@ function renderizarEquipo(empleados) {
                 <div class="metric"><span class="metric-value success">${emp.completados || 0}</span><span class="metric-label">Listos</span></div>
               </div>
               <div class="card-actions mt-2">
-                <button class="btn btn-outline-light btn-sm w-full" onclick="verDetalleMiembro(${emp.id})" style="border-radius: 6px; font-size: 11px; letter-spacing: 1px; padding: 6px 0; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);">
+                <button class="btn btn-sm w-full btn-ver-tareas" onclick="verDetalleMiembro(${emp.id})">
                     <i class="bi bi-list-task me-1"></i> VER TAREAS (${totalActivas})
                 </button>
               </div>
@@ -82,10 +82,12 @@ function renderizarEquipo(empleados) {
  * @param {*} idEmpleado 
  */
 async function verDetalleMiembro(idEmpleado) {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    
     Swal.fire({
         title: 'CONSULTANDO TAREAS',
-        background: '#161616',
-        color: '#fff',
+        background: isLight ? '#ffffff' : '#161616',
+        color: isLight ? '#000000' : '#fff',
         didOpen: () => { Swal.showLoading(); }
     });
 
@@ -97,10 +99,22 @@ async function verDetalleMiembro(idEmpleado) {
         if (res.success) {
             renderizarModalTareas(res.empleado, res.tareas);
         } else {
-            Swal.fire({ icon: 'error', title: 'Error', text: res.message, background: '#161616', color: '#fff' });
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'Error', 
+                text: res.message, 
+                background: isLight ? '#ffffff' : '#161616', 
+                color: isLight ? '#000000' : '#fff' 
+            });
         }
     } catch (error) {
-        Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión', background: '#161616', color: '#fff' });
+        Swal.fire({ 
+            icon: 'error', 
+            title: 'Error', 
+            text: 'Error de conexión', 
+            background: isLight ? '#ffffff' : '#161616', 
+            color: isLight ? '#000000' : '#fff' 
+        });
     }
 }
 

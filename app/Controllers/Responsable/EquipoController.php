@@ -94,6 +94,17 @@ class EquipoController extends BaseResponsableController
         // Obtenemos todos los pedidos donde este técnico es el responsable (atencion.idempleado)
         $tareas = $atencionModel->obtenerDetalladoPorEmpleado($idEmpleado);
 
+        // Ordenar por fecha de inicio (Más reciente -> Más antiguo: DESC)
+        usort($tareas, function ($a, $b) {
+            $f1 = $a['fechainicio'] ? strtotime($a['fechainicio']) : 0;
+            $f2 = $b['fechainicio'] ? strtotime($b['fechainicio']) : 0;
+            // Si no hay fecha de inicio, usamos la de creación como respaldo
+            if ($f1 === 0) $f1 = strtotime($a['fechacreacion'] ?? '0');
+            if ($f2 === 0) $f2 = strtotime($b['fechacreacion'] ?? '0');
+            
+            return $f2 <=> $f1; // DESC
+        });
+
         return $this->response->setJSON([
             'success' => true,
             'empleado' => [

@@ -24,80 +24,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Listado de canales donde se puede difundir el diseño solicitado.
   const CANALES = [
-    "Por correo",
-    "Página web",
-    "Redes sociales",
-    "SIGU o Aula Virtual Estudiantes",
-    "SIGU o Aula Virtual Docentes",
-    "Impresión física de folletos",
-    "Banner físico",
-    "Letreros",
-    "Merch para eventos específicos",
+    "Por correo","Página web","Redes sociales","SIGU o Aula Virtual Estudiantes","SIGU o Aula Virtual Docentes",
+    "Impresión física de folletos","Banner físico","Letreros","Merch para eventos específicos",
   ];
   // Opciones de formato que aparecen según el tipo de servicio seleccionado.
   const FORMATOS = {
     // Para Diseño Gráfico (ID 1)
     1: [
-      "Emailing",
-      "Post Facebook/IG",
-      "Historia FB/IG",
-      "Historia WhatsApp",
-      "Post LinkedIn",
-      "SIGU",
-      "Aula Virtual",
-      "Wallpaper",
-      "Banner Web",
-      "Volante A5",
-      "Afiche A4/A3",
-      "Credenciales",
-      "Banner 2x1",
-      "Tarjeta Personal",
-      "Tríptico",
-      "Díptico",
-      "Folder",
-      "Brochure",
-      "Cartilla",
-      "Banderola",
-      "Módulos",
-      "SMS",
-      "IVR",
-      "Marcos Selfie",
-      "Boletín",
-      "Guías",
-      "Imagen JPG/PNG",
-      "Otros",
+      "Emailing","Post Facebook/IG","Historia FB/IG","Historia WhatsApp","Post LinkedIn","SIGU","Aula Virtual","Wallpaper","Banner Web",
+      "Volante A5","Afiche A4/A3","Credenciales","Banner 2x1","Tarjeta Personal","Tríptico","Díptico","Folder","Brochure","Cartilla",
+      "Banderola","Módulos","SMS","IVR","Marcos Selfie","Boletín","Guías","Imagen JPG/PNG","Otros"
     ],
     // Para Audiovisual/Media (ID 2)
     2: [
-      "Reels FB/IG",
-      "Historia FB/IG",
-      "Reel/TikTok",
-      "Reels LinkedIn",
-      "Historia WhatsApp",
-      "Video YouTube",
-      "SIGU",
-      "Aula Virtual",
-      "Pantallas LED",
-      "Spot TV",
-      "Videos eventos",
-      "Reels Pauta",
-      "Otros",
+      "Reels FB/IG","Historia FB/IG","Reel/TikTok","Reels LinkedIn","Historia WhatsApp","Video YouTube",
+      "SIGU","Aula Virtual","Pantallas LED","Spot TV","Videos eventos","Reels Pauta","Otros",
     ],
     // Para otros servicios o personalizado (ID 0)
     0: [
-      "Post FB/IG",
-      "Historia FB/IG",
-      "Historia WhatsApp",
-      "Reels FB/IG",
-      "Reel/TikTok",
-      "Video YouTube",
-      "Afiche A4/A3",
-      "Banner Web",
-      "Spot TV",
-      "Banner físico",
-      "Emailing",
-      "Imagen JPG/PNG",
-      "Otros",
+      "Post FB/IG","Historia FB/IG","Historia WhatsApp","Reels FB/IG","Reel/TikTok","Video YouTube","Afiche A4/A3",
+      "Banner Web","Spot TV","Banner físico","Emailing","Imagen JPG/PNG","Otros",
     ],
   };
   // Tiempos de entrega mínimos para servicios de Diseño.
@@ -117,19 +63,12 @@ document.addEventListener("DOMContentLoaded", function () {
   };
   // Traducción de las llaves internas a nombres amigables para el servidor.
   const MAPA_TIPOS = {
-    adaptacion: "Adaptación de Arte",
-    creacion: "Creación de Arte",
-    creacion_editorial: "Creación de editorial",
-    adaptacion_editorial: "Adaptación de editorial",
-    creacion_video: "Creación de Videos",
+    adaptacion: "Adaptación de Arte", creacion: "Creación de Arte", creacion_editorial: "Creación de editorial",
+    adaptacion_editorial: "Adaptación de editorial", creacion_video: "Creación de Videos",
   };
   // Definición rápida de días para validaciones matemáticas.
   const DIAS_HABILES_POR_TIPO = {
-    adaptacion: 2,
-    creacion: 4,
-    creacion_editorial: 7,
-    adaptacion_editorial: 7,
-    creacion_video: 7,
+    adaptacion: 2, creacion: 4, creacion_editorial: 7, adaptacion_editorial: 7, creacion_video: 7,
   };
   // Información detallada que se muestra al usuario al elegir la complejidad.
   const INFO_TIPOS = {
@@ -201,40 +140,26 @@ document.addEventListener("DOMContentLoaded", function () {
   const checkedVals = (name) =>
     Array.from(qsAll(`input[name="${name}"]:checked`)).map((c) => c.value);
   // Limpia un texto (quita tildes, mayúsculas y espacios) para comparar nombres de servicios.
-  const normalizarTexto = (texto = "") =>
-    texto
-      .toString()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .trim()
-      .toLowerCase();
+  const normalizarTexto = (texto = "") => texto.toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
   // Verifica si el servicio es "Creación de Contenido" para aplicar reglas más flexibles.
-  const esServicioConsultivo = (nombre) =>
-    normalizarTexto(nombre) === "creacion de contenido";
+  const esServicioConsultivo = (nombre) => normalizarTexto(nombre) === "creacion de contenido";
   // Retorna el nombre de la clase del icono de Bootstrap según la extensión del archivo.
   const getIconoArchivo = (mimeType, fileName) => {
     if (mimeType?.startsWith("image/")) return "bi-file-earmark-image";
     if (mimeType?.startsWith("video/")) return "bi-file-earmark-play";
     if (mimeType?.includes("pdf")) return "bi-file-earmark-pdf";
-    if (
-      mimeType?.includes("word") ||
-      fileName?.endsWith(".doc") ||
-      fileName?.endsWith(".docx")
-    )
-      return "bi-file-earmark-word";
-    if (
-      mimeType?.includes("excel") ||
-      fileName?.endsWith(".xls") ||
-      fileName?.endsWith(".xlsx")
-    )
-      return "bi-file-earmark-excel";
+    if (mimeType?.includes("word") ||fileName?.endsWith(".doc") ||fileName?.endsWith(".docx")) return "bi-file-earmark-word";
+    if (mimeType?.includes("excel") ||fileName?.endsWith(".xls") ||fileName?.endsWith(".xlsx")) return "bi-file-earmark-excel";
     return "bi-file-earmark";
   };
-  // Configuración de colores y fondo para las alertas de SweetAlert2 (modo oscuro).
-  const swalBase = {
-    background: "#1a1a1a",
-    color: "#f0f0f0",
-    confirmButtonColor: "#f5c400",
+  // Configuración de colores y fondo para las alertas de SweetAlert2 (dinámico).
+  const getSwalConfig = () => {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    return {
+      background: isLight ? "#ffffff" : "#1a1a1a",
+      color: isLight ? "#1a1a2e" : "#f0f0f0",
+      confirmButtonColor: "#f5c400",
+    };
   };
 
   // Limitación de selección (Máximo 3) para contenedores de checkboxes
@@ -302,9 +227,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Función que obtiene la lista de pedidos del usuario y actualiza toda la interfaz.
   async function obtenerPedidos() {
-    if (!tablaPedidosBody) {
-      return;
-    }
+    if (!tablaPedidosBody) { return; }
     try {
       const response = await fetch(`${base_url}cliente/pedidos/listar`);
       const datos = await response.json();
@@ -620,7 +543,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Si acumulamos errores, mostramos la alerta y detenemos el Wizard.
     if (errores.length > 0) {
       Swal.fire({
-        ...swalBase,
+        ...getSwalConfig(),
         title: "Por favor corrija los siguientes errores:",
         icon: "warning",
         html: `<ul style="text-align:left;">${errores.map((e) => `<li>${e}</li>`).join("")}</ul>`,
@@ -737,7 +660,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (archivosPesados.length > 0) {
       Swal.fire({
-        ...swalBase,
+        ...getSwalConfig(),
         icon: "warning",
         title: "¡Archivo demasiado pesado!",
         html: `Los siguientes archivos superan los <strong>100MB</strong> permitidos:<br><br>
@@ -751,7 +674,7 @@ document.addEventListener("DOMContentLoaded", function () {
     listaArchivos.innerHTML = archivosSeleccionados
       .map(
         (f) => `
-      <div class="d-flex align-items-center gap-2 p-2 border border-secondary rounded mb-2 bg-dark">
+      <div class="d-flex align-items-center gap-2 p-2 border border-secondary rounded mb-2 listado-archivo-item">
         <i class="bi ${getIconoArchivo(f.type, f.name)} text-warning fs-4"></i>
         <span class="small text-truncate">${f.name}</span>
         <span class="ms-auto badge bg-secondary" style="font-size:9px;">${(f.size / 1024).toFixed(0)} KB</span>
@@ -874,7 +797,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (data.status === "success") {
             bootstrap.Modal.getInstance(modalFormularioDetalleEl)?.hide();
             Swal.fire({
-              ...swalBase,
+              ...getSwalConfig(),
               icon: "success",
               title: "¡Enviado!",
               text: "Tu pedido ha sido registrado correctamente.",
@@ -891,7 +814,7 @@ document.addEventListener("DOMContentLoaded", function () {
             obtenerPedidos();
           } else {
             Swal.fire({
-              ...swalBase,
+              ...getSwalConfig(),
               icon: "error",
               title: "Error",
               html: data.msg || "Error en el servidor",
@@ -899,7 +822,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         } catch (e) {
           Swal.fire({
-            ...swalBase,
+            ...getSwalConfig(),
             icon: "error",
             title: "Error de Servidor",
             text: "Respuesta inesperada. Posible archivo muy pesado.",
@@ -907,7 +830,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       } else {
         Swal.fire({
-          ...swalBase,
+          ...getSwalConfig(),
           icon: "error",
           title: "Error",
           text: "No se pudo conectar con el servidor.",
@@ -919,7 +842,7 @@ document.addEventListener("DOMContentLoaded", function () {
       btnEnv.disabled = false;
       btnEnv.innerHTML = textoOriginal;
       Swal.fire({
-        ...swalBase,
+        ...getSwalConfig(),
         icon: "error",
         title: "Error de Red",
         text: "No se pudo completar la subida.",

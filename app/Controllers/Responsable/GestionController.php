@@ -16,19 +16,33 @@ class GestionController extends BaseResponsableController
     {
         // Validar identidad
         $userS = $this->ValidarSesion_DatosUser();
-        if (!$userS['ok']) return redirect()->to('login');
+        if (!$userS['ok'])
+            return redirect()->to('login');
 
         $user = $userS['user'];
-        $idAreaAgencia = (int)$user['idarea_agencia'];
-        
+        $idAreaAgencia = (int) $user['idarea_agencia'];
+
         // Cargar métricas para el Sidebar
         $metrics = $this->_getMetrics($idAreaAgencia);
 
         $atencionModel = new AtencionModel();
-        
+
         // Obtener datos históricos (Estado: finalizado)
-        $misCompletados = $atencionModel->obtenerDetalladoPorEmpleado((int)$user['id'], ['finalizado']);
+        $misCompletados = $atencionModel->obtenerDetalladoPorEmpleado((int) $user['id'], ['finalizado']);
         $areaCompletados = $atencionModel->obtenerDetalladoPorArea($idAreaAgencia, ['finalizado']);
+
+        // Ordenar por fecha de completado (Reciente -> Antiguo: DESC)
+        usort($misCompletados, function ($a, $b) {
+            $fechaA = $a['fechacompletado'] ?? '';
+            $fechaB = $b['fechacompletado'] ?? '';
+            return strcmp($fechaB, $fechaA);
+        });
+
+        usort($areaCompletados, function ($a, $b) {
+            $fechaA = $a['fechacompletado'] ?? '';
+            $fechaB = $b['fechacompletado'] ?? '';
+            return strcmp($fechaB, $fechaA);
+        });
 
         // Inyectar en la vista
         return view('responsable/historial', array_merge([
@@ -48,13 +62,14 @@ class GestionController extends BaseResponsableController
     public function retroalimentacion()
     {
         $userS = $this->ValidarSesion_DatosUser();
-        if (!$userS['ok']) return redirect()->to('login');
+        if (!$userS['ok'])
+            return redirect()->to('login');
 
         $idAreaAgencia = (int) $userS['user']['idarea_agencia'];
         $metrics = $this->_getMetrics($idAreaAgencia);
-        
+
         $atencionModel = new AtencionModel();
-        
+
         // Obtener solo los pedidos del área que tengan el campo 'observacion_revision' lleno
         $items = $atencionModel->obtenerRetroalimentacionPorArea($idAreaAgencia);
 

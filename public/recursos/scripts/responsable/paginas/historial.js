@@ -7,8 +7,8 @@ async function verDetalleHistorial(idAtencion) {
     Swal.fire({
         title: 'CARGANDO EXPEDIENTE',
         html: 'Buscando registros en el historial...',
-        background: '#0d0d0d',
-        color: '#fff',
+        background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#0d0d0d",
+        color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
         allowOutsideClick: false,
         didOpen: () => { Swal.showLoading(); }
     });
@@ -24,11 +24,11 @@ async function verDetalleHistorial(idAtencion) {
         if (res.success) {
             renderizarDetalleHistorial(res.data, res.archivos, res.tracking);
         } else {
-            Swal.fire({ icon: 'error', title: 'Error', text: res.message, background: '#0d0d0d', color: '#fff' });
+            Swal.fire({ icon: 'error', title: 'Error', text: res.message, background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#0d0d0d", color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff" });
         }
     } catch (error) {
         console.error('Error:', error);
-        Swal.fire({ icon: 'error', title: 'Error de Conexión', text: 'No se pudo establecer comunicación con el servidor', background: '#0d0d0d', color: '#fff' });
+        Swal.fire({ icon: 'error', title: 'Error de Conexión', text: 'No se pudo establecer comunicación con el servidor', background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#0d0d0d", color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff" });
     }
 }
 

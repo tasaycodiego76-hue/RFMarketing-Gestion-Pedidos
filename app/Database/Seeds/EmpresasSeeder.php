@@ -10,15 +10,21 @@ class EmpresasSeeder extends Seeder
             [
                 'nombreempresa' => 'UNIVERSIDAD AUTÓNOMA DE ICA',
                 'ruc' => '20452777399',
-                'correo' => 'uai@uai.edu.pe',
-                'telefono' => '056123456'
+                'correo' => 'admisionpregrado@autonomadeica.edu.pe',
+                'telefono' => '017071251'
             ],
             [
                 'nombreempresa' => 'COLEGIO ADA BYRON',
                 'ruc' => '20452564727',
-                'correo' => 'ada@byron.edu.pe',
-                'telefono' => '056789012'
+                'correo' => 'pagos@colegiobyron.edu.pe',
+                'telefono' => '981023955'
             ],
+            [
+                'nombreempresa' => 'URBANO & MODERNO S.A.C.',
+                'ruc' => '20607952648',
+                'correo' => 'urbanoymoderno@outlook.com',
+                'telefono' => '976684184'
+            ]
         ];
         $this->db->table('empresas')->insertBatch($data);
     }

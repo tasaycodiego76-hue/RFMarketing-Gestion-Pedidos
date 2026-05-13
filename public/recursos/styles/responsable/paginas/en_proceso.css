@@ -496,3 +496,57 @@
     color: #fff;
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
+
+/* ==========================================================================
+   ESTILOS DE METADATOS (Empresa, Área, Fechas)
+   ========================================================================== */
+.ep-meta-text {
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ep-meta-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 700;
+}
+
+/* MODO CLARO */
+[data-theme="light"] .ep-meta-text {
+    color: #64748b !important;
+}
+[data-theme="light"] .ep-meta-badge {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+/* MODO OSCURO */
+[data-theme="dark"] .ep-meta-text {
+    color: #ffffff !important;
+    font-size: 12px !important;
+    opacity: 1 !important; /* Opacidad total para brillo máximo */
+}
+
+[data-theme="dark"] .ep-meta-badge {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    font-size: 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+[data-theme="dark"] .tarea-item i {
+    color: #f5c400 !important;
+    font-size: 13px;
+}
+
+[data-theme="dark"] .tarea-titulo {
+    color: #ffffff !important;
+    font-size: 16px !important;
+}

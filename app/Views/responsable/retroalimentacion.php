@@ -26,7 +26,7 @@
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <span class="retro-badge"><i class="bi bi-exclamation-circle me-1"></i> Corrección Solicitada</span>
                     <span class="text-dim-small">
-                        <i class="bi bi-clock-history"></i> <?= date('d/m/Y H:i', strtotime($item['fechacreacion'])) ?>
+                        <i class="bi bi-clock-history"></i> <?= date('d/m/Y H:i', strtotime($item['fecha_retro'] ?? $item['fechacreacion'])) ?>
                     </span>
                 </div>
                 

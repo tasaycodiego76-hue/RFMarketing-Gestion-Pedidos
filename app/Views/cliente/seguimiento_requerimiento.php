@@ -12,7 +12,6 @@
         <div>
             <span class="breadcrumb-text">Mis Pedidos / Seguimiento</span>
             <h2 class="nombre-cliente-titulo bebas">SEGUIMIENTO DEL REQUERIMIENTO</h2>
-            <p class="cliente-rol-sub">Cliente — Historial de estados</p>
         </div>
         <a href="<?= base_url('cliente/mis_solicitudes') ?>" class="btn-volver-custom">
             <i class="bi bi-arrow-left"></i> Volver

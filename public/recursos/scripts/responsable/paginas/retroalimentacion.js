@@ -8,11 +8,13 @@ async function verDetalle(idAtencion) {
     const modalElement = document.getElementById('modalDetalle');
     if (!cuerpo || !modalElement) return;
 
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+
     // Estado de carga usando clases de retroalimentacion.css
     cuerpo.innerHTML = `
-        <div class="loading-container">
-            <div class="spinner-border text-oro" style="width: 3rem; height: 3rem;"></div>
-            <div class="loading-text">CARGANDO EXPEDIENTE...</div>
+        <div class="loading-container" style="background: ${isLight ? '#ffffff' : '#0a0a0a'}">
+            <div class="spinner-border ${isLight ? 'text-primary' : 'text-oro'}" style="width: 3rem; height: 3rem;"></div>
+            <div class="loading-text" style="color: ${isLight ? '#94a3b8' : '#555'}">CARGANDO EXPEDIENTE...</div>
         </div>
     `;
 
@@ -25,7 +27,7 @@ async function verDetalle(idAtencion) {
         const res = await response.json();
 
         if (res.success) {
-            renderizarDetalleRetro(res.data, res.archivos, res.tracking);
+            renderizarDetalleRetro(res.data, res.archivos, res.tracking, idAtencion);
         } else {
             cuerpo.innerHTML = `<div class="p-5 text-center text-danger font-weight-bold">${res.message}</div>`;
         }
@@ -40,9 +42,10 @@ async function verDetalle(idAtencion) {
  * @param {*} req 
  * @param {*} archivos 
  * @param {*} tracking 
+ * @param {number} idAtencion
  * @returns 
  */
-function renderizarDetalleRetro(req, archivos, tracking) {
+function renderizarDetalleRetro(req, archivos, tracking, idAtencion) {
     const cuerpo = document.getElementById('detalleCuerpo');
     if (!cuerpo) return;
 
@@ -54,7 +57,7 @@ function renderizarDetalleRetro(req, archivos, tracking) {
         'finalizado': { label: 'COMPLETADO', color: '#22c55e' }
     };
     const est = configEstado[req.estado] || { label: req.estado, color: '#aaa' };
-    
+
     const prioColor = req.prioridad?.toLowerCase() === 'alta' ? '#ef4444' : (req.prioridad?.toLowerCase() === 'baja' ? '#3b82f6' : '#f59e0b');
 
     // Construcción de secciones
@@ -68,7 +71,7 @@ function renderizarDetalleRetro(req, archivos, tracking) {
                 </span>
             </div>
             <h2 class="title-bebas-retro mb-1">${escaparHtml(req.titulo)}</h2>
-            <p class="text-muted-extra-small text-uppercase">
+            <p class="text  -extra-small text-uppercase">
                 ${escaparHtml(req.nombre_empresa)} | <span class="text-oro">${escaparHtml(req.nombre_servicio || req.servicio)}</span>
             </p>
         </div>
@@ -115,7 +118,7 @@ function renderizarDetalleRetro(req, archivos, tracking) {
                     <div class="mb-3">
                         <span class="kd-label">Solicitado por</span>
                         <div class="text-white font-weight-700 font-size-13">${escaparHtml(req.nombre_cliente || '---')}</div>
-                        <div class="text-muted-extra-small">${escaparHtml(req.nombre_empresa)}</div>
+                        <div class="text-extra-small">${escaparHtml(req.nombre_empresa)}</div>
                     </div>
 
                     <hr class="border-dark opacity-20">
@@ -129,8 +132,12 @@ function renderizarDetalleRetro(req, archivos, tracking) {
                         <span class="text-dim-small m-0">${formatearFechaLimpia(req.fechacreacion)}</span>
                     </div>
                     
+                    <button class="btn btn-primary-rf w-100 mt-3 py-2 mb-3" onclick="window.irAGestion(${req.id || idAtencion})">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> IR A GESTIÓN
+                    </button>
+
                     <button class="btn btn-retro-action w-100 justify-content-center py-2" data-bs-dismiss="modal">
-                        <i class="bi bi-x-lg"></i> CERRAR VISTA
+                        <i class="bi bi-x-lg me-2"></i> CERRAR VISTA
                     </button>
                 </div>
             </div>
@@ -147,7 +154,7 @@ function renderizarDetalleRetro(req, archivos, tracking) {
  */
 function renderizarSeccionFeedback(req) {
     if (!req.url_entrega && !req.observacion_revision) return '';
-    
+
     return `
     <div class="retro-msg-container mb-4">
         <div class="retro-msg-label">OBSERVACIONES DE REVISIÓN</div>
@@ -174,7 +181,7 @@ function renderizarSeccionFeedback(req) {
  */
 function renderizarGridArchivos(archivos) {
     if (!archivos || archivos.length === 0) return '<p class="text-muted-extra-small italic">No hay archivos adjuntos.</p>';
-    
+
     return `
     <div class="archivos-grid">
         ${archivos.map(a => `
@@ -193,7 +200,7 @@ function renderizarGridArchivos(archivos) {
  */
 function renderizarBadgeEmpleado(req) {
     if (!req.idempleado) return '<div class="text-muted-extra-small italic">Sin asignar</div>';
-    
+
     const ini = obtenerIniciales(req.empleado_nombre);
     return `
     <div class="empleado-badge">
@@ -243,7 +250,7 @@ function formatearFechaLimpia(f) {
         const hours = String(d.getHours()).padStart(2, '0');
         const minutes = String(d.getMinutes()).padStart(2, '0');
         return `${day}/${month}/${year} ${hours}:${minutes}`;
-    } catch(e) { return f; }
+    } catch (e) { return f; }
 }
 
 // Abre la vista previa de un archivo en una nueva pestaña
@@ -251,3 +258,20 @@ function abrirArchivo(id) {
     const url = `${window.BASE_URL || '/'}responsable/archivos/vista-previa/${id}`;
     window.open(url, '_blank');
 }
+
+/**
+ * Redirige a la vista de gestión y resalta el requerimiento
+ * @param {number} id 
+ */
+window.irAGestion = function(id) {
+    console.log("Navegando a gestión para ID:", id);
+    if (!id) {
+        console.error("ID no proporcionado para la navegación");
+        return;
+    }
+    const baseUrl = window.BASE_URL || '/';
+    const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
+    const targetUrl = `${cleanBaseUrl}responsable/en-proceso?highlight=${id}`;
+    console.log("Redirigiendo a:", targetUrl);
+    window.location.href = targetUrl;
+};

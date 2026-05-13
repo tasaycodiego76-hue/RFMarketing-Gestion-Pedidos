@@ -231,9 +231,10 @@
   margin-bottom: 22px;
 }
 .timeline-item i {
-  color: #444;
-  font-size: 1.2rem;
+  color: var(--accent-yellow);
+  font-size: 1.3rem;
   margin-top: 2px;
+  filter: drop-shadow(0 0 5px rgba(245, 196, 0, 0.3));
 }
 .timeline-item.active-step i {
   color: var(--accent-yellow);
@@ -260,19 +261,19 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 11px 22px;
-  background: #222;
+  padding: 11px 0;
+  background: transparent;
   color: #fff;
   border-radius: 8px;
   text-decoration: none;
   font-size: 14px;
   transition: all 0.3s ease;
-  border: 1px solid #333;
+  border: none;
+  font-weight: 700;
 }
 .btn-volver-custom:hover {
-  background: #333;
   color: var(--accent-yellow);
-  border-color: var(--accent-yellow);
+  transform: translateX(-3px);
 }
 .btn-outline-light {
   border: 1px solid #444;

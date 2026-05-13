@@ -208,17 +208,24 @@
 }
 [data-theme="light"] .section-title {
     color: #b38f00;
+    font-weight: 800;
+}
+[data-theme="light"] .section-title i {
+    color: #1a1a2e !important;
 }
 
 /* ─── MÉTRICAS ─── */
 [data-theme="light"] .met-label {
-    color: #666;
+    color: #1a1a2e !important;
+    font-weight: 700 !important;
 }
 [data-theme="light"] .met-sub {
-    color: #888;
+    color: #5a5a6a !important;
+    font-weight: 500 !important;
 }
 [data-theme="light"] .met-num-total {
-    color: #333;
+    color: #000 !important;
+    font-weight: 900 !important;
 }
 
 /* ─── SERVICIO CARDS ─── */
@@ -417,7 +424,7 @@
     border-bottom-color: #eee;
 }
 [data-theme="light"] .info-item i {
-    color: #aaa;
+    color: #1a1a2e !important; /* Más oscuro */
 }
 [data-theme="light"] .info-label {
     color: #777;
@@ -560,22 +567,24 @@
 
 /* Timeline */
 [data-theme="light"] .timeline-seguimiento::before {
-    background: linear-gradient(to bottom, #E8B800, #ddd);
+    background: linear-gradient(to bottom, #E8B800, #ccc);
 }
 [data-theme="light"] .timeline-item-seg {
-    background: #f7f8fa;
+    background: #ffffff; /* Blanco */
+    border: 1px solid #e0dcd5;
 }
 [data-theme="light"] .timeline-item-seg:hover {
-    background: #eef0f3;
+    background: #f9f9f9;
 }
 [data-theme="light"] .timeline-descripcion {
-    color: #444;
+    color: #1a1a2e !important;
+    font-weight: 500;
 }
 [data-theme="light"] .timeline-responsable {
-    color: #888;
+    color: #4a4a5a !important;
 }
 [data-theme="light"] .timeline-responsable i {
-    color: #bbb;
+    color: #1a1a2e !important;
 }
 
 /* Timeline sidebar items */
@@ -597,15 +606,27 @@
 
 /* Botones */
 [data-theme="light"] .btn-volver-custom {
-    background: #fff;
-    color: #2a2a3a;
-    border: 1.5px solid #c9c5bc;
-    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    background: transparent !important;
+    color: #1a1a2e !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-weight: 700 !important;
 }
 [data-theme="light"] .btn-volver-custom:hover {
-    background: #faf7f2;
-    color: #b38f00;
-    border-color: #E8B800;
+    color: #E8B800 !important;
+    background: transparent !important;
+}
+/* Botón Atrás en Wizard */
+[data-theme="light"] .btn-outline-wizard {
+    background: transparent !important;
+    color: #4a4a5a !important;
+    border: 1px solid #c9c5bc !important;
+    font-weight: 600 !important;
+}
+[data-theme="light"] .btn-outline-wizard:hover {
+    background: #f5f2ec !important;
+    border-color: #a8a49c !important;
+    color: #1a1a2e !important;
 }
 /* Botón secundario ("Atrás" en wizard) */
 [data-theme="light"] .btn-outline-light {
@@ -667,13 +688,16 @@
     box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3) !important;
 }
 
-/* COMPLETADO / VERDE */
+/* COMPLETADO / VERDE - MÁS SUAVE / LIGERO */
 [data-theme="light"] .estado-completado,
-[data-theme="light"] .badge-completado {
-    background: #4CAF50 !important;
-    color: #fff !important;
-    border-color: #1B5E20 !important;
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3) !important;
+[data-theme="light"] .badge-completado,
+[data-theme="light"] .cnt-completado {
+    background: #e8f5e9 !important; /* Verde muy claro */
+    color: #2e7d32 !important; /* Texto verde oscuro legible */
+    border: 1.5px solid #a5d6a7 !important;
+    font-weight: 800 !important;
+    box-shadow: 0 2px 6px rgba(46, 125, 50, 0.1) !important;
+    text-shadow: none !important;
 }
 
 /* CANCELADO / RECHAZADO / ROJO */
@@ -749,9 +773,9 @@
     text-shadow: 0 1px 3px rgba(33, 150, 243, 0.2);
 }
 [data-theme="light"] .verde {
-    color: #4CAF50 !important;
-    font-weight: 800 !important;
-    text-shadow: 0 1px 3px rgba(76, 175, 80, 0.2);
+    color: #2ebd6b !important;
+    font-weight: 900 !important;
+    text-shadow: 0 1px 4px rgba(46, 189, 107, 0.25);
 }
 [data-theme="light"] .rojo {
     color: #FF5252 !important;
@@ -770,10 +794,11 @@
     color: #2196F3 !important;
 }
 [data-theme="light"] .met-num.verde {
-    color: #4CAF50 !important;
+    color: #2ebd6b !important;
+    text-shadow: 0 0 10px rgba(46, 189, 107, 0.2);
 }
 [data-theme="light"] .met-num.rojo {
-    color: #FF5252 !important;
+    color: #dc3545 !important;
 }
 
 /* BADGES DE SERVICIO - COLORES VIBRANTES*/
@@ -1034,6 +1059,28 @@
     opacity: 0.9;
     transition: opacity 0.2s ease, color 0.2s ease;
 }
+
+.btn-ver i {
+  font-size: 20px;
+  transition: all 0.2s ease;
+}
+
+/* Colores específicos para Tema Claro */
+[data-theme="light"] .btn-ver {
+    background: #ffffff !important;
+    border-color: #e0dcd5 !important;
+}
+[data-theme="light"] .btn-ver:hover {
+    background: #fdf5d0 !important;
+    border-color: #f5c400 !important;
+}
+[data-theme="light"] .btn-ver i.bi-eye {
+    color: #3b8fd4 !important; /* Azul más fuerte para luz */
+}
+[data-theme="light"] .btn-ver i.bi-clock-history {
+    color: #2ebd6b !important; /* Verde más fuerte para luz */
+}
+
 [data-theme="light"] .topbar-icon-btn.logout-btn:hover,
 [data-theme="light"] .sidebar-usuario a[href*="logout"]:hover {
     opacity: 1;
@@ -1206,9 +1253,21 @@
 }
 
 /* Lista archivos */
-[data-theme="light"] #lista-archivos .archivo-item-simple {
-    background: #ede9e2;
-    border-color: #d5d0c8;
+[data-theme="light"] #lista-archivos .archivo-item-simple,
+[data-theme="light"] .listado-archivo-item {
+    background: #ffffff !important;
+    border: 1px solid #e0dcd5 !important;
+    color: #1a1a2e !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+}
+[data-theme="light"] .listado-archivo-item span {
+    color: #1a1a2e !important;
+}
+[data-theme="light"] .listado-archivo-item .badge.bg-secondary {
+    background: #fdf5d0 !important; /* Fondo amarillento suave */
+    color: #b38f00 !important; /* Texto dorado oscuro */
+    border: 1px solid #e8c800 !important;
+    font-weight: 700 !important;
 }
 
 /* Fecha label */
@@ -1216,11 +1275,14 @@
     color: #5a5a6a;
 }
 
-/* Canales badge */
-[data-theme="light"] .canales-badge {
-    background: #1a1a2e !important;
-    color: #E8B800 !important;
-    border-color: #E8B800 !important;
+/* Canales badge y Limit badge */
+[data-theme="light"] .canales-badge,
+[data-theme="light"] .badge-wizard-limit {
+    background: #fdf5d0 !important;
+    color: #b38f00 !important;
+    border: 1px solid #e8c800 !important;
+    font-weight: 700 !important;
+    padding: 6px 12px !important;
 }
 
 /* Wizard step titulo */
@@ -1248,4 +1310,113 @@
 /* Campo sublabel */
 [data-theme="light"] .campo-sublabel {
     color: #5a5a6a;
+}
+
+/* Icons stronger in tracking */
+[data-theme="light"] .timeline-fecha i,
+[data-theme="light"] .timeline-responsable i,
+[data-theme="light"] .timeline-item i {
+    color: #1a1a2e !important;
+    opacity: 1 !important;
+}
+[data-theme="light"] .t-label {
+    color: #1a1a2e !important;
+    font-weight: 800 !important;
+}
+[data-theme="light"] .t-value {
+    color: #000 !important;
+    font-weight: 600 !important;
+}
+
+/* Step indicators */
+[data-theme="light"] .step {
+    background: #ffffff !important;
+    border-color: #e0dcd5 !important;
+    color: #a8a49c !important;
+}
+[data-theme="light"] .step.active {
+    background: #f5c518 !important;
+    border-color: #f5c518 !important;
+    color: #000 !important;
+    box-shadow: 0 0 15px rgba(245, 197, 24, 0.2) !important;
+}
+[data-theme="light"] .step-line {
+    background: #e0dcd5 !important;
+}
+[data-theme="light"] .step-label {
+    color: #7a7a8a !important;
+}
+
+/* Inputs and Fields */
+[data-theme="light"] .field label {
+    color: #1a1a2e !important;
+}
+[data-theme="light"] .field-input {
+    background: #ffffff !important;
+    border: 1.5px solid #e0dcd5 !important;
+    color: #1a1a2e !important;
+}
+[data-theme="light"] .field-input:focus {
+    border-color: #E8B800 !important;
+    background: #ffffff !important;
+}
+[data-theme="light"] .field-input::placeholder {
+    color: #aaa;
+}
+
+/* Modal Close Button Override (removing forced black) */
+[data-theme="light"] .modal-rf-header .btn-close,
+[data-theme="light"] .modal-rf-header .btn-close-white {
+    background: #f5f2ec !important;
+    border-color: #e0dcd5 !important;
+    color: #1a1a2e !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+}
+[data-theme="light"] .modal-rf-header .btn-close i,
+[data-theme="light"] .modal-rf-header .btn-close-white i {
+    color: #1a1a2e !important;
+}
+[data-theme="light"] .modal-rf-header .btn-close:hover,
+[data-theme="light"] .modal-rf-header .btn-close-white:hover {
+    background: #ffffff !important;
+    border-color: #E8B800 !important;
+}
+
+/* More prominent green in Light Theme */
+[data-theme="light"] .estado-completado,
+[data-theme="light"] .badge-completado,
+[data-theme="light"] .cnt-completado {
+    background: #2ebd6b !important;
+    color: #fff !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 12px rgba(46, 189, 107, 0.3) !important;
+}
+/* SECCIÓN DE ENTREGA FINAL */
+[data-theme="light"] .card-dark-main.border-success {
+    background: #f1fcf1 !important; /* Un poco más de blanco/verde */
+    border: 2px solid #2ebd6b !important; /* Borde más grueso y vibrante */
+    box-shadow: 0 4px 15px rgba(46, 189, 107, 0.15) !important;
+}
+[data-theme="light"] .label-tiny.text-success {
+    color: #1b8a4d !important;
+    font-weight: 900 !important;
+    letter-spacing: 1px;
+}
+[data-theme="light"] .archivo-adjunto-card.success {
+    background: #ffffff !important;
+    border: 1.5px solid #a5d6a7 !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
+}
+[data-theme="light"] .archivo-adjunto-card.success:hover {
+    border-color: #2ebd6b !important;
+    background: #ffffff !important;
+    transform: translateY(-2px);
+}
+[data-theme="light"] .archivo-adjunto-card.success .archivo-nombre {
+    color: #1a1a2e !important;
+}
+[data-theme="light"] .archivo-adjunto-card.success i.bi-link-45deg,
+[data-theme="light"] .archivo-adjunto-card.success i.bi-file-earmark {
+    color: #2ebd6b !important;
+    filter: drop-shadow(0 0 2px rgba(46, 189, 107, 0.2));
 }

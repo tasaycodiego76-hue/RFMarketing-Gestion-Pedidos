@@ -23,11 +23,13 @@ document.addEventListener("DOMContentLoaded", function () {
       const tendencia = resp.tendencias_Semanal;
       const tiempoPromedio = resp.tiempopromedio;
 
-      // Detectar Tema
-      const esClaro = document.documentElement.getAttribute("data-theme") === "light";
-      const textColor = esClaro ? "#4a4a5a" : "#d1d1d6";
-      const gridColor = esClaro ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)";
-      const centerTextColor = esClaro ? "#1a1a2e" : "#ffffff";
+      // Detectar Tema - Usar localStorage directamente para mayor fiabilidad
+      const temaGuardado = localStorage.getItem("rf-responsable-theme");
+      const esClaro = temaGuardado === "light" || document.documentElement.getAttribute("data-theme") === "light";
+      
+      const textColor = esClaro ? "#000000" : "#d1d1d6";
+      const gridColor = esClaro ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.05)";
+      const centerTextColor = esClaro ? "#000000" : "#ffffff";
 
       // GRÁFICO A: Productividad por empleado
       const graficoA = new Chart(graficoProductividad, {
@@ -38,17 +40,17 @@ document.addEventListener("DOMContentLoaded", function () {
             {
               label: "En Proceso",
               data: productividad.map((e) => e.total_proceso),
-              backgroundColor: "rgba(230, 201, 148, 0.8)",
+              backgroundColor: esClaro ? "#e67e22" : "rgba(230, 201, 148, 0.8)",
             },
             {
               label: "Completadas",
               data: productividad.map((e) => e.total_completado),
-              backgroundColor: "rgba(106, 176, 76, 0.8)",
+              backgroundColor: esClaro ? "#27ae60" : "rgba(106, 176, 76, 0.8)",
             },
             {
               label: "Total Tareas",
               data: productividad.map((e) => e.total_tareas),
-              backgroundColor: "rgba(118, 240, 209, 0.8)",
+              backgroundColor: esClaro ? "#16a085" : "rgba(118, 240, 209, 0.8)",
             },
           ],
         },
@@ -90,13 +92,15 @@ document.addEventListener("DOMContentLoaded", function () {
           datasets: [
             {
               data: distribucion.map((e) => e.cantidad_tareas),
-              backgroundColor: [
-                "rgba(104,109,224,0.8)",
-                "rgba(246,229,141,0.8)",
-                "rgba(106,176,76,0.8)",
-                "rgba(255,107,107,0.8)",
-                "rgba(72,219,251,0.8)",
-              ],
+              backgroundColor: esClaro 
+                ? ["#4834d4", "#f9ca24", "#2ecc71", "#eb4d4b", "#22a6b3"]
+                : [
+                  "rgba(104,109,224,0.8)",
+                  "rgba(246,229,141,0.8)",
+                  "rgba(106,176,76,0.8)",
+                  "rgba(255,107,107,0.8)",
+                  "rgba(72,219,251,0.8)",
+                ],
               borderWidth: 0,
             },
           ],
@@ -133,8 +137,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 ctx.textAlign = "center";
                 ctx.fillStyle = centerTextColor;
                 ctx.fillText(totalCarga, x, y - 8);
-                ctx.font = "700 0.85rem Inter, sans-serif";
-                ctx.fillStyle = textColor;
+                ctx.font = "900 0.85rem Inter, sans-serif";
+                ctx.fillStyle = centerTextColor; // Forzar negro puro en centro
                 ctx.fillText("TAREAS", x, y + 25);
                 ctx.restore();
               }
@@ -162,8 +166,8 @@ document.addEventListener("DOMContentLoaded", function () {
             {
               label: "Tareas Finalizadas",
               data: tendenciaFinal,
-              borderColor: "rgba(104,109,224,1)",
-              backgroundColor: "rgba(104,109,224,0.1)",
+              borderColor: esClaro ? "#8e44ad" : "rgba(104,109,224,1)",
+              backgroundColor: esClaro ? "rgba(142, 68, 173, 0.2)" : "rgba(104,109,224,0.1)",
               tension: 0.4,
               fill: true,
             },
@@ -197,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
             {
               label: "Horas Promedio",
               data: tiempoPromedio.map((e) => e.promedio_horas),
-              backgroundColor: "rgba(246, 229, 141, 0.8)",
+              backgroundColor: esClaro ? "#f1c40f" : "rgba(246, 229, 141, 0.8)",
               borderRadius: 5,
             },
           ],

@@ -33,18 +33,18 @@
 <!-- Modal Detalle Miembro -->
 <div class="modal fade" id="modalDetalleMiembro" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
     aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content modal-dark-rf">
             <div class="modal-header modal-header-rf">
                 <h5 class="modal-title modal-title-rf">
                     <span id="nombreMiembroModal" class="text-oro">Tareas del Miembro</span>
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
             <div class="modal-body p-3">
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0 table-dark-transparent" id="tablaTareasMiembro">
+                    <table class="table table-hover mb-0" id="tablaTareasMiembro">
                         <thead class="thead-dark-soft">
                             <tr>
                                 <th class="p-3 border-secondary">Requerimiento</th>

@@ -348,7 +348,7 @@ class AtencionModel extends Model
         }
 
         return $builder->orderBy('a.prioridad', 'DESC')
-            ->orderBy('a.fechacreacion', 'DESC')
+            ->orderBy('a.fechacompletado', 'DESC')
             ->get()->getResultArray();
     }
 
@@ -366,7 +366,8 @@ class AtencionModel extends Model
                           u_emp.apellidos as empleado_apellidos,
                           u_cliente.nombre as cliente_nombre,
                           ar_cliente.nombre as area_nombre,
-                          COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre')
+                          COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre,
+                          (SELECT MAX(fecha_registro) FROM tracking WHERE idatencion = a.id) as fecha_retro')
             ->join('requerimiento r', 'r.id = a.idrequerimiento')
             ->join('usuarios u_cliente', 'u_cliente.id = r.idusuarioempresa')
             ->join('areas ar_cliente', 'ar_cliente.id = u_cliente.idarea')
@@ -377,7 +378,7 @@ class AtencionModel extends Model
             ->where('a.observacion_revision IS NOT NULL')
             ->where("a.observacion_revision != ''")
             ->whereIn('a.estado', ['en_proceso', 'pendiente_asignado', 'en_revision'])
-            ->orderBy('a.fechacreacion', 'DESC')
+            ->orderBy('fecha_retro', 'DESC')
             ->get()->getResultArray();
     }
 
@@ -680,7 +681,7 @@ class AtencionModel extends Model
         }
 
         return $builder->orderBy('a.prioridad', 'DESC')
-            ->orderBy('a.fechacreacion', 'DESC')
+            ->orderBy('a.fechacompletado', 'DESC')
             ->get()->getResultArray();
     }
 

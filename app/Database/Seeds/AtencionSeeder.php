@@ -375,7 +375,7 @@ class AtencionSeeder extends Seeder
                 'cancelacionmotivo' => null,
                 'fechacancelacion' => null,
             ],
-            // --- ATENCIONES DE PRUEBA SLA (TODOS EN COLUMNA 1: NUEVAS SOLICITUDES) ---
+            // ATENCIONES DE PRUEBA SLA (TODOS EN COLUMNA 1: NUEVAS SOLICITUDES) ---
             [
                 'idrequerimiento'        => 5,
                 'idadmin'                => 1,
