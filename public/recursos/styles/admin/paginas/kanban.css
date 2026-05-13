@@ -545,14 +545,14 @@ html[data-theme="light"] {
 }
 
 .kb-card-actions {
-    margin-top: 10px;
+    margin-top: 4px; /* Reduced from 10px to save vertical space */
 }
 
 .kb-btn {
     width: 100%;
-    padding: 8px;
+    padding: 6px; /* Reduced from 8px to make buttons shorter */
     border-radius: 7px;
-    font-size: 10px;
+    font-size: 9px; /* Slightly smaller to fit better */
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -1549,6 +1549,7 @@ html[data-theme="light"] .kb-btn-view {
     color: #475569 !important;
     background: #f8fafc !important;
 }
+
 html[data-theme="light"] .kb-btn-view:hover {
     background: #e2e8f0 !important;
     color: #0f172a !important;
@@ -1559,6 +1560,7 @@ html[data-theme="light"] .kb-btn-success {
     color: #10b981 !important;
     background: #ecfdf5 !important;
 }
+
 html[data-theme="light"] .kb-btn-success:hover {
     background: #10b981 !important;
     color: #ffffff !important;
@@ -1569,6 +1571,7 @@ html[data-theme="light"] .kb-btn-danger {
     color: #ef4444 !important;
     background: #fef2f2 !important;
 }
+
 html[data-theme="light"] .kb-btn-danger:hover {
     background: #ef4444 !important;
     color: #ffffff !important;
@@ -1602,11 +1605,13 @@ html[data-theme="light"] .kb-pri-alta {
     color: #b91c1c !important;
     border: 1px solid rgba(239, 68, 68, 0.3) !important;
 }
+
 html[data-theme="light"] .kb-pri-media {
     background: rgba(245, 196, 0, 0.15) !important;
     color: #b45309 !important;
     border: 1px solid rgba(245, 196, 0, 0.3) !important;
 }
+
 html[data-theme="light"] .kb-pri-baja {
     background: rgba(16, 185, 129, 0.15) !important;
     color: #047857 !important;
@@ -1678,21 +1683,26 @@ html[data-theme="light"] .file-card {
     border: 1px solid #cbd5e1 !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) !important;
 }
+
 html[data-theme="light"] .file-card:hover {
     background: #f8fafc !important;
     border-color: #94a3b8 !important;
     transform: translateY(-2px) !important;
 }
+
 html[data-theme="light"] .file-card .file-name {
     color: #0f172a !important;
     font-weight: 700 !important;
 }
+
 html[data-theme="light"] .file-card .file-ext {
     color: #64748b !important;
 }
+
 html[data-theme="light"] .file-card .download-icon {
     color: #94a3b8 !important;
 }
+
 html[data-theme="light"] .file-card:hover .download-icon {
     color: #0f172a !important;
 }
@@ -1780,18 +1790,22 @@ html[data-theme="light"] .kb-user-avatar {
 html[data-theme="light"] .tpl-titulo {
     color: #000000 !important;
 }
+
 html[data-theme="light"] .exp-header-layout span[style*="color:#fff"],
 html[data-theme="light"] .exp-header-layout span[style*="color:#888"],
 html[data-theme="light"] .exp-header-layout span[style*="color:#222"] {
     color: #475569 !important;
 }
+
 html[data-theme="light"] .exp-header-layout div[style*="color:#444"],
 html[data-theme="light"] .exp-header-layout span[style*="color:#444"] {
     color: #64748b !important;
 }
+
 html[data-theme="light"] .exp-header-layout span[style*="rgba(255,255,255,0.1)"] {
     background: #cbd5e1 !important;
 }
+
 html[data-theme="light"] .tpl-servicio {
     color: #d97706 !important;
 }
@@ -1802,20 +1816,24 @@ html[data-theme="light"] .step-icon {
     color: #475569 !important;
     border-color: #cbd5e1 !important;
 }
+
 html[data-theme="light"] .step-item.done .step-icon,
 html[data-theme="light"] .step-item.current .step-icon {
     background: #F5C400 !important;
     color: #000000 !important;
     border-color: #F5C400 !important;
 }
+
 html[data-theme="light"] .step-label {
     color: #475569 !important;
 }
+
 html[data-theme="light"] .step-item.done .step-label,
 html[data-theme="light"] .step-item.current .step-label {
     color: #000000 !important;
     font-weight: 900 !important;
 }
+
 html[data-theme="light"] .step-line {
     background: #cbd5e1 !important;
 }
@@ -1825,9 +1843,11 @@ html[data-theme="light"] .user-card-premium {
     background: #f8fafc !important;
     border: 1px solid #cbd5e1 !important;
 }
+
 html[data-theme="light"] .user-card-premium .user-name {
     color: #000000 !important;
 }
+
 html[data-theme="light"] .user-card-premium .user-role {
     color: #475569 !important;
 }
@@ -1837,6 +1857,7 @@ html[data-theme="light"] .tag-item {
     border: 1px solid #cbd5e1 !important;
     color: #000000 !important;
 }
+
 html[data-theme="light"] .tag-empty {
     color: #64748b !important;
 }
@@ -1846,16 +1867,19 @@ html[data-theme="light"] .btn-prio {
     border: 1px solid #cbd5e1 !important;
     color: #475569 !important;
 }
+
 html[data-theme="light"] .btn-prio.active[data-prio="Alta"] {
     background: rgba(239, 68, 68, 0.15) !important;
     border-color: rgba(239, 68, 68, 0.4) !important;
     color: #b91c1c !important;
 }
+
 html[data-theme="light"] .btn-prio.active[data-prio="Media"] {
     background: rgba(245, 196, 0, 0.15) !important;
     border-color: rgba(245, 196, 0, 0.4) !important;
     color: #b45309 !important;
 }
+
 html[data-theme="light"] .btn-prio.active[data-prio="Baja"] {
     background: rgba(16, 185, 129, 0.15) !important;
     border-color: rgba(16, 185, 129, 0.4) !important;
@@ -1866,6 +1890,7 @@ html[data-theme="light"] .exp-sidebar div[style*="background:#000"] {
     background: #f8fafc !important;
     border-color: #cbd5e1 !important;
 }
+
 html[data-theme="light"] .exp-sidebar div[style*="background:#000"] .data-label {
     color: #475569 !important;
 }
@@ -1874,9 +1899,11 @@ html[data-theme="light"] .exp-sidebar div[style*="background:rgba(245,196,0,0.02
     background: #fffbeb !important;
     border-color: #fde68a !important;
 }
+
 html[data-theme="light"] .exp-sidebar div[style*="background:rgba(245,196,0,0.02)"] .data-label {
     color: #d97706 !important;
 }
+
 html[data-theme="light"] .exp-sidebar div[style*="background:rgba(245,196,0,0.02)"] .data-value {
     color: #000000 !important;
 }
@@ -1886,25 +1913,390 @@ html[data-theme="light"] .exp-card[style*="border-color:#10b981"] {
     background: #ecfdf5 !important;
     border-color: #10b981 !important;
 }
+
 html[data-theme="light"] .exp-card[style*="border-color:#10b981"] .exp-card-header {
     background: #d1fae5 !important;
     border-bottom-color: #10b981 !important;
 }
+
 html[data-theme="light"] .exp-card[style*="border-color:#10b981"] .exp-card-header span,
 html[data-theme="light"] .exp-card[style*="border-color:#10b981"] .exp-card-header i {
     color: #047857 !important;
 }
+
 html[data-theme="light"] .exp-card[style*="border-color:#10b981"] .data-label {
     color: #059669 !important;
 }
+
 html[data-theme="light"] .exp-card[style*="border-color:#10b981"] .data-box {
     background: #ffffff !important;
     border-color: #a7f3d0 !important;
 }
+
 html[data-theme="light"] .exp-card[style*="border-color:#10b981"] .data-value {
     color: #000000 !important;
 }
+
 html[data-theme="light"] .exp-card[style*="border-color:#10b981"] a[style*="color:#fff"] {
     color: #047857 !important;
 }
-
+/* ======================================================
+   KANBAN — RESPONSIVE UNIFORME
+   Columnas del mismo tamaño siempre
+   Tarjetas del mismo alto/mismo ancho en cada columna
+====================================================== */
+
+/* === BASE: Columnas y tarjetas con altura fija === */
+.kb-board {
+    display: grid;
+    gap: 16px;
+    align-items: start;
+}
+
+/* Todas las columnas ocupan el mismo espacio y tienen la misma altura base */
+.kb-col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;           /* Evita desbordes */
+    height: 100%;
+    background: var(--kb-col-bg, #0f0f12);
+    border-radius: 20px;
+    border: 1px solid #2a2a2e;
+    overflow: hidden;
+}
+
+/* El cuerpo de la columna debe poder estirarse, pero sin romper tamaños */
+.kb-col-body {
+    flex: 1;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--kb-col-body-bg, #0f0f12);
+    min-height: 400px;      /* Altura mínima uniforme */
+    transition: min-height 0.2s ease;
+}
+
+/* Contenedor de las tarjetas: mismo alto para todas las columnas */
+.kb-cards-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 300px;
+}
+
+/* Tarjeta Kanban: tamaño uniforme incluso si está vacía */
+/* Estilos base para que nada se desborde y mantenga estructura */
+.kb-card {
+    background: #1a1a1f;
+    border-radius: 12px;
+    padding: 10px 12px;
+    transition: all 0.2s ease;
+    border: 1px solid #2c2c30;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden; /* Protege contra desbordes internos */
+}
+
+/* Placeholder para columnas vacías — mismo tamaño que una tarjeta real */
+.kb-empty-placeholder {
+    background: rgba(255,255,255,0.02);
+    border-radius: 16px;
+    padding: 14px;
+    text-align: center;
+    color: #6c6c7a;
+    font-size: 13px;
+    border: 1px dashed #2c2c30;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Header de columna siempre visible y compacto */
+.kb-col-head {
+    padding: 14px 16px;
+    background: #131316;
+    border-bottom: 1px solid #2a2a2e;
+}
+
+.kb-card * {
+    box-sizing: border-box;
+}
+
+/* Título de la tarjeta ordenado y legible */
+.kb-card-title {
+    font-size: 14px;
+    font-weight: 700; /* Un poco más de peso para lectura clara */
+    line-height: 1.4;
+    white-space: normal;
+    overflow-wrap: break-word; /* Rompe la palabra solo si es estrictamente necesario */
+    word-wrap: break-word;
+    /* Evita cortes bruscos a mitad de palabra como hace word-break: break-all */
+    word-break: normal; 
+    hyphens: auto; /* Permite guiones silábicos si el navegador lo soporta */
+    margin: 0;
+    color: #ffffff;
+}
+
+/* Contenedor de etiquetas para que no se amontonen */
+.kb-card-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+/* ══════════════════════════════════════════
+   4 COLUMNAS (Desktop Grande)
+══════════════════════════════════════════ */
+@media (min-width: 1401px) {
+    .kb-board {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+    .kb-col-body {
+        min-height: 520px;
+    }
+    .kb-cards-container {
+        min-height: 420px;
+    }
+}
+
+/* ══════════════════════════════════════════
+   4 COLUMNAS (Desktop 1100px - 1400px)
+══════════════════════════════════════════ */
+@media (min-width: 1101px) and (max-width: 1400px) {
+    .kb-board {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+    }
+    .kb-col-body {
+        min-height: 480px;
+    }
+    .kb-card {
+        padding: 12px;
+    }
+}
+
+/* ══════════════════════════════════════════
+   3 COLUMNAS (Tablet horizontal / Sidebar icon)
+══════════════════════════════════════════ */
+@media (max-width: 1100px) {
+    .kb-board {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+    }
+    .kb-col-body {
+        min-height: 440px;
+    }
+    .kb-cards-container {
+        min-height: 360px;
+    }
+}
+
+/* ══════════════════════════════════════════
+   2 COLUMNAS (Tablet vertical)
+══════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .kb-board {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .kb-col-body {
+        min-height: 400px;
+    }
+    .kb-cards-container {
+        min-height: 320px;
+    }
+    .kb-card {
+        padding: 10px;
+    }
+    .kb-col-head {
+        padding: 10px 12px;
+    }
+}
+
+/* ══════════════════════════════════════════
+   1 COLUMNA (Móvil)
+══════════════════════════════════════════ */
+@media (max-width: 580px) {
+    .kb-board {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .kb-col-body {
+        min-height: auto;
+    }
+    .kb-cards-container {
+        min-height: auto;
+    }
+    .kb-empty-placeholder {
+        min-height: 80px;
+    }
+}
+
+/* ══════════════════════════════════════════
+   HEADER Y FILTROS RESPONSIVOS (sin romper)
+══════════════════════════════════════════ */
+.kb-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    background: var(--kb-head-bg, #0a0a0c);
+    border-radius: 20px;
+}
+
+.kb-head-stats {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.kb-saturation-widget {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #131316;
+    padding: 6px 14px;
+    border-radius: 40px;
+}
+
+.kb-quick-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Filtros responsivos */
+@media (max-width: 860px) {
+    .kb-head {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .kb-head-stats {
+        justify-content: space-between;
+    }
+    .kb-saturation-widget {
+        justify-content: center;
+    }
+    .kb-quick-filters {
+        justify-content: center;
+    }
+}
+
+/* ══════════════════════════════════════════
+   GARANTÍA: Todas las columnas miden igual
+   aunque una tenga 10 tarjetas y otra 0
+══════════════════════════════════════════ */
+.kb-board {
+    align-items: stretch;
+}
+
+.kb-col {
+    height: auto;
+    min-height: 100%;
+}
+
+/* Fuerza a que el body de columna ocupe todo el espacio vertical disponible */
+.kb-col {
+    flex: 1;
+}
+
+/* Para scroll interno solo si hay muchas tarjetas, sin romper altura */
+.kb-cards-container {
+    overflow-y: auto;
+    max-height: 600px;
+    padding-right: 4px;
+}
+
+/* Scroll suave y bonito */
+.kb-cards-container::-webkit-scrollbar {
+    width: 4px;
+}
+.kb-cards-container::-webkit-scrollbar-track {
+    background: #1e1e22;
+    border-radius: 10px;
+}
+.kb-cards-container::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 10px;
+}
+
+/* ══════════════════════════════════════════
+   TARJETAS: mismo ancho y alto flexible pero uniforme
+══════════════════════════════════════════ */
+.kb-card {
+    width: 100%;
+    margin: 0;
+}
+
+/* Asegura que todas las tarjetas dentro de una columna compartan mismo ancho */
+.kb-cards-container > * {
+    width: 100%;
+}
+
+/* Mejora visual en modo claro */
+html[data-theme="light"] .kb-col {
+    background: #f8f9fc;
+    border-color: #e2e6ea;
+}
+html[data-theme="light"] .kb-card {
+    background: #ffffff;
+    border-color: #e2e6ea;
+}
+html[data-theme="light"] .kb-col-head {
+    background: #f1f3f7;
+}
+html[data-theme="light"] .kb-empty-placeholder {
+    background: #f8f9fc;
+    border-color: #dee2e6;
+    color: #6c757d;
+}
+
+/* ══════════════════════════════════════════
+   BOTONES Y ETIQUETAS SIN DESBORDAR
+══════════════════════════════════════════ */
+.kb-tag-servicio, .kb-tag-pri {
+    display: inline-block;
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 480px) {
+    .kb-tag-servicio, .kb-tag-pri {
+        white-space: normal;
+        word-break: break-word;
+        font-size: 9px;
+        padding: 2px 6px;
+    }
+    .kb-card-title {
+        font-size: 12px;
+    }
+    .kb-user-name {
+        font-size: 9px;
+    }
+}
+
+/* Para expediente / modales sin romper */
+@media (max-width: 992px) {
+    .exp-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .workflow-stepper {
+        overflow-x: auto;
+    }
+}

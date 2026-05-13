@@ -65,6 +65,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 
     $routes->get('historial', 'Administrador\HistorialController::index');
     $routes->get('reportes', 'Administrador\ReportesController::index');
+    $routes->get('reporte-gestion', 'Administrador\ReportesController::generarReporte');
+    $routes->get('reportes/vista-previa', 'Administrador\ReportesController::obtenerVistaPrevia');
 });
 
 // Rutas para el Responsable (Jefe de Área)

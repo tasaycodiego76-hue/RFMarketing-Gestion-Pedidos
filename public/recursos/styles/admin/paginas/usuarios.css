@@ -981,4 +981,13 @@ html[data-theme="light"] .rea-text-main {
 
 html[data-theme="light"] .rea-text-muted {
     color: var(--texto-3) !important;
-}
+}
+/* --- BLINDAJE RESPONSIVO ADICIONAL --- */
+@media (max-width: 992px) {
+    .usuarios-cabecera { flex-direction: column; align-items: stretch; }
+    .input-busqueda { max-width: 100%; }
+    .tabla-usuarios { min-width: 800px; }
+}
+@media (max-width: 576px) {
+    .btn-nuevo { width: 100%; text-align: center; }
+}

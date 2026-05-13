@@ -149,51 +149,47 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
                 <div class="d-flex align-items-center gap-2 flex-grow-1 ep-min-w0">
                     <span class="badge-prio ${(tarea.prioridad || "media").toLowerCase()}">${tarea.prioridad || "Media"}</span>
                     <span class="tarea-titulo text-truncate">${escaparHtml(tarea.titulo || "Sin título")}</span>
-                    ${
-                      parseInt(tarea.num_modificaciones) > 0 ||
-                      tarea.observacion_revision
-                        ? `
+                    ${parseInt(tarea.num_modificaciones) > 0 ||
+          tarea.observacion_revision
+          ? `
                         <span class="badge-returned" title="Tarea devuelta con observaciones">DEVUELTO</span>
                     `
-                        : ""
-                    }
+          : ""
+        }
                 </div>
                 <div class="d-flex gap-1">
-                    ${
-                      isMe && !hasStarted
-                        ? `
+                    ${isMe && !hasStarted
+          ? `
                         <button class="btn-header-action bg-warning text-dark" onclick="iniciarTrabajo(${tarea.id})" title="Registrar inicio de trabajo">
                             <i class="bi bi-play-fill me-1"></i> INICIAR TRABAJO
                         </button>
                     `
-                        : `
-                        ${
-                          canDeliver
-                            ? `
+          : `
+                        ${canDeliver
+            ? `
                             <button class="btn btn-sm btn-success ep-btn-entregar" onclick="abrirModalEntregar(${tarea.id})" title="Entregar mi trabajo">
                                 <i class="bi bi-send-fill me-1"></i> ENTREGAR
                             </button>
                         `
-                            : ""
-                        }
+            : ""
+          }
                         <button class="btn btn-sm btn-outline-warning ep-btn-ver" onclick="verDetalleTarea(${tarea.id})" title="Ver detalles">
                             <i class="bi bi-eye ep-text-eye"></i>
                         </button>
                     `
-                    }
+        }
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-between mt-1">
                 <div class="d-flex align-items-center gap-2 flex-wrap text-muted ep-text-xs">
-                    ${
-                      hasStarted
-                        ? `
+                    ${hasStarted
+          ? `
                         <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 ep-text-xxs">
                             <i class="bi bi-calendar-check me-1"></i> Iniciado: ${formatearFechaLimpia(tarea.fechainicio)}
                         </span>
                     `
-                        : ""
-                    }
+          : ""
+        }
                 </div>
             </div>
         </div>`;
@@ -506,18 +502,17 @@ function mostrarModalDetalle(req, archivos, tracking) {
             <!-- IZQUIERDA -->
             <div class="d-flex flex-column gap-1 ep-min-w0">
                 
-                ${
-                  req.observacion_revision &&
-                  (req.estado === "en_proceso" ||
-                    req.estado === "pendiente_asignado")
-                    ? `
+                ${req.observacion_revision &&
+      (req.estado === "en_proceso" ||
+        req.estado === "pendiente_asignado")
+      ? `
                     <div class="feedback-box">
                         <div class="feedback-title"><i class="bi bi-exclamation-triangle-fill"></i> CORRECCIÓN SOLICITADA POR ADMINISTRACIÓN</div>
                         <div class="feedback-content">"${escaparHtml(req.observacion_revision)}"</div>
                     </div>
                 `
-                    : ""
-                }
+      : ""
+    }
 
                 ${entregaHtml}
 
@@ -730,16 +725,11 @@ function obtenerIniciales(nombre) {
  * @param {number|string} idAtencion - ID de la atención a entregar.
  */
 function abrirModalEntregar(idAtencion) {
-<<<<<<< HEAD
-    Swal.fire({
-        title: '<i class="bi bi-cloud-arrow-up mr-2" style="color:#F5C400;"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">REALIZAR ENTREGA</span>',
-        html: `
-=======
+
   Swal.fire({
     title:
       '<i class="bi bi-cloud-arrow-up mr-2" style="color:#F5C400;"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">REALIZAR ENTREGA</span>',
     html: `
->>>>>>> rama-sandro
             <div class="text-start" style="font-family: 'Inter', sans-serif;">
                 <div class="mb-3">
                     <label class="form-label text-white-50 text-uppercase fw-bold ep-swal-label">Link del Entregable</label>
@@ -1017,15 +1007,15 @@ function activarEdicionRequerimientoEnProceso() {
                     <label class="kd-label mb-2">Canales de Difusión</label>
                     <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded bg-black">
                         ${canalesStandard
-                          .map(
-                            (c) => `
+      .map(
+        (c) => `
                             <div class="form-check custom-check">
                                 <input class="form-check-input check-canal" type="checkbox" value="${c}" id="canal-${c.replace(/\s+/g, "")}" ${canalesActuales.includes(c) ? "checked" : ""} onchange="validarMaxCanales(this)">
                                 <label class="form-check-label" for="canal-${c.replace(/\s+/g, "")}">${c}</label>
                             </div>
                         `,
-                          )
-                          .join("")}
+      )
+      .join("")}
                     </div>
                 </div>
 
@@ -1033,15 +1023,15 @@ function activarEdicionRequerimientoEnProceso() {
                     <label class="kd-label mb-2">Formatos Solicitados</label>
                     <div class="d-flex flex-wrap gap-3 p-3 border border-dark rounded bg-black">
                         ${formatosStandard
-                          .map(
-                            (f) => `
+      .map(
+        (f) => `
                             <div class="form-check custom-check">
                                 <input class="form-check-input check-formato" type="checkbox" value="${f}" id="formato-${f.replace(/\s+/g, "")}" ${formatosActuales.includes(f) ? "checked" : ""}>
                                 <label class="form-check-label" for="formato-${f.replace(/\s+/g, "")}">${f}</label>
                             </div>
                         `,
-                          )
-                          .join("")}
+      )
+      .join("")}
                         <div class="form-check custom-check">
                             <input class="form-check-input check-formato-otros" type="checkbox" value="Otros" id="formato-Otros" onchange="document.getElementById('container-otros-formatos').classList.toggle('d-none', !this.checked)">
                             <label class="form-check-label" for="formato-Otros">Otros</label>

@@ -330,3 +330,7 @@ html[data-theme="light"] .modal-body select:focus {
 html[data-theme="light"] .close {
     color: #64748b;
 }
+/* --- BLINDAJE RESPONSIVO ADICIONAL --- */
+@media (max-width: 992px) {
+    .tabla-usuarios { min-width: 800px; }
+}

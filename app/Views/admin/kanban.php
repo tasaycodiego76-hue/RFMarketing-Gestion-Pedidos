@@ -84,7 +84,7 @@
 </div>
 
 <!-- ═══ LEYENDA + ALERTA ATRASADOS ═══ -->
-<div
+<div class="kb-legend-bar"
     style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:18px; padding:10px 14px; background:#0a0a0a; border:1px solid #151515; border-radius:12px;">
 
     <!-- Leyenda de colores -->
@@ -211,22 +211,21 @@
                         ?>
                         <div class="kb-card <?= ($estado === 'pendiente_sin_asignar') ? 'js-draggable' : '' ?>"
                             data-id="<?= $p['id'] ?>" data-sla="<?= $slaType ?>" style="display: block;">
-                            <div class="kb-card-top">
-                                <div class="kb-card-info" style="flex: 1; min-width: 0;">
-                                    <span class="kb-card-empresa"
-                                        style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%;"><?= esc($p['nombreempresa']) ?></span>
-                                    <span class="kb-card-title"
-                                        style="white-space: normal; word-break: break-word;"><?= esc($p['titulo'] ?? 'Sin título') ?></span>
+                            <div class="kb-card-top" style="display: flex; flex-direction: column; gap: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                    <div class="kb-card-info" style="flex: 1; min-width: 0;">
+                                        <span class="kb-card-empresa"
+                                            style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%; font-size: 8px; color: #F5C400; font-weight: 800; text-transform: uppercase;"><?= esc($p['nombreempresa']) ?></span>
+                                        <span class="kb-card-title"
+                                            style="white-space: normal; overflow-wrap: break-word; word-break: normal; hyphens: none; display: block; margin-top: 3px; font-size: 11.5px; font-weight: 600; line-height: 1.3; color: #fff;"><?= esc($p['titulo'] ?? 'Sin título') ?></span>
+                                    </div>
+                                    <div class="kb-card-id" style="font-size: 9px; color: #666; font-weight: 900; margin-left: 10px;">#<?= $p['id'] ?></div>
                                 </div>
-                                <div
-                                    style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px; margin-left: 10px;">
-                                    <div class="kb-card-id">#<?= $p['id'] ?></div>
-                                    <?php if (!empty($p['fecharequerida'])): ?>
-                                        <div class="sla-badge <?= $slaCls ?>">
-                                            <?= date('d/m', strtotime($p['fecharequerida'])) ?>                 <?= $slaText ?>
-                                        </div>
-                                    <?php endif ?>
-                                </div>
+                                <?php if (!empty($p['fecharequerida'])): ?>
+                                    <div class="sla-badge <?= $slaCls ?>" style="align-self: flex-start; font-size: 8px; padding: 3px 6px; border-radius: 4px; font-weight: 800; letter-spacing: 0.5px;">
+                                        <i class="bi bi-clock-history"></i> <?= date('d/m', strtotime($p['fecharequerida'])) ?> - <?= $slaText ?>
+                                    </div>
+                                <?php endif ?>
                             </div>
 
                             <?php if (($p['num_modificaciones'] ?? 0) > 0): ?>
@@ -291,15 +290,15 @@
                                 </div>
                             </div>
 
-                            <div class="kb-card-actions">
+                            <div class="kb-card-actions" style="margin-top: 2px;">
                                 <?php if ($estado === 'pendiente_sin_asignar'): ?>
-                                    <div class="kb-action-group" style="width: 100%; display: flex; gap: 8px;">
+                                    <div class="kb-action-group" style="width: 100%; display: flex; gap: 6px;">
                                         <button class="kb-btn kb-btn-primary" onclick="verDetalle(<?= $p['id'] ?>)"
-                                            style="flex: 1; min-width: 120px;">
+                                            style="flex: 1; min-width: 120px; padding: 6px 10px; font-size: 11px;">
                                             <i class="bi bi-search"></i> REVISAR
                                         </button>
                                         <button class="kb-btn kb-btn-danger" onclick="cancelarAtencion(<?= $p['id'] ?>)"
-                                            title="Cancelar Requerimiento" style="width: 40px; flex-shrink: 0;">
+                                            title="Cancelar Requerimiento" style="width: 40px; flex-shrink: 0; padding: 6px 10px; font-size: 11px;">
                                             <i class="bi bi-x-lg"></i>
                                         </button>
                                     </div>

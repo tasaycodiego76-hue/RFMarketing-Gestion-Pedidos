@@ -19,6 +19,12 @@ class EmpresasSeeder extends Seeder
                 'correo' => 'ada@byron.edu.pe',
                 'telefono' => '056789012'
             ],
+            [
+                'nombreempresa' => 'URBANO & MODERNO S.A.C.',
+                'ruc' => '20607952648',
+                'correo' => 'urbanoymoderno@outlook.com',
+                'telefono' => '976684184'
+            ]
         ];
         $this->db->table('empresas')->insertBatch($data);
     }

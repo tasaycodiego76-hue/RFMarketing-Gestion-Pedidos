@@ -8,25 +8,6 @@ class UsuariosSeeder extends Seeder
 {
     public function run()
     {
-        $this->db->query("TRUNCATE TABLE usuarios RESTART IDENTITY CASCADE");
-
-        // Buscar IDs reales de áreas para los clientes
-        $areaUAI = $this->db->table('areas')
-            ->select('areas.id')
-            ->where('areas.nombre', 'BIBLIOTECA')
-            ->join('empresas', 'empresas.id = areas.idempresa')
-            ->where('empresas.nombreempresa', 'UNIVERSIDAD AUTÓNOMA DE ICA')
-            ->get()->getRow();
-        $idAreaUAI = $areaUAI ? $areaUAI->id : 1;
-
-        $areaByron = $this->db->table('areas')
-            ->select('areas.id')
-            ->where('areas.nombre', 'ATENCIÓN AL CLIENTE')
-            ->join('empresas', 'empresas.id = areas.idempresa')
-            ->where('empresas.nombreempresa', 'COLEGIO ADA BYRON')
-            ->get()->getRow();
-        $idAreaByron = $areaByron ? $areaByron->id : 2;
-
         $data = [
             // ID 1: ADMIN
             [
@@ -217,10 +198,10 @@ class UsuariosSeeder extends Seeder
                 'rol' => 'empleado',
                 'idarea_agencia' => 1,
                 'idarea' => null,
-                'esresponsable' => true,    
+                'esresponsable' => true,
                 'estado' => true,
             ],
-            // === CLIENTES (representantes de empresa) ===
+            // CLIENTES (representantes de empresa) 
             // ID 13: ANA (cliente de UNIVERSIDAD AUTÓNOMA DE ICA)
             [
                 'nombre' => 'ANA',
@@ -233,7 +214,39 @@ class UsuariosSeeder extends Seeder
                 'clave' => password_hash('rf_62345678', PASSWORD_DEFAULT),
                 'rol' => 'cliente',
                 'idarea_agencia' => null,
-                'idarea' => $idAreaUAI,
+                'idarea' => 5,
+                'esresponsable' => false,
+                'estado' => true,
+            ],
+            // ID 15: PEDRO (cliente de UNIVERSIDAD AUTÓNOMA DE ICA)
+            [
+                'nombre' => 'PEDRO',
+                'apellidos' => 'GOMEZ TORRES',
+                'correo' => '62345679@uai.edu.pe',
+                'telefono' => '999111222',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '62345679',
+                'usuario' => 'pgomez_rf',
+                'clave' => password_hash('rf_62345679', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 15,
+                'esresponsable' => false,
+                'estado' => true,
+            ],
+            // ID 16: MARIA (cliente de UNIVERSIDAD AUTÓNOMA DE ICA)
+            [
+                'nombre' => 'MARIA',
+                'apellidos' => 'RUIZ LOPEZ',
+                'correo' => '62345680@uai.edu.pe',
+                'telefono' => '999333444',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '62345680',
+                'usuario' => 'mruiz_rf',
+                'clave' => password_hash('rf_62345680', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 35,
                 'esresponsable' => false,
                 'estado' => true,
             ],
@@ -249,7 +262,87 @@ class UsuariosSeeder extends Seeder
                 'clave' => password_hash('rf_63456789', PASSWORD_DEFAULT),
                 'rol' => 'cliente',
                 'idarea_agencia' => null,
-                'idarea' => $idAreaByron,
+                'idarea' => 52,
+                'esresponsable' => false,
+                'estado' => true,
+            ],
+            // ID 17: CARLOS (cliente de COLEGIO ADA BYRON)
+            [
+                'nombre' => 'CARLOS',
+                'apellidos' => 'PAREDES VELA',
+                'correo' => '63456790@byron.edu.pe',
+                'telefono' => '999555666',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '63456790',
+                'usuario' => 'cparedes_rf',
+                'clave' => password_hash('rf_63456790', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 53,
+                'esresponsable' => false,
+                'estado' => true,
+            ],
+            // ID 18: ELENA (cliente de COLEGIO ADA BYRON)
+            [
+                'nombre' => 'ELENA',
+                'apellidos' => 'SOLIS BARRERA',
+                'correo' => '63456791@byron.edu.pe',
+                'telefono' => '999777888',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '63456791',
+                'usuario' => 'esolis_rf',
+                'clave' => password_hash('rf_63456791', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 54,
+                'esresponsable' => false,
+                'estado' => true,
+            ],
+            // ID 19: CARLOS (cliente de URBANO & MODERNO)
+            [
+                'nombre' => 'CARLOS ALBERTO',
+                'apellidos' => 'MENDOZA PALOMINO',
+                'correo' => 'cmendoza@urbanoymoderno.com.pe',
+                'telefono' => '955123456',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '45678912',
+                'usuario' => 'cmendoza_um',
+                'clave' => password_hash('um_45678912', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 57,
+                'esresponsable' => false,
+                'estado' => true,
+            ],
+            // ID 20: MILAGROS (cliente de COLEGIO ADA BYRON)
+            [
+                'nombre' => 'MILAGROS ROCIO',
+                'apellidos' => 'ANCHANTE GOMEZ',
+                'correo' => 'manchante@urbanoymoderno.com.pe',
+                'telefono' => '966789123',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '71234567',
+                'usuario' => 'manchante_um',
+                'clave' => password_hash('um_71234567', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 58,
+                'esresponsable' => false,
+                'estado' => true,
+            ],
+            // ID 21: JORGE (cliente de COLEGIO ADA BYRON)
+            [
+                'nombre' => 'JORGE LUIS',
+                'apellidos' => 'CARRANZA NAVARRO',
+                'correo' => 'jcarranza@urbanoymoderno.com.pe',
+                'telefono' => '977456789',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '10234567',
+                'usuario' => 'jcarranza_um',
+                'clave' => password_hash('um_10234567', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 59,
                 'esresponsable' => false,
                 'estado' => true,
             ],
