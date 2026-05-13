@@ -204,3 +204,129 @@
     color: #fff;
     box-shadow: 0 0 0 3px rgba(245, 196, 0, .15);
 }
+
+/* =========================================================================
+   TEMA CLARO (LIGHT THEME) OVERRIDES
+   ========================================================================= */
+
+/* Tabla */
+html[data-theme="light"] .tabla-contenedor {
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="light"] .tabla-usuarios {
+    background: var(--panel);
+}
+
+html[data-theme="light"] .tabla-usuarios tbody tr {
+    background: var(--panel);
+    border-bottom: 1px solid var(--borde);
+}
+
+html[data-theme="light"] .tabla-usuarios tbody tr:hover {
+    background: var(--card-bg-hover);
+    border-bottom: 1px solid var(--borde);
+}
+
+html[data-theme="light"] .tabla-usuarios tbody td {
+    color: #000000;
+    border-right: 1px solid var(--borde);
+}
+
+/* Cabeceras de Tabla */
+html[data-theme="light"] .tabla-usuarios thead tr {
+    background: rgba(245, 158, 11, 0.08) !important;
+    border-bottom: 2px solid var(--amarillo);
+    border-top: none;
+}
+
+html[data-theme="light"] .tabla-usuarios thead th {
+    color: #000000 !important;
+    background: transparent !important;
+    border-right: 1px solid rgba(245, 158, 11, 0.2);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 16px 20px;
+}
+
+html[data-theme="light"] .tabla-usuarios thead th:hover {
+    background: rgba(245, 158, 11, 0.15) !important;
+}
+
+html[data-theme="light"] .tabla-usuarios thead th::after {
+    display: none;
+}
+
+/* Textos Comunes */
+html[data-theme="light"] .td-nombre {
+    color: #000000 !important;
+}
+
+html[data-theme="light"] .td-usuario {
+    color: #b45309 !important;
+}
+
+html[data-theme="light"] .td-correo,
+html[data-theme="light"] .td-area-empresa {
+    color: #111111 !important;
+}
+
+/* Badges */
+html[data-theme="light"] .badge-activo {
+    background: rgba(16, 185, 129, 0.15);
+    color: #047857;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    box-shadow: none;
+}
+
+html[data-theme="light"] .badge-inactivo {
+    background: rgba(148, 163, 184, 0.15);
+    color: #475569;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    box-shadow: none;
+}
+
+/* Modales */
+html[data-theme="light"] .modal-content {
+    background: var(--panel) !important;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08) !important;
+    border-color: var(--card-border) !important;
+}
+
+html[data-theme="light"] .modal-header {
+    background: var(--card-bg-hover) !important;
+    border-bottom-color: var(--borde) !important;
+    border-radius: 16px 16px 0 0;
+}
+
+html[data-theme="light"] .modal-title {
+    color: #000000;
+}
+
+html[data-theme="light"] .modal-body label {
+    color: #000000 !important;
+}
+
+html[data-theme="light"] .modal-body .form-control,
+html[data-theme="light"] .modal-body select {
+    background-color: var(--panel) !important;
+    border-color: var(--borde) !important;
+    color: #000000 !important;
+}
+
+html[data-theme="light"] .modal-body .form-control:focus,
+html[data-theme="light"] .modal-body select:focus {
+    border-color: var(--amarillo) !important;
+    background-color: var(--panel) !important;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+html[data-theme="light"] .close {
+    color: #64748b;
+}

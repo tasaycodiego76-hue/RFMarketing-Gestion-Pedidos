@@ -1,0 +1,441 @@
+/* ══════════════════════════════════════════════════════════
+   theme.css — Sistema de Temas Claro/Oscuro
+   Variables CSS y estilos condicionales para ambos temas
+══════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════
+   TEMA OSCURO (por defecto)
+══════════════════════════════════════ */
+:root,
+html[data-theme="dark"] {
+    /* Colores base */
+    --amarillo: #F5C400;
+    --fondo: #0a0a0a;
+    --panel: #111;
+    --borde: #222;
+    --texto: #f0f0f0;
+    --texto-2: #bbb;
+    --texto-3: #666;
+    --rojo: #ef4444;
+    --verde: #22c55e;
+    --morado: #c084fc;
+
+    /* Sidebar */
+    --sidebar-bg: linear-gradient(180deg, #131313 0%, #0e0e0e 100%);
+    --sidebar-text: #ddd;
+    --sidebar-text-hover: #ffffff;
+    --sidebar-section-label: #999;
+    --sidebar-active-glow: rgba(245, 196, 0, .12);
+    --sidebar-border: #222;
+    --sidebar-logo-subtitulo: #ccc;
+    --sidebar-sub-bg: rgba(0, 0, 0, .25);
+    --sidebar-usuario-bg: rgba(0, 0, 0, .2);
+
+    /* Tarjetas */
+    --card-bg: #111;
+    --card-bg-hover: #1a1a1a;
+    --card-border: #1e1e1e;
+    --card-border-hover: rgba(255, 255, 255, .07);
+    --mini-card-bg: #161616;
+    --mini-card-border: #222;
+
+    /* Topbar */
+    --topbar-bg: #111;
+    --topbar-border: #222;
+    --topbar-titulo: #fff;
+
+    /* Scrollbar */
+    --scrollbar-thumb: #333;
+
+    /* Mini Cards - Colores de fondo e iconos */
+    --mini-icon-blue-bg: rgba(0, 123, 255, 0.1);
+    --mini-icon-blue-color: #007bff;
+    --mini-icon-cyan-bg: rgba(23, 162, 184, 0.1);
+    --mini-icon-cyan-color: #17a2b8;
+    --mini-icon-yellow-bg: rgba(255, 193, 7, 0.1);
+    --mini-icon-yellow-color: #ffc107;
+    --mini-icon-green-bg: rgba(40, 167, 69, 0.1);
+    --mini-icon-green-color: #28a745;
+
+    /* Tema Switch */
+    --theme-switch-hover-bg: rgba(255, 255, 255, .06);
+    --theme-switch-text: #999;
+    --theme-switch-text-hover: #fff;
+}
+
+/* ══════════════════════════════════════
+   TEMA CLARO
+══════════════════════════════════════ */
+html[data-theme="light"] {
+    /* Colores base */
+    --amarillo: #F59E0B;
+    --fondo: #f0f2f5;
+    --panel: #ffffff;
+    --borde: #e2e6ea;
+    --texto: #111111;
+    --texto-2: #374151;
+    --texto-3: #6b7280;
+    --rojo: #ef4444;
+    --verde: #22c55e;
+    --morado: #a855f7;
+
+    /* Sidebar — siempre dark */
+    --sidebar-bg: linear-gradient(180deg, #0d0d0d 0%, #090909 100%);
+    --sidebar-text: #888888;
+    --sidebar-text-hover: #ffffff;
+    --sidebar-section-label: #3a3a3a;
+    --sidebar-active-glow: rgba(245, 196, 0, .07);
+    --sidebar-border: #1a1a1a;
+    --sidebar-logo-subtitulo: #444;
+    --sidebar-sub-bg: rgba(0, 0, 0, .35);
+    --sidebar-usuario-bg: rgba(0, 0, 0, .2);
+
+    /* Tarjetas */
+    --card-bg: #ffffff;
+    --card-bg-hover: #f9fafb;
+    --card-border: #e2e6ea;
+    --card-border-hover: #b8c0cc;
+    --mini-card-bg: #ffffff;
+    --mini-card-border: #e2e6ea;
+
+    /* Topbar */
+    --topbar-bg: #ffffff;
+    --topbar-border: #e2e6ea;
+    --topbar-titulo: #111111;
+
+    /* Scrollbar */
+    --scrollbar-thumb: #c8cdd4;
+
+    /* Mini Cards - Colores de iconos vibrantes en claro */
+    --mini-icon-blue-bg: rgba(0, 102, 255, 0.10);
+    --mini-icon-blue-color: #0052cc;
+    --mini-icon-cyan-bg: rgba(8, 145, 178, 0.10);
+    --mini-icon-cyan-color: #0891b2;
+    --mini-icon-yellow-bg: rgba(217, 119, 6, 0.10);
+    --mini-icon-yellow-color: #b45309;
+    --mini-icon-green-bg: rgba(5, 150, 105, 0.10);
+    --mini-icon-green-color: #047857;
+
+    /* Tema Switch */
+    --theme-switch-hover-bg: rgba(0, 0, 0, .06);
+    --theme-switch-text: #9ca3af;
+    --theme-switch-text-hover: #111111;
+}
+
+/* ══════════════════════════════════════
+   SCROLLBAR RESPONSIVO AL TEMA
+══════════════════════════════════════ */
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+}
+
+/* ══════════════════════════════════════
+   ELEMENTOS CON TRANSICIÓN SUAVE
+══════════════════════════════════════ */
+html,
+body,
+.sidebar,
+.topbar,
+.contenido,
+.card,
+.mini-card,
+.nav-enlace,
+.nav-seccion,
+.seccion-titulo,
+.usuario-avatar,
+.modal-content,
+.modal-header,
+.modal-body {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ══════════════════════════════════════
+   APLICAR VARIABLES A ELEMENTOS EXISTENTES
+══════════════════════════════════════ */
+
+/* Body */
+body {
+    background: var(--fondo);
+    color: var(--texto);
+}
+
+/* Sidebar */
+.sidebar {
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+}
+
+.sidebar-logo .subtitulo {
+    color: #ffffff;
+}
+
+.nav-seccion {
+    color: var(--amarillo);
+}
+
+.nav-enlace {
+    color: #ffffff;
+}
+
+.nav-enlace:hover {
+    color: #ffffff;
+    background: var(--theme-switch-hover-bg);
+}
+
+.nav-enlace.activo {
+    color: var(--amarillo);
+    background: var(--sidebar-active-glow);
+    border-left-color: var(--amarillo);
+}
+
+.nav-enlace.activo i {
+    color: var(--amarillo);
+}
+
+.sidebar-logo .marca {
+    color: var(--amarillo);
+}
+
+.nav-punto {
+    color: var(--amarillo);
+}
+
+.nav-sub-menu {
+    background: var(--sidebar-sub-bg);
+}
+
+.sub-enlace {
+    color: #ffffff !important;
+}
+
+.sub-enlace:hover {
+    color: #ffffff !important;
+}
+
+.sidebar-usuario {
+    background: var(--sidebar-usuario-bg);
+    border-top: 1px solid var(--sidebar-border);
+}
+
+.usuario-nombre {
+    color: var(--texto);
+}
+
+.usuario-rol {
+    color: var(--texto-2);
+}
+
+.logout-link {
+    color: var(--texto-3) !important;
+}
+
+.logout-link:hover {
+    color: var(--amarillo) !important;
+}
+
+/* Topbar */
+.topbar {
+    background: var(--topbar-bg);
+    border-bottom: 1px solid var(--topbar-border);
+}
+
+.topbar-titulo {
+    color: var(--topbar-titulo);
+}
+
+/* Contenido */
+.contenido {
+    background: var(--fondo);
+    color: var(--texto);
+}
+
+/* Tarjetas */
+.card {
+    background: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--texto);
+}
+
+.card:hover {
+    background: var(--card-bg-hover);
+    border-color: var(--card-border-hover);
+}
+
+/* Mini Cards */
+.mini-card {
+    background: var(--mini-card-bg);
+    border-color: var(--mini-card-border);
+    color: var(--texto);
+}
+
+.mini-card:hover {
+    background: var(--card-bg-hover);
+    border-color: var(--card-border-hover);
+}
+
+.mini-card-icon {
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.mini-icon-blue {
+    background: var(--mini-icon-blue-bg);
+    color: var(--mini-icon-blue-color);
+}
+
+.mini-icon-cyan {
+    background: var(--mini-icon-cyan-bg);
+    color: var(--mini-icon-cyan-color);
+}
+
+.mini-icon-yellow {
+    background: var(--mini-icon-yellow-bg);
+    color: var(--mini-icon-yellow-color);
+}
+
+.mini-icon-green {
+    background: var(--mini-icon-green-bg);
+    color: var(--mini-icon-green-color);
+}
+
+/* mini-card-num y mini-card-label: colores controlados por dashboard.css */
+/* .mini-card-num y .mini-card-label no se colorean aquí para evitar conflictos */
+
+/* Sección Título — controlada por dashboard.css con selectores de tema */
+/* Se mantiene aquí solo la transición suave */
+.seccion-titulo {
+    transition: color 0.3s ease;
+}
+
+/* Modales */
+.modal-content {
+    background: var(--card-bg);
+    border-color: var(--card-border);
+}
+
+.modal-header {
+    background: var(--topbar-bg);
+    border-bottom-color: var(--topbar-border);
+}
+
+.modal-body {
+    background: var(--card-bg);
+    color: var(--texto);
+}
+
+.modal-footer {
+    background: var(--topbar-bg);
+    border-top-color: var(--topbar-border);
+}
+
+.btn-close {
+    filter: brightness(0.7);
+}
+
+html[data-theme="light"] .btn-close {
+    filter: brightness(2);
+}
+
+/* Met Cards (Métricas) */
+.met-card {
+    background: var(--mini-card-bg);
+    border-color: var(--mini-card-border);
+    color: var(--texto);
+}
+
+.met-card:hover {
+    background: var(--card-bg-hover);
+    border-color: var(--card-border-hover);
+}
+
+.met-icon {
+    color: var(--amarillo);
+}
+
+/* met-label, met-num, met-sub: colores controlados por dashboard.css */
+/* No se colorean aquí para evitar conflictos con los colores por tema */
+
+/* Estados Vacíos */
+.estado-vacio {
+    color: var(--texto-3);
+}
+
+/* Input/Select en modales */
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+    background: var(--mini-card-bg);
+    border-color: var(--card-border);
+    color: var(--texto);
+}
+
+.modal-content input:focus,
+.modal-content select:focus,
+.modal-content textarea:focus {
+    background: var(--card-bg);
+    border-color: var(--amarillo);
+    color: var(--texto);
+}
+
+/* ══════════════════════════════════════
+   BOTÓN DE CAMBIO DE TEMA
+══════════════════════════════════════ */
+.theme-toggle-btn {
+    background: none;
+    border: none;
+    color: var(--theme-switch-text);
+    font-size: 18px;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.theme-toggle-btn:hover {
+    color: var(--theme-switch-text-hover);
+    background: var(--theme-switch-hover-bg);
+}
+
+.theme-toggle-btn i {
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle-btn:active i {
+    transform: rotate(180deg);
+}
+
+/* ══════════════════════════════════════
+   ELEMENTOS ADICIONALES
+══════════════════════════════════════ */
+
+/* Líneas decorativas */
+hr {
+    border-color: var(--borde);
+}
+
+/* Links */
+a {
+    color: var(--amarillo);
+}
+
+a:hover {
+    color: var(--amarillo);
+    opacity: 0.8;
+}
+
+/* Badges */
+.badge {
+    background: var(--amarillo);
+    color: #000;
+}
+
+/* Alerts */
+.alert {
+    background: var(--mini-card-bg);
+    border-color: var(--card-border);
+    color: var(--texto);
+}

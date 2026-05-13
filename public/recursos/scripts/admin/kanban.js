@@ -20,22 +20,22 @@ const KB_ICONS = {
 };
 
 // ── SISTEMA DE NOTIFICACIONES POST-CARGA ──
-$(document).ready(function() {
-    const msg = localStorage.getItem('kanban_msg');
-    if (msg) {
-        Swal.fire({
-            icon: 'success',
-            title: msg,
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 4000,
-            timerProgressBar: true,
-            background: '#0a0a0a',
-            color: '#fff'
-        });
-        localStorage.removeItem('kanban_msg');
-    }
+$(document).ready(function () {
+  const msg = localStorage.getItem('kanban_msg');
+  if (msg) {
+    Swal.fire({
+      icon: 'success',
+      title: msg,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 4000,
+      timerProgressBar: true,
+      background: '#0a0a0a',
+      color: '#fff'
+    });
+    localStorage.removeItem('kanban_msg');
+  }
 });
 
 

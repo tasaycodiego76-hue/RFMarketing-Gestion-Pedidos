@@ -11,7 +11,8 @@
 <script src="<?= base_url('recursos/scripts/admin/usuarios.js') ?>"></script>
 <?= $this->endSection() ?>
 <?= $this->section('contenido') ?>
-   <div class="d-flex justify-content-between align-items-center mb-3" style="flex-wrap: wrap; gap: 10px;">
+   <div class="usuarios-cabecera">
+
        <div class="dropdown">
            <button class="btn-nuevo mb-0 dropdown-toggle" id="btn-nuevo" data-toggle="dropdown" aria-haspopup="true"
    aria-expanded="false">+ Nuevo</button>
@@ -278,7 +279,8 @@
                           <input type="hidden" id="rea-emp-id-actual">
                           <div class="form-group mb-4">
                               <label class="text-muted small mb-2">Seleccionar Colaborador del Equipo</label>
-                              <select class="form-control rea-input-dark" id="rea-emp-nuevo" required style="height: 45px; font-weight: 600;">
+                              <select class="form-control rea-input-dark select-premium" id="rea-emp-nuevo" required>
+
                                   <!-- Opciones -->
                               </select>
                           </div>
@@ -315,7 +317,8 @@
                   </div>
               </div>
               <div class="modal-footer">
-                  <button type="button" class="btn btn-outline-light px-4 py-2" data-dismiss="modal" style="font-size: 12px; font-weight: 700;">CANCELAR</button>
+                  <button type="button" class="btn btn-cancelar-modal" data-dismiss="modal">CANCELAR</button>
+
                   <button type="button" class="btn btn-primary" id="btn-procesar-reasignar">
                     CONFIRMAR CAMBIO
                   </button>
