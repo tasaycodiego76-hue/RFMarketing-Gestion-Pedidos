@@ -8,7 +8,7 @@
 
 <?= $this->section('scripts') ?>
 <script>
-    const AREA_ACTUAL = 0; 
+    const AREA_ACTUAL = 0;
     const AREA_NOMBRE = "HISTORIAL";
 </script>
 <script src="<?= base_url('recursos/scripts/admin/kanban.js') ?>"></script>
@@ -21,13 +21,15 @@
     <div>
         <p style="font-size: 12px; color: #888; margin: 0;">Registro visual de todos los proyectos finalizados.</p>
     </div>
-    
+
     <div class="d-flex align-items-center gap-3">
         <div class="d-flex align-items-center gap-2">
-            <label style="font-size: 10px; color: #555; font-weight: 800; text-transform: uppercase; margin: 0;">Filtrar día:</label>
+            <label style="font-size: 10px; color: #555; font-weight: 800; text-transform: uppercase; margin: 0;">Filtrar
+                día:</label>
             <input type="date" id="filtroFecha" class="form-control input-calendario" style="width: 170px;">
         </div>
-        <input type="text" id="busquedaHistorial" class="input-busqueda" placeholder="Buscar proyecto..." style="max-width: 200px;">
+        <input type="text" id="busquedaHistorial" class="input-busqueda" placeholder="Buscar proyecto..."
+            style="max-width: 200px;">
     </div>
 </div>
 
@@ -45,7 +47,9 @@
         </thead>
         <tbody>
             <?php if (empty($pedidos)): ?>
-                <tr><td colspan="6" style="text-align: center; padding: 80px; color: #444;">No hay registros</td></tr>
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 80px; color: #444;">No hay registros</td>
+                </tr>
             <?php else: ?>
                 <?php foreach ($pedidos as $p): ?>
                     <?php $inicial = mb_strtoupper(mb_substr($p['empresa_nombre'], 0, 1)); ?>
@@ -68,8 +72,10 @@
                             </div>
                         </td>
                         <td style="text-align: center;">
-                            <div style="color: #fff; font-weight: 800;"><?= date('d/m/Y', strtotime($p['fechacompletado'])) ?></div>
-                            <div style="font-size: 10px; color: #555;"><?= date('H:i A', strtotime($p['fechacompletado'])) ?></div>
+                            <div style="color: #fff; font-weight: 800;"><?= date('d/m/Y', strtotime($p['fechacompletado'])) ?>
+                            </div>
+                            <div style="font-size: 10px; color: #555;"><?= date('H:i A', strtotime($p['fechacompletado'])) ?>
+                            </div>
                         </td>
                         <td>
                             <div style="font-size: 14px; font-weight: 800; color: #fff;">
@@ -95,22 +101,28 @@
 <template id="template-detalle-kanban">
     <div class="exp-container">
         <!-- HEADER SECCIÓN -->
-        <div class="exp-header-layout" style="padding: 40px 30px 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+        <div class="exp-header-layout"
+            style="padding: 40px 30px 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
             <div style="flex: 1; min-width: 0;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                     <span class="tpl-status-pill"></span>
                     <span style="color:#444; font-size:11px; font-weight:800;">ID: <span class="tpl-id"></span></span>
                 </div>
-                <h2 class="tpl-titulo" style="font-family:'Bebas Neue'; font-size:48px; color:#fff; letter-spacing:1px; margin:0; line-height:1.1; word-wrap:break-word; overflow-wrap:break-word;"></h2>
+                <h2 class="tpl-titulo"
+                    style="font-family:'Bebas Neue'; font-size:48px; color:#fff; letter-spacing:1px; margin:0; line-height:1.1; word-wrap:break-word; overflow-wrap:break-word;">
+                </h2>
                 <div style="margin-top:15px; display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
-                    <span style="color:#F5C400; font-weight:800; font-size:14px;"><i class="bi bi-building"></i> <span class="tpl-empresa"></span></span>
+                    <span style="color:#F5C400; font-weight:800; font-size:14px;"><i class="bi bi-building"></i> <span
+                            class="tpl-empresa"></span></span>
                     <span style="color:#222;">|</span>
-                    <span style="color:#888; font-size:13px; font-weight:600;">ÁREA: <span class="tpl-area"></span></span>
+                    <span style="color:#888; font-size:13px; font-weight:600;">ÁREA: <span
+                            class="tpl-area"></span></span>
                 </div>
             </div>
             <div style="text-align:right; flex-shrink:0;">
                 <div class="tpl-servicio" style="font-family:'Bebas Neue'; font-size:24px; color:#F5C400;"></div>
-                <div style="color:#444; font-size:10px; font-weight:800; letter-spacing:1px; margin-top:5px;">ATENCIÓN #<span class="tpl-idatencion"></span></div>
+                <div style="color:#444; font-size:10px; font-weight:800; letter-spacing:1px; margin-top:5px;">ATENCIÓN
+                    #<span class="tpl-idatencion"></span></div>
             </div>
         </div>
 
@@ -120,10 +132,11 @@
         <div class="exp-grid">
             <!-- COLUMNA PRINCIPAL -->
             <div class="exp-main-col">
-                
+
                 <!-- Descripción -->
                 <div class="exp-card">
-                    <div class="exp-card-header"><i class="bi bi-file-text"></i> <span>DESCRIPCIÓN DEL REQUERIMIENTO</span></div>
+                    <div class="exp-card-header"><i class="bi bi-file-text"></i> <span>DESCRIPCIÓN DEL
+                            REQUERIMIENTO</span></div>
                     <div class="exp-card-body">
                         <div class="data-value tpl-descripcion" style="font-size:13px; color:#ccc;"></div>
                     </div>
@@ -131,7 +144,8 @@
 
                 <!-- Estrategia -->
                 <div class="exp-card">
-                    <div class="exp-card-header"><i class="bi bi-compass"></i> <span>ESTRATEGIA DE COMUNICACIÓN</span></div>
+                    <div class="exp-card-header"><i class="bi bi-compass"></i> <span>ESTRATEGIA DE COMUNICACIÓN</span>
+                    </div>
                     <div class="exp-card-body">
                         <div class="data-row">
                             <div class="data-box">
@@ -160,7 +174,8 @@
 
                 <!-- Recursos Cliente -->
                 <div class="exp-card" style="margin-top:25px;">
-                    <div class="exp-card-header"><i class="bi bi-folder-symlink"></i> <span>RECURSOS DEL CLIENTE</span></div>
+                    <div class="exp-card-header"><i class="bi bi-folder-symlink"></i> <span>RECURSOS DEL CLIENTE</span>
+                    </div>
                     <div class="exp-card-body tpl-archivos-cliente"></div>
                 </div>
 
@@ -170,11 +185,30 @@
 
             <!-- SIDEBAR -->
             <div class="exp-sidebar">
-                
+
                 <!-- Responsable -->
                 <div class="exp-card">
                     <div class="exp-card-header"><i class="bi bi-person-badge"></i> <span>RESPONSABLE</span></div>
                     <div class="exp-card-body tpl-empleado" style="padding:15px;"></div>
+                </div>
+                <!-- Contacto Cliente -->
+                <div class="exp-card">
+                    <div class="exp-card-header"><i class="bi bi-person-lines-fill"></i> <span>CONTACTO CLIENTE</span>
+                    </div>
+                    <div class="exp-card-body" style="display:flex; flex-direction:column; gap:12px; padding:15px;">
+                        <div class="data-box">
+                            <span class="data-label">Nombre</span>
+                            <div class="data-value tpl-cliente-nombre"></div>
+                        </div>
+                        <div class="data-box">
+                            <span class="data-label">Teléfono</span>
+                            <div class="data-value tpl-cliente-telefono"></div>
+                        </div>
+                        <div class="data-box">
+                            <span class="data-label">Correo</span>
+                            <div class="data-value tpl-cliente-correo"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Cronología -->
@@ -200,7 +234,7 @@
                 <div class="exp-card">
                     <div class="exp-card-header"><i class="bi bi-shield-check"></i> <span>CONTROL Y GESTIÓN</span></div>
                     <div class="exp-card-body">
-                        
+
                         <!-- Prioridad  -->
                         <div class="priority-manager">
                             <span class="data-label">PRIORIDAD</span>
@@ -217,9 +251,11 @@
                             </div>
                         </div>
 
-                        <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:15px; border-radius:12px; border:1px solid #111;">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:15px; border-radius:12px; border:1px solid #111;">
                             <span class="data-label" style="margin:0;">MODIFICACIONES</span>
-                            <span class="tpl-modificaciones" style="background:#F5C400; color:#000; padding:4px 12px; border-radius:8px; font-weight:900; font-size:14px;"></span>
+                            <span class="tpl-modificaciones"
+                                style="background:#F5C400; color:#000; padding:4px 12px; border-radius:8px; font-weight:900; font-size:14px;"></span>
                         </div>
                     </div>
                 </div>
@@ -229,7 +265,8 @@
 
         <!-- FOOTER ACCIONES -->
         <div style="margin-top:30px; padding:30px; border-top:1px solid #151515; display:flex; justify-content:center;">
-            <button class="btn" data-dismiss="modal" style="background:#111; border:1px solid #222; font-family:'Bebas Neue'; font-size:20px; letter-spacing:2px; padding:12px 60px; border-radius:12px; color:#F5C400; transition:all 0.3s;">
+            <button class="btn" data-dismiss="modal"
+                style="background:#111; border:1px solid #222; font-family:'Bebas Neue'; font-size:20px; letter-spacing:2px; padding:12px 60px; border-radius:12px; color:#F5C400; transition:all 0.3s;">
                 CERRAR EXPEDIENTE DIGITAL
             </button>
         </div>

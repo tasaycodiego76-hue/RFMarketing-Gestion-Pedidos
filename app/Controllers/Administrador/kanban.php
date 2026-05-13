@@ -48,6 +48,26 @@ class kanban extends Controller
         }
 
         $stats = $atencionModel->estadisticasPorEmpresa((int) $idEmpresa);
+        $statsAreas = $atencionModel->contarPorAprobarPorAreaEmpresa((int) $idEmpresa);
+        $cargaDiaria = $atencionModel->obtenerCargaPorFecha((int) $idAreaAgencia);
+
+        // Pedidos atrasados de TODA la empresa (todas las áreas)
+        $db = \Config\Database::connect();
+        $hoy = date('Y-m-d');
+        $atrasados = $db->query("
+            SELECT a.id, a.titulo, a.prioridad, a.estado, a.fechacreacion,
+                   r.fecharequerida, aa.nombre as nombre_area, e.nombreempresa
+            FROM atencion a
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
+            INNER JOIN usuarios u ON u.id = r.idusuarioempresa
+            INNER JOIN areas ar ON ar.id = u.idarea
+            INNER JOIN empresas e ON e.id = ar.idempresa
+            LEFT JOIN areas_agencia aa ON aa.id = a.idarea_agencia
+            WHERE ar.idempresa = ?
+              AND r.fecharequerida < ?
+              AND a.estado NOT IN ('finalizado', 'cancelado')
+            ORDER BY r.fecharequerida ASC
+        ", [$idEmpresa, $hoy])->getResultArray();
 
         return view('admin/kanban', [
             'titulo' => 'Kanban - ' . $empresa['nombreempresa'],
@@ -61,6 +81,9 @@ class kanban extends Controller
             'idAreaAgencia' => $idAreaAgencia,
             'columnas' => $columnas,
             'stats' => $stats,
+            'stats_areas' => $statsAreas,
+            'carga_diaria' => $cargaDiaria,
+            'atrasados' => $atrasados,
         ]);
     }
 
@@ -101,11 +124,14 @@ class kanban extends Controller
                 r.url_subida,
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
                 e.nombreempresa,
-                u_sol.nombre AS cliente_nombre,
-                ar.nombre AS area_solicitante_nombre,
-                aa.nombre AS area_nombre,
-                u.nombre    AS empleado_nombre,
-                u.apellidos AS empleado_apellidos
+                u_sol.nombre    AS cliente_nombre,
+                u_sol.apellidos AS cliente_apellidos,
+                u_sol.correo    AS cliente_correo,
+                u_sol.telefono  AS cliente_telefono,
+                ar.nombre       AS area_solicitante_nombre,
+                aa.nombre       AS area_nombre,
+                u.nombre        AS empleado_nombre,
+                u.apellidos     AS empleado_apellidos
             FROM atencion a
             LEFT JOIN requerimiento r  ON r.id     = a.idrequerimiento
             LEFT JOIN usuarios u_sol   ON u_sol.id = r.idusuarioempresa
@@ -364,8 +390,8 @@ class kanban extends Controller
 
         $db->query("
             INSERT INTO tracking (idatencion, idusuario, accion, estado)
-            VALUES (?, ?, 'Pedido cancelado', 'cancelado')
-        ", [$idAtencion, $idAdmin]);
+            VALUES (?, ?, 'El pedido ha sido cancelado por la Administración. Motivo: ' || ?, 'cancelado')
+        ", [$idAtencion, $idAdmin, $motivo]);
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Solicitud cancelada, El Motivo:' . $motivo . ' Si tienes dudas, contáctanos']);
     }

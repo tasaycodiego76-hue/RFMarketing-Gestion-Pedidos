@@ -97,3 +97,84 @@
     border-bottom: 1px solid #111 !important;
     padding: 15px 15px !important;
 }
+
+/* =========================================================================
+   TEMA CLARO (LIGHT THEME) OVERRIDES
+   ========================================================================= */
+
+/* Textos Historial */
+html[data-theme="light"] .historial-title {
+    color: #000000 !important;
+}
+
+html[data-theme="light"] .empresa-nombre-text {
+    color: #000000 !important;
+}
+
+html[data-theme="light"] .empresa-avatar-mini {
+    color: #000000;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme="light"] .historial-area-badge {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #b45309;
+}
+
+/* Tabla */
+html[data-theme="light"] .tabla-contenedor {
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+html[data-theme="light"] .tabla-usuarios {
+    background: var(--panel);
+}
+
+html[data-theme="light"] .tabla-usuarios tbody tr {
+    background: var(--panel);
+    border-bottom: 1px solid var(--borde);
+}
+
+html[data-theme="light"] .tabla-usuarios tbody tr:hover {
+    background: var(--card-bg-hover);
+    border-bottom: 1px solid var(--borde);
+}
+
+html[data-theme="light"] .tabla-usuarios tbody td {
+    color: #000000;
+    border-bottom: 1px solid var(--borde) !important;
+}
+
+/* Cabeceras de Tabla */
+html[data-theme="light"] .tabla-usuarios thead tr {
+    background: rgba(245, 158, 11, 0.08) !important;
+    border-bottom: 2px solid var(--amarillo);
+    border-top: none;
+}
+
+html[data-theme="light"] .tabla-usuarios thead th {
+    color: #000000 !important;
+    background: transparent !important;
+    font-size: 11px !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 16px 20px;
+}
+
+/* Input Calendario */
+html[data-theme="light"] .input-calendario {
+    background: var(--panel) !important;
+    border: 1px solid var(--borde) !important;
+    color: #000000 !important;
+}
+
+html[data-theme="light"] .input-calendario:focus {
+    border-color: var(--amarillo) !important;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+

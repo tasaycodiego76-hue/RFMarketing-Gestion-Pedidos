@@ -1,19 +1,30 @@
-// ══════════════════════════════════════════════
-//  dashboard.js — Animaciones y efectos del Dashboard
-// ══════════════════════════════════════════════
+
+//  dashboard.js — Gestión de Dashboard con Chart.js
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ── Scroll horizontal en el menú de empresas ──
+    // ── 1. Navegación por flechas para tarjetas de empresas ──
     const empScroll = document.getElementById('empScroll');
-    if (empScroll) {
-        empScroll.addEventListener('wheel', function (e) {
-            e.preventDefault();
-            empScroll.scrollLeft += e.deltaY;
-        }, { passive: false });
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+
+    if (empScroll && btnPrev && btnNext) {
+        // Cálculo dinámico del ancho de scroll basado en la tarjeta + gap
+        const getScrollAmount = () => {
+            const card = empScroll.querySelector('.emp-card');
+            return card ? card.offsetWidth + 24 : 375;
+        };
+
+        btnNext.addEventListener('click', () => {
+            empScroll.scrollLeft += getScrollAmount();
+        });
+
+        btnPrev.addEventListener('click', () => {
+            empScroll.scrollLeft -= getScrollAmount();
+        });
     }
 
-    // ── Animación de contadores numéricos ──
+    // ── 2. Animación de números (Métricas) ──
     const counters = document.querySelectorAll('[data-count]');
     counters.forEach(function (el) {
         const target = parseInt(el.getAttribute('data-count'), 10);
@@ -22,43 +33,133 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const duration = 800;     // ms
+        let start = 0;
+        const duration = 1500;
         const startTime = performance.now();
 
-        function animate(now) {
+        function update(now) {
             const elapsed = now - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            // Ease-out cubic
-            const ease = 1 - Math.pow(1 - progress, 3);
-            const current = Math.round(ease * target);
-            el.textContent = current;
-
+            const value = Math.floor(progress * target);
+            el.textContent = value;
             if (progress < 1) {
-                requestAnimationFrame(animate);
+                requestAnimationFrame(update);
             }
         }
-
-        // Delay basado en posición del card
-        const card = el.closest('.met-card');
-        const siblings = document.querySelectorAll('.met-card');
-        let idx = 0;
-        siblings.forEach(function (s, i) { if (s === card) idx = i; });
-
-        setTimeout(function () {
-            requestAnimationFrame(animate);
-        }, 200 + idx * 120);
+        requestAnimationFrame(update);
     });
 
-    // ── Hover glow en tarjetas de métricas ──
-    document.querySelectorAll('.met-card').forEach(function (card) {
-        card.addEventListener('mouseenter', function () {
-            this.style.transform = 'translateY(-3px)';
-            this.style.boxShadow = '0 8px 30px rgba(0, 0, 0, .3)';
-        });
-        card.addEventListener('mouseleave', function () {
-            this.style.transform = '';
-            this.style.boxShadow = '';
-        });
-    });
+    // ── 3. Gráficos con Chart.js ──
+    if (typeof Chart !== 'undefined') {
 
+        // Estilos base para modo oscuro
+        Chart.defaults.color = '#888';
+        Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+        // --- Gráfico de Barras (Carga de Trabajo) ---
+        const ctxBar = document.getElementById('chartEmpresas');
+        if (ctxBar) {
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: dataEmpresas.labels,
+                    datasets: [{
+                        label: 'Pedidos',
+                        data: dataEmpresas.datasets[0].data,
+                        backgroundColor: dataEmpresas.datasets[0].backgroundColor,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        barThickness: 30,
+                        maxBarThickness: 45
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#161616',
+                            titleColor: '#fff',
+                            bodyColor: '#aaa',
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#888',
+                                font: { size: 10, weight: '600' }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
+                            ticks: { stepSize: 1, color: '#555' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Gráfico de Dona (Estado de Pedidos) ---
+        const ctxDona = document.getElementById('chartEstados');
+        if (ctxDona) {
+            const totalPedidos = dataEstados.datasets[0].data.reduce((a, b) => a + b, 0);
+
+            new Chart(ctxDona, {
+                type: 'doughnut',
+                data: dataEstados,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '80%',
+                    borderWidth: 2,
+                    borderColor: '#0f0f0f',
+                    hoverOffset: 12,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: { size: 11, weight: '600' },
+                                color: '#999'
+                            }
+                        }
+                    }
+                },
+                plugins: [{
+                    id: 'centerText',
+                    afterDraw: function (chart) {
+                        const { ctx, chartArea: { left, top, right, bottom } } = chart;
+                        const centerX = (left + right) / 2;
+                        const centerY = (top + bottom) / 2;
+
+                        ctx.save();
+
+                        // Número Central (Blanco puro para máxima claridad)
+                        ctx.font = 'bold 42px "Bebas Neue"';
+                        ctx.fillStyle = '#ffffff';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(totalPedidos, centerX, centerY - 6);
+
+                        // Etiqueta (Gris suave)
+                        ctx.font = 'bold 9px "DM Sans"';
+                        ctx.fillStyle = '#777';
+                        ctx.letterSpacing = '1px';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText('PEDIDOS TOTALES', centerX, centerY + 24);
+
+                        ctx.restore();
+                    }
+                }]
+            });
+        }
+    }
 });

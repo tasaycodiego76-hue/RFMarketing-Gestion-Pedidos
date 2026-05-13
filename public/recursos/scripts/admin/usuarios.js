@@ -7,12 +7,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ─── NOTIFICACIÓN (SweetAlert2) ────────────────────────
     function notificar(mensaje, tipo = 'info') {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
         Swal.fire({
             text: mensaje,
             icon: tipo,
             confirmButtonColor: '#F5C400',
-            background: '#161616',
-            color: '#ffffff',
+            background: isLight ? '#ffffff' : '#161616',
+            color: isLight ? '#1e293b' : '#ffffff',
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
             timerProgressBar: true
         });
     }
+
 
     // ─── LISTAR USUARIOS ───────────────────────────────────
     async function obtenerUsuarios(search = '') {
@@ -201,25 +203,36 @@ document.addEventListener('DOMContentLoaded', function () {
             tipodoc.innerHTML = '<option value="RUC">RUC</option>';
         }
 
-        actualizarDoc(tipodoc.value);
+        actualizarValidacionDoc(tipodoc.value, '#numerodoc');
     }
 
-    function actualizarDoc(tipo) {
-        const nd = document.querySelector('#numerodoc');
+    function actualizarValidacionDoc(tipo, inputSelector) {
+        const nd = document.querySelector(inputSelector);
+        if (!nd) return;
+        
         const limites = {
             DNI: { max: '8', min: '8', ph: '8 dígitos' },
             RUC: { max: '11', min: '11', ph: '11 dígitos' },
             CE: { max: '12', min: '9', ph: '9-12 caracteres' }
         };
+        
         const l = limites[tipo];
         if (!l) return;
+        
         nd.setAttribute('maxlength', l.max);
         nd.setAttribute('minlength', l.min);
         nd.placeholder = l.ph;
     }
 
-    document.querySelector('#tipodoc').addEventListener('change', () =>
-        actualizarDoc(document.querySelector('#tipodoc').value));
+    // Listener para modal principal
+    document.querySelector('#tipodoc').addEventListener('change', function() {
+        actualizarValidacionDoc(this.value, '#numerodoc');
+    });
+
+    // Listener para modal reasignar
+    document.querySelector('#rea-tipodoc').addEventListener('change', function() {
+        actualizarValidacionDoc(this.value, '#rea-numerodoc');
+    });
 
     // Función para mostrar un mensaje informativo sobre el estado del área
     async function verificarEstadoArea(idArea, excludeId = null) {
@@ -386,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelector('#tipodoc').value = u.tipodoc ?? '';
             document.querySelector('#numerodoc').value = u.numerodoc ?? '';
             document.querySelector('#usuario').value = u.usuario ?? '';
-            actualizarDoc(u.tipodoc);
+            actualizarValidacionDoc(u.tipodoc, '#numerodoc');
         }, 50);
 
         $('#modal-usuario').modal('show');
@@ -394,6 +407,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ─── TOGGLE ESTADO ─────────────────────────────────────
     window.toggleEstado = async function (id, estadoActual) {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
         const mensaje = estadoActual
             ? '¿Seguro que deseas deshabilitar este usuario?'
             : '¿Deseas volver a habilitar este usuario?';
@@ -404,12 +418,13 @@ document.addEventListener('DOMContentLoaded', function () {
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#F5C400',
-            cancelButtonColor: '#71717a',
+            cancelButtonColor: isLight ? '#cbd5e1' : '#71717a',
             confirmButtonText: 'Sí, Continuar',
             cancelButtonText: 'Cancelar',
-            background: '#161616',
-            color: '#ffffff'
+            background: isLight ? '#ffffff' : '#161616',
+            color: isLight ? '#1e293b' : '#ffffff'
         }).then(async (result) => {
+
             if (!result.isConfirmed) return;
 
             const response = await fetch(BASE_URL + 'admin/usuarios/toggleEstado', {
@@ -461,6 +476,9 @@ document.addEventListener('DOMContentLoaded', function () {
             historialDiv.style.display = 'none';
             btnProcesar.dataset.tipo = data.tipo;
 
+            // Inicializar validación de documento para el modal de reasignar
+            actualizarValidacionDoc(document.querySelector('#rea-tipodoc').value, '#rea-numerodoc');
+
             const formatFecha = (f) => f ? new Date(f).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
 
             if (data.tipo === 'cliente') {
@@ -481,21 +499,22 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </div>
                             </div>
                             <div class="col">
-                                 <h6 class="text-white mb-0 font-weight-bold" style="font-size: 16px;">${data.actual.nombreempresa} <span class="text-warning ml-2" style="font-size: 11px; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">RUC: ${data.actual.ruc}</span></h6>
-                                 <p class="mb-0 text-white-50 mt-1" style="font-size: 12px;"><i class="bi bi-diagram-3 mr-1"></i> Área: <span class="text-white">${data.actual.nombre_area || 'General'}</span></p>
+                                 <h6 class="rea-text-main mb-0 font-weight-bold" style="font-size: 16px;">${data.actual.nombreempresa} <span class="text-warning ml-2" style="font-size: 11px; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">RUC: ${data.actual.ruc}</span></h6>
+                                 <p class="mb-0 rea-text-muted mt-1" style="font-size: 12px;"><i class="bi bi-diagram-3 mr-1"></i> Área: <span class="rea-text-main">${data.actual.nombre_area || 'General'}</span></p>
                              </div>
                         </div>
                         <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
                         <div class="row">
                             <div class="col-md-6 mb-2 mb-md-0 border-right border-secondary">
-                                <p class="mb-0 text-white-50 small">Responsable en funciones</p>
-                                <p class="mb-0 text-white font-weight-bold" style="font-size: 14px;">${data.usuario.nombre} ${data.usuario.apellidos}</p>
+                                <p class="mb-0 rea-text-muted small">Responsable en funciones</p>
+                                <p class="mb-0 rea-text-main font-weight-bold" style="font-size: 14px;">${data.usuario.nombre} ${data.usuario.apellidos}</p>
                             </div>
                             <div class="col-md-6 pl-md-4">
-                                <p class="mb-0 text-white-50 small">Fecha de toma de cargo</p>
+                                <p class="mb-0 rea-text-muted small">Fecha de toma de cargo</p>
                                 <p class="mb-0 text-warning font-weight-bold" style="font-size: 13px;"><i class="bi bi-calendar-check mr-1"></i> ${formatFecha(data.actual.fecha_inicio)}</p>
                             </div>
                         </div>
+
                     </div>
                 `;
 
@@ -511,28 +530,30 @@ document.addEventListener('DOMContentLoaded', function () {
                         listaHistorial.innerHTML += `
                             <tr style="border-bottom: 1px solid #222;">
                                 <td class="py-2">
-                                    <div class="font-weight-bold text-white" style="font-size: 12px;">${h.nombre || 'N/A'} ${h.apellidos || ''}</div>
-                                    <div class="text-white-50 small" style="font-size: 10px;">${h.correo || '-'}</div>
+                                    <div class="font-weight-bold rea-text-main" style="font-size: 12px;">${h.nombre || 'N/A'} ${h.apellidos || ''}</div>
+                                    <div class="rea-text-muted small" style="font-size: 10px;">${h.correo || '-'}</div>
                                 </td>
-                                <td class="py-2 text-white" style="opacity: 0.9; font-size: 11px;">
+                                <td class="py-2 rea-text-main" style="opacity: 0.9; font-size: 11px;">
                                     <i class="bi bi-arrow-right-short text-success"></i> ${formatFecha(h.fecha_inicio)}
                                 </td>
-                                <td class="py-2 text-white" style="opacity: 0.9; font-size: 11px;">
+                                <td class="py-2 rea-text-main" style="opacity: 0.9; font-size: 11px;">
                                     <i class="bi bi-arrow-left-short text-danger"></i> ${formatFecha(h.fecha_fin)}
                                 </td>
                                 <td class="py-2 text-center">
                                     <span class="badge bg-secondary text-white" style="font-size: 8px; padding: 3px 6px; opacity: 0.6; letter-spacing: 0.5px;">ANTERIOR</span>
                                 </td>
                             </tr>
+
                         `;
                     });
                 } else {
                     listaHistorial.innerHTML = `
                         <tr>
                             <td colspan="4" class="text-center py-4">
-                                <div class="text-white-50 mb-1" style="font-size: 12px;"><i class="bi bi-info-circle mr-1"></i> Sin reasignaciones previas</div>
+                                <div class="rea-text-muted mb-1" style="font-size: 12px;"><i class="bi bi-info-circle mr-1"></i> Sin reasignaciones previas</div>
                                 <div class="small text-muted" style="font-size: 10px;">Este es el primer responsable asignado a la empresa.</div>
                             </td>
+
                         </tr>
                     `;
                 }
@@ -550,16 +571,17 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </div>
                             </div>
                             <div class="col">
-                                <p class="mb-0 text-white-50 small font-weight-bold uppercase" style="letter-spacing: 1px;">Área de Agencia</p>
-                                <h6 class="text-white mb-0 font-weight-bold" style="font-size: 16px;">${data.area ? data.area.nombre : 'Área no especificada'}</h6>
+                                <p class="mb-0 rea-text-muted small font-weight-bold uppercase" style="letter-spacing: 1px;">Área de Agencia</p>
+                                <h6 class="rea-text-main mb-0 font-weight-bold" style="font-size: 16px;">${data.area ? data.area.nombre : 'Área no especificada'}</h6>
                             </div>
                         </div>
                         <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
                         <div class="row">
                             <div class="col-md-6">
-                                <p class="mb-0 text-white-50 small">Jefe de Área Actual</p>
-                                <p class="mb-0 text-white font-weight-bold" style="font-size: 14px;">${data.actual.nombre} ${data.actual.apellidos}</p>
+                                <p class="mb-0 rea-text-muted small">Jefe de Área Actual</p>
+                                <p class="mb-0 rea-text-main font-weight-bold" style="font-size: 14px;">${data.actual.nombre} ${data.actual.apellidos}</p>
                             </div>
+
                             <div class="col-md-6 text-md-right d-flex align-items-center justify-content-md-end">
                                 <span class="badge" style="background: rgba(167, 139, 250, 0.2); color: #c4b5fd; border: 1px solid #a78bfa; font-size: 10px; font-weight: 700;">RESPONSABLE ACTIVO</span>
                             </div>
@@ -629,18 +651,20 @@ document.addEventListener('DOMContentLoaded', function () {
             };
         }
 
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
         Swal.fire({
             title: '¿Confirmar Reasignación?',
             text: 'Esta acción es irreversible y actualizará todos los permisos del sistema.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#F5C400',
-            cancelButtonColor: '#d33',
+            cancelButtonColor: isLight ? '#ef4444' : '#d33',
             confirmButtonText: 'Sí, Confirmar Cambio',
             cancelButtonText: 'Cancelar',
-            background: '#161616',
-            color: '#ffffff'
+            background: isLight ? '#ffffff' : '#161616',
+            color: isLight ? '#1e293b' : '#ffffff'
         }).then(async (result) => {
+
             if (!result.isConfirmed) return;
 
             try {

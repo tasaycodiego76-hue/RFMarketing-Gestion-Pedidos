@@ -109,62 +109,83 @@
             <label class="label-tiny mb-4 d-block">INFORMACIÓN DEL REQUERIMIENTO</label>
 
             <div class="timeline-item">
+                <i class="bi bi-person-badge"></i>
                 <div>
-                    <span class="t-label">EMPLEADO ASIGNADO</span>
-                    <span class="t-value">
+                    <span class="t-label">RESPONSABLE ASIGNADO</span>
+                    <span class="t-value <?= !empty($requerimiento['idempleado']) ? 't-value-accent' : 'text-secondary' ?>">
                         <?php if (!empty($requerimiento['idempleado'])): ?>
-                            <i class="bi bi-person-check me-1"></i> <?= esc($requerimiento['empleado_nombre']) ?>
+                            <?= esc($requerimiento['empleado_nombre']) ?>
                         <?php else: ?>
-                            <i class="bi bi-person-dash me-1 text-secondary" style="opacity: 0.8;"></i> <span
-                                class="text-secondary" style="opacity: 0.8;">Pendiente de asignar</span>
+                            Pendiente de asignar
                         <?php endif; ?>
                     </span>
                 </div>
             </div>
 
             <div class="timeline-item">
+                <i class="bi bi-calendar-event"></i>
                 <div>
-                    <span class="t-label">FECHA REQUERIDA</span>
-                    <span class="t-value"><?= date('d/m/Y H:i', strtotime($requerimiento['fecharequerida'])) ?></span>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div>
-                    <span class="t-label">FECHA DE SOLICITUD</span>
-                    <span class="t-value"><?= date('d/m/Y H:i', strtotime($requerimiento['fechacreacion'])) ?></span>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div>
-                    <span class="t-label">TRABAJO INICIADO</span>
+                    <span class="t-label">FECHA DE ENTREGA REQUERIDA</span>
                     <span class="t-value">
-                        <?= !empty($requerimiento['fechainicio']) ? date('d/m/Y H:i', strtotime($requerimiento['fechainicio'])) : '-- / -- / -- --:--' ?>
+                        <?= date('d/m/Y', strtotime($requerimiento['fecharequerida'])) ?> 
+                        <span style="color: var(--accent-yellow); margin-left: 5px;"><?= date('H:i', strtotime($requerimiento['fecharequerida'])) ?></span>
                     </span>
                 </div>
             </div>
 
             <div class="timeline-item">
+                <i class="bi bi-file-earmark-plus"></i>
                 <div>
-                    <span class="t-label">REQUERIMIENTO FINALIZADO</span>
+                    <span class="t-label">REGISTRO DE SOLICITUD</span>
                     <span class="t-value">
-                        <?= !empty($requerimiento['fechacompletado']) ? date('d/m/Y H:i', strtotime($requerimiento['fechacompletado'])) : '-- / -- / -- --:--' ?>
+                        <?= date('d/m/Y', strtotime($requerimiento['fechacreacion'])) ?>
+                        <span style="color: var(--accent-yellow); margin-left: 5px;"><?= date('H:i', strtotime($requerimiento['fechacreacion'])) ?></span>
                     </span>
                 </div>
             </div>
 
             <div class="timeline-item">
+                <i class="bi bi-play-circle"></i>
                 <div>
-                    <span class="t-label">ESTADO ACTUAL</span>
-                    <span
-                        class="t-value text-warning"><?= strtoupper(str_replace('_', ' ', $requerimiento['estado'])) ?></span>
+                    <span class="t-label">INICIO DE TRABAJO</span>
+                    <span class="t-value">
+                        <?php if (!empty($requerimiento['fechainicio'])): ?>
+                            <?= date('d/m/Y', strtotime($requerimiento['fechainicio'])) ?>
+                            <span style="color: var(--accent-yellow); margin-left: 5px;"><?= date('H:i', strtotime($requerimiento['fechainicio'])) ?></span>
+                        <?php else: ?>
+                            -- / -- / --
+                        <?php endif; ?>
+                    </span>
                 </div>
             </div>
 
             <div class="timeline-item">
+                <i class="bi bi-check-circle-fill"></i>
                 <div>
-                    <span class="t-label">MODIFICACIONES</span>
+                    <span class="t-label">FECHA DE FINALIZACIÓN</span>
+                    <span class="t-value">
+                        <?php if (!empty($requerimiento['fechacompletado'])): ?>
+                            <?= date('d/m/Y', strtotime($requerimiento['fechacompletado'])) ?>
+                            <span style="color: var(--accent-yellow); margin-left: 5px;"><?= date('H:i', strtotime($requerimiento['fechacompletado'])) ?></span>
+                        <?php else: ?>
+                            -- / -- / --
+                        <?php endif; ?>
+                    </span>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <i class="bi bi-info-square"></i>
+                <div>
+                    <span class="t-label">ESTADO DEL PROYECTO</span>
+                    <span class="t-value t-value-accent"><?= strtoupper(str_replace('_', ' ', $requerimiento['estado'])) ?></span>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <i class="bi bi-pencil-square"></i>
+                <div>
+                    <span class="t-label">MODIFICACIONES SOLICITADAS</span>
                     <span class="t-value"><?= $requerimiento['num_modificaciones'] ?? 0 ?></span>
                 </div>
             </div>

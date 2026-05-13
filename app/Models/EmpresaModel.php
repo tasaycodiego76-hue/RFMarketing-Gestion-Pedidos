@@ -65,6 +65,9 @@ class EmpresaModel extends Model
             $empresa['activos'] = $atencionModel->contarActivosEmpresa($empresa['id']);
             $empresa['en_revision'] = $atencionModel->contarPorEstadoEmpresa('en_revision', $empresa['id']);
             $empresa['completados'] = $atencionModel->contarPorEstadoEmpresa('finalizado', $empresa['id']);
+
+            // Nuevo: Estadísticas por área para mostrar burbujas de notificación
+            $empresa['stats_areas'] = $atencionModel->contarPorAprobarPorAreaEmpresa($empresa['id']);
         }
 
         return $empresas;

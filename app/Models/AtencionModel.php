@@ -118,6 +118,31 @@ class AtencionModel extends Model
     }
 
     /**
+     * Cuenta requerimientos por aprobar (pendiente_sin_asignar) agrupados por área para una empresa.
+     * ← APORTE rama-diego
+     * @param int $idEmpresa
+     * @return array
+     */
+    public function contarPorAprobarPorAreaEmpresa(int $idEmpresa): array
+    {
+        $rows = $this->db->table('atencion a')
+            ->select('a.idarea_agencia, COUNT(*) as total')
+            ->join('requerimiento r', 'r.id = a.idrequerimiento')
+            ->join('usuarios u', 'u.id = r.idusuarioempresa')
+            ->join('areas ar', 'ar.id = u.idarea')
+            ->where('a.estado', 'pendiente_sin_asignar')
+            ->where('ar.idempresa', $idEmpresa)
+            ->groupBy('a.idarea_agencia')
+            ->get()->getResultArray();
+
+        $stats = [];
+        foreach ($rows as $row) {
+            $stats[$row['idarea_agencia']] = (int) $row['total'];
+        }
+        return $stats;
+    }
+
+    /**
      * Genera estadísticas agrupadas para el Kanban de una empresa
      * @param int $idEmpresa
      * @return array|array{activos: int, completados: int, en_revision: int, por_aprobar: int|null}
@@ -142,6 +167,7 @@ class AtencionModel extends Model
 
     /**
      * Obtiene los datos necesarios para renderizar las tarjetas en el tablero Kanban.
+     * ← Se usa la versión de rama-diego: agrega a.fechacompletado en el SELECT
      * @param int $idEmpresa
      * @param int $idAreaAgencia
      * @return array
@@ -151,7 +177,7 @@ class AtencionModel extends Model
         $sql = "
             SELECT
                 a.id, a.titulo, a.estado, a.prioridad, a.fechafin, a.num_modificaciones,
-                a.fechainicio, a.fechacreacion, a.idempleado, a.idrequerimiento,
+                a.fechainicio, a.fechacreacion, a.fechacompletado, a.idempleado, a.idrequerimiento,
                 a.idarea_agencia,
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
                 r.fecharequerida,
@@ -317,7 +343,6 @@ class AtencionModel extends Model
             ->join('servicios s', 's.id = a.idservicio', 'left')
             ->where('a.idarea_agencia', $idAreaAgencia);
 
-
         if (!empty($estados)) {
             $builder->whereIn('a.estado', $estados);
         }
@@ -328,7 +353,7 @@ class AtencionModel extends Model
     }
 
     /**
-     *  Obtiene las tareas que han sido devueltas por el Admin u Observadas en Revisión.
+     * Obtiene las tareas que han sido devueltas por el Admin u Observadas en Revisión.
      * @param int $idAreaAgencia
      * @return array
      */
@@ -358,6 +383,7 @@ class AtencionModel extends Model
 
     /**
      * Obtiene datos de productividad por empleado (En Proceso | Completados).
+     * ← APORTE HEAD (tuyo)
      * @param int $idAreaAgencia
      * @return array
      */
@@ -383,6 +409,7 @@ class AtencionModel extends Model
 
     /**
      * Obtiene la distribución de carga actual (Tareas activas por empleado).
+     * ← APORTE HEAD (tuyo)
      * @param int $idAreaAgencia
      * @return array
      */
@@ -404,13 +431,12 @@ class AtencionModel extends Model
 
     /**
      * Obtiene la tendencia de tareas completadas en los últimos 7 días.
+     * ← APORTE HEAD (tuyo)
      * @param int $idAreaAgencia
      * @return array
      */
     public function getMetricasTendenciaSemanal(int $idAreaAgencia): array
     {
-        // Obtenemos solo la semana actual (desde el Lunes) usando date_trunc
-        // ISODOW devuelve 1 para Lunes, 2 para Martes, etc.
         $sql = "
             SELECT 
                 EXTRACT(ISODOW FROM fechacompletado) as numero_dia,
@@ -427,6 +453,7 @@ class AtencionModel extends Model
 
     /**
      * Obtiene el tiempo promedio de resolución por empleado en horas.
+     * ← APORTE HEAD (tuyo)
      * @param int $idAreaAgencia
      * @return array
      */
@@ -451,10 +478,11 @@ class AtencionModel extends Model
     }
 
     /**
-     * Obtiene el listado de Requerimientos para el reporte detallado, agrupado por empresa
+     * Obtiene el listado de Requerimientos para el reporte detallado, agrupado por empresa.
+     * ← APORTE HEAD (tuyo)
      * @param int $idAreaAgencia
-     * @param mixed $desde
-     * @param mixed $hasta
+     * @param string|null $desde
+     * @param string|null $hasta
      * @param array $filtros
      * @return array
      */
@@ -463,7 +491,6 @@ class AtencionModel extends Model
         $params = [$idAreaAgencia];
         $where = " WHERE a.idarea_agencia = ? ";
 
-        // Filtros de fecha opcionales
         if (!empty($desde)) {
             $where .= " AND a.fechacreacion >= ? ";
             $params[] = $desde . ' 00:00:00';
@@ -473,7 +500,6 @@ class AtencionModel extends Model
             $params[] = $hasta . ' 23:59:59';
         }
 
-        // Otros filtros dinámicos
         if (!empty($filtros['idempresa'])) {
             $where .= " AND e.id = ? ";
             $params[] = $filtros['idempresa'];
@@ -495,8 +521,6 @@ class AtencionModel extends Model
                 (a.estado = 'en_proceso' AND r.fecharequerida < CURRENT_DATE)
             ) ";
         }
-        
-        // Manejo de cancelados (Por defecto no se incluyen)
         if (empty($filtros['incluir_cancelados'])) {
             $where .= " AND a.estado != 'cancelado' ";
         }
@@ -529,10 +553,11 @@ class AtencionModel extends Model
     }
 
     /**
-     * Obtiene métricas de rendimiento por técnico en un periodo
+     * Obtiene métricas de rendimiento por técnico en un periodo.
+     * ← APORTE HEAD (tuyo)
      * @param int $idAreaAgencia
-     * @param mixed $desde
-     * @param mixed $hasta
+     * @param string|null $desde
+     * @param string|null $hasta
      * @return array
      */
     public function obtenerMetricasTecnicosReporte(int $idAreaAgencia, ?string $desde = null, ?string $hasta = null): array
@@ -576,8 +601,11 @@ class AtencionModel extends Model
     }
 
     /**
-     *Identifica casos críticos (retrasos o falta de info) para la sección de Alertas.
+     * Identifica casos críticos (retrasos o falta de info) para la sección de Alertas.
+     * ← APORTE HEAD (tuyo)
      * @param int $idAreaAgencia
+     * @param string|null $desde
+     * @param string|null $hasta
      * @return array
      */
     public function obtenerAlertasReporte(int $idAreaAgencia, ?string $desde = null, ?string $hasta = null): array
@@ -670,7 +698,7 @@ class AtencionModel extends Model
             ->orderBy('fechainicio', 'DESC')
             ->findAll();
     }
-    
+
     /**
      * Obtiene el historial de pedidos finalizados con información detallada de empresa, área y empleado.
      * @return array
@@ -699,5 +727,30 @@ class AtencionModel extends Model
         ";
 
         return $this->db->query($sql)->getResultArray();
+    }
+
+    /**
+     * Obtiene la carga de trabajo (pedidos venciendo) para hoy y mañana.
+     * ← APORTE rama-diego
+     * @param int $idAreaAgencia
+     * @return array
+     */
+    public function obtenerCargaPorFecha(int $idAreaAgencia): array
+    {
+        $hoy = date('Y-m-d');
+        $manana = date('Y-m-d', strtotime('+1 day'));
+
+        $sql = "
+            SELECT 
+                COUNT(CASE WHEN CAST(r.fecharequerida AS DATE) = ? THEN 1 END) as hoy,
+                COUNT(CASE WHEN CAST(r.fecharequerida AS DATE) = ? THEN 1 END) as manana
+            FROM atencion a
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
+            WHERE a.idarea_agencia = ? 
+              AND a.estado != 'cancelado'
+              AND a.estado != 'finalizado'
+        ";
+
+        return $this->db->query($sql, [$hoy, $manana, $idAreaAgencia])->getRowArray();
     }
 }

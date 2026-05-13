@@ -66,11 +66,20 @@ class ResponsablesEmpresaModel extends Model
                     'estado' => 'inactivo',
                 ]);
             } else if (!empty($idUsuarioAnterior)) {
-                // Si NO tenía registro en esta tabla, creamos su entrada histórica
+                // Si NO tenía registro en esta tabla, buscamos su fecha de creación para el historial
+                $userModel = new \App\Models\UsuarioModel();
+                $oldUser = $userModel->find($idUsuarioAnterior);
+                $fechaInicio = $oldUser['fechacreacion'] ?? date('Y-m-d H:i:s', strtotime('-1 day'));
+
+                // Si por alguna razón la fecha de creación es la misma que ahora, restamos 1 minuto para que no se repita
+                if ($fechaInicio === date('Y-m-d H:i:s')) {
+                    $fechaInicio = date('Y-m-d H:i:s', strtotime('-1 minute'));
+                }
+
                 $this->insert([
                     'idusuario' => $idUsuarioAnterior,
                     'idempresa' => $idEmpresa,
-                    'fecha_inicio' => date('Y-m-d H:i:s'),
+                    'fecha_inicio' => $fechaInicio,
                     'fecha_fin' => date('Y-m-d H:i:s'),
                     'estado' => 'inactivo',
                 ]);

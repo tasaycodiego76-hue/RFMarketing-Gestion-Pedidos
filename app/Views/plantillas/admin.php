@@ -13,7 +13,10 @@
     <!-- SweetAlert2 -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Sistema de Temas (Claro/Oscuro) -->
+    <link href="<?= base_url('recursos/styles/admin/paginas/tema.css') ?>" rel="stylesheet">
     <link href="<?= base_url('recursos/styles/admin/paginas/admin.css') ?>" rel="stylesheet">
+
     <?= $this->renderSection('styles') ?>
 </head>
 
@@ -84,6 +87,11 @@
                 class="nav-enlace <?= ($paginaActual == 'historial') ? 'activo' : '' ?>">
                 <i class="bi bi-clock-history"></i> Historial
             </a>
+
+            <a href="<?= site_url('admin/reportes') ?>"
+                class="nav-enlace <?= ($paginaActual == 'reportes') ? 'activo' : '' ?>">
+                <i class="bi bi-graph-up"></i> Reportes
+            </a>
         </nav>
 
         <div class="sidebar-usuario">
@@ -106,11 +114,16 @@
     <div class="contenedor-principal">
 
         <!-- BARRA SUPERIOR -->
-        <header class="topbar">
-            <button class="btn-menu-toggle" id="btn-menu-toggle" aria-label="Abrir menú">
-                <i class="bi bi-list"></i>
+        <header class="topbar" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 0;">
+                <button class="btn-menu-toggle" id="btn-menu-toggle" aria-label="Abrir menú">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="topbar-titulo"><?= esc($tituloPagina ?? 'PANEL') ?></div>
+            </div>
+            <button class="theme-toggle-btn" id="theme-toggle-btn" title="Cambiar tema">
+                <i class="bi bi-sun-fill"></i>
             </button>
-            <div class="topbar-titulo"><?= esc($tituloPagina ?? 'PANEL') ?></div>
         </header>
 
         <!-- CONTENIDO -->
@@ -187,6 +200,10 @@
     </div>
 
     <div id="toast"></div>
+
+    <!-- Sistema de Cambio de Tema -->
+    <script src="<?= base_url('recursos/scripts/cambiador-tema.js') ?>"></script>
+
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>

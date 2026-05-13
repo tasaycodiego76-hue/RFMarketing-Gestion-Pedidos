@@ -88,17 +88,27 @@ class MisPedidosController extends BaseClienteController
      */
     public function servicios()
     {
-        // Validación de sesión
-        $auth = $this->ValidarSesion_DatosUser();
-        if (!$auth['ok']) {
-            return $this->response->setJSON([]);
+        try {
+            // Validación de sesión
+            $auth = $this->ValidarSesion_DatosUser();
+            if (!$auth['ok']) {
+                return $this->response->setJSON([]);
+            }
+
+            // Instancia el modelo de servicios y obtiene solo los activos
+            $model = new ServicioModel();
+            $servicios = $model->getServiciosActivos();
+
+            // Enriquecer con ID de área para que el frontend decida el formulario
+            foreach ($servicios as &$s) {
+                $s['idarea_agencia'] = $model->getAreaAgenciaByServicio((int) $s['id']);
+            }
+
+            // Retorna la lista de servicios en JSON
+            return $this->response->setJSON($servicios);
+        } catch (\Exception $e) {
+            log_message('error', '[MisPedidosController::servicios] ' . $e->getMessage());
+            return $this->response->setJSON([]); // Retornar vacío en caso de error para no romper el JS
         }
-
-        // Instancia el modelo de servicios y obtiene solo los activos
-        $model = new ServicioModel();
-        $servicios = $model->getServiciosActivos();
-
-        // Retorna la lista de servicios en JSON
-        return $this->response->setJSON($servicios);
     }
 }

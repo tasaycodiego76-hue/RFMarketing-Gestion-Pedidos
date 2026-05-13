@@ -20,22 +20,22 @@ const KB_ICONS = {
 };
 
 // ── SISTEMA DE NOTIFICACIONES POST-CARGA ──
-$(document).ready(function() {
-    const msg = localStorage.getItem('kanban_msg');
-    if (msg) {
-        Swal.fire({
-            icon: 'success',
-            title: msg,
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 4000,
-            timerProgressBar: true,
-            background: '#0a0a0a',
-            color: '#fff'
-        });
-        localStorage.removeItem('kanban_msg');
-    }
+$(document).ready(function () {
+  const msg = localStorage.getItem('kanban_msg');
+  if (msg) {
+    Swal.fire({
+      icon: 'success',
+      title: msg,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 4000,
+      timerProgressBar: true,
+      background: '#0a0a0a',
+      color: '#fff'
+    });
+    localStorage.removeItem('kanban_msg');
+  }
 });
 
 
@@ -178,6 +178,8 @@ async function verDetalle(idAtencion) {
     const template = document.getElementById("template-detalle-kanban");
     if (!template) throw new Error("Template no encontrado en la vista.");
     const clone = template.content.cloneNode(true);
+    const set = (sel, val) => { const el = clone.querySelector(sel); if (el) el.textContent = val; };
+    const setHtml = (sel, val) => { const el = clone.querySelector(sel); if (el) el.innerHTML = val; };
 
     // ── Fechas y Tiempos ─────
     const fReq = d.fecharequerida || "---";
@@ -297,6 +299,10 @@ async function verDetalle(idAtencion) {
     clone.querySelector('.tpl-idatencion').textContent = d.id.toString().padStart(5, "0");
     clone.querySelector('.tpl-descripcion').textContent = d.descripcion || "Sin descripción adicional.";
 
+    // ── Datos del Cliente Responsable (Contacto) ──
+    set('.tpl-cliente-nombre', (d.cliente_nombre + " " + (d.cliente_apellidos || "")).toUpperCase());
+    set('.tpl-cliente-telefono', d.cliente_telefono || "SIN NÚMERO");
+    set('.tpl-cliente-correo', (d.cliente_correo || "SIN CORREO").toLowerCase());
     // ── Estrategia ──
     clone.querySelector('.tpl-objetivo').textContent = d.objetivo_comunicacion && d.objetivo_comunicacion.trim() !== '' ? d.objetivo_comunicacion : '---';
     clone.querySelector('.tpl-publico').textContent = d.publico_objetivo && d.publico_objetivo.trim() !== '' ? d.publico_objetivo : '---';
@@ -554,14 +560,56 @@ async function enviarRetroalimentacion() {
 }
 
 async function cancelarAtencion(id) {
-  const m = prompt("Motivo de cancelación:");
-  if (!m) return;
+  const { value: motivo } = await Swal.fire({
+    title: 'Cancelar Pedido',
+    text: 'Indica el motivo de la cancelación para informar al cliente:',
+    input: 'textarea',
+    inputPlaceholder: 'Escribe el motivo aquí...',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#333',
+    confirmButtonText: 'Sí, cancelar pedido',
+    cancelButtonText: 'Cerrar',
+    background: '#0a0a0a',
+    color: '#fff',
+    inputAttributes: {
+      'aria-label': 'Escribe el motivo aquí'
+    },
+    preConfirm: (value) => {
+      if (!value) {
+        Swal.showValidationMessage('Debes ingresar un motivo');
+      }
+      return value;
+    }
+  });
+
+  if (!motivo) return;
+
+  Swal.fire({
+    title: 'Cancelando...',
+    text: 'Por favor espera.',
+    allowOutsideClick: false,
+    didOpen: () => { Swal.showLoading(); }
+  });
+
   const data = await _post("admin/kanban/cancelar", {
     idatencion: id,
-    motivo: m,
+    motivo: motivo,
   });
-  if (data.status === "success") location.reload();
-  else alert(data.msg);
+
+  if (data.status === "success") {
+    localStorage.setItem('kanban_msg', 'Pedido cancelado correctamente');
+    location.reload();
+  } else {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: data.msg,
+      background: '#0a0a0a',
+      color: '#fff'
+    });
+  }
 }
 
 // ═══════════════════════════════════════

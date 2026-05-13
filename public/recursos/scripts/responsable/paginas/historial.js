@@ -14,11 +14,11 @@ async function verDetalleHistorial(idAtencion) {
     });
 
     const baseUrl = window.BASE_URL || '/';
-    
+
     try {
         const response = await fetch(`${baseUrl}responsable/pedidos/detalle?id=${idAtencion}`);
         const res = await response.json();
-        
+
         Swal.close();
 
         if (res.success) {
@@ -42,7 +42,7 @@ async function verDetalleHistorial(idAtencion) {
  */
 function renderizarDetalleHistorial(req, archivos, tracking) {
     const modalElement = document.getElementById('modalHistorial');
-    if (!modalElement){return };
+    if (!modalElement) { return };
 
     const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
     const cuerpo = document.getElementById('modal-cuerpo-historial');
@@ -87,9 +87,9 @@ function renderizarDetalleHistorial(req, archivos, tracking) {
                 <div class="row g-3">
                     <div class="col-12">
                         <label class="kd-label">URL DEL ENTREGABLE</label>
-                        ${req.url_entrega ? 
-                            `<a href="${req.url_entrega}" target="_blank" class="btn btn-sm btn-outline-success font-size-12"><i class="bi bi-link-45deg"></i> ABRIR TRABAJO FINAL</a>` : 
-                            '<span class="text-dim font-size-12 italic">No se proporcionó una URL externa</span>'}
+                        ${req.url_entrega ?
+                `<a href="${req.url_entrega}" target="_blank" class="btn btn-sm btn-outline-success font-size-12"><i class="bi bi-link-45deg"></i> ABRIR TRABAJO FINAL</a>` :
+                '<span class="text-dim font-size-12 italic">No se proporcionó una URL externa</span>'}
                     </div>
                     <div class="col-12">
                         <label class="kd-label">OBSERVACIONES DE ENTREGA</label>
@@ -253,7 +253,7 @@ function formatearFechaLimpia(f) {
         const hours = String(d.getHours()).padStart(2, '0');
         const minutes = String(d.getMinutes()).padStart(2, '0');
         return `${day}/${month}/${year} ${hours}:${minutes}`;
-    } catch(e) { return f; }
+    } catch (e) { return f; }
 }
 
 /**
