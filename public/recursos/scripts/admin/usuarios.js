@@ -48,13 +48,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (u.rol && u.rol.toLowerCase().includes('administrador')) {
                     tabla.innerHTML += `
         <tr>
-            <td class="td-nombre">${u.nombre} ${u.apellidos}</td>
-            <td class="td-usuario">${u.usuario ?? '-'}</td>
-            <td class="td-correo">${u.correo}</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
+            <td class="td-nombre" data-label="Nombre">${u.nombre} ${u.apellidos}</td>
+            <td class="td-usuario" data-label="Usuario">${u.usuario ?? '-'}</td>
+            <td class="td-correo" data-label="Correo">${u.correo}</td>
+            <td data-label="Rol">-</td>
+            <td data-label="Área / Empresa">-</td>
+            <td data-label="Estado">-</td>
+            <td data-label="Acciones">-</td>
         </tr>`;
                     return;
                 }
@@ -123,13 +123,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 tabla.innerHTML += `
                 <tr>
-                    <td class="td-nombre">${u.nombre} ${u.apellidos}</td>
-                    <td class="td-usuario">${u.usuario ?? '-'}</td>
-                    <td class="td-correo">${u.correo}</td>
-                    <td>${rolBadge}</td>
-                    <td class="td-area-empresa">${areaEmpresa}</td>
-                    <td>${badge}</td>
-                    <td>
+                    <td class="td-nombre" data-label="Nombre">${u.nombre} ${u.apellidos}</td>
+                    <td class="td-usuario" data-label="Usuario">${u.usuario ?? '-'}</td>
+                    <td class="td-correo" data-label="Correo/Telf.">
+                        <div class="user-email">${u.correo}</div>
+                        <div class="user-phone"><i class="bi bi-telephone"></i> ${u.telefono ?? '-'}</div>
+                    </td>
+                    <td data-label="Rol">${rolBadge}</td>
+                    <td class="td-area-empresa" data-label="Área / Empresa">${areaEmpresa}</td>
+                    <td data-label="Estado">${badge}</td>
+                    <td data-label="Acciones">
                         <div class="acciones-contenedor">
                             ${btnEditar}
                             ${btnToggle}

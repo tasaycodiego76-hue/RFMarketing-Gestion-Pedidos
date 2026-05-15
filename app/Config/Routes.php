@@ -20,6 +20,7 @@ $routes->get('logout', 'AuthController::logout');
 //Rutas para el Administrador
 $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'Administrador\DashboardController::index');
+    $routes->get('notificaciones/revisiones', 'Administrador\NotificationController::getRevisions');
     $routes->get('usuarios', 'Administrador\UsuarioController::index');
     $routes->get('usuarios/listar', 'Administrador\UsuarioController::listar');
     $routes->get('usuarios/obtener/(:num)', 'Administrador\UsuarioController::obtener/$1');

@@ -32,99 +32,76 @@
                 RUC <span style="color:#fff;"><?= esc($empresa['ruc'] ?? '—') ?></span>
                 <?php if (!empty($empresa['correo'])): ?> · <span
                         style="color:#fff;"><?= esc($empresa['correo']) ?></span><?php endif ?>
-                <?php if (!empty($empresa['telefono'])): ?> · <span
-                        style="color:#fff;"><?= esc($empresa['telefono']) ?></span><?php endif ?>
             </div>
         </div>
     </div>
+
+    <!-- ESTADÍSTICAS PRINCIPALES -->
     <div class="kb-head-stats">
-        <div class="kb-stat"><span
-                class="st-amarillo"><?= $stats['por_aprobar'] ?? 0 ?></span><small>SOLICITUDES</small>
+        <div class="kb-stat">
+            <span class="st-amarillo"><?= $stats['por_aprobar'] ?? 0 ?></span>
+            <small>SOLICITUDES</small>
         </div>
-        <div class="kb-stat"><span class="st-morado"><?= $stats['activos'] ?? 0 ?></span><small>PROCESO</small></div>
-        <div class="kb-stat"><span class="st-naranja"><?= $stats['en_revision'] ?? 0 ?></span><small>REVISIÓN</small>
+        <div class="kb-stat">
+            <span class="st-morado"><?= $stats['activos'] ?? 0 ?></span>
+            <small>PROCESO</small>
         </div>
-        <div class="kb-stat"><span class="st-verde"><?= $stats['completados'] ?? 0 ?></span><small>COMPLETADOS</small>
+        <div class="kb-stat">
+            <span class="st-naranja"><?= $stats['en_revision'] ?? 0 ?></span>
+            <small>REVISIÓN</small>
         </div>
-    </div>
-
-    <!-- ═══ WIDGET DE SATURACIÓN  ═══ -->
-    <div class="kb-saturation-widget">
-        <div
-            style="font-size: 9px; color: #fff; font-weight: 800; text-align: right; line-height: 1.2; letter-spacing: 0.5px;">
-            CARGA DE<br>TRABAJO
-        </div>
-        <div class="kb-saturation-item">
-            <?php
-            $valHoy = $carga_diaria['hoy'] ?? 0;
-            $clHoy = ($valHoy >= 40) ? 'sat-high' : (($valHoy >= 30) ? 'sat-mid' : 'sat-low');
-            ?>
-            <span class="kb-saturation-val <?= $clHoy ?>"><?= $valHoy ?></span>
-            <span class="kb-saturation-label" style="color:#fff;">HOY</span>
-        </div>
-        <div style="width:1px; height:25px; background:#1a1a1a;"></div>
-        <div class="kb-saturation-item">
-            <?php
-            $valMan = $carga_diaria['manana'] ?? 0;
-            $clMan = ($valMan >= 40) ? 'sat-high' : (($valMan >= 30) ? 'sat-mid' : 'sat-low');
-            ?>
-            <span class="kb-saturation-val <?= $clMan ?>"><?= $valMan ?></span>
-            <span class="kb-saturation-label" style="color:#fff;">MAÑANA</span>
+        <div class="kb-stat">
+            <span class="st-verde"><?= $stats['completados'] ?? 0 ?></span>
+            <small>COMPLETADOS</small>
         </div>
     </div>
 
-    <!-- ═══ FILTROS RÁPIDOS  ═══ -->
-    <div class="kb-quick-filters"
-        style="display:flex; align-items:center; gap:8px; margin-left: 25px; border-left: 1px solid #1a1a1a; padding-left: 20px;">
-        <button onclick="filterKanban('all')" class="kb-filter-btn active" id="btn-filter-all">TODO</button>
-        <button onclick="filterKanban('hoy')" class="kb-filter-btn" id="btn-filter-hoy">HOY</button>
-        <button onclick="filterKanban('manana')" class="kb-filter-btn" id="btn-filter-manana">MAÑANA</button>
-
-    </div>
-</div>
-
-<!-- ═══ LEYENDA + ALERTA ATRASADOS ═══ -->
-<div class="kb-legend-bar"
-    style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:18px; padding:10px 14px; background:#0a0a0a; border:1px solid #151515; border-radius:12px;">
-
-    <!-- Leyenda de colores -->
-    <div style="display:flex; align-items:center; gap:22px;">
-        <span
-            style="display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#ff4d4d; letter-spacing:0.3px;">
-            <span
-                style="width:12px; height:12px; border-radius:4px; background:#ff4d4d; box-shadow:0 0 6px rgba(255,77,77,0.35);"></span>
-            Atrasado
-        </span>
-        <span
-            style="display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#f97316; letter-spacing:0.3px;">
-            <span
-                style="width:12px; height:12px; border-radius:4px; background:#f97316; box-shadow:0 0 6px rgba(249,115,22,0.35);"></span>
-            Vence Hoy
-        </span>
-        <span
-            style="display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#ffcc00; letter-spacing:0.3px;">
-            <span
-                style="width:12px; height:12px; border-radius:4px; background:#ffcc00; box-shadow:0 0 6px rgba(255,204,0,0.35);"></span>
-            Vence Mañana
-        </span>
-        <span
-            style="display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#10b981; letter-spacing:0.3px;">
-            <span
-                style="width:12px; height:12px; border-radius:4px; background:#10b981; box-shadow:0 0 6px rgba(16,185,129,0.35);"></span>
-            En Tiempo
-        </span>
+    <!-- LEYENDA SLA CON CONTEOS REALES -->
+    <div class="kb-sla-summary">
+        <div class="sla-sum-item">
+            <div class="sla-sum-dot bg-atrasado"></div>
+            <div class="sla-sum-info">
+                <span class="sla-sum-val color-atrasado"><?= $stats['atrasados'] ?? 0 ?></span>
+                <span class="sla-sum-lbl">ATRASADO</span>
+            </div>
+        </div>
+        <div class="sla-sum-item">
+            <div class="sla-sum-dot bg-hoy"></div>
+            <div class="sla-sum-info">
+                <span class="sla-sum-val color-hoy"><?= $stats['hoy'] ?? 0 ?></span>
+                <span class="sla-sum-lbl">VENCE HOY</span>
+            </div>
+        </div>
+        <div class="sla-sum-item">
+            <div class="sla-sum-dot bg-manana"></div>
+            <div class="sla-sum-info">
+                <span class="sla-sum-val color-manana"><?= $stats['manana'] ?? 0 ?></span>
+                <span class="sla-sum-lbl">VENCE MAÑANA</span>
+            </div>
+        </div>
+        <div class="sla-sum-item">
+            <div class="sla-sum-dot bg-tiempo"></div>
+            <div class="sla-sum-info">
+                <span class="sla-sum-val color-tiempo"><?= $stats['en_tiempo'] ?? 0 ?></span>
+                <span class="sla-sum-lbl">EN TIEMPO</span>
+            </div>
+        </div>
     </div>
 
-    <!-- Botón Atrasados -->
-    <?php if (!empty($atrasados)): ?>
-        <button onclick="document.getElementById('modalAtrasados').style.display='flex'"
-            style="display:flex; align-items:center; gap:8px; background:rgba(255,77,77,0.1); border:1px solid rgba(255,77,77,0.35); color:#ff4d4d; padding:7px 16px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer; letter-spacing:0.4px; transition:all 0.25s;"
-            onmouseover="this.style.background='rgba(255,77,77,0.22)'; this.style.borderColor='#ff4d4d';"
-            onmouseout="this.style.background='rgba(255,77,77,0.1)'; this.style.borderColor='rgba(255,77,77,0.35)';">
-            <i class="bi bi-exclamation-triangle-fill" style="font-size:13px;"></i>
-            VER ATRASADOS (<?= count($atrasados) ?>)
-        </button>
-    <?php endif ?>
+    <!-- FILTROS Y ACCIÓN -->
+    <div class="kb-head-right">
+        <div class="kb-quick-filters">
+            <button onclick="filterKanban('all')" class="kb-filter-btn active" id="btn-filter-all">TODO</button>
+            <button onclick="filterKanban('hoy')" class="kb-filter-btn" id="btn-filter-hoy">HOY</button>
+            <button onclick="filterKanban('manana')" class="kb-filter-btn" id="btn-filter-manana">MAÑANA</button>
+        </div>
+        <?php if (!empty($atrasados)): ?>
+            <button onclick="document.getElementById('modalAtrasados').style.display='flex'" class="btn-atrasados-top">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>(<?= count($atrasados) ?>)</span>
+            </button>
+        <?php endif ?>
+    </div>
 </div>
 
 <!-- ═══ TABS ÁREAS AGENCIA ═══ -->

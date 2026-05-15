@@ -8,7 +8,7 @@
 
     <div class="col-6 col-md-3">
         <div class="card met-card h-100">
-            <div class="met-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+            <div class="met-icon naranja"><i class="bi bi-lightning-charge-fill"></i></div>
             <div class="met-label">Nuevos Pedidos</div>
             <div class="met-num naranja"><?= $stats['nuevos'] ?? 0 ?></div>
             <div class="met-sub">Por aceptar</div>
@@ -17,7 +17,7 @@
 
     <div class="col-6 col-md-3">
         <div class="card met-card h-100">
-            <div class="met-icon"><i class="bi bi-hourglass-split"></i></div>
+            <div class="met-icon morado"><i class="bi bi-hourglass-split"></i></div>
             <div class="met-label">En Desarrollo</div>
             <div class="met-num morado"><?= $stats['proceso'] ?? 0 ?></div>
             <div class="met-sub">Tareas activas</div>
@@ -26,7 +26,7 @@
 
     <div class="col-6 col-md-3">
         <div class="card met-card h-100">
-            <div class="met-icon"><i class="bi bi-search"></i></div>
+            <div class="met-icon blanco"><i class="bi bi-search"></i></div>
             <div class="met-label">En Revisión</div>
             <div class="met-num blanco"><?= $stats['revision'] ?? 0 ?></div>
             <div class="met-sub">Esperando feedback</div>
@@ -35,7 +35,7 @@
 
     <div class="col-6 col-md-3">
         <div class="card met-card h-100">
-            <div class="met-icon"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="met-icon verde"><i class="bi bi-check-circle-fill"></i></div>
             <div class="met-label">Completados</div>
             <div class="met-num verde"><?= $stats['historial'] ?? 0 ?></div>
             <div class="met-sub">Total éxitos</div>
@@ -51,11 +51,11 @@
 
         <?php if (empty($pedidos_recientes)): ?>
             <div class="card p-5 text-center"
-                style="background: rgba(255,255,255,0.02); border: 1px dashed #222; border-radius: 16px;">
+                style="background: var(--panel); border: 1px dashed var(--borde); border-radius: 16px;">
                 <div class="mb-3">
                     <i class="bi bi-stars" style="font-size: 42px; color: var(--amarillo); opacity: 0.8;"></i>
                 </div>
-                <h6 style="letter-spacing: 2px; text-transform: uppercase; font-size: 13px; color: #fff; font-weight: 700;">¡Todo al día por ahora!</h6>
+                <h6 style="letter-spacing: 2px; text-transform: uppercase; font-size: 13px; color: var(--texto); font-weight: 700;">¡Todo al día por ahora!</h6>
                 <p style="font-size: 11px; color: var(--texto-3); max-width: 250px; margin: 10px auto 0;">No tienes tareas pendientes de inicio o en proceso. Descansa o revisa tu historial.</p>
             </div>
         <?php else: ?>

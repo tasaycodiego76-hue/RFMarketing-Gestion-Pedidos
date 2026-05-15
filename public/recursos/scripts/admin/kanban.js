@@ -36,6 +36,16 @@ $(document).ready(function () {
     });
     localStorage.removeItem('kanban_msg');
   }
+
+  // ── ABRIR DETALLE AUTOMÁTICAMENTE SI VIENE EN LA URL ──
+  const urlParams = new URLSearchParams(window.location.search);
+  const idAVer = urlParams.get('ver');
+  if (idAVer) {
+    verDetalle(idAVer);
+    // Limpiar el parámetro de la URL sin recargar para que no se reabra al refrescar
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+  }
 });
 
 

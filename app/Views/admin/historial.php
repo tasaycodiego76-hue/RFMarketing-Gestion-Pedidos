@@ -54,16 +54,16 @@
                 <?php foreach ($pedidos as $p): ?>
                     <?php $inicial = mb_strtoupper(mb_substr($p['empresa_nombre'], 0, 1)); ?>
                     <tr data-fecha="<?= date('Y-m-d', strtotime($p['fechacompletado'])) ?>">
-                        <td>
+                        <td data-label="Área">
                             <div class="historial-area-badge">
                                 <i class="bi bi-palette-fill"></i> <?= esc($p['area_nombre'] ?? 'General') ?>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="Proyecto">
                             <div class="historial-title"><?= esc($p['titulo']) ?></div>
                             <div class="historial-sub-info"><?= esc($p['servicio_nombre']) ?></div>
                         </td>
-                        <td>
+                        <td data-label="Empresa">
                             <div class="historial-empresa-wrapper">
                                 <div class="empresa-avatar-mini" style="background: <?= $p['empresa_color'] ?>;">
                                     <?= $inicial ?>
@@ -71,19 +71,15 @@
                                 <div class="empresa-nombre-text"><?= esc($p['empresa_nombre']) ?></div>
                             </div>
                         </td>
-                        <td style="text-align: center;">
-                            <div style="color: #fff; font-weight: 800;"><?= date('d/m/Y', strtotime($p['fechacompletado'])) ?>
-                            </div>
-                            <div style="font-size: 10px; color: #555;"><?= date('H:i A', strtotime($p['fechacompletado'])) ?>
-                            </div>
+                        <td style="text-align: center;" data-label="Finalización">
+                            <div class="historial-fecha"><?= date('d/m/Y', strtotime($p['fechacompletado'])) ?></div>
+                            <div class="historial-hora"><?= date('H:i A', strtotime($p['fechacompletado'])) ?></div>
                         </td>
-                        <td>
-                            <div style="font-size: 14px; font-weight: 800; color: #fff;">
-                                <?= esc(strtoupper($p['empleado_nombre'])) ?>
-                            </div>
-                            <div style="font-size: 10px; color: #F5C400; font-weight: 700;">FINALIZADO</div>
+                        <td data-label="Ejecutor">
+                            <div class="historial-ejecutor-nombre"><?= esc(strtoupper($p['empleado_nombre'])) ?></div>
+                            <div class="historial-status">FINALIZADO</div>
                         </td>
-                        <td style="text-align: center;">
+                        <td style="text-align: center;" data-label="Acción">
                             <button class="btn-expediente" onclick="verDetalle(<?= $p['id'] ?>)">
                                 VER PEDIDO
                             </button>

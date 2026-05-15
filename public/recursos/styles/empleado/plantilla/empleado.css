@@ -651,3 +651,156 @@ body {
     background: #222 !important;
     color: #fff !important;
 }
+/* ══════════════════════════════════════
+   TEMA CLARO (LIGHT THEME) OVERRIDES
+   ══════════════════════════════════════ */
+
+/* ══════════════════════════════════════
+   TEMA CLARO (LIGHT THEME) OVERRIDES
+   ══════════════════════════════════════ */
+
+html[data-theme="light"] body {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+/* Sidebar SIEMPRE OSCURA (A petición del usuario) */
+/* No aplicamos overrides para mantener el estilo original */
+
+/* Topbar Claro */
+html[data-theme="light"] .topbar {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .topbar-titulo {
+    color: #0f172a !important;
+}
+
+/* Cards y Contenido */
+html[data-theme="light"] .seccion-titulo { color: #64748b; }
+html[data-theme="light"] .seccion-titulo::after { background: #e2e8f0; }
+
+html[data-theme="light"] .met-card,
+html[data-theme="light"] .emp-task-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+html[data-theme="light"] .met-card:hover,
+html[data-theme="light"] .emp-task-card:hover {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border-color: var(--amarillo);
+}
+
+html[data-theme="light"] .met-label { color: #64748b; }
+html[data-theme="light"] .met-num { color: #0f172a; }
+html[data-theme="light"] .task-title { color: #0f172a; }
+html[data-theme="light"] .task-client { color: #64748b; }
+html[data-theme="light"] .task-meta-item { color: #475569; }
+
+/* Modales Claro (ESTILO ADMIN PREMIUM) */
+html[data-theme="light"] .kb-modal {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12) !important;
+    border-radius: 16px !important;
+}
+
+html[data-theme="light"] .kb-modal-header {
+    background: #ffffff !important;
+    border-bottom: 2px solid var(--amarillo) !important;
+    padding: 18px 25px !important;
+}
+
+html[data-theme="light"] .kb-modal-header .modal-title {
+    color: var(--amarillo) !important;
+    font-family: 'Bebas Neue', sans-serif !important;
+    font-size: 24px !important;
+    letter-spacing: 1.5px !important;
+    text-transform: uppercase !important;
+}
+
+html[data-theme="light"] .kb-modal-header .close {
+    color: #000 !important;
+    opacity: 0.5;
+    font-size: 28px;
+    text-shadow: none;
+}
+
+html[data-theme="light"] .kb-modal-body {
+    background: #ffffff !important;
+    color: #334155 !important;
+    padding: 25px !important;
+}
+
+/* Ajustes para el contenido interno del expediente en claro */
+html[data-theme="light"] .exp-card-info {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #1e293b !important;
+}
+
+html[data-theme="light"] .expediente-header-card {
+    background: rgba(245, 158, 11, 0.05) !important;
+    border-color: var(--amarillo) !important;
+}
+
+html[data-theme="light"] .exp-titulo,
+html[data-theme="light"] .exp-subseccion-titulo {
+    color: #000 !important;
+}
+
+html[data-theme="light"] .exp-archivo-item {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    color: #475569 !important;
+}
+
+html[data-theme="light"] .exp-archivo-item:hover {
+    border-color: var(--amarillo) !important;
+    background: #fff !important;
+}
+
+html[data-theme="light"] .kb-modal-footer {
+    background: #f8fafc !important;
+    border-top: 1px solid #f1f5f9 !important;
+    padding: 18px 25px !important;
+}
+
+html[data-theme="light"] .form-control {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+html[data-theme="light"] .form-control:focus {
+    border-color: var(--amarillo) !important;
+    box-shadow: 0 0 10px rgba(245, 196, 0, 0.1) !important;
+}
+
+/* Mantenimiento de colores de estado y métricas */
+html[data-theme="light"] .pill-new { background: rgba(249, 115, 22, 0.1) !important; color: #f97316 !important; border-color: rgba(249, 115, 22, 0.2) !important; }
+html[data-theme="light"] .pill-process { background: rgba(168, 85, 247, 0.1) !important; color: #a855f7 !important; border-color: rgba(168, 85, 247, 0.2) !important; }
+html[data-theme="light"] .pill-revision { background: rgba(100, 116, 139, 0.1) !important; color: #475569 !important; border-color: rgba(100, 116, 139, 0.2) !important; }
+html[data-theme="light"] .pill-done { background: rgba(34, 197, 94, 0.1) !important; color: #059669 !important; border-color: rgba(34, 197, 94, 0.2) !important; }
+
+html[data-theme="light"] .met-card .met-num { color: #000 !important; }
+html[data-theme="light"] .met-card .amarillo { color: #b45309 !important; }
+html[data-theme="light"] .met-card .morado { color: #7c3aed !important; }
+html[data-theme="light"] .met-card .verde { color: #059669 !important; }
+html[data-theme="light"] .met-card .naranja { color: #ea580c !important; }
+
+html[data-theme="light"] .btn-view {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #475569;
+}
+
+/* Forzar colores de iconos y métricas para que no cambien */
+.met-icon { opacity: 0.5 !important; }
+html[data-theme="light"] .met-icon { opacity: 0.6 !important; }
+
+.task-client i, .task-meta-item i { color: #F5C400 !important; }
+.exp-icon-bg { background: #F5C400 !important; color: #000 !important; }

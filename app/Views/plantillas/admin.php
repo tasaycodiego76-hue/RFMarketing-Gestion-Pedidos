@@ -16,6 +16,7 @@
     <!-- Sistema de Temas (Claro/Oscuro) -->
     <link href="<?= base_url('recursos/styles/admin/paginas/tema.css') ?>" rel="stylesheet">
     <link href="<?= base_url('recursos/styles/admin/paginas/admin.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('recursos/styles/admin/notificaciones.css') ?>" rel="stylesheet">
 
     <?= $this->renderSection('styles') ?>
 </head>
@@ -121,9 +122,32 @@
                 </button>
                 <div class="topbar-titulo"><?= esc($tituloPagina ?? 'PANEL') ?></div>
             </div>
-            <button class="theme-toggle-btn" id="theme-toggle-btn" title="Cambiar tema">
-                <i class="bi bi-sun-fill"></i>
-            </button>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <!-- CAMPANA DE NOTIFICACIONES -->
+                <div class="notifications-wrapper">
+                    <button class="notifications-btn" id="notifications-btn" title="Revisiones Pendientes">
+                        <i class="bi bi-bell"></i>
+                        <span class="notifications-badge" id="notifications-badge" style="display: none;">0</span>
+                    </button>
+                    
+                    <div class="notifications-dropdown" id="notifications-dropdown">
+                        <div class="notifications-header">
+                            <h6>REVISIONES PENDIENTES</h6>
+                            <i class="bi bi-info-circle" style="font-size: 12px; color: #444;"></i>
+                        </div>
+                        <div class="notifications-list" id="notifications-list">
+                            <div class="notification-empty">
+                                <i class="bi bi-hourglass-split"></i>
+                                <p>Cargando revisiones...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="theme-toggle-btn" id="theme-toggle-btn" title="Cambiar tema">
+                    <i class="bi bi-sun-fill"></i>
+                </button>
+            </div>
         </header>
 
         <!-- CONTENIDO -->
@@ -201,12 +225,12 @@
 
     <div id="toast"></div>
 
-    <!-- Sistema de Cambio de Tema -->
-    <script src="<?= base_url('recursos/scripts/cambiador-tema.js') ?>"></script>
-
-
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Sistema de Cambio de Tema -->
+    <script src="<?= base_url('recursos/scripts/cambiador-tema.js') ?>"></script>
+    <script src="<?= base_url('recursos/scripts/admin/notificaciones.js') ?>"></script>
     <script>
         // URL base del proyecto — permite usarla en archivos JS externos sin depender de PHP
         const BASE_URL = '<?= base_url() ?>';

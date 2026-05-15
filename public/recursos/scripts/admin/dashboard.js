@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnNext = document.getElementById('btnNext');
 
     if (empScroll && btnPrev && btnNext) {
-        // Cálculo dinámico del ancho de scroll basado en la tarjeta + gap
         const getScrollAmount = () => {
             const card = empScroll.querySelector('.emp-card');
             return card ? card.offsetWidth + 24 : 375;
@@ -34,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         let start = 0;
-        const duration = 1500;
+        const duration = 1000;
         const startTime = performance.now();
 
         function update(now) {
@@ -52,25 +51,41 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── 3. Gráficos con Chart.js ──
     if (typeof Chart !== 'undefined') {
 
-        // Estilos base para modo oscuro
-        Chart.defaults.color = '#888';
         Chart.defaults.font.family = "'DM Sans', sans-serif";
 
-        // --- Gráfico de Barras (Carga de Trabajo) ---
+        let chartEmpInstance = null;
+        let chartEstInstance = null;
+
+        const getThemeColors = () => {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            return {
+                grid: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.03)',
+                ticks: isLight ? '#666' : '#888',
+                mainText: isLight ? '#000000' : '#ffffff',
+                subText: isLight ? '#888' : '#666'
+            };
+        };
+
+        const truncateLabel = (str, n = 15) => {
+            return (str.length > n) ? str.substr(0, n - 1) + '...' : str;
+        };
+
+        // --- Gráfico de Barras ---
         const ctxBar = document.getElementById('chartEmpresas');
         if (ctxBar) {
-            new Chart(ctxBar, {
+            const colors = getThemeColors();
+            const shortLabels = dataEmpresas.labels.map(label => truncateLabel(label));
+
+            chartEmpInstance = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
-                    labels: dataEmpresas.labels,
+                    labels: shortLabels,
                     datasets: [{
                         label: 'Pedidos',
                         data: dataEmpresas.datasets[0].data,
                         backgroundColor: dataEmpresas.datasets[0].backgroundColor,
                         borderRadius: 6,
-                        borderSkipped: false,
-                        barThickness: 30,
-                        maxBarThickness: 45
+                        barThickness: window.innerWidth < 480 ? 18 : 25,
                     }]
                 },
                 options: {
@@ -79,47 +94,44 @@ document.addEventListener('DOMContentLoaded', function () {
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: '#161616',
-                            titleColor: '#fff',
-                            bodyColor: '#aaa',
-                            padding: 12,
-                            cornerRadius: 8,
-                            displayColors: true
+                            callbacks: {
+                                title: (items) => dataEmpresas.labels[items[0].dataIndex]
+                            }
                         }
                     },
                     scales: {
                         x: {
                             grid: { display: false },
                             ticks: {
-                                color: '#888',
-                                font: { size: 10, weight: '600' }
+                                color: colors.ticks,
+                                font: { size: 9, weight: '600' },
+                                maxRotation: 0,
+                                autoSkip: false
                             }
                         },
                         y: {
                             beginAtZero: true,
-                            grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
-                            ticks: { stepSize: 1, color: '#555' }
+                            grid: { color: colors.grid, drawBorder: false },
+                            ticks: { color: colors.ticks, font: { size: 10 }, stepSize: 1 }
                         }
                     }
                 }
             });
         }
 
-        // --- Gráfico de Dona (Estado de Pedidos) ---
+        // --- Gráfico de Dona ---
         const ctxDona = document.getElementById('chartEstados');
         if (ctxDona) {
             const totalPedidos = dataEstados.datasets[0].data.reduce((a, b) => a + b, 0);
 
-            new Chart(ctxDona, {
+            chartEstInstance = new Chart(ctxDona, {
                 type: 'doughnut',
                 data: dataEstados,
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '80%',
-                    borderWidth: 2,
-                    borderColor: '#0f0f0f',
-                    hoverOffset: 12,
+                    cutout: '65%', // Dona bien gruesa como pediste
+                    borderWidth: 0,
                     plugins: {
                         legend: {
                             position: 'bottom',
@@ -127,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 padding: 20,
                                 usePointStyle: true,
                                 font: { size: 11, weight: '600' },
-                                color: '#999'
+                                color: getThemeColors().ticks
                             }
                         }
                     }
@@ -138,28 +150,45 @@ document.addEventListener('DOMContentLoaded', function () {
                         const { ctx, chartArea: { left, top, right, bottom } } = chart;
                         const centerX = (left + right) / 2;
                         const centerY = (top + bottom) / 2;
+                        const colors = getThemeColors();
 
                         ctx.save();
-
-                        // Número Central (Blanco puro para máxima claridad)
-                        ctx.font = 'bold 42px "Bebas Neue"';
-                        ctx.fillStyle = '#ffffff';
+                        
+                        // Número más pequeño y discreto
+                        ctx.font = 'bold 32px "Bebas Neue"';
+                        ctx.fillStyle = colors.mainText;
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
                         ctx.fillText(totalPedidos, centerX, centerY - 6);
 
-                        // Etiqueta (Gris suave)
+                        // Letras claras y ordenadas
                         ctx.font = 'bold 9px "DM Sans"';
-                        ctx.fillStyle = '#777';
+                        ctx.fillStyle = colors.subText;
                         ctx.letterSpacing = '1px';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
-                        ctx.fillText('PEDIDOS TOTALES', centerX, centerY + 24);
-
+                        ctx.fillText('PEDIDOS TOTALES', centerX, centerY + 22);
+                        
                         ctx.restore();
                     }
                 }]
             });
         }
+
+        // --- Observador de Tema ---
+        const observer = new MutationObserver(() => {
+            const colors = getThemeColors();
+            if (chartEmpInstance) {
+                chartEmpInstance.options.scales.x.ticks.color = colors.ticks;
+                chartEmpInstance.options.scales.y.grid.color = colors.grid;
+                chartEmpInstance.options.scales.y.ticks.color = colors.ticks;
+                chartEmpInstance.update('none');
+            }
+            if (chartEstInstance) {
+                chartEstInstance.options.plugins.legend.labels.color = colors.ticks;
+                chartEstInstance.update('none');
+            }
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     }
 });

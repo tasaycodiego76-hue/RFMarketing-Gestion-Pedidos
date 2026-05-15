@@ -149,20 +149,31 @@ class AtencionModel extends Model
      */
     public function estadisticasPorEmpresa(int $idEmpresa): array
     {
+        $hoy = date('Y-m-d');
+        $manana = date('Y-m-d', strtotime('+1 day'));
+
         $result = $this->db->query("
             SELECT
                 COUNT(CASE WHEN a.estado IN ('en_proceso', 'pendiente_asignado') THEN 1 END) AS activos,
                 COUNT(CASE WHEN a.estado = 'en_revision' THEN 1 END) AS en_revision,
                 COUNT(CASE WHEN a.estado IN ('pendiente_sin_asignar') THEN 1 END) AS por_aprobar,
-                COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) AS completados
+                COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) AS completados,
+                -- Métricas de SLA (Solo para los que no han finalizado)
+                COUNT(CASE WHEN a.estado NOT IN ('finalizado', 'cancelado') AND CAST(r.fecharequerida AS DATE) < ? THEN 1 END) AS atrasados,
+                COUNT(CASE WHEN a.estado NOT IN ('finalizado', 'cancelado') AND CAST(r.fecharequerida AS DATE) = ? THEN 1 END) AS hoy,
+                COUNT(CASE WHEN a.estado NOT IN ('finalizado', 'cancelado') AND CAST(r.fecharequerida AS DATE) = ? THEN 1 END) AS manana,
+                COUNT(CASE WHEN a.estado NOT IN ('finalizado', 'cancelado') AND CAST(r.fecharequerida AS DATE) > ? THEN 1 END) AS en_tiempo
             FROM atencion a
             INNER JOIN requerimiento r ON r.id = a.idrequerimiento
             INNER JOIN usuarios u ON u.id = r.idusuarioempresa
             INNER JOIN areas ar ON ar.id = u.idarea
             WHERE ar.idempresa = ?
-        ", [$idEmpresa])->getRowArray();
+        ", [$hoy, $hoy, $manana, $manana, $idEmpresa])->getRowArray();
 
-        return $result ?: ['activos' => 0, 'en_revision' => 0, 'por_aprobar' => 0, 'completados' => 0];
+        return $result ?: [
+            'activos' => 0, 'en_revision' => 0, 'por_aprobar' => 0, 'completados' => 0,
+            'atrasados' => 0, 'hoy' => 0, 'manana' => 0, 'en_tiempo' => 0
+        ];
     }
 
     /**
@@ -752,5 +763,29 @@ class AtencionModel extends Model
         ";
 
         return $this->db->query($sql, [$hoy, $manana, $idAreaAgencia])->getRowArray();
+    }
+
+    /**
+     * [NOTIFICACIONES ADMIN]
+     * Esta función busca todos los pedidos que los empleados acaban de enviar a revisión.
+     * Sirve para llenar la campana de notificaciones de la parte superior.
+     */
+    public function getRevisionesParaNotificaciones(): array
+    {
+        return $this->db->table('atencion a')
+            ->select('a.id, a.titulo, a.prioridad, a.fechacreacion, 
+                      e.nombreempresa as empresa, e.id as idempresa,
+                      aa.nombre as area_nombre, aa.id as idarea_agencia,
+                      u_emp.nombre as empleado_nombre,
+                      u_emp.apellidos as empleado_apellidos')
+            ->join('requerimiento r', 'r.id = a.idrequerimiento')
+            ->join('usuarios u_cli', 'u_cli.id = r.idusuarioempresa')
+            ->join('areas ar_cli', 'ar_cli.id = u_cli.idarea')
+            ->join('empresas e', 'e.id = ar_cli.idempresa')
+            ->join('areas_agencia aa', 'aa.id = a.idarea_agencia', 'left')
+            ->join('usuarios u_emp', 'u_emp.id = a.idempleado', 'left')
+            ->where('a.estado', 'en_revision')
+            ->orderBy('a.fechacreacion', 'DESC') // O usar la fecha de entrega si existiera
+            ->get()->getResultArray();
     }
 }

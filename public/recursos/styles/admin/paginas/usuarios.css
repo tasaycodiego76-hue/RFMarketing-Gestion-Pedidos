@@ -159,6 +159,28 @@
     color: var(--texto-3);
 }
 
+.user-email {
+    font-weight: 700;
+    color: var(--texto-2);
+    margin-bottom: 2px;
+}
+
+.user-phone {
+    font-size: 11px;
+    color: var(--amarillo);
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.user-phone i {
+    font-size: 10px;
+}
+
+html[data-theme="light"] .user-email { color: #000; }
+html[data-theme="light"] .user-phone { color: #b45309; opacity: 1; }
+
 .td-area-empresa {
     font-size: 12px;
     color: var(--texto-2);
@@ -982,12 +1004,102 @@ html[data-theme="light"] .rea-text-main {
 html[data-theme="light"] .rea-text-muted {
     color: var(--texto-3) !important;
 }
-/* --- BLINDAJE RESPONSIVO ADICIONAL --- */
+/* =========================================================================
+   RESPONSIVIDAD (100% ADAPTABLE)
+   ========================================================================= */
+
 @media (max-width: 992px) {
     .usuarios-cabecera { flex-direction: column; align-items: stretch; }
-    .input-busqueda { max-width: 100%; }
-    .tabla-usuarios { min-width: 800px; }
+    .input-busqueda { max-width: 100% !important; }
 }
-@media (max-width: 576px) {
-    .btn-nuevo { width: 100%; text-align: center; }
+
+@media (max-width: 768px) {
+    /* Transformar tabla en tarjetas para móvil */
+    .tabla-usuarios thead { display: none; }
+    
+    .tabla-usuarios, 
+    .tabla-usuarios tbody, 
+    .tabla-usuarios tr, 
+    .tabla-usuarios td {
+        display: block;
+        width: 100%;
+        min-width: 0 !important;
+    }
+
+    .tabla-usuarios tbody tr {
+        margin-bottom: 25px;
+        border: 1.5px solid var(--borde) !important;
+        border-radius: 16px;
+        padding: 18px;
+        background: var(--panel);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .tabla-usuarios tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: none !important;
+        padding: 12px 0 !important;
+        text-align: left !important;
+        border-bottom: 1px solid rgba(255,255,255,0.03) !important;
+    }
+
+    html[data-theme="light"] .tabla-usuarios tbody td {
+        border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+    }
+
+    .tabla-usuarios tbody td:last-child {
+        border-bottom: none !important;
+        padding-top: 15px !important;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    /* Etiquetas para identificar los campos en móvil */
+    .tabla-usuarios tbody td::before {
+        content: attr(data-label);
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--texto-3);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .td-nombre { font-size: 17px; margin-bottom: 4px; }
+    .td-usuario { font-size: 13px; }
+    
+    .acciones-contenedor { 
+        justify-content: flex-start; 
+        width: 100%; 
+        gap: 12px;
+        margin-top: 5px;
+    }
+
+    .btn-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 18px;
+    }
+    
+    .btn-nuevo { width: 100%; text-align: center; margin-bottom: 15px; padding: 12px; }
+    
+    .rol-badge { padding: 4px 12px; font-size: 10px; }
+    
+    .area-empresa-contenedor {
+        text-align: right;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .tabla-usuarios tbody tr {
+        padding: 15px;
+    }
+    
+    .td-nombre { font-size: 15px; }
+    
+    .area-nombre { font-size: 11px; }
+    .area-empresa { font-size: 9px; }
 }
