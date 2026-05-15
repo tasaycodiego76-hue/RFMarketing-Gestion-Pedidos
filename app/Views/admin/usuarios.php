@@ -17,8 +17,8 @@
            <button class="btn-nuevo mb-0 dropdown-toggle" id="btn-nuevo" data-toggle="dropdown" aria-haspopup="true"
    aria-expanded="false">+ Nuevo</button>
            <div class="dropdown-menu" aria-labelledby="btn-nuevo">
-               <a class="dropdown-item" href="#" id="opcion-empleado">Nuevo Colaborador</a>
-               <a class="dropdown-item" href="#" id="opcion-area">Crear Área de Empresa + Responsable</a>
+               <a class="dropdown-item" href="#" id="opcion-empleado">Nuevo Colaborador (Agencia)</a>
+               <a class="dropdown-item" href="#" id="opcion-area">Responsable de Área (Empresa Cliente)</a>
            </div>
        </div>
        <div class="busqueda-contenedor">
@@ -53,30 +53,27 @@
                   <form id="form-usuario" autocomplete="off">
                       <input type="hidden" id="tipo_registro" value="">
 
-                      <!-- Selección de Empresa (solo para área con responsable) -->
+                      <!-- Selección de Empresa (para responsables de área) -->
                       <div class="form-group" id="grupo-empresa" style="display:none;">
-                          <label>Empresa <span class="text-danger">*</span></label>
+                          <label>Empresa Cliente <span class="text-danger">*</span></label>
                           <select class="form-control" id="idempresa">
-                              <option value="">— Selecciona una empresa —</option>
+                              <option value="">— Selecciona la empresa —</option>
                               <?php foreach ($empresas as $e): ?>
                                   <option value="<?= $e['id'] ?>"><?= $e['nombreempresa'] ?></option>
                               <?php endforeach; ?>
                           </select>
                       </div>
 
-                      <!-- Nombre del Área (solo para área con responsable) -->
-                      <div class="form-group" id="grupo-nombre-area" style="display:none;">
-                          <label>Nombre del Área <span class="text-danger">*</span></label>
-                          <input type="text" class="form-control" id="nombre_area" maxlength="100">
+                      <!-- Selección de Área de Empresa -->
+                      <div class="form-group" id="grupo-area-empresa" style="display:none;">
+                          <label>Área de la Empresa <span class="text-danger">*</span></label>
+                          <select class="form-control" id="idarea">
+                              <option value="">— Primero selecciona una empresa —</option>
+                          </select>
+                          <small class="text-muted">Si el área no aparece, debes crearla primero en el módulo de Empresas.</small>
                       </div>
 
-                      <!-- Descripción del Área (solo para área con responsable) -->
-                      <div class="form-group" id="grupo-descripcion-area" style="display:none;">
-                          <label>Descripción del Área</label>
-                          <textarea class="form-control" id="descripcion_area" rows="2"></textarea>
-                      </div>
-
-                      <!-- Razón Social (solo cliente) -->
+                      <!-- Razón Social (solo cliente directo si aplica) -->
                       <div class="form-group" id="grupo-razonsocial" style="display:none;">
                           <label>Razón Social (Empresa)</label>
                           <input type="text" class="form-control" id="razonsocial" maxlength="255" required>

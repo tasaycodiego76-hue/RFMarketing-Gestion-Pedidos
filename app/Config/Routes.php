@@ -33,6 +33,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('usuarios/infoReasignar/(:num)', 'Administrador\UsuarioController::infoReasignar/$1');
     $routes->post('usuarios/reasignarCliente', 'Administrador\UsuarioController::reasignarCliente');
     $routes->post('usuarios/reasignarEmpleadoArea', 'Administrador\UsuarioController::reasignarEmpleadoArea');
+    $routes->get('usuarios/listarAreasPorEmpresa/(:num)', 'Administrador\UsuarioController::listarAreasPorEmpresa/$1');
 
     $routes->get('areas', 'Administrador\AreasController::index');
     $routes->get('areas/listar', 'Administrador\AreasController::listar');
@@ -63,6 +64,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('empresas/registrar', 'Administrador\EmpresasController::registrar');
     $routes->put('empresas/editar/(:num)', 'Administrador\EmpresasController::editar/$1');
     $routes->post('empresas/toggleEstado', 'Administrador\EmpresasController::toggleEstado');
+    $routes->post('empresas/registrarArea', 'Administrador\EmpresasController::registrarArea');
 
     $routes->get('historial', 'Administrador\HistorialController::index');
     $routes->get('reportes', 'Administrador\ReportesController::index');

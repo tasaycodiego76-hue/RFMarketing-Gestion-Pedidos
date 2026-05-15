@@ -63,7 +63,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 let rolClase = 'rol-empleado';
                 let rolTexto = 'Empleado';
 
-                // PRIORIDAD 1: CLIENTE (NO se debe sobreescribir)
                 const esCliente = u.rol === 'cliente';
 
                 const esResponsable = u.rol === 'responsable_area'
@@ -82,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const rolBadge = `<span class="rol-badge ${rolClase}">${rolTexto}</span>`;
 
-                // 🔹 ÁREA (QUITAR EMPRESA ENTRE PARÉNTESIS)
+                // 🔹 ÁREA
                 let areaMostrar = u.area_completa || u.area_nombre || '-';
 
                 if (areaMostrar.includes('(')) {
@@ -147,13 +146,45 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // ─── CARGAR ÁREAS DE EMPRESA DINÁMICAMENTE ─────────────
+    async function cargarAreasEmpresa(idEmpresa, idAreaSeleccionada = null) {
+        const selectArea = document.querySelector('#idarea');
+        if (!idEmpresa) {
+            selectArea.innerHTML = '<option value="">— Primero selecciona una empresa —</option>';
+            return;
+        }
+
+        selectArea.innerHTML = '<option value="">— Cargando áreas... —</option>';
+
+        try {
+            const response = await fetch(BASE_URL + 'admin/usuarios/listarAreasPorEmpresa/' + idEmpresa);
+            const areas = await response.json();
+
+            selectArea.innerHTML = '<option value="">— Selecciona el área —</option>';
+            areas.forEach(a => {
+                const selected = idAreaSeleccionada == a.id ? 'selected' : '';
+                selectArea.innerHTML += `<option value="${a.id}" ${selected}>${a.nombre}</option>`;
+            });
+
+            if (areas.length === 0) {
+                selectArea.innerHTML = '<option value="">No hay áreas creadas para esta empresa</option>';
+            }
+        } catch (error) {
+            console.error('Error al cargar áreas:', error);
+            selectArea.innerHTML = '<option value="">Error al cargar áreas</option>';
+        }
+    }
+
+    document.querySelector('#idempresa').addEventListener('change', function() {
+        cargarAreasEmpresa(this.value);
+    });
+
     // ─── CONFIGURAR FORMULARIO SEGÚN TIPO ─────────────────
     function configurarFormulario(tipo) {
         inputTipoRegistro.value = tipo;
 
         const grupoEmpresa = document.querySelector('#grupo-empresa');
-        const grupoNombreArea = document.querySelector('#grupo-nombre-area');
-        const grupoDescArea = document.querySelector('#grupo-descripcion-area');
+        const grupoAreaEmpresa = document.querySelector('#grupo-area-empresa');
         const grupoRazonSocial = document.querySelector('#grupo-razonsocial');
         const camposEmpleado = document.querySelector('#campos-empleado');
         const tipodoc = document.querySelector('#tipodoc');
@@ -161,13 +192,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const modalTitulo = document.querySelector('#modal-titulo');
 
         // Ocultar todo primero
-        [grupoEmpresa, grupoNombreArea, grupoDescArea, grupoRazonSocial, camposEmpleado].forEach(el => {
+        [grupoEmpresa, grupoAreaEmpresa, grupoRazonSocial, camposEmpleado].forEach(el => {
             if (el) el.style.display = 'none';
         });
 
-        // Deshabilitar required de campos condicionales
+        // Reset inputs
         document.querySelector('#idempresa').required = false;
-        document.querySelector('#nombre_area').required = false;
+        document.querySelector('#idarea').required = false;
         document.querySelector('#razonsocial').required = false;
         const areaAgencia = document.querySelector('#idarea_agencia');
         areaAgencia.required = false;
@@ -176,24 +207,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const isEdit = !!formulario.dataset.editId;
 
         if (tipo === 'empleado') {
-            modalTitulo.textContent = isEdit ? 'Editar Colaborador' : 'Nuevo Colaborador';
+            modalTitulo.textContent = isEdit ? 'Editar Colaborador (Agencia)' : 'Nuevo Colaborador (Agencia)';
             camposEmpleado.style.display = 'block';
             labelNombre.textContent = 'Nombre';
             tipodoc.innerHTML = '<option value="DNI">DNI</option><option value="CE">CE</option>';
             areaAgencia.required = true;
-            
-            // Restricción: No se puede cambiar el área de la agencia al editar
             areaAgencia.disabled = isEdit;
 
         } else if (tipo === 'responsable_area') {
-            modalTitulo.textContent = 'Crear Área de Empresa + Responsable';
+            modalTitulo.textContent = 'Registrar Responsable de Área (Empresa)';
             grupoEmpresa.style.display = 'block';
-            grupoNombreArea.style.display = 'block';
-            grupoDescArea.style.display = 'block';
+            grupoAreaEmpresa.style.display = 'block';
 
-            // Hacer requeridos
             document.querySelector('#idempresa').required = true;
-            document.querySelector('#nombre_area').required = true;
+            document.querySelector('#idarea').required = true;
 
             labelNombre.textContent = 'Nombre del Responsable';
             tipodoc.innerHTML = '<option value="DNI">DNI</option><option value="CE">CE</option>';
@@ -227,23 +254,13 @@ document.addEventListener('DOMContentLoaded', function () {
         nd.placeholder = l.ph;
     }
 
-    // Listener para modal principal
     document.querySelector('#tipodoc').addEventListener('change', function() {
         actualizarValidacionDoc(this.value, '#numerodoc');
     });
 
-    // Listener para modal reasignar
-    document.querySelector('#rea-tipodoc').addEventListener('change', function() {
-        actualizarValidacionDoc(this.value, '#rea-numerodoc');
-    });
-
-    // Función para mostrar un mensaje informativo sobre el estado del área
     async function verificarEstadoArea(idArea, excludeId = null) {
         const msgDiv = document.querySelector('#area-status-msg');
-        const isEdit = !!excludeId;
-
-        // En modo EDICIÓN no mostramos ningún mensaje informativo sobre el área
-        if (isEdit || !idArea) {
+        if (excludeId || !idArea) {
             msgDiv.style.display = 'none';
             return;
         }
@@ -311,23 +328,22 @@ document.addEventListener('DOMContentLoaded', function () {
         if (clave) datos.clave = clave;
 
         if (editId) {
-            // Modo edición - mantener rol original
             datos.rol = rolOriginal;
-
-            // Si es empleado, enviar campos de área
             if (rolOriginal === 'empleado') {
                 datos.idarea_agencia = document.querySelector('#idarea_agencia').value || null;
+            } else if (rolOriginal === 'cliente') {
+                // Si es un responsable de área editando
+                const idArea = document.querySelector('#idarea').value;
+                if (idArea) datos.idarea = idArea;
             }
         } else {
-            // Modo creación según tipo
             if (tipo === 'empleado') {
                 datos.rol = 'empleado';
                 datos.idarea_agencia = document.querySelector('#idarea_agencia').value || null;
             } else if (tipo === 'responsable_area') {
                 datos.rol = 'responsable_area';
                 datos.idempresa = document.querySelector('#idempresa').value;
-                datos.nombre_area = document.querySelector('#nombre_area').value;
-                datos.descripcion_area = document.querySelector('#descripcion_area').value;
+                datos.idarea = document.querySelector('#idarea').value;
             } else if (tipo === 'cliente') {
                 datos.rol = 'cliente';
                 datos.razonsocial = document.querySelector('#razonsocial').value;
@@ -370,7 +386,6 @@ document.addEventListener('DOMContentLoaded', function () {
         inputClave.removeAttribute('required');
         inputClave.placeholder = 'Dejar en blanco para no cambiar';
 
-        // Configurar según el rol existente
         if (u.rol === 'empleado') {
             configurarFormulario('empleado');
             setTimeout(() => {
@@ -379,12 +394,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 50);
         } else if (u.rol === 'cliente') {
             if (u.idarea) {
-                // Es un responsable de área de empresa
                 configurarFormulario('responsable_area');
                 setTimeout(() => {
                     document.querySelector('#idempresa').value = u.idempresa ?? '';
-                    document.querySelector('#nombre_area').value = u.area_empresa_nombre ?? '';
-                    document.querySelector('#descripcion_area').value = u.area_empresa_desc ?? '';
+                    cargarAreasEmpresa(u.idempresa, u.idarea);
                 }, 50);
             } else {
                 configurarFormulario('cliente');
@@ -471,16 +484,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const historialDiv = document.querySelector('#historial-reasignaciones');
             const btnProcesar = document.querySelector('#btn-procesar-reasignar');
 
-            // Reset forms
             formCliente.reset();
             formEmpleado.reset();
             formCliente.style.display = 'none';
             formEmpleado.style.display = 'none';
             historialDiv.style.display = 'none';
             btnProcesar.dataset.tipo = data.tipo;
-
-            // Inicializar validación de documento para el modal de reasignar
-            actualizarValidacionDoc(document.querySelector('#rea-tipodoc').value, '#rea-numerodoc');
 
             const formatFecha = (f) => f ? new Date(f).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
 
@@ -502,30 +511,15 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </div>
                             </div>
                             <div class="col">
-                                 <h6 class="rea-text-main mb-0 font-weight-bold" style="font-size: 16px;">${data.actual.nombreempresa} <span class="text-warning ml-2" style="font-size: 11px; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">RUC: ${data.actual.ruc}</span></h6>
+                                 <h6 class="rea-text-main mb-0 font-weight-bold" style="font-size: 16px;">${data.actual.nombreempresa}</h6>
                                  <p class="mb-0 rea-text-muted mt-1" style="font-size: 12px;"><i class="bi bi-diagram-3 mr-1"></i> Área: <span class="rea-text-main">${data.actual.nombre_area || 'General'}</span></p>
                              </div>
                         </div>
-                        <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
-                        <div class="row">
-                            <div class="col-md-6 mb-2 mb-md-0 border-right border-secondary">
-                                <p class="mb-0 rea-text-muted small">Responsable en funciones</p>
-                                <p class="mb-0 rea-text-main font-weight-bold" style="font-size: 14px;">${data.usuario.nombre} ${data.usuario.apellidos}</p>
-                            </div>
-                            <div class="col-md-6 pl-md-4">
-                                <p class="mb-0 rea-text-muted small">Fecha de toma de cargo</p>
-                                <p class="mb-0 text-warning font-weight-bold" style="font-size: 13px;"><i class="bi bi-calendar-check mr-1"></i> ${formatFecha(data.actual.fecha_inicio)}</p>
-                            </div>
-                        </div>
-
                     </div>
                 `;
 
-                // Historial (Solo mostrar registros pasados/inactivos para que sea una verdadera "línea de tiempo de reasignaciones")
                 const listaHistorial = document.querySelector('#lista-historial-reasignar');
                 listaHistorial.innerHTML = '';
-
-                // Filtramos para no mostrar al que ya está activo arriba
                 const reasignacionesPasadas = data.historial ? data.historial.filter(h => h.estado !== 'activo') : [];
 
                 if (reasignacionesPasadas.length > 0) {
@@ -534,31 +528,15 @@ document.addEventListener('DOMContentLoaded', function () {
                             <tr style="border-bottom: 1px solid #222;">
                                 <td class="py-2">
                                     <div class="font-weight-bold rea-text-main" style="font-size: 12px;">${h.nombre || 'N/A'} ${h.apellidos || ''}</div>
-                                    <div class="rea-text-muted small" style="font-size: 10px;">${h.correo || '-'}</div>
                                 </td>
-                                <td class="py-2 rea-text-main" style="opacity: 0.9; font-size: 11px;">
-                                    <i class="bi bi-arrow-right-short text-success"></i> ${formatFecha(h.fecha_inicio)}
-                                </td>
-                                <td class="py-2 rea-text-main" style="opacity: 0.9; font-size: 11px;">
-                                    <i class="bi bi-arrow-left-short text-danger"></i> ${formatFecha(h.fecha_fin)}
-                                </td>
-                                <td class="py-2 text-center">
-                                    <span class="badge bg-secondary text-white" style="font-size: 8px; padding: 3px 6px; opacity: 0.6; letter-spacing: 0.5px;">ANTERIOR</span>
-                                </td>
+                                <td class="py-2 rea-text-main" style="font-size: 11px;">${formatFecha(h.fecha_inicio)}</td>
+                                <td class="py-2 rea-text-main" style="font-size: 11px;">${formatFecha(h.fecha_fin)}</td>
+                                <td class="py-2 text-center"><span class="badge bg-secondary text-white">ANTERIOR</span></td>
                             </tr>
-
                         `;
                     });
                 } else {
-                    listaHistorial.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="text-center py-4">
-                                <div class="rea-text-muted mb-1" style="font-size: 12px;"><i class="bi bi-info-circle mr-1"></i> Sin reasignaciones previas</div>
-                                <div class="small text-muted" style="font-size: 10px;">Este es el primer responsable asignado a la empresa.</div>
-                            </td>
-
-                        </tr>
-                    `;
+                    listaHistorial.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">Sin historial de reasignaciones.</td></tr>';
                 }
 
             } else if (data.tipo === 'empleado') {
@@ -567,39 +545,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 infoDiv.innerHTML = `
                     <div class="p-3 rounded mb-2" style="background: rgba(167, 139, 250, 0.1); border: 1px solid rgba(167, 139, 250, 0.3);">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: #a78bfa;">
-                                    <i class="bi bi-person-badge text-dark fs-4"></i>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <p class="mb-0 rea-text-muted small font-weight-bold uppercase" style="letter-spacing: 1px;">Área de Agencia</p>
-                                <h6 class="rea-text-main mb-0 font-weight-bold" style="font-size: 16px;">${data.area ? data.area.nombre : 'Área no especificada'}</h6>
-                            </div>
-                        </div>
-                        <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p class="mb-0 rea-text-muted small">Jefe de Área Actual</p>
-                                <p class="mb-0 rea-text-main font-weight-bold" style="font-size: 14px;">${data.actual.nombre} ${data.actual.apellidos}</p>
-                            </div>
-
-                            <div class="col-md-6 text-md-right d-flex align-items-center justify-content-md-end">
-                                <span class="badge" style="background: rgba(167, 139, 250, 0.2); color: #c4b5fd; border: 1px solid #a78bfa; font-size: 10px; font-weight: 700;">RESPONSABLE ACTIVO</span>
-                            </div>
-                        </div>
+                        <h6 class="rea-text-main mb-0 font-weight-bold">${data.area ? data.area.nombre : 'Área no especificada'}</h6>
+                        <p class="mb-0 rea-text-muted small">Jefe Actual: ${data.actual.nombre} ${data.actual.apellidos}</p>
                     </div>
                 `;
 
                 const select = document.querySelector('#rea-emp-nuevo');
-                select.innerHTML = '<option value="" style="background: #111;">— Seleccionar Sucesor del Equipo —</option>';
-                if (data.asignables && data.asignables.length > 0) {
+                select.innerHTML = '<option value="">— Seleccionar Sucesor —</option>';
+                if (data.asignables) {
                     data.asignables.forEach(e => {
                         if (e.id != data.actual.id) {
-                            const nombreFull = `${e.nombre || 'Sin nombre'} ${e.apellidos || ''}`.trim();
-                            const correoInfo = e.correo ? ` (${e.correo})` : '';
-                            select.innerHTML += `<option value="${e.id}" style="background: #111;">${nombreFull}${correoInfo}</option>`;
+                            select.innerHTML += `<option value="${e.id}">${e.nombre} ${e.apellidos}</option>`;
                         }
                     });
                 }
@@ -608,7 +564,7 @@ document.addEventListener('DOMContentLoaded', function () {
             $('#modal-reasignar').modal('show');
         } catch (e) {
             console.error(e);
-            notificar('Error técnico al cargar el panel de reasignación');
+            notificar('Error técnico al cargar el panel');
         }
     };
 
@@ -643,7 +599,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (tipo === 'empleado') {
             const idNuevo = document.querySelector('#rea-emp-nuevo').value;
             if (!idNuevo) {
-                notificar('Por favor, selecciona al nuevo colaborador que asumirá la responsabilidad.');
+                notificar('Selecciona al nuevo colaborador.');
                 return;
             }
 
@@ -656,39 +612,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const isLight = document.documentElement.getAttribute('data-theme') === 'light';
         Swal.fire({
-            title: '¿Confirmar Reasignación?',
-            text: 'Esta acción es irreversible y actualizará todos los permisos del sistema.',
+            title: '¿Confirmar Cambio?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#F5C400',
-            cancelButtonColor: isLight ? '#ef4444' : '#d33',
-            confirmButtonText: 'Sí, Confirmar Cambio',
+            confirmButtonText: 'Sí, Confirmar',
             cancelButtonText: 'Cancelar',
             background: isLight ? '#ffffff' : '#161616',
             color: isLight ? '#1e293b' : '#ffffff'
         }).then(async (result) => {
-
             if (!result.isConfirmed) return;
-
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(datos)
                 });
-                const resultData = await response.json();
-
-                notificar(resultData.message || 'Operación completada', resultData.success ? 'success' : 'error');
-                if (resultData.success) {
+                const res = await response.json();
+                notificar(res.message, res.success ? 'success' : 'error');
+                if (res.success) {
                     $('#modal-reasignar').modal('hide');
                     obtenerUsuarios();
                 }
             } catch (e) {
-                notificar('Ocurrió un error al procesar el cambio de responsable', 'error');
+                notificar('Error al procesar el cambio', 'error');
             }
         });
     });
 
-    // ─── INICIO ────────────────────────────────────────────
     obtenerUsuarios();
 });

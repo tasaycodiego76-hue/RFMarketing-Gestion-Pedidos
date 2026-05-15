@@ -76,7 +76,7 @@
             </a>
             <a href="<?= site_url('admin/areas') ?>"
                 class="nav-enlace <?= ($paginaActual == 'areas') ? 'activo' : '' ?>">
-                <i class="bi bi-diagram-3"></i> Áreas
+                <i class="bi bi-diagram-3"></i> Áreas Internas
             </a>
             <a href="<?= site_url('admin/empresas') ?>"
                 class="nav-enlace <?= ($paginaActual == 'empresas') ? 'activo' : '' ?>">
