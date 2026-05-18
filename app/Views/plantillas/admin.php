@@ -234,6 +234,15 @@
     <script>
         // URL base del proyecto — permite usarla en archivos JS externos sin depender de PHP
         const BASE_URL = '<?= base_url() ?>';
+
+        // Fix de compatibilidad local: Desregistrar cualquier ServiceWorker de proyectos antiguos en localhost:8080
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
     </script>
     <?= $this->renderSection('scripts') ?>
 

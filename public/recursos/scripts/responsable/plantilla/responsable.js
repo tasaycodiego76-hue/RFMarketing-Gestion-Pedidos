@@ -116,4 +116,26 @@ document.addEventListener("DOMContentLoaded", function () {
       title: mensaje,
     });
   };
+
+  // INTEGRACIÓN PUSHER (TIEMPO REAL)
+  if (typeof PUSHER_KEY !== 'undefined' && typeof Pusher !== 'undefined') {
+    const pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
+    const canal = pusher.subscribe(PUSHER_CANAL);
+
+    function recargarVistasResponsable() {
+        if (typeof cargarBandeja === 'function') cargarBandeja();
+        if (typeof cargarTareas === 'function') cargarTareas();
+        if (typeof cargarDatosDashboard === 'function') cargarDatosDashboard();
+        if (typeof cargarTareasEquipo === 'function') cargarTareasEquipo();
+    }
+
+    canal.bind('solicitud.nueva', function(data) {
+        recargarVistasResponsable();
+        window.mostrarToast(`Nuevo pedido #${data.id} recibido`, 'info');
+    });
+
+    canal.bind('solicitud.actualizada', function(data) {
+        recargarVistasResponsable();
+    });
+  }
 });

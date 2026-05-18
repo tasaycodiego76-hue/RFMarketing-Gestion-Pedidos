@@ -1,8 +1,16 @@
 function verDetalleSolicitud(id) {
+  // Registrar el ID activo para que Pusher pueda refrescarlo sin recargar
+  window._modalIdActual = id;
+
   const modal = $("#modal");
   const titulo = $("#modal-titulo");
   const cuerpo = $("#modal-cuerpo");
   const pie = $("#modal-pie");
+
+  // Limpiar ID al cerrar el modal
+  modal.off('hidden.bs.modal.emp').on('hidden.bs.modal.emp', function() {
+    window._modalIdActual = null;
+  });
 
   Swal.fire({
     title: "Cargando expediente...",
@@ -145,6 +153,18 @@ function verDetalleSolicitud(id) {
       $("#lista-enlaces-requerimiento").html(
         linkHtml ||
           '<p style="font-size:11px; color:#444; font-style:italic;">No hay enlaces externos.</p>',
+      );
+
+      // ── TRACKING DEL PEDIDO en tiempo real ────────────────────────────────
+      const _trackHtml = (res.tracking && res.tracking.length > 0)
+          ? _renderTrackingEmpleado(res.tracking)
+          : '<p style="font-size:11px;color:#555;font-style:italic;">Sin historial registrado.</p>';
+      cuerpo.append(
+        '<div class="mt-4" style="border-top:1px solid var(--borde);padding-top:15px;">'
+        + '<h6 style="color:var(--texto);font-family:\'Bebas Neue\';letter-spacing:2px;font-size:18px;margin-bottom:12px;">'
+        + '<i class="bi bi-clock-history" style="color:var(--amarillo);margin-right:8px;"></i>HISTORIAL DEL PEDIDO</h6>'
+        + '<div id="emp-tracking-container" style="max-height:200px;overflow-y:auto;">'
+        + _trackHtml + '</div></div>'
       );
 
       modal.modal("show");
@@ -376,4 +396,74 @@ $(document).ready(function() {
             }
         });
     }
+
+    // ── PUSHER: TIEMPO REAL PARA EMPLEADO ──────────────────────────────────────
+    if (typeof PUSHER_KEY !== 'undefined' && typeof Pusher !== 'undefined') {
+        const pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
+        const canal  = pusher.subscribe(PUSHER_CANAL);
+
+        function _actualizarVista() {
+            const modalAbierto = $('#modal').hasClass('show');
+
+            if (modalAbierto && window._modalIdActual) {
+                // Modal abierto → refrescar SOLO el contenido sin cerrar
+                _refrescarModalEmpleado(window._modalIdActual);
+            } else {
+                // Modal cerrado → recargar la lista de tarjetas
+                location.reload();
+            }
+        }
+
+        canal.bind('solicitud.actualizada', _actualizarVista);
+        canal.bind('solicitud.nueva',       _actualizarVista);
+    }
 });
+
+// ── REFRESCAR MODAL DEL EMPLEADO (tracking + datos en tiempo real) ──────────
+function _refrescarModalEmpleado(id) {
+    $.get(`${BASE_URL}/empleado/pedido-detalle/${id}`, function(res) {
+        if (res.status !== 'success') return;
+
+        const d = res.data;
+
+        // Actualizar estado en el header del modal
+        const pill = document.querySelector('.emp-estado-pill');
+        if (pill) {
+            const estadoLabel = { pendiente_asignado: 'PENDIENTE', en_proceso: 'EN PROCESO', en_revision: 'EN REVISIÓN', finalizado: 'FINALIZADO' };
+            pill.textContent = estadoLabel[d.estado] || d.estado.toUpperCase();
+        }
+
+        // Actualizar sección de tracking si existe
+        const trackingContainer = document.getElementById('emp-tracking-container');
+        if (trackingContainer && res.tracking && res.tracking.length > 0) {
+            trackingContainer.innerHTML = _renderTrackingEmpleado(res.tracking);
+        }
+    });
+}
+
+function _renderTrackingEmpleado(tracking) {
+    const iconos = {
+        pendiente_asignado : { icon: 'bi-person-check-fill', color: '#f59e0b' },
+        en_proceso         : { icon: 'bi-play-circle-fill',   color: '#a855f7' },
+        en_revision        : { icon: 'bi-send-check-fill',    color: '#f97316' },
+        finalizado         : { icon: 'bi-check-circle-fill',  color: '#10b981' },
+    };
+
+    return tracking.map(t => {
+        const cfg   = iconos[t.estado] || { icon: 'bi-circle', color: '#888' };
+        const fecha = t.fecha_registro
+            ? new Date(t.fecha_registro).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+            : '---';
+        return `
+            <div style="display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--borde);">
+                <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:${cfg.color}22; display:flex; align-items:center; justify-content:center;">
+                    <i class="bi ${cfg.icon}" style="color:${cfg.color}; font-size:14px;"></i>
+                </div>
+                <div style="flex:1;">
+                    <p style="margin:0; font-size:12px; color:var(--texto); font-weight:600; line-height:1.4;">${t.accion}</p>
+                    <small style="color:var(--texto-3); font-size:10px;">${fecha}</small>
+                </div>
+            </div>`;
+    }).join('');
+}
+

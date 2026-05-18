@@ -89,8 +89,10 @@ async function confirmarAsignacion() {
     idatencion: idAtencion,
     idareaagencia: idArea,
   });
-  if (data.status === "success") location.reload();
-  else alert(data.msg);
+  if (data.status === "success") {
+    $("#modalAsignar").modal("hide");
+    Swal.fire({ icon: 'success', title: '¡Pedido enviado al área!', toast: true, position: 'top-end', showConfirmButton: false, timer: 4000, timerProgressBar: true, background: '#0a0a0a', color: '#fff' });
+  } else alert(data.msg);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -149,8 +151,10 @@ async function confirmarAsignacionEmpleado() {
     idatencion: idAtencion,
     idempleado: idEmpleado,
   });
-  if (data.status === "success") location.reload();
-  else alert(data.msg);
+  if (data.status === "success") {
+    $("#modalAsignar").modal("hide");
+    Swal.fire({ icon: 'success', title: '¡Empleado asignado!', toast: true, position: 'top-end', showConfirmButton: false, timer: 4000, timerProgressBar: true, background: '#0a0a0a', color: '#fff' });
+  } else alert(data.msg);
 }
 
 async function verDetalle(idAtencion) {
@@ -459,18 +463,19 @@ async function cambiarPrioridad(id, valor) {
     idatencion: id,
     prioridad: valor,
   });
-  if (data.status === "success") location.reload();
-  else alert(data.msg);
+  if (data.status === "success") {
+    Swal.fire({ icon: 'success', title: 'Prioridad actualizada', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#0a0a0a', color: '#fff' });
+  } else alert(data.msg);
 }
 
 
 async function cambiarEstado(id, est, acc) {
   const esFinalizar = (est === 'finalizado');
-  
+
   const result = await Swal.fire({
     title: esFinalizar ? '¿Aprobar requerimiento?' : '¿Confirmar cambio de estado?',
-    text: esFinalizar 
-      ? 'Se registrará como entregado y se notificará al cliente.' 
+    text: esFinalizar
+      ? 'Se registrará como entregado y se notificará al cliente.'
       : `¿Estás seguro de que deseas cambiar el estado a ${acc.toLowerCase()}?`,
     icon: 'question',
     showCancelButton: true,
@@ -504,20 +509,13 @@ async function cambiarEstado(id, est, acc) {
   });
 
   if (data.status === "success") {
-    // Guardar mensaje para mostrarlo después del reload
-    const msg = esFinalizar 
-      ? '¡Pedido aprobado y entregado con éxito!' 
+    const msg = esFinalizar
+      ? '¡Pedido aprobado y entregado con éxito!'
       : `¡Pedido marcado como ${acc.toLowerCase()} con éxito!`;
-    localStorage.setItem('kanban_msg', msg);
-    location.reload();
+    $("#modalDetalle").modal("hide");
+    Swal.fire({ icon: 'success', title: msg, toast: true, position: 'top-end', showConfirmButton: false, timer: 4000, timerProgressBar: true, background: '#0a0a0a', color: '#fff' });
   } else {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: data.msg,
-      background: '#0a0a0a',
-      color: '#fff'
-    });
+    Swal.fire({ icon: 'error', title: 'Error', text: data.msg, background: '#0a0a0a', color: '#fff' });
   }
 }
 
@@ -562,17 +560,9 @@ async function enviarRetroalimentacion() {
 
   if (data.status === "success") {
     $("#modalRetro").modal("hide");
-    // Guardar mensaje para mostrarlo después del reload
-    localStorage.setItem('kanban_msg', '¡Corrección enviada correctamente!');
-    location.reload();
+    Swal.fire({ icon: 'success', title: '¡Corrección enviada!', toast: true, position: 'top-end', showConfirmButton: false, timer: 4000, timerProgressBar: true, background: '#0a0a0a', color: '#fff' });
   } else {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: data.msg,
-      background: '#0a0a0a',
-      color: '#fff'
-    });
+    Swal.fire({ icon: 'error', title: 'Error', text: data.msg, background: '#0a0a0a', color: '#fff' });
   }
 }
 
@@ -616,16 +606,9 @@ async function cancelarAtencion(id) {
   });
 
   if (data.status === "success") {
-    localStorage.setItem('kanban_msg', 'Pedido cancelado correctamente');
-    location.reload();
+    Swal.fire({ icon: 'success', title: 'Pedido cancelado', toast: true, position: 'top-end', showConfirmButton: false, timer: 4000, timerProgressBar: true, background: '#0a0a0a', color: '#fff' });
   } else {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: data.msg,
-      background: '#0a0a0a',
-      color: '#fff'
-    });
+    Swal.fire({ icon: 'error', title: 'Error', text: data.msg, background: '#0a0a0a', color: '#fff' });
   }
 }
 
@@ -682,7 +665,6 @@ function _parseList(json) {
     const l = JSON.parse(json);
     return Array.isArray(l) ? l : [json];
   } catch {
-    // Si no es un JSON o arreglo mágico, pero tiene comas, lo separa e ignora espacios vacíos
     if (typeof json === "string" && json.includes(",")) {
       return json
         .split(",")
@@ -705,7 +687,6 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   if (colAprobar && colProceso) {
-    // Estilos para asegurar que toda la columna sea área de soltado
     const style = document.createElement("style");
     style.innerHTML = `
             .kb-col { display: flex !important; flex-direction: column !important; }
@@ -713,7 +694,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
     document.head.appendChild(style);
 
-    // SOLO SE PUEDE SACAR DE AQUÍ
     new Sortable(colAprobar, {
       group: { name: "kanban", pull: true, put: false },
       draggable: ".js-draggable",
@@ -724,7 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
     new Sortable(colProceso, {
       group: { name: "kanban", pull: false, put: true },
       draggable: ".js-draggable",
-      sort: false, // Desactivar el reordenamiento interno
+      sort: false,
       animation: 150,
       onAdd(evt) {
         const idAtencion = evt.item.getAttribute("data-id");
@@ -733,10 +713,85 @@ document.addEventListener("DOMContentLoaded", () => {
           estado: "pendiente_asignado",
           accion: "Su solicitud ha sido aprobada por Administrador y enviada al área correspondiente para su gestión.",
           idareaagencia: AREA_ACTUAL,
-        })
-          .then(() => location.reload())
-          .catch(() => location.reload());
+        }).catch(() => {});
       },
     });
   }
+});
+
+// ═══════════════════════════════════════
+// ═══ PUSHER — TIEMPO REAL            ══
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof PUSHER_KEY === 'undefined') return;
+
+  const pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
+  const canal = pusher.subscribe(PUSHER_CANAL);
+
+  async function _getTarjetaHTML(id) {
+    const res = await fetch(BASE_URL + 'admin/kanban/tarjetaHTML/' + id);
+    return await res.text();
+  }
+
+  // Nueva solicitud → columna Nuevas Solicitudes en tiempo real
+  canal.bind('solicitud.nueva', async function (data) {
+    const columna = document.querySelector('.kb-col-body[data-estado="pendiente_sin_asignar"]');
+    if (!columna) return;
+
+    const html = await _getTarjetaHTML(data.id);
+    if (!html.trim()) return;
+
+    const temp = document.createElement('div');
+    temp.innerHTML = html.trim();
+    const nuevaTarjeta = temp.firstElementChild;
+    nuevaTarjeta.style.animation = 'fadeIn 0.4s ease';
+    columna.prepend(nuevaTarjeta);
+
+    Swal.fire({
+      icon: 'info',
+      title: `Nuevo pedido #${data.id} recibido`,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 5000,
+      timerProgressBar: true,
+      background: '#0a0a0a',
+      color: '#fff'
+    });
+  });
+
+  // Cambio de estado → mueve la tarjeta a la columna correcta en tiempo real
+  canal.bind('solicitud.actualizada', async function (data) {
+    const tarjeta = document.querySelector(`.kb-card[data-id="${data.id}"]`);
+
+    let estadoDestino = data.estado_nuevo;
+    if (estadoDestino === 'pendiente_asignado') estadoDestino = 'en_proceso';
+
+    if (estadoDestino === 'cancelado') {
+      if (tarjeta) tarjeta.remove();
+      return;
+    }
+
+    const columna = document.querySelector(`.kb-col-body[data-estado="${estadoDestino}"]`);
+    if (!columna) {
+      if (tarjeta) tarjeta.remove();
+      return;
+    }
+
+    const html = await _getTarjetaHTML(data.id);
+    if (!html.trim()) {
+      if (tarjeta) tarjeta.remove();
+      return;
+    }
+
+    const temp = document.createElement('div');
+    temp.innerHTML = html.trim();
+    const nuevaTarjeta = temp.firstElementChild;
+    nuevaTarjeta.style.animation = 'fadeIn 0.4s ease';
+
+    // Quitar la vieja (en cualquier columna) e insertar en la correcta
+    if (tarjeta) tarjeta.remove();
+    columna.prepend(nuevaTarjeta);
+  });
+
 });

@@ -56,6 +56,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('kanban/asignarEmpleado', 'Administrador\Kanban::asignarEmpleado');
     $routes->post('kanban/iniciarTrabajo', 'Administrador\kanban::iniciarTrabajo');
     $routes->post('kanban/regresarAProceso', 'Administrador\kanban::regresarAProceso');
+    $routes->get('kanban/tarjetaHTML/(:num)', 'Administrador\Kanban::tarjetaHTML/$1');
 
     //EMPRESAS 
     $routes->get('empresas', 'Administrador\EmpresasController::index');

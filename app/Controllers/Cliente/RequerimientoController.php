@@ -272,7 +272,38 @@ class RequerimientoController extends BaseClienteController
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Ocurrió un error al confirmar la transacción en BD.']);
         }
 
-        // Éxito
+        // Éxito — emitir evento Pusher para actualizar el Kanban en tiempo real
+        try {
+            // Consultar datos adicionales que no están en la sesión de forma directa
+            $empresaNombre = $db->query("SELECT e.nombreempresa FROM usuarios u JOIN areas a ON u.idarea = a.id JOIN empresas e ON a.idempresa = e.id WHERE u.id = ?", [$idUsuario])->getRowArray()['nombreempresa'] ?? 'Empresa Desconocida';
+            
+            $servicioNombre = 'General';
+            if ($idServicio !== null) {
+                $servicioNombre = $db->query("SELECT nombre FROM servicios WHERE id = ?", [$idServicio])->getRowArray()['nombre'] ?? 'General';
+            } else {
+                $servicioNombre = $dataReq['servicio_personalizado'] ?? 'General';
+            }
+
+            $pusher = new \App\Services\PusherService();
+            $pusherData = [
+                'id'             => $idAtn,
+                'titulo'         => $dataReq['titulo'],
+                'cliente'        => $auth['user']['nombre'] . ' ' . ($auth['user']['apellidos'] ?? ''),
+                'empresa'        => $empresaNombre,
+                'servicio'       => $servicioNombre,
+                'fecharequerida' => $dataReq['fecharequerida'],
+                'prioridad'      => $dataReq['prioridad']
+            ];
+
+            $pusher->emitir('kanban-admin',        'solicitud.nueva', $pusherData);
+            $pusher->emitir('kanban-responsables', 'solicitud.nueva', $pusherData);
+            $pusher->emitir('kanban-empleados',    'solicitud.nueva', $pusherData);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Pusher error en guardar: ' . $e->getMessage());
+            // No interrumpe el flujo aunque Pusher falle
+        }
+
         return $this->response->setJSON([
             'status' => 'success',
             'msg' => '¡Requerimiento enviado con éxito!',

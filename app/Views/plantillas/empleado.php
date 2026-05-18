@@ -150,6 +150,12 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        const PUSHER_KEY = '<?= env('PUSHER_KEY') ?>';
+        const PUSHER_CLUSTER = '<?= env('PUSHER_CLUSTER') ?>';
+        const PUSHER_CANAL = 'kanban-empleados';
+    </script>
     
     <!-- Sistema de Cambio de Tema -->
     <script src="<?= base_url('recursos/scripts/cambiador-tema.js') ?>"></script>
@@ -159,6 +165,12 @@
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
         });
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) { registration.unregister(); }
+            });
+        }
     </script>
     <?= $this->renderSection('scripts') ?>
 

@@ -192,6 +192,36 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Pusher JS para tiempo real -->
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        const PUSHER_KEY     = '<?= env('PUSHER_KEY') ?>';
+        const PUSHER_CLUSTER = '<?= env('PUSHER_CLUSTER') ?>';
+        const CLIENTE_ID     = '<?= session()->get('usuario_id') ?>';
+        const BASE_URL       = '<?= base_url() ?>';
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) { registration.unregister(); }
+            });
+        }
+
+        // Escuchar canal personal del cliente
+        if (PUSHER_KEY && CLIENTE_ID) {
+            const pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
+            const canal  = pusher.subscribe('cliente-' + CLIENTE_ID);
+
+            canal.bind('solicitud.actualizada', function(data) {
+                if (typeof window.cargarPedidos === 'function') {
+                    window.cargarPedidos();
+                } else {
+                    setTimeout(function() {
+                        window.location.reload(true);
+                    }, 600);
+                }
+            });
+        }
+    </script>
     <!-- JS Plantilla -->
     <script src="<?= base_url('recursos/scripts/cliente/plantilla/cliente.js') ?>"></script>
     <!-- Agregar Scrips -->
