@@ -96,6 +96,13 @@
                     </a>
                 </li>
                 <li>
+                    <a href="<?= base_url('cliente/historial') ?>"
+                        class="nav-link-item <?= (uri_string() == 'cliente/historial') ? 'active' : '' ?>">
+                        <span class="nav-icon"><i class="bi bi-archive"></i></span>
+                        <span class="nav-text">Historial</span>
+                    </a>
+                </li>
+                <li>
                     <a href="<?= base_url('cliente/notificaciones') ?>"
                         class="nav-link-item <?= (uri_string() == 'cliente/notificaciones') ? 'active' : '' ?>">
                         <span class="nav-icon"><i class="bi bi-bell"></i></span>
@@ -105,17 +112,6 @@
                                 <?= $notif_no_leidas ?>
                             </span>
                         <?php endif; ?>
-                    </a>
-                </li>
-            </ul>
-
-            <p class="nav-section-label mt-3">CONFIGURACIÓN</p>
-            <ul>
-                <li>
-                    <a href="<?= base_url('cliente/perfil') ?>"
-                        class="nav-link-item <?= (uri_string() == 'cliente/perfil') ? 'active' : '' ?>">
-                        <span class="nav-icon"><i class="bi bi-person-circle"></i></span>
-                        <span class="nav-text">Mi Perfil</span>
                     </a>
                 </li>
             </ul>

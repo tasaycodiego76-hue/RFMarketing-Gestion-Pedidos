@@ -13,7 +13,7 @@
             <span class="breadcrumb-text">Mis Pedidos / Seguimiento</span>
             <h2 class="nombre-cliente-titulo bebas">SEGUIMIENTO DEL REQUERIMIENTO</h2>
         </div>
-        <a href="<?= base_url('cliente/mis_solicitudes') ?>" class="btn-volver-custom">
+        <a href="#" onclick="window.history.length > 1 ? window.history.back() : window.location.href='<?= base_url('cliente/mis_solicitudes') ?>'; return false;" class="btn-volver-custom">
             <i class="bi bi-arrow-left"></i> Volver
         </a>
     </div>

@@ -94,7 +94,7 @@ class TrackingController extends BaseClienteController
     }
 
     /**
-     * Renderiza la página de notificaciones del cliente.
+     * Renderiza la página de notificaciones del cliente con paginación.
      * @return string|\CodeIgniter\HTTP\RedirectResponse
      */
     public function notificaciones()
@@ -106,18 +106,32 @@ class TrackingController extends BaseClienteController
         }
 
         $userData = $auth['userData'];
+        $idUsuario = $auth['user']['id'];
+
+        // Capturar parámetros de paginación GET
+        $page = (int) ($this->request->getGet('page') ?? 1);
+        if ($page < 1) $page = 1;
+        $limit = 10; // Mostrar 10 notificaciones por página
+        $offset = ($page - 1) * $limit;
 
         $trackingModel = new TrackingModel();
-        $notificaciones = $trackingModel->getNotificacionesPorUsuario($auth['user']['id']);
+        $totalRegistros = $trackingModel->countNotificacionesPorUsuario($idUsuario);
+        $notificaciones = $trackingModel->getNotificacionesPorUsuarioPaginado($idUsuario, $limit, $offset);
+        
+        $totalPages = (int) ceil($totalRegistros / $limit);
+        if ($totalPages < 1) $totalPages = 1;
 
         // Cuando el cliente ingresa a esta vista, marcamos que "ya leyó" sus notificaciones 
-        // guardando la fecha/hora actual en su sesión
         session()->set('ultima_vez_visto_notificaciones', (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s'));
 
         // Retorna la vista de notificaciones con la data cargada
         return view('cliente/notificaciones', [
             'titulo' => 'Mis Notificaciones',
             'notificaciones' => $notificaciones,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalRegistros' => $totalRegistros,
+            'notif_no_leidas' => 0, // Se resetea a 0 porque acabamos de entrar y marcar como leídas
             'user' => [
                 'id' => $userData['id'],
                 'nombre' => $userData['nombre'] ?? 'Sin nombre',
@@ -130,7 +144,7 @@ class TrackingController extends BaseClienteController
     }
 
     /**
-     * Endpoint API: Obtiene las últimas notificaciones (tracking) del usuario para el centro de notificaciones.
+     * Endpoint API: Obtiene las notificaciones del usuario con soporte de paginación opcional.
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function notificacionesJson()
@@ -141,13 +155,20 @@ class TrackingController extends BaseClienteController
             return $this->response->setJSON(['status' => 'ERROR', 'mensaje' => $auth['message']])->setStatusCode(401);
         }
 
-        $model = new TrackingModel();
+        $page = (int) ($this->request->getGet('page') ?? 1);
+        if ($page < 1) $page = 1;
+        $limit = (int) ($this->request->getGet('limit') ?? 20);
+        $offset = ($page - 1) * $limit;
 
-        // Obtiene las notificaciones específicas filtradas por el ID del usuario cliente
-        $data = $model->getNotificacionesPorUsuario($auth['user']['id']);
+        $model = new TrackingModel();
+        $total = $model->countNotificacionesPorUsuario($auth['user']['id']);
+        $data = $model->getNotificacionesPorUsuarioPaginado($auth['user']['id'], $limit, $offset);
 
         return $this->response->setJSON([
             'status' => 'success',
+            'currentPage' => $page,
+            'totalPages' => ceil($total / $limit),
+            'totalItems' => $total,
             'data' => $data
         ]);
     }

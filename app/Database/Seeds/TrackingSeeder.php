@@ -50,7 +50,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 1,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-04 11:30:00'
             ],
@@ -93,7 +93,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 2,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-04 15:00:00'
             ],
@@ -136,7 +136,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 3,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-04 17:00:00'
             ],
@@ -179,7 +179,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 4,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-05 12:00:00'
             ],
@@ -222,7 +222,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 5,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-05 17:30:00'
             ],
@@ -265,7 +265,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 6,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-06 11:00:00'
             ],
@@ -308,7 +308,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 7,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-06 15:00:00'
             ],
@@ -351,7 +351,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 8,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-06 17:00:00'
             ],
@@ -394,7 +394,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 9,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-06 18:30:00'
             ],
@@ -437,7 +437,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 10,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-07 11:30:00'
             ],
@@ -480,7 +480,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 11,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-07 15:00:00'
             ],
@@ -523,7 +523,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 12,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-07 17:00:00'
             ],
@@ -566,7 +566,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 13,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-08 12:00:00'
             ],
@@ -609,7 +609,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 14,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-08 17:00:00'
             ],
@@ -652,7 +652,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 15,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-08 18:30:00'
             ],
@@ -695,7 +695,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 16,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-11 11:00:00'
             ],
@@ -738,7 +738,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 17,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-11 15:00:00'
             ],
@@ -781,7 +781,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 18,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-11 17:00:00'
             ],
@@ -824,7 +824,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 19,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-11 18:30:00'
             ],
@@ -867,7 +867,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 20,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-12 12:00:00'
             ],
@@ -910,7 +910,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 21,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. ',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-12 17:00:00'
             ],
@@ -953,7 +953,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 22,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-13 11:30:00'
             ],
@@ -996,7 +996,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 23,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-13 15:30:00'
             ],
@@ -1039,7 +1039,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 24,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-13 18:00:00'
             ],
@@ -1082,7 +1082,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 25,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-14 12:00:00'
             ],
@@ -1125,7 +1125,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 26,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-14 15:00:00'
             ],
@@ -1168,7 +1168,7 @@ class TrackingSeeder extends Seeder
             [
                 'idatencion' => 27,
                 'idusuario' => 1,
-                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos. 🎉✨',
+                'accion' => '¡Proyecto aprobado y finalizado con éxito! La entrega cumple con todos los requisitos',
                 'estado' => 'finalizado',
                 'fecha_registro' => '2026-05-14 17:00:00'
             ],

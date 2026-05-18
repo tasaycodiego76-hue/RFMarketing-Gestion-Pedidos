@@ -34,7 +34,7 @@ class AtencionModel extends Model
     /* CLIENTE */
 
     /**
-     * Obtiene una lista de requerimientos / Pedidos asociados a un cliente específico.
+     * Obtiene pedidos ACTIVOS (excluye finalizados) para la bandeja principal del cliente.
      * @param mixed $usuarioId
      * @return array
      */
@@ -57,10 +57,108 @@ class AtencionModel extends Model
             LEFT JOIN areas ar ON ar.id = u.idarea
             LEFT JOIN empresas e ON e.id = ar.idempresa
             WHERE r.idusuarioempresa = ?
+              AND a.estado != 'finalizado'
             ORDER BY a.idrequerimiento DESC
         ";
 
         return $this->db->query($sql, [$usuarioId])->getResultArray();
+    }
+
+    /**
+     * Cuenta el total de pedidos finalizados del cliente, con búsqueda opcional
+     * @param mixed $usuarioId
+     * @param mixed $busqueda
+     * @return int
+     */
+    public function countPedidosHistorialCliente($usuarioId, $busqueda = '')
+    {
+        $sql = "
+            SELECT COUNT(a.id) AS total
+            FROM atencion a
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
+            LEFT JOIN servicios s ON s.id = a.idservicio
+            WHERE r.idusuarioempresa = ?
+              AND a.estado = 'finalizado'
+        ";
+        $params = [$usuarioId];
+
+        if (!empty($busqueda)) {
+            $sql .= " AND (a.titulo LIKE ? 
+                        OR CAST(a.prioridad AS text) LIKE ? 
+                        OR s.nombre LIKE ? 
+                        OR a.servicio_personalizado LIKE ? 
+                        OR CAST(r.fechacreacion AS text) LIKE ? 
+                        OR CAST(a.fechacompletado AS text) LIKE ?)";
+            $busquedaParams = '%' . $busqueda . '%';
+            $params = array_merge($params, [
+                $busquedaParams, 
+                $busquedaParams, 
+                $busquedaParams, 
+                $busquedaParams, 
+                $busquedaParams, 
+                $busquedaParams
+            ]);
+        }
+
+        $row = $this->db->query($sql, $params)->getRowArray();
+        return $row ? (int)$row['total'] : 0;
+    }
+
+    /**
+     * Obtiene los pedidos finalizados del cliente con paginación y búsqueda
+     * @param mixed $usuarioId
+     * @param mixed $limit
+     * @param mixed $offset
+     * @param mixed $busqueda
+     * @return array
+     */
+    public function getPedidosHistorialClientePaginado($usuarioId, $limit = 10, $offset = 0, $busqueda = '')
+    {
+        $sql = "
+            SELECT
+                a.id AS atencion_id,
+                a.idrequerimiento,
+                a.titulo,
+                a.estado,
+                a.prioridad,
+                a.fechacompletado,
+                r.fechacreacion,
+                COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
+                e.nombreempresa AS empresa
+            FROM atencion a
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
+            LEFT JOIN servicios s ON s.id = a.idservicio
+            LEFT JOIN usuarios u ON u.id = r.idusuarioempresa
+            LEFT JOIN areas ar ON ar.id = u.idarea
+            LEFT JOIN empresas e ON e.id = ar.idempresa
+            WHERE r.idusuarioempresa = ?
+              AND a.estado = 'finalizado'
+        ";
+        $params = [$usuarioId];
+
+        if (!empty($busqueda)) {
+            $sql .= " AND (a.titulo LIKE ? 
+                        OR CAST(a.prioridad AS text) LIKE ? 
+                        OR s.nombre LIKE ? 
+                        OR a.servicio_personalizado LIKE ? 
+                        OR CAST(r.fechacreacion AS text) LIKE ? 
+                        OR CAST(a.fechacompletado AS text) LIKE ?)";
+            $busquedaParams = '%' . $busqueda . '%';
+            $params = array_merge($params, [
+                $busquedaParams, 
+                $busquedaParams, 
+                $busquedaParams, 
+                $busquedaParams, 
+                $busquedaParams, 
+                $busquedaParams
+            ]);
+        }
+
+        $sql .= " ORDER BY a.fechacompletado DESC LIMIT ? OFFSET ?";
+        $params[] = $limit;
+        $params[] = $offset;
+
+        return $this->db->query($sql, $params)->getResultArray();
     }
 
     /**

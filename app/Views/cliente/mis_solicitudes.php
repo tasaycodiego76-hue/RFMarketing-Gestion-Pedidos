@@ -13,48 +13,50 @@
         <h2 class="mb-0 cliente-nombre">
             <?= esc($user['nombre'] . ' ' . $user['apellidos']) ?>
         </h2>
-        <p class="small mb-0 cliente-subtitulo">Cliente — Historial de requerimientos</p>
+        <p class="small mb-0 cliente-subtitulo">Cliente — Solicitudes activas</p>
     </div>
     <button class="btn-rf" data-bs-toggle="modal" data-bs-target="#modal-nuevo-pedido">
         <i class="bi bi-plus-lg"></i> Nuevo Pedido
     </button>
 </div>
 
-<!-- Métricas -->
+<!-- Métricas (renderizadas desde PHP para ser siempre precisas) -->
 <div class="seccion-titulo">RESUMEN</div>
 <div class="row g-2 mb-4">
     <div class="col-6 col-md-3">
         <div class="card p-3">
             <div class="met-label">Por Aprobar</div>
-            <div class="met-num amarillo" id="cnt-por-aprobar">—</div>
+            <div class="met-num amarillo"><?= $metrics['pendientes'] ?? 0 ?></div>
             <div class="met-sub">Pendientes de revisión</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
         <div class="card p-3">
             <div class="met-label">En Proceso</div>
-            <div class="met-num azul" id="cnt-en-proceso">—</div>
+            <div class="met-num azul"><?= $metrics['en_proceso'] ?? 0 ?></div>
             <div class="met-sub">En curso</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
         <div class="card p-3">
             <div class="met-label">Completados</div>
-            <div class="met-num verde" id="cnt-completado">—</div>
+            <div class="met-num verde"><?= $metrics['finalizados'] ?? 0 ?></div>
             <div class="met-sub">Total histórico</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
         <div class="card p-3">
             <div class="met-label">Total</div>
-            <div class="met-num met-num-total" id="cnt-total">—</div>
+            <div class="met-num met-num-total"><?= $metrics['total'] ?? 0 ?></div>
             <div class="met-sub">Todos los pedidos</div>
         </div>
     </div>
 </div>
 
-<!-- Tabla de pedidos -->
-<div class="seccion-titulo">TODOS LOS PEDIDOS</div>
+<!-- Tabla de pedidos en curso -->
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="seccion-titulo mb-0">PEDIDOS EN CURSO</div>
+</div>
 <div class="card card-tabla-pedidos">
     <div class="tabla-header">
         <div class="buscador-wrap">

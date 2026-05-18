@@ -89,6 +89,89 @@ class MisPedidosController extends BaseClienteController
     }
 
     /**
+     * Vista: Pedidos finalizados del cliente (Historial)
+     * @return string|\CodeIgniter\HTTP\RedirectResponse
+     */
+    public function historial()
+    {
+        $auth = $this->ValidarSesion_DatosUser();
+        if (!$auth['ok']) {
+            return redirect()->to(base_url('/'))->with('error', $auth['message']);
+        }
+
+        $user = $auth['user'];
+        $userData = $auth['userData'];
+
+        // Conteo de notificaciones para el sidebar
+        $trackingModel = new TrackingModel();
+        $notifNoLeidas = $trackingModel->countNotificacionesRecientes($user['id']);
+
+        // Métricas globales
+        $metrics = $this->_getMetrics($user['id']);
+
+        $data = [
+            'titulo'          => 'Historial',
+            'user'            => [
+                'id'       => $userData['id'],
+                'nombre'   => $userData['nombre'] ?? 'Sin nombre',
+                'apellidos'=> $userData['apellidos'] ?? '',
+                'rol'      => $userData['rol'] ?? 'cliente',
+                'area'     => $userData['nombre_area'] ?? 'Sin Área',
+                'empresa'  => $userData['nombre_empresa'] ?? 'Sin Empresa'
+            ],
+            'metrics'         => $metrics,
+            'notif_no_leidas' => $notifNoLeidas
+        ];
+
+        return view('cliente/historial', $data);
+    }
+
+    /**
+     * Endpoint API: Retorna los pedidos Finalizados del cliente con paginación (JSON)
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function listarHistorial()
+    {
+        try {
+            $auth = $this->ValidarSesion_DatosUser();
+            if (!$auth['ok']) {
+                return $this->response->setJSON(['status' => 'ERROR', 'mensaje' => $auth['message']])->setStatusCode(401);
+            }
+
+            $idUsuario = $auth['user']['id'];
+            $model     = new AtencionModel();
+
+            // Parámetros GET
+            $page   = (int) ($this->request->getGet('page') ?? 1);
+            $limit  = 10;
+            $search = $this->request->getGet('search') ?? '';
+            
+            if ($page < 1) $page = 1;
+            $offset = ($page - 1) * $limit;
+
+            $totalItems = $model->countPedidosHistorialCliente($idUsuario, $search);
+            $data       = $model->getPedidosHistorialClientePaginado($idUsuario, $limit, $offset, $search);
+
+            $totalPages = (int) ceil($totalItems / $limit);
+            if ($totalPages < 1) $totalPages = 1;
+
+            return $this->response->setJSON([
+                'status'       => 'success',
+                'data'         => $data,
+                'currentPage'  => $page,
+                'totalPages'   => $totalPages,
+                'totalItems'   => $totalItems
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', '[MisPedidosController::listarHistorial] ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status'  => 'ERROR',
+                'detalle' => 'Ocurrió un error al cargar el historial.'
+            ])->setStatusCode(500);
+        }
+    }
+
+    /**
      * Método para obtener los servicios activos para la seleccion del cliente
      * @return \CodeIgniter\HTTP\ResponseInterface
      */

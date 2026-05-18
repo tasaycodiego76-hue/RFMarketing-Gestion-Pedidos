@@ -41,7 +41,7 @@ class TrackingModel extends Model
     /* CLIENTE */
 
     /**
-     * Obtiene las últimas acciones relevantes para un cliente (notificaciones virtuales).
+     * Obtiene las últimas acciones relevantes para un cliente (notificaciones virtuales) sin paginar.
      * @param mixed $idUsuario
      * @return array
      */
@@ -60,10 +60,56 @@ class TrackingModel extends Model
             INNER JOIN requerimiento r ON r.id = a.idrequerimiento
             INNER JOIN usuarios u_admin ON u_admin.id = t.idusuario
             WHERE r.idusuarioempresa = ?
-            ORDER BY t.fecha_registro DESC 
-            LIMIT 20";
+            ORDER BY t.fecha_registro DESC";
 
         return $this->db->query($sql, [$idUsuario])->getResultArray();
+    }
+
+    /**
+     * Cuenta el total de notificaciones para un cliente (Paginacion - N° Paginas).
+     * @param mixed $idUsuario
+     * @return int
+     */
+    public function countNotificacionesPorUsuario($idUsuario)
+    {
+        $sql = "
+            SELECT COUNT(t.id) AS total
+            FROM tracking t
+            INNER JOIN atencion a ON a.id = t.idatencion
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
+            WHERE r.idusuarioempresa = ?
+        ";
+        $row = $this->db->query($sql, [$idUsuario])->getRowArray();
+        return $row ? (int)$row['total'] : 0;
+    }
+
+    /**
+     * Obtiene las notificaciones del cliente con límite y desplazamiento (Paginación)
+     * @param mixed $idUsuario
+     * @param int $limit
+     * @param int $offset
+     * @return array
+     */
+    public function getNotificacionesPorUsuarioPaginado($idUsuario, $limit = 10, $offset = 0)
+    {
+        $sql = "
+            SELECT 
+                t.id, 
+                t.accion, 
+                t.estado, 
+                t.fecha_registro,
+                a.titulo AS atencion_titulo,
+                u_admin.nombre AS realizado_por
+            FROM tracking t
+            INNER JOIN atencion a ON a.id = t.idatencion
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
+            INNER JOIN usuarios u_admin ON u_admin.id = t.idusuario
+            WHERE r.idusuarioempresa = ?
+            ORDER BY t.fecha_registro DESC 
+            LIMIT ? OFFSET ?
+        ";
+
+        return $this->db->query($sql, [$idUsuario, $limit, $offset])->getResultArray();
     }
 
     /**

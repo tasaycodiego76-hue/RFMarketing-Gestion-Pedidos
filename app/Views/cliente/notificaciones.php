@@ -90,11 +90,56 @@
                         <!-- ESTADO VACÍO: Si no hay notificaciones -->
                         <div class="empty-state text-center py-5">
                             <i class="bi bi-bell-slash text-secondary" style="font-size: 3rem;"></i>
-                            <h5 class="text-muted mt-3">No tienes notificaciones</h5>
+                            <h5 class="mt-3">No tienes notificaciones</h5>
                             <p class="text-secondary">No se encontraron movimientos recientes en tus requerimientos.</p>
                         </div>
                     <?php endif; ?>
                 </div>
+
+                <!-- Paginacion -->
+                <?php if (isset($totalPages) && $totalPages > 1): ?>
+                    <div class="card-footer bg-transparent border-dark d-flex flex-wrap justify-content-between align-items-center py-3 gap-2">
+                        <small class="text-white">Mostrando página <?= $currentPage ?> de <?= $totalPages ?> (Total: <?= $totalRegistros ?> notificaciones)</small>
+                        <nav aria-label="Paginación de notificaciones">
+                            <ul class="pagination pagination-rf mb-0">
+                                <li class="page-item <?= ($currentPage == 1) ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="<?= base_url('cliente/notificaciones?page=' . ($currentPage - 1)) ?>" title="Anterior"><i class="bi bi-chevron-left"></i></a>
+                                </li>
+                                <?php 
+                                $range = 2;
+                                $startPage = max(1, $currentPage - $range);
+                                $endPage = min($totalPages, $currentPage + $range);
+                                
+                                if ($startPage > 1): ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="<?= base_url('cliente/notificaciones?page=1') ?>">1</a>
+                                    </li>
+                                    <?php if ($startPage > 2): ?>
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+
+                                <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                                    <li class="page-item <?= ($currentPage == $i) ? 'active' : '' ?>">
+                                        <a class="page-link" href="<?= base_url('cliente/notificaciones?page=' . $i) ?>"><?= $i ?></a>
+                                    </li>
+                                <?php endfor; ?>
+
+                                <?php if ($endPage < $totalPages): ?>
+                                    <?php if ($endPage < $totalPages - 1): ?>
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    <?php endif; ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="<?= base_url('cliente/notificaciones?page=' . $totalPages) ?>"><?= $totalPages ?></a>
+                                    </li>
+                                <?php endif; ?>
+                                <li class="page-item <?= ($currentPage == $totalPages) ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="<?= base_url('cliente/notificaciones?page=' . ($currentPage + 1)) ?>" title="Siguiente"><i class="bi bi-chevron-right"></i></a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

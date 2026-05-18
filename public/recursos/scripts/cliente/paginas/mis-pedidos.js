@@ -232,24 +232,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const response = await fetch(`${base_url}cliente/pedidos/listar`);
       const datos = await response.json();
 
-      // Actualizamos los números grandes de resumen (Métricas).
-      document.getElementById("cnt-total").textContent = datos.length;
-      document.getElementById("cnt-por-aprobar").textContent = datos.filter(
-        (p) => p.estado === "pendiente_sin_asignar",
-      ).length;
-      document.getElementById("cnt-en-proceso").textContent = datos.filter(
-        (p) =>
-          ["pendiente_asignado", "en_proceso", "en_revision"].includes(
-            p.estado,
-          ),
-      ).length;
-      document.getElementById("cnt-completado").textContent = datos.filter(
-        (p) => p.estado === "finalizado",
-      ).length;
-
       // Si la base de datos devuelve cero resultados.
       if (datos.length === 0) {
-        tablaPedidosBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted p-4">Sin pedidos registrados</td></tr>`;
+        tablaPedidosBody.innerHTML = `<tr><td colspan="7" class="text-center p-4">No tienes pedidos activos en este momento. <a href="${base_url}cliente/historial" class="text-warning">Ver historial</a></td></tr>`;
         return;
       }
 

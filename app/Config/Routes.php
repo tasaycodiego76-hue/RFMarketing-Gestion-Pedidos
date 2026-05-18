@@ -147,6 +147,12 @@ $routes->group('cliente', ['filter' => 'auth'], function ($routes) {
     $routes->get('notificaciones-json', 'Cliente\TrackingController::notificacionesJson');
     $routes->get('requerimiento/seguimiento/(:num)', 'Cliente\TrackingController::seguimiento/$1');
 
+    // HISTORIAL (pedidos finalizados)
+    // Vista
+    $routes->get('historial', 'Cliente\MisPedidosController::historial');
+    // Datos (JSON)
+    $routes->get('pedidos/historial-json', 'Cliente\MisPedidosController::listarHistorial');
+    
     // RECURSOS
     $routes->get('archivos/(:num)', 'Cliente\RequerimientoController::verArchivo/$1');
 }); 
