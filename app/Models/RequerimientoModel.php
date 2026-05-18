@@ -42,6 +42,7 @@ class RequerimientoModel extends Model
         $sql = "
         SELECT 
             r.*,
+            a.id AS idatencion,
             COALESCE(a.prioridad, r.prioridad) AS prioridad,
             COALESCE(a.estado, 'pendiente_sin_asignar') AS estado,
             a.num_modificaciones,

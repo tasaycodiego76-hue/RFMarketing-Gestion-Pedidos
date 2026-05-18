@@ -465,14 +465,18 @@ async function cambiarPrioridad(id, valor) {
 
 
 async function cambiarEstado(id, est, acc) {
+  const esFinalizar = (est === 'finalizado');
+  
   const result = await Swal.fire({
-    title: `¿Confirmar la Aprobacion del Requerimiento?`,
-    text: `¿Estás seguro de que deseas cambiar el estado a ${acc.toLowerCase()}?`,
+    title: esFinalizar ? '¿Aprobar requerimiento?' : '¿Confirmar cambio de estado?',
+    text: esFinalizar 
+      ? 'Se registrará como entregado y se notificará al cliente.' 
+      : `¿Estás seguro de que deseas cambiar el estado a ${acc.toLowerCase()}?`,
     icon: 'question',
     showCancelButton: true,
-    confirmButtonColor: est === 'finalizado' ? '#10b981' : '#F5C400',
+    confirmButtonColor: esFinalizar ? '#10b981' : '#F5C400',
     cancelButtonColor: '#333',
-    confirmButtonText: 'Sí, confirmar',
+    confirmButtonText: esFinalizar ? 'Sí, aprobar' : 'Sí, confirmar',
     cancelButtonText: 'Cancelar',
     background: '#0a0a0a',
     color: '#fff'
@@ -496,12 +500,15 @@ async function cambiarEstado(id, est, acc) {
   const data = await _post("admin/kanban/cambiarEstado", {
     idatencion: id,
     estado: est,
-    accion: acc,
+    accion: esFinalizar ? 'Requerimiento finalizado y entregado con éxito.' : acc,
   });
 
   if (data.status === "success") {
     // Guardar mensaje para mostrarlo después del reload
-    localStorage.setItem('kanban_msg', `¡Pedido marcado como ${acc.toLowerCase()} con éxito!`);
+    const msg = esFinalizar 
+      ? '¡Pedido aprobado y entregado con éxito!' 
+      : `¡Pedido marcado como ${acc.toLowerCase()} con éxito!`;
+    localStorage.setItem('kanban_msg', msg);
     location.reload();
   } else {
     Swal.fire({

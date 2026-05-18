@@ -343,6 +343,7 @@ class kanban extends Controller
             ", [$nuevoEstado, $idAreaAgencia, $idAtencion]);
         } elseif ($nuevoEstado === 'finalizado') {
             $db->query("UPDATE atencion SET estado = ?, fechacompletado = NOW(), observacion_revision = NULL WHERE id = ?", [$nuevoEstado, $idAtencion]);
+            $accion = 'Requerimiento finalizado y entregado con éxito.';
         } else {
             // Si el Admin regresa el pedido, le ponemos un mensaje por defecto para que aparezca en Retroalimentación
             $obs = null;
