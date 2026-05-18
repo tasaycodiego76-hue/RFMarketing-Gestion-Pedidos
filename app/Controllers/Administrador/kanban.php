@@ -9,6 +9,8 @@ use App\Models\AtencionModel;
 use App\Models\ArchivoModel;
 use App\Models\RetroalimentacionModel;
 use App\Models\TrackingModel;
+use App\Libraries\EmailService;
+use App\Models\RequerimientoModel;
 
 class kanban extends Controller
 {
@@ -370,6 +372,34 @@ class kanban extends Controller
             VALUES (?, ?, ?, ?)
         ", [$idAtencion, $idAdmin, $accion, $nuevoEstado]);
 
+        // Enviar notificación por correo al cliente si se finaliza (aprueba) el pedido
+        if ($nuevoEstado === 'finalizado') {
+            try {
+                $atencionModel = new AtencionModel();
+                $atencion = $atencionModel->find($idAtencion);
+                if ($atencion) {
+                    $requerimientoModel = new RequerimientoModel();
+                    $detalleReq = $requerimientoModel->getDetalleCompleto($atencion['idrequerimiento']);
+                    if ($detalleReq && !empty($detalleReq['correo_cliente'])) {
+                        // Obtener archivos cargados para esta entrega
+                        $archivoModel = new ArchivoModel();
+                        $archivos = $archivoModel->where('idatencion', $idAtencion)->findAll();
+
+                        $emailService = new EmailService();
+                        $emailService->notificarFinalizado(
+                            $detalleReq['correo_cliente'],
+                            $detalleReq['nombre_cliente'],
+                            $detalleReq['titulo'],
+                            $atencion['url_entrega'],
+                            $archivos
+                        );
+                    }
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'Error al enviar correo de finalizacion (admin): ' . $e->getMessage());
+            }
+        }
+
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Estado actualizado']);
     }
 
@@ -392,6 +422,27 @@ class kanban extends Controller
             INSERT INTO tracking (idatencion, idusuario, accion, estado)
             VALUES (?, ?, 'El pedido ha sido cancelado por la Administración. Motivo: ' || ?, 'cancelado')
         ", [$idAtencion, $idAdmin, $motivo]);
+
+        // Enviar notificación por correo al cliente
+        try {
+            $atencionModel = new AtencionModel();
+            $atencion = $atencionModel->find($idAtencion);
+            if ($atencion) {
+                $requerimientoModel = new RequerimientoModel();
+                $detalleReq = $requerimientoModel->getDetalleCompleto($atencion['idrequerimiento']);
+                if ($detalleReq && !empty($detalleReq['correo_cliente'])) {
+                    $emailService = new EmailService();
+                    $emailService->notificarCancelado(
+                        $detalleReq['correo_cliente'],
+                        $detalleReq['nombre_cliente'],
+                        $detalleReq['titulo'],
+                        $motivo
+                    );
+                }
+            }
+        } catch (\Throwable $e) {
+            log_message('error', 'Error al enviar correo de cancelacion: ' . $e->getMessage());
+        }
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Solicitud cancelada, El Motivo:' . $motivo . ' Si tienes dudas, contáctanos']);
     }

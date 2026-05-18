@@ -8,6 +8,7 @@ use App\Models\AtencionModel;
 use App\Models\RetroalimentacionModel;
 use App\Models\TrackingModel;
 use App\Models\UsuarioModel;
+use App\Libraries\EmailService;
 
 class MisPedidosController extends BaseController
 {
@@ -190,6 +191,22 @@ class MisPedidosController extends BaseController
                 'estado' => 'en_proceso',
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
+
+            // Enviar notificación por correo al cliente
+            try {
+                $requerimientoModel = new \App\Models\RequerimientoModel();
+                $detalleReq = $requerimientoModel->getDetalleCompleto($pedido['idrequerimiento']);
+                if ($detalleReq && !empty($detalleReq['correo_cliente'])) {
+                    $emailService = new EmailService();
+                    $emailService->notificarInicioTrabajo(
+                        $detalleReq['correo_cliente'],
+                        $detalleReq['nombre_cliente'],
+                        $detalleReq['titulo']
+                    );
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'Error al enviar correo de inicio de trabajo (empleado): ' . $e->getMessage());
+            }
 
             return $this->response->setJSON(['status' => 'success', 'message' => '¡Trabajo iniciado correctamente!']);
         }

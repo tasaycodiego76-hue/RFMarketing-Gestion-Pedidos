@@ -9,6 +9,7 @@ use App\Models\RequerimientoModel;
 use App\Models\ArchivoModel;
 use App\Models\ServicioModel;
 use App\Models\EmpresaModel;
+use App\Libraries\EmailService;
 
 class PedidosAreaController extends BaseResponsableController
 {
@@ -238,6 +239,23 @@ class PedidosAreaController extends BaseResponsableController
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
 
+            // Enviar notificación por correo al cliente
+            try {
+                $requerimientoModel = new RequerimientoModel();
+                $detalleReq = $requerimientoModel->getDetalleCompleto($atencionModel->find($idAtencion)['idrequerimiento']);
+                if ($detalleReq && !empty($detalleReq['correo_cliente'])) {
+                    $emailService = new EmailService();
+                    $emailService->notificarAsignacionTecnico(
+                        $detalleReq['correo_cliente'],
+                        $detalleReq['nombre_cliente'],
+                        $detalleReq['titulo'],
+                        trim($empleado['nombre'] . ' ' . $empleado['apellidos'])
+                    );
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'Error al enviar correo de asignacion: ' . $e->getMessage());
+            }
+
             $db->transCommit();
             return $this->response->setJSON(['success' => true, 'message' => '¡Delegación exitosa! El técnico ha sido notificado en su bandeja.']);
         } catch (\Throwable $e) {
@@ -461,6 +479,23 @@ class PedidosAreaController extends BaseResponsableController
                 'estado' => 'en_proceso',
                 'fecha_registro' => $data['fechainicio']
             ]);
+
+            // Enviar notificación por correo al cliente
+            try {
+                $requerimientoModel = new RequerimientoModel();
+                $detalleReq = $requerimientoModel->getDetalleCompleto($pedido['idrequerimiento']);
+                if ($detalleReq && !empty($detalleReq['correo_cliente'])) {
+                    $emailService = new EmailService();
+                    $emailService->notificarInicioTrabajo(
+                        $detalleReq['correo_cliente'],
+                        $detalleReq['nombre_cliente'],
+                        $detalleReq['titulo']
+                    );
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'Error al enviar correo de inicio de trabajo: ' . $e->getMessage());
+            }
+
             return $this->response->setJSON(['status' => 'success', 'message' => 'Cronómetro iniciado. ¡A trabajar!']);
         }
         return $this->response->setJSON(['status' => 'error', 'message' => 'Error al intentar iniciar el cronómetro.']);
