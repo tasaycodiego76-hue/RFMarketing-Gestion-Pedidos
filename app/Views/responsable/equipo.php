@@ -33,14 +33,20 @@
 <!-- Modal Detalle Miembro -->
 <div class="modal fade" id="modalDetalleMiembro" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
     aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content modal-dark-rf">
-            <div class="modal-header modal-header-rf">
-                <h5 class="modal-title modal-title-rf">
-                    <span id="nombreMiembroModal" class="text-oro">Tareas del Miembro</span>
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
+            <div class="modal-header modal-header-rf d-flex flex-column align-items-start gap-1">
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <h5 class="modal-title modal-title-rf mb-0">
+                        <span id="nombreMiembroModal" class="text-oro">Tareas del Miembro</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="d-flex align-items-center gap-1 mt-1 text-muted" style="font-size: 0.8rem; font-weight: 600; letter-spacing: 0.3px;">
+                    <i class="bi bi-clock-history text-oro"></i> 
+                    <span>MONITOREO DE ACTIVIDAD DIARIA — Solo se listan tareas activas y entregas completadas hoy.</span>
+                </div>
             </div>
             <div class="modal-body p-3">
                 <div class="table-responsive">

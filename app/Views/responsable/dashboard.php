@@ -77,7 +77,7 @@
         </div>
         <div class="col-md-6">
             <label class="text-small-muted mb-1">Fecha Fin</label>
-            <input type="date" id="rep_hasta" class="form-control-rf w-100" value="<?= date('Y-m-d') ?>">
+            <input type="date" id="rep_hasta" class="form-control-rf w-100">
         </div>
 
         <div class="col-md-6">

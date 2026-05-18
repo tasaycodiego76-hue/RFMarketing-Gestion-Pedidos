@@ -93,14 +93,34 @@ class EquipoController extends BaseResponsableController
         }
 
         $atencionModel = new AtencionModel();
-        // Obtenemos todos los pedidos donde este técnico es el responsable (atencion.idempleado)
-        $tareas = $atencionModel->obtenerDetalladoPorEmpleado($idEmpleado);
+        // Obtenemos todas las tareas del técnico para filtrarlas con lógica inteligente en memoria
+        $todasLasTareas = $atencionModel->obtenerDetalladoPorEmpleado($idEmpleado);
 
-        // Ordenar por fecha de inicio (Más reciente -> Más antiguo: DESC)
+        $tareasActivas = [];
+        $tareasCompletadasHoy = [];
+        $hoy = date('Y-m-d');
+
+        foreach ($todasLasTareas as $t) {
+            $est = $t['estado'] ?? '';
+            if (in_array($est, ['finalizado', 'completado'])) {
+                // Solo mostrar en el modal si se completó el día de hoy
+                $fechaCompleto = $t['fechacompletado'] ? substr($t['fechacompletado'], 0, 10) : '';
+                if ($fechaCompleto === $hoy) {
+                    $tareasCompletadasHoy[] = $t;
+                }
+            } else {
+                // Las activas se muestran siempre para estar sincronizadas con los contadores de la tarjeta
+                $tareasActivas[] = $t;
+            }
+        }
+
+        // Combinar tareas activas con las completadas hoy
+        $tareas = array_merge($tareasActivas, $tareasCompletadasHoy);
+
+        // Ordenar el resultado final por fecha de inicio / creación (Más reciente -> Más antiguo)
         usort($tareas, function ($a, $b) {
             $f1 = $a['fechainicio'] ? strtotime($a['fechainicio']) : 0;
             $f2 = $b['fechainicio'] ? strtotime($b['fechainicio']) : 0;
-            // Si no hay fecha de inicio, usamos la de creación como respaldo
             if ($f1 === 0) $f1 = strtotime($a['fechacreacion'] ?? '0');
             if ($f2 === 0) $f2 = strtotime($b['fechacreacion'] ?? '0');
             

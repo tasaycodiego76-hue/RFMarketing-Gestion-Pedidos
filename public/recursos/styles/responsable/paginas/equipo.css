@@ -318,28 +318,65 @@
   }
 }
 
-/* Estilos para el Modal de Detalle de Miembro */
-.modal-dark-rf {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 12px;
-  color: #f5f5f5;
+/* Estilos para el Modal de Detalle de Miembro - TEMA OSCURO (Por defecto) */
+html:not([data-theme="light"]) .modal-dark-rf {
+  background: #111111 !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 20px !important;
+  overflow: hidden;
+  color: #ffffff;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
 }
-.modal-header-rf {
-  border-bottom: 1px solid #333;
+
+html:not([data-theme="light"]) .modal-dark-rf .modal-header-rf {
+  background: #161616 !important;
+  border-bottom: 2px solid #f5c400 !important; /* Cabecera con línea amarilla como en Claro */
+  padding: 20px 28px !important;
 }
-.modal-title-rf {
-  font-weight: 600;
+
+html:not([data-theme="light"]) .modal-dark-rf .modal-title-rf {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #ffffff !important; /* Texto principal blanco como en Claro */
 }
-.text-oro {
-  color: #d4af37 !important;
+
+html:not([data-theme="light"]) .modal-dark-rf .modal-title-rf .text-oro {
+  color: #f5c400 !important; /* Texto amarillo oro */
 }
-.table-dark-transparent {
+
+html:not([data-theme="light"]) .modal-dark-rf .modal-body {
+  background: #161616 !important; /* Fondo de cuerpo oscuro profundo, contraparte de #fdfcf9 */
+  color: #ffffff !important;
+  padding: 25px 30px !important; /* Mismo padding estructurado */
+}
+
+html:not([data-theme="light"]) .modal-dark-rf #tablaTareasMiembro {
   background: transparent !important;
+  color: #ffffff !important;
 }
-.thead-dark-soft {
-  background: rgba(255, 255, 255, 0.05);
+
+/* Forzar que las filas, celdas y cabeceras de la tabla sean completamente transparentes */
+html:not([data-theme="light"]) .modal-dark-rf #tablaTareasMiembro tr,
+html:not([data-theme="light"]) .modal-dark-rf #tablaTareasMiembro td,
+html:not([data-theme="light"]) .modal-dark-rf #tablaTareasMiembro th {
+  background: transparent !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
 }
+
+html:not([data-theme="light"]) .modal-dark-rf .thead-dark-soft {
+  background: rgba(255, 255, 255, 0.02) !important; /* Fondo de cabecera sutil, contraparte de #f1f5f9 */
+}
+
+html:not([data-theme="light"]) .modal-dark-rf .thead-dark-soft th {
+  color: #aaaaaa !important; /* Texto de cabecera gris claro, contraparte de #475569 */
+  font-weight: 800 !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 15px !important;
+}
+
 .border-none {
   border-top: 0 !important;
 }
@@ -351,12 +388,22 @@
   font-size: 1.1rem;
 }
 .modal-footer-rf {
-  border-top: 1px solid #333;
+  background: #161616 !important;
+  border-top: 1px solid #2a2a2a !important;
+  padding: 15px 25px !important;
 }
 .btn-dark-rf {
-  background: #333;
-  border: 1px solid #444;
-  color: #fff;
+  background: #1e1e1e !important;
+  border: 1px solid #333 !important;
+  color: #888 !important;
+  border-radius: 8px !important;
+  padding: 8px 20px !important;
+  font-size: 13px !important;
+  transition: all 0.2s ease !important;
+}
+.btn-dark-rf:hover {
+  background: #2a2a2a !important;
+  color: #ccc !important;
 }
 
 /* Clases adicionales para JS */
@@ -431,42 +478,68 @@
   vertical-align: middle;
 }
 
-/* LISTA DE TAREAS PREMIUM EN MODAL */
-.task-row-premium {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+/* LISTA DE TAREAS PREMIUM EN MODAL - TEMA OSCURO (Por defecto) */
+html:not([data-theme="light"]) .task-row-premium {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
     transition: background 0.2s ease;
 }
 
-.task-row-premium:hover {
-    background: rgba(245, 196, 0, 0.02);
+html:not([data-theme="light"]) .task-row-premium:hover {
+    background: rgba(255, 255, 255, 0.02) !important; /* Hover sutil como en claro */
 }
 
-.task-title-premium {
+html:not([data-theme="light"]) .task-title-premium {
     font-size: 14px;
     font-weight: 700;
-    color: #f0f0f0;
+    color: #ffffff !important; /* Texto blanco de alto contraste en Oscuro */
     margin-bottom: 2px;
 }
 
-.task-subtitle-premium {
+html:not([data-theme="light"]) .task-subtitle-premium {
     font-size: 11px;
-    color: #777;
+    color: #888888 !important; /* Gris de subtítulo legible, contraparte de #475569 */
+    font-weight: 600 !important;
     display: flex;
     align-items: center;
     gap: 4px;
 }
 
-.service-chip-premium {
+html:not([data-theme="light"]) .service-chip-premium {
     font-size: 11px;
     padding: 3px 10px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.05) !important; /* Fondo oscuro translúcido */
+    color: #cccccc !important; /* Texto claro */
     border-radius: 6px;
-    color: #aaa;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
 }
 
-/* Badges de Estado Premium */
-.badge-status-premium {
+/* Arreglar la columna de Inicio para que no se vea apachurrada en Oscuro */
+html:not([data-theme="light"]) .task-row-premium td:last-child {
+    min-width: 120px !important;
+    padding-right: 25px !important;
+}
+
+html:not([data-theme="light"]) .task-row-premium td:last-child div {
+    color: #ffffff !important; /* Contraparte de #0f172a */
+    font-weight: 800 !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+html:not([data-theme="light"]) .task-row-premium td:last-child i {
+    color: #f5c400 !important; /* Color de icono vibrante en Oscuro */
+    font-size: 1rem !important;
+    margin-right: 5px;
+}
+
+/* Badges de Estado Premium - Consistencia con Bordes e Iluminación */
+html:not([data-theme="light"]) .badge-status-premium {
     font-size: 10px;
     font-weight: 800;
     padding: 4px 10px;
@@ -475,20 +548,48 @@
     letter-spacing: 0.5px;
 }
 
-.badge-status-premium.badge-estado-pendiente { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
-.badge-status-premium.badge-estado-proceso { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
-.badge-status-premium.badge-estado-finalizado { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
-
-/* Badges de Prioridad Premium */
-.badge-priority-premium {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 4px;
+html:not([data-theme="light"]) .badge-status-premium.badge-estado-pendiente { 
+    background: rgba(245, 158, 11, 0.1) !important; 
+    color: #fbbf24 !important; 
+    border: 1px solid rgba(245, 158, 11, 0.2) !important; 
 }
-.badge-priority-premium.badge-prio-alta { color: #ef4444; background: rgba(239, 68, 68, 0.05); }
-.badge-priority-premium.badge-prio-media { color: #f5c400; background: rgba(245, 196, 0, 0.05); }
-.badge-priority-premium.badge-prio-baja { color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+html:not([data-theme="light"]) .badge-status-premium.badge-estado-proceso { 
+    background: rgba(59, 130, 246, 0.1) !important; 
+    color: #60a5fa !important; 
+    border: 1px solid rgba(59, 130, 246, 0.2) !important; 
+}
+html:not([data-theme="light"]) .badge-status-premium.badge-estado-finalizado { 
+    background: rgba(16, 185, 129, 0.1) !important; 
+    color: #34d399 !important; 
+    border: 1px solid rgba(16, 185, 129, 0.2) !important; 
+}
+
+/* Badges de Prioridad Premium - Consistencia con Bordes e Iluminación */
+html:not([data-theme="light"]) .badge-priority-premium {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block !important;
+}
+
+html:not([data-theme="light"]) .badge-priority-premium.badge-prio-alta { 
+    color: #ef4444 !important; 
+    background: rgba(239, 68, 68, 0.1) !important; 
+    border: 1px solid rgba(239, 68, 68, 0.2) !important; 
+}
+html:not([data-theme="light"]) .badge-priority-premium.badge-prio-media { 
+    color: #f5c400 !important; 
+    background: rgba(245, 196, 0, 0.1) !important; 
+    border: 1px solid rgba(245, 196, 0, 0.2) !important; 
+}
+html:not([data-theme="light"]) .badge-priority-premium.badge-prio-baja { 
+    color: #3b82f6 !important; 
+    background: rgba(59, 130, 246, 0.1) !important; 
+    border: 1px solid rgba(59, 130, 246, 0.2) !important; 
+}
 
 /* Date Box Premium (Estilo Calendario) */
 .date-box-premium {
@@ -516,4 +617,26 @@
     color: var(--accent-primary);
     text-transform: uppercase;
     margin-top: 2px;
+}
+
+/* Barra de Desplazamiento Personalizada para el Modal de Tareas */
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb {
+    background: #2a2a2a;
+    border-radius: 4px;
+}
+.modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #d4af37;
+}
+
+[data-theme="light"] .modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+}
+[data-theme="light"] .modal-dialog-scrollable .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #f5c400;
 }

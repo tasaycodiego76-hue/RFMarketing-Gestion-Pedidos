@@ -140,6 +140,7 @@ function renderizarModalTareas(emp, tareas) {
 
         const estMap = {
             'pendiente': { t: 'PENDIENTE', c: 'badge-estado-pendiente' },
+            'pendiente_asignado': { t: 'PENDIENTE', c: 'badge-estado-pendiente' },
             'en_proceso': { t: 'EN PROCESO', c: 'badge-estado-proceso' },
             'en_revision': { t: 'EN REVISIÓN', c: 'badge-estado-proceso' },
             'finalizado': { t: 'COMPLETADO', c: 'badge-estado-finalizado' },
@@ -149,16 +150,18 @@ function renderizarModalTareas(emp, tareas) {
         const priMap = {
             'Alta': 'badge-prio-alta',
             'Media': 'badge-prio-media',
+            'Medio': 'badge-prio-media',
             'Baja': 'badge-prio-baja'
         };
 
         tbody.innerHTML = tareas.map(t => {
             const e = estMap[t.estado] || { t: t.estado, c: 'badge-estado-pendiente' };
-            const p = priMap[t.prioridad] || 'badge-estado-pendiente';
+            const p = priMap[t.prioridad] || 'badge-prio-media';
             
             // Iconos por estado
             const iconMap = {
                 'pendiente': 'bi-clock-history',
+                'pendiente_asignado': 'bi-clock-history',
                 'en_proceso': 'bi-play-circle-fill',
                 'en_revision': 'bi-eye-fill',
                 'finalizado': 'bi-check-circle-fill',

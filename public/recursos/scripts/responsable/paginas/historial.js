@@ -271,3 +271,280 @@ function formatearLista(v) {
     }
     return items.filter(i => i).map(item => `<span class="kd-tag">${escaparHtml(item)}</span>`).join('');
 }
+
+// Paginación e Historial Dinámico del Responsable
+
+// Variables y Estado Global
+let misCompletados = window.MIS_COMPLETADOS || [];
+let areaCompletados = window.AREA_COMPLETADOS || [];
+let pagePersonal = 1;
+let pageArea = 1;
+let searchText = "";
+const itemsPerPage = 10;
+
+// Valida si un pedido coincide con los criterios de búsqueda
+function matchesFilter(pedido, query) {
+    if (!query) return true;
+    const q = query.toLowerCase();
+
+    // Obtener fechas para la búsqueda
+    const fechaFormateada = pedido.fechacompletado ? formatearFechaLimpia(pedido.fechacompletado).toLowerCase() : "";
+    const fechaOriginal = pedido.fechacompletado ? pedido.fechacompletado.toLowerCase() : "";
+
+    return (
+        (pedido.titulo && pedido.titulo.toLowerCase().includes(q)) ||
+        (pedido.empresa_nombre && pedido.empresa_nombre.toLowerCase().includes(q)) ||
+        (pedido.servicio_nombre && pedido.servicio_nombre.toLowerCase().includes(q)) ||
+        (pedido.empleado_nombre && pedido.empleado_nombre.toLowerCase().includes(q)) ||
+        (pedido.id_requerimiento && String(pedido.id_requerimiento).includes(q)) ||
+        (pedido.prioridad && pedido.prioridad.toLowerCase().includes(q)) ||
+        (fechaOriginal && fechaOriginal.includes(q)) ||
+        (fechaFormateada && fechaFormateada.includes(q))
+    );
+}
+
+// Genera card del historial personal
+function buildPersonalCard(pedido) {
+    const fechacompletado = (pedido.fechacompletado);
+    return `
+    <div class="pedido-card-historial">
+        <div class="historial-header">
+            <div>
+                <div class="historial-empresa">
+                    ${escaparHtml(pedido.empresa_nombre?.toUpperCase())} — #REQ-${pedido.id_requerimiento}
+                </div>
+                <h3 class="historial-titulo">${escaparHtml(pedido.titulo)}</h3>
+            </div>
+            <span class="historial-status">
+                <i class="bi bi-check-circle-fill"></i> FINALIZADO
+            </span>
+        </div>
+
+        <div class="historial-body">
+            <div class="historial-info-item">
+                <span class="historial-info-label">Servicio</span>
+                <span class="historial-info-value"><i class="bi bi-gear-fill"></i>
+                    ${escaparHtml(pedido.servicio_nombre)}</span>
+            </div>
+            <div class="historial-info-item">
+                <span class="historial-info-label">Completado</span>
+                <span class="historial-info-value"><i class="bi bi-calendar-check-fill"></i>
+                    ${fechacompletado}</span>
+            </div>
+            <div class="historial-info-item">
+                <span class="historial-info-label">Prioridad</span>
+                <span class="historial-info-value"><i class="bi bi-flag-fill"></i>
+                    ${escaparHtml(pedido.prioridad)}</span>
+            </div>
+        </div>
+
+        <div class="historial-footer">
+            <button class="btn-historial-detalle" onclick="verDetalleHistorial(${pedido.id})">
+                <i class="bi bi-eye"></i> VER DETALLE COMPLETO
+            </button>
+        </div>
+    </div>`;
+}
+
+// Genera card del historial del área
+function buildAreaCard(pedido) {
+    const fechacompletado = formatearFechaLimpia(pedido.fechacompletado);
+    return `
+    <div class="pedido-card-historial">
+        <div class="historial-header">
+            <div>
+                <div class="historial-empresa">
+                    ${escaparHtml(pedido.empresa_nombre?.toUpperCase())} — #REQ-${pedido.id_requerimiento}
+                </div>
+                <h3 class="historial-titulo">${escaparHtml(pedido.titulo)}</h3>
+            </div>
+            <span class="historial-status">
+                <i class="bi bi-check-circle-fill"></i> FINALIZADO
+            </span>
+        </div>
+
+        <div class="historial-body">
+            <div class="historial-info-item">
+                <span class="historial-info-label">Ejecutor</span>
+                <span class="historial-info-value"><i class="bi bi-person-fill"></i>
+                    ${escaparHtml(pedido.empleado_nombre || 'Desconocido')}</span>
+            </div>
+            <div class="historial-info-item">
+                <span class="historial-info-label">Servicio</span>
+                <span class="historial-info-value"><i class="bi bi-gear-fill"></i>
+                    ${escaparHtml(pedido.servicio_nombre)}</span>
+            </div>
+            <div class="historial-info-item">
+                <span class="historial-info-label">Finalización</span>
+                <span class="historial-info-value"><i class="bi bi-calendar-check-fill"></i>
+                    ${fechacompletado}</span>
+            </div>
+        </div>
+
+        <div class="historial-footer">
+            <button class="btn-historial-detalle" onclick="verDetalleHistorial(${pedido.id})">
+                <i class="bi bi-eye"></i> VER DETALLE COMPLETO
+            </button>
+        </div>
+    </div>`;
+}
+
+// Genera HTML de paginador
+function renderPaginationHTML(page, totalPages, totalItems, type) {
+    if (totalPages <= 1) return "";
+    
+    let html = `
+        <div class="card-footer bg-transparent border-none d-flex flex-wrap justify-content-between align-items-center py-3 gap-2">
+            <small class="text-dim" style="font-weight: 600;">
+                Mostrando página ${page} de ${totalPages} (Total: ${totalItems} completados)
+            </small>
+            <nav aria-label="Paginación de historial">
+                <ul class="pagination pagination-rf mb-0">
+                    <li class="page-item ${page === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="#" onclick="cambiarPaginaTab('${type}', ${page - 1}); return false;" title="Anterior"><i class="bi bi-chevron-left"></i></a>
+                    </li>`;
+
+    const range = 2;
+    const startPage = Math.max(1, page - range);
+    const endPage = Math.min(totalPages, page + range);
+
+    if (startPage > 1) {
+        html += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="cambiarPaginaTab('${type}', 1); return false;">1</a>
+                    </li>`;
+        if (startPage > 2) {
+            html += `
+                    <li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        html += `
+                    <li class="page-item ${page === i ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="cambiarPaginaTab('${type}', ${i}); return false;">${i}</a>
+                    </li>`;
+    }
+
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            html += `
+                    <li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
+        html += `
+                    <li class="page-item">
+                        <a class="page-link" href="#" onclick="cambiarPaginaTab('${type}', ${totalPages}); return false;">${totalPages}</a>
+                    </li>`;
+    }
+
+    html += `
+                    <li class="page-item ${page === totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="#" onclick="cambiarPaginaTab('${type}', ${page + 1}); return false;" title="Siguiente"><i class="bi bi-chevron-right"></i></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>`;
+        
+    return html;
+}
+
+// Render del listado de historial personal
+function renderPersonalTab() {
+    const container = document.getElementById("contenedor-mis-completados");
+    const paginCont = document.getElementById("paginacion-mis-completados");
+    const counter = document.getElementById("historial-counter-personal");
+    if (!container) return;
+
+    const filtered = misCompletados.filter(p => matchesFilter(p, searchText));
+    const totalItems = filtered.length;
+
+    if (totalItems === 0) {
+        container.innerHTML = `
+            <div class="historial-empty">
+                <i class="bi bi-clock-history"></i>
+                <p>Aún no tienes tareas personales finalizadas con ese criterio</p>
+            </div>`;
+        paginCont.innerHTML = "";
+        counter.textContent = "0 tareas personales";
+        return;
+    }
+
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    if (pagePersonal > totalPages) pagePersonal = totalPages;
+    if (pagePersonal < 1) pagePersonal = 1;
+
+    const startIdx = (pagePersonal - 1) * itemsPerPage;
+    const paginated = filtered.slice(startIdx, startIdx + itemsPerPage);
+
+    container.innerHTML = paginated.map(p => buildPersonalCard(p)).join("");
+    paginCont.innerHTML = renderPaginationHTML(pagePersonal, totalPages, totalItems, 'personal');
+    counter.textContent = `${totalItems} tarea${totalItems !== 1 ? 's' : ''} personal${totalItems !== 1 ? 'es' : ''} finalizada${totalItems !== 1 ? 's' : ''}`;
+}
+
+// Render del listado de historial del área
+function renderAreaTab() {
+    const container = document.getElementById("contenedor-area-completados");
+    const paginCont = document.getElementById("paginacion-area-completados");
+    const counter = document.getElementById("historial-counter-area");
+    if (!container) return;
+
+    const filtered = areaCompletados.filter(p => matchesFilter(p, searchText));
+    const totalItems = filtered.length;
+
+    if (totalItems === 0) {
+        container.innerHTML = `
+            <div class="historial-empty">
+                <i class="bi bi-people-fill"></i>
+                <p>No hay tareas finalizadas en el área con ese criterio</p>
+            </div>`;
+        paginCont.innerHTML = "";
+        counter.textContent = "0 tareas del área";
+        return;
+    }
+
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    if (pageArea > totalPages) pageArea = totalPages;
+    if (pageArea < 1) pageArea = 1;
+
+    const startIdx = (pageArea - 1) * itemsPerPage;
+    const paginated = filtered.slice(startIdx, startIdx + itemsPerPage);
+
+    container.innerHTML = paginated.map(p => buildAreaCard(p)).join("");
+    paginCont.innerHTML = renderPaginationHTML(pageArea, totalPages, totalItems, 'area');
+    counter.textContent = `${totalItems} tarea${totalItems !== 1 ? 's' : ''} del área finalizada${totalItems !== 1 ? 's' : ''}`;
+}
+
+// Handler de eventos de paginación
+window.cambiarPaginaTab = (type, nuevaPagina) => {
+    if (type === 'personal') {
+        pagePersonal = nuevaPagina;
+        renderPersonalTab();
+    } else {
+        pageArea = nuevaPagina;
+        renderAreaTab();
+    }
+    // Desplazamiento suave al principio de las pestañas
+    document.getElementById('pills-tab').scrollIntoView({ behavior: 'smooth' });
+};
+
+// Event listener al cargar la página
+document.addEventListener("DOMContentLoaded", function () {
+    const inputBuscar = document.getElementById("buscador-historial");
+    if (inputBuscar) {
+        let timer;
+        inputBuscar.addEventListener("input", function (e) {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                searchText = e.target.value;
+                pagePersonal = 1;
+                pageArea = 1;
+                renderPersonalTab();
+                renderAreaTab();
+            }, 300);
+        });
+    }
+
+    // Carga inicial
+    renderPersonalTab();
+    renderAreaTab();
+});

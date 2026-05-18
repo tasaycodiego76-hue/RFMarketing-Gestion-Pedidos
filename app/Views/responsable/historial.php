@@ -7,6 +7,12 @@
 <?= $this->section('contenido') ?>
 
 <div class="historial-container">
+    <!-- Buscador -->
+    <div class="historial-search-wrap">
+        <i class="bi bi-search"></i>
+        <input type="text" id="buscador-historial" class="historial-search-input" placeholder="Buscar en historial (título, empresa, servicio, ejecutor, prioridad)...">
+    </div>
+
     <!-- TABS PARA NAVEGAR ENTRE HISTORIAL PERSONAL Y DE ÁREA -->
     <ul class="nav nav-pills historial-tabs" id="pills-tab" role="tablist">
         <li class="nav-item" role="presentation">
@@ -28,108 +34,26 @@
         <!-- HISTORIAL PERSONAL -->
         <div class="tab-pane fade show active" id="pills-mis-tareas" role="tabpanel"
             aria-labelledby="pills-mis-tareas-tab">
+            <p class="small mb-3" id="historial-counter-personal" style="color:var(--texto-dim,#888); font-weight: 600;">Cargando...</p>
             <div id="contenedor-mis-completados">
-                <?php if (empty($mis_completados)): ?>
-                    <div class="historial-empty">
-                        <i class="bi bi-clock-history"></i>
-                        <p>Aún no tienes tareas personales finalizadas</p>
-                    </div>
-                <?php else: ?>
-                    <?php foreach ($mis_completados as $pedido): ?>
-                        <div class="pedido-card-historial">
-                            <div class="historial-header">
-                                <div>
-                                    <div class="historial-empresa">
-                                        <?= esc(strtoupper($pedido['empresa_nombre'])) ?> —
-                                        #REQ-<?= $pedido['id_requerimiento'] ?>
-                                    </div>
-                                    <h3 class="historial-titulo"><?= esc($pedido['titulo']) ?></h3>
-                                </div>
-                                <span class="historial-status">
-                                    <i class="bi bi-check-circle-fill"></i> FINALIZADO
-                                </span>
-                            </div>
-
-                            <div class="historial-body">
-                                <div class="historial-info-item">
-                                    <span class="historial-info-label">Servicio</span>
-                                    <span class="historial-info-value"><i class="bi bi-gear-fill"></i>
-                                        <?= esc($pedido['servicio_nombre']) ?></span>
-                                </div>
-                                <div class="historial-info-item">
-                                    <span class="historial-info-label">Completado</span>
-                                    <span class="historial-info-value"><i class="bi bi-calendar-check-fill"></i>
-                                        <?= date('d/m/Y H:i', strtotime($pedido['fechacompletado'])) ?></span>
-                                </div>
-                                <div class="historial-info-item">
-                                    <span class="historial-info-label">Prioridad</span>
-                                    <span class="historial-info-value"><i class="bi bi-flag-fill"></i>
-                                        <?= esc($pedido['prioridad']) ?></span>
-                                </div>
-                            </div>
-
-                            <div class="historial-footer">
-                                <button class="btn-historial-detalle" onclick="verDetalleHistorial(<?= $pedido['id'] ?>)">
-                                    <i class="bi bi-eye"></i> VER DETALLE COMPLETO
-                                </button>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                <div class="spinner-hist">
+                    <span class="spinner-border spinner-border-sm text-warning"></span>
+                    Cargando historial personal...
+                </div>
             </div>
+            <div id="paginacion-mis-completados" class="mt-4"></div>
         </div>
 
         <!-- HISTORIAL DEL ÁREA -->
         <div class="tab-pane fade" id="pills-area" role="tabpanel" aria-labelledby="pills-area-tab">
+            <p class="small mb-3" id="historial-counter-area" style="color:var(--texto-dim,#888); font-weight: 600;">Cargando...</p>
             <div id="contenedor-area-completados">
-                <?php if (empty($area_completados)): ?>
-                    <div class="historial-empty">
-                        <i class="bi bi-people-fill"></i>
-                        <p>No hay tareas finalizadas en el área todavía</p>
-                    </div>
-                <?php else: ?>
-                    <?php foreach ($area_completados as $pedido): ?>
-                        <div class="pedido-card-historial">
-                            <div class="historial-header">
-                                <div>
-                                    <div class="historial-empresa">
-                                        <?= esc(strtoupper($pedido['empresa_nombre'])) ?> —
-                                        #REQ-<?= $pedido['id_requerimiento'] ?>
-                                    </div>
-                                    <h3 class="historial-titulo"><?= esc($pedido['titulo']) ?></h3>
-                                </div>
-                                <span class="historial-status">
-                                    <i class="bi bi-check-circle-fill"></i> FINALIZADO
-                                </span>
-                            </div>
-
-                            <div class="historial-body">
-                                <div class="historial-info-item">
-                                    <span class="historial-info-label">Ejecutor</span>
-                                    <span class="historial-info-value"><i class="bi bi-person-fill"></i>
-                                        <?= esc($pedido['empleado_nombre'] ?? 'Desconocido') ?></span>
-                                </div>
-                                <div class="historial-info-item">
-                                    <span class="historial-info-label">Servicio</span>
-                                    <span class="historial-info-value"><i class="bi bi-gear-fill"></i>
-                                        <?= esc($pedido['servicio_nombre']) ?></span>
-                                </div>
-                                <div class="historial-info-item">
-                                    <span class="historial-info-label">Finalización</span>
-                                    <span class="historial-info-value"><i class="bi bi-calendar-check-fill"></i>
-                                        <?= date('d/m/Y H:i', strtotime($pedido['fechacompletado'])) ?></span>
-                                </div>
-                            </div>
-
-                            <div class="historial-footer">
-                                <button class="btn-historial-detalle" onclick="verDetalleHistorial(<?= $pedido['id'] ?>)">
-                                    <i class="bi bi-eye"></i> VER DETALLE COMPLETO
-                                </button>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                <div class="spinner-hist">
+                    <span class="spinner-border spinner-border-sm text-warning"></span>
+                    Cargando historial del área...
+                </div>
             </div>
+            <div id="paginacion-area-completados" class="mt-4"></div>
         </div>
     </div>
 </div>
@@ -137,19 +61,19 @@
 <!-- Modal Detalle Historial -->
 <div class="modal fade" id="modalHistorial" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
     role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-        <div class="modal-content modal-historial-content">
-            <div class="modal-header modal-header-historial">
-                <h5 class="modal-title modal-title-historial" id="modal-titulo-historial">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content modal-historial-content modal-dark-rf">
+            <div class="modal-header modal-header-historial modal-header-rf">
+                <h5 class="modal-title modal-title-historial modal-title-rf" id="modal-titulo-historial">
                     DETALLE DE HISTORIAL
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
-            <div class="modal-body modal-body-historial" id="modal-cuerpo-historial">
-                <!-- Contenido dinámico -->
+            <div class="modal-body modal-body-historial modal-body" id="modal-cuerpo-historial">
+                <!-- Contenido Renderizable -->
             </div>
-            <div class="modal-footer modal-footer-historial">
+            <div class="modal-footer modal-footer-historial modal-footer">
                 <button class="btn btn-dark btn-close-historial" data-bs-dismiss="modal">
                     CERRAR
                 </button>
@@ -158,18 +82,13 @@
     </div>
 </div>
 
-<?php if (false): ?>
-    <!-- El siguiente bloque es para que el editor reconozca variables de PHP -->
-    <script>
-        window.BASE_URL = '<?= base_url() ?>';
-    </script>
-<?php endif; ?>
-
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
 <script>
     window.BASE_URL = '<?= base_url() ?>';
+    window.MIS_COMPLETADOS = <?= json_encode($mis_completados) ?>;
+    window.AREA_COMPLETADOS = <?= json_encode($area_completados) ?>;
 </script>
 <script src="<?= base_url('recursos/scripts/responsable/paginas/historial.js') ?>"></script>
 <?= $this->endSection() ?>
