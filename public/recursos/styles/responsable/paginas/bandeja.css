@@ -129,7 +129,7 @@
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
-/* Botones de acción */
+/* Botones de acciÃ³n */
 .btn-asignar,
 .btn-ver-detalle {
   padding: 10px 18px;
@@ -161,7 +161,7 @@
   color: #fff;
 }
 
-/* Estado vacío */
+/* Estado vacÃ­o */
 .estado-vacio {
   text-align: center;
   padding: 60px 20px;
@@ -178,16 +178,18 @@
   margin: 0;
 }
 
-/* Modal styles */
+/* Modal styles — igualados al estilo de historial */
 .modal-rf {
-  background: #161616;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+  background: #0a0a0a !important;
+  border: 1px solid #1e1e1e !important;
+  border-radius: 18px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  overflow: hidden;
 }
 .modal-rf-header {
-  background: #0f0f0f;
-  border-bottom: 1px solid var(--border-color);
-  padding: 20px;
+  background: #0a0a0a;
+  border-bottom: 1px solid #1e1e1e;
+  padding: 20px 25px;
 }
 .modal-rf-header .campo-label {
   font-size: 10px;
@@ -196,20 +198,21 @@
   font-weight: 700;
 }
 .modal-rf-header .modal-title {
-  font-size: 24px;
-  font-weight: 600;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 22px;
+  letter-spacing: 1px;
   color: #ffffff;
   word-break: break-word;
   overflow-wrap: break-word;
 }
 .modal-rf-body {
-  background: #161616;
-  padding: 30px !important; /* Más espacio a los lados */
+  background: #0a0a0a;
+  padding: 25px !important;
 }
 .modal-footer {
-  background: #0f0f0f;
-  border-top: 1px solid var(--border-color);
-  padding: 20px 30px;
+  background: #0a0a0a;
+  border-top: 1px solid #1e1e1e;
+  padding: 15px 25px;
 }
 
 .hp-sec {
@@ -564,11 +567,9 @@
   .tabla-header-responsable {
     flex-direction: column;
     gap: 12px;
-    align-items: stretch;
+    align-items: flex-start;
   }
-  .buscador-wrap-responsable {
-    max-width: none;
-  }
+  .buscador-wrap-responsable { max-width: 300px; width: 100%; align-self: flex-start; }
   .main-project-title {
     font-size: 20px;
   }
@@ -594,16 +595,16 @@
   font-size: 15px;
 }
 
-/* MODALES EXPANDIDOS - MEJOR VISUALIZACIÓN */
+/* MODALES EXPANDIDOS — igualados al estilo de historial */
 
-/* Modal de Asignar - Expandido */
+/* Modal de Asignar */
 #modal-asignar .modal-dialog {
-  max-width: 600px !important;
-  width: 82vw !important;
+  max-width: 620px !important;
+  width: 90vw !important;
 }
 
 #modal-asignar .modal-body {
-  max-height: 65vh;
+  max-height: 70vh;
   overflow-y: auto;
 }
 
@@ -612,44 +613,49 @@
 }
 
 #modal-asignar .empleado-item {
-  padding: 20px;
-  margin-bottom: 14px;
+  padding: 18px;
+  margin-bottom: 12px;
 }
 
 #modal-asignar .empleado-avatar {
-  width: 56px;
-  height: 56px;
-  font-size: 18px;
-}
-
-#modal-asignar .empleado-nombre {
-  font-size: 20px;
-}
-
-#modal-asignar .empleado-rol {
+  width: 50px;
+  height: 50px;
   font-size: 16px;
 }
 
-/* Modal de Detalle - MUCHO MÁS GRANDE */
+#modal-asignar .empleado-nombre {
+  font-size: 18px;
+}
+
+#modal-asignar .empleado-rol {
+  font-size: 14px;
+}
+
+/* Modal de Detalle — igual a historial en tamaño y forma */
 #modal-ver-detalle .modal-dialog {
-  max-width: 860px !important;
-  width: 90vw !important;
+  max-width: 900px !important;
+  width: 92vw !important;
   margin-top: 2vh !important;
   margin-bottom: 2vh !important;
 }
 
 #modal-ver-detalle .modal-header {
-  padding: 28px 32px;
+  padding: 20px 25px;
 }
 
 #modal-ver-detalle .modal-body {
-  max-height: 80vh;
-  padding: 40px !important;
+  max-height: 82vh;
+  padding: 25px !important;
 }
 
 #modal-ver-detalle .case-card {
-  padding: 36px;
-  margin-bottom: 24px;
+  padding: 25px;
+  margin-bottom: 20px;
+  border-radius: 12px !important;
+  background: #111111 !important;
+  border: 1px solid #1e1e1e !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
 }
 
 #modal-ver-detalle .case-section-title {
@@ -722,7 +728,7 @@
   margin-bottom: 8px;
 }
 
-/* Aumentar tamaño de botones en modales */
+/* Aumentar tamaÃ±o de botones en modales */
 .modal-footer .btn {
   font-size: 16px;
   padding: 12px 24px;
@@ -733,7 +739,7 @@
   padding: 12px 28px;
 }
 
-/* SISTEMA DE DISEÑO: AGENCIA (MODALES) */
+/* SISTEMA DE DISEÃ‘O: AGENCIA (MODALES) */
 
 /* Contenedor del Expediente */
 .case-expediente {
@@ -918,7 +924,7 @@
 
 .workload-tag {
   padding: 8px 16px; /* Aumentado */
-  border-radius: 12px; /* Cambiado a un look más sólido */
+  border-radius: 12px; /* Cambiado a un look mÃ¡s sÃ³lido */
   font-size: 12px; /* Aumentado */
   font-weight: 800;
   display: inline-flex;
@@ -931,7 +937,7 @@
 }
 
 .workload-tag i {
-  font-size: 15px; /* Icono más grande */
+  font-size: 15px; /* Icono mÃ¡s grande */
 }
 
 .workload-tag.workload-low {
@@ -995,7 +1001,7 @@
   border-color: rgba(34, 197, 94, 0.3);
 }
 
-/* ENCABEZADOS HERO DE SECCIÓN*/
+/* ENCABEZADOS HERO DE SECCIÃ“N*/
 
 /* Hero principal de la bandeja */
 .bandeja-header-hero {
@@ -1022,7 +1028,7 @@
   pointer-events: none;
 }
 
-/* Variante para "Esperando Revisión" */
+/* Variante para "Esperando RevisiÃ³n" */
 .bandeja-revision-header {
   background: rgba(255, 255, 255, 0.02);
   border-color: rgba(255, 255, 255, 0.1);
@@ -1038,7 +1044,7 @@
   gap: 14px;
 }
 
-/* Ícono circular con glow */
+/* Ãcono circular con glow */
 .bandeja-icono-wrap {
   width: 42px;
   height: 42px;
@@ -1059,7 +1065,7 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
-/* Ícono para sección revisión (púrpura) */
+/* Ãcono para secciÃ³n revisiÃ³n (pÃºrpura) */
 .bandeja-icono-revision {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.1);
@@ -1067,7 +1073,7 @@
   box-shadow: none;
 }
 
-/* Título principal grande */
+/* TÃ­tulo principal grande */
 .bandeja-titulo-principal {
   font-family: "Bebas Neue", "Inter", sans-serif;
   font-size: 1.25rem;
@@ -1079,7 +1085,7 @@
   text-transform: uppercase;
 }
 
-/* Subtítulo descriptivo */
+/* SubtÃ­tulo descriptivo */
 .bandeja-subtitulo {
   font-size: 13px;
   color: #999;
@@ -1118,7 +1124,7 @@
   opacity: 0.8;
 }
 
-/* GRID DE INFORMACIÓN EN MODAL ASIGNAR (2x2) */
+/* GRID DE INFORMACIÃ“N EN MODAL ASIGNAR (2x2) */
 
 .assign-info-grid {
   display: grid;
@@ -1165,7 +1171,7 @@
   word-break: break-word;
 }
 
-/* Responsivo: grid 1 columna en pantallas pequeñas */
+/* Responsivo: grid 1 columna en pantallas pequeÃ±as */
 @media (max-width: 576px) {
   .assign-info-grid {
     grid-template-columns: 1fr;
@@ -1191,9 +1197,9 @@
   }
 }
 
-/* SIDEBAR RESUMEN TÉCNICO — MODAL DETALLE */
+/* SIDEBAR RESUMEN TÃ‰CNICO â€” MODAL DETALLE */
 
-/* (ancho controlado en sección principal arriba — 860px) */
+/* (ancho controlado en secciÃ³n principal arriba â€” 860px) */
 
 /* Contenedor principal del sidebar */
 .sidebar-resumen {
@@ -1208,7 +1214,7 @@
   box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.4);
 }
 
-/* Título del sidebar */
+/* TÃ­tulo del sidebar */
 .sidebar-title {
   font-family: "Bebas Neue", sans-serif;
   font-size: 18px;
@@ -1256,7 +1262,7 @@
   font-size: 12px;
 }
 
-/* Fila de persona (cliente/técnico) con avatar */
+/* Fila de persona (cliente/tÃ©cnico) con avatar */
 .sidebar-persona {
   display: flex;
   align-items: center;
@@ -1311,7 +1317,7 @@
   color: var(--accent-primary);
 }
 
-/* Chip de categoría */
+/* Chip de categorÃ­a */
 .sidebar-chip {
   display: inline-flex;
   align-items: center;
@@ -1390,7 +1396,7 @@
   color: #f87171;
 }
 
-/* Link de referencia rediseñado */
+/* Link de referencia rediseÃ±ado */
 .case-ref-link {
   display: inline-flex;
   align-items: center;
@@ -1415,7 +1421,7 @@
   color: #fff;
 }
 
-/* Responsive sidebar: fechas en 1 columna en pantalla pequeña */
+/* Responsive sidebar: fechas en 1 columna */
 @media (max-width: 768px) {
   .sidebar-fechas {
     grid-template-columns: 1fr;
@@ -1423,5 +1429,122 @@
 
   .sidebar-resumen {
     margin-top: 16px;
+  }
+}
+
+/* BANDEJA MODALES — FULL RESPONSIVE MOBILE*/
+@media (max-width: 768px) {
+  /* Pantalla completa parcial (drawer premium) en móvil */
+  #modal-asignar .modal-dialog,
+  #modal-ver-detalle .modal-dialog {
+    max-width: 100vw !important;
+    width: 100vw !important;
+    margin: 75px auto 0 auto !important;
+    height: calc(100dvh - 75px) !important;
+    min-height: calc(100dvh - 75px) !important;
+  }
+
+  #modal-asignar .modal-content,
+  #modal-ver-detalle .modal-content {
+    border-top-left-radius: 18px !important;
+    border-top-right-radius: 18px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    border: none !important;
+  }
+
+  /* Cabecera más compacta */
+  .modal-rf-header {
+    padding: 14px 16px !important;
+  }
+
+  .modal-rf-header .modal-title {
+    font-size: 18px !important;
+  }
+
+  /* Cuerpo con espacio cómodo */
+  .modal-rf-body {
+    padding: 16px 14px !important;
+  }
+
+  /* Footer ligero */
+  .modal-footer {
+    padding: 12px 16px !important;
+  }
+
+  /* Case cards más livianas en móvil */
+  #modal-ver-detalle .case-card {
+    padding: 16px 14px !important;
+    border-radius: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* Sidebar de resumen debajo del contenido en móvil */
+  .sidebar-resumen {
+    border-radius: 10px !important;
+    padding: 16px !important;
+    margin-top: 12px !important;
+  }
+
+  /* Badges ASIGNADO / PRIORIDAD — alineados y del mismo tamaño */
+  .case-expediente .d-flex.gap-2.mb-3,
+  #modal-ver-detalle .d-flex.gap-2.mb-3 {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .case-badge {
+    flex: 1 1 0 !important;
+    min-height: 48px !important;
+    justify-content: center !important;
+    text-align: center !important;
+    font-size: 11px !important;
+    padding: 8px 6px !important;
+    white-space: normal !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Grilla de asignación: 1 columna */
+  .assign-info-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Botones del footer más fáciles de tocar */
+  .modal-footer .btn {
+    width: 100% !important;
+    padding: 12px !important;
+    font-size: 14px !important;
+  }
+
+  /* Tarjetas de empleado más compactas */
+  .empleado-card-premium {
+    padding: 14px 16px !important;
+  }
+
+  .emp-name-pro {
+    font-size: 15px !important;
+  }
+
+  /* Ajuste del section-title en móvil */
+  .case-section-title {
+    font-size: 15px !important;
+  }
+
+  /* Sections kd (como en historial) */
+  .kd-sec {
+    padding: 16px !important;
+    margin-bottom: 14px !important;
+    border-radius: 10px !important;
+  }
+
+  /* HP-sec en móvil */
+  .hp-sec {
+    padding: 14px !important;
+    margin-bottom: 14px !important;
+    border-radius: 10px !important;
   }
 }

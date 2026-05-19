@@ -1,926 +1,947 @@
 /* VARIABLES GLOBALES — TEMA OSCURO (por defecto) */
 :root {
-    /* Colores principales */
-    --amarillo: #F5C518;
-    /* color de marca RF */
-    --amarillo-2: #c9a214;
-    /* amarillo hover/oscurecido */
-    --negro: #0d0d0d;
-    /* fondo general */
-    --negro-2: #141414;
-    /* fondo sidebar y topbar */
-    --negro-3: #1a1a1a;
-    /* fondo tarjetas */
-    --negro-4: #222222;
-    /* hover de items */
-    --borde: #2a2a2a;
-    /* líneas divisorias */
+  /* Colores principales */
+  --amarillo: #f5c518;
+  /* color de marca RF */
+  --amarillo-2: #c9a214;
+  /* amarillo hover/oscurecido */
+  --negro: #0d0d0d;
+  /* fondo general */
+  --negro-2: #141414;
+  /* fondo sidebar y topbar */
+  --negro-3: #1a1a1a;
+  /* fondo tarjetas */
+  --negro-4: #222222;
+  /* hover de items */
+  --borde: #2a2a2a;
+  /* líneas divisorias */
 
-    /* Colores de texto */
-    --texto: #f5f5f5;
-    /* texto principal */
-    --texto-2: #d0d0d0;
-    /* texto secundario — claro para proyector */
-    --texto-3: #b5b5b5;
-    /* texto tenue (labels) — claro para proyector */
+  /* Colores de texto */
+  --texto: #f5f5f5;
+  /* texto principal */
+  --texto-2: #d0d0d0;
+  /* texto secundario — claro para proyector */
+  --texto-3: #b5b5b5;
+  /* texto tenue (labels) — claro para proyector */
 
-    /* Colores de estado — badges */
-    --verde: #3ddc84;
-    /* completado */
-    --azul: #4fa3e0;
-    /* en proceso */
-    --rojo: #e05c5c;
-    /* rechazado / notif */
-    --naranja: #e0875c;
-    /* en revisión */
+  /* Colores de estado — badges */
+  --verde: #3ddc84;
+  /* completado */
+  --azul: #4fa3e0;
+  /* en proceso */
+  --rojo: #e05c5c;
+  /* rechazado / notif */
+  --naranja: #e0875c;
+  /* en revisión */
 
-    /* Medidas de layout */
-    --sidebar-w: 255px;
-    /* ancho del sidebar */
-    --topbar-h: 64px;
-    /* altura del topbar */
+  /* Medidas de layout */
+  --sidebar-w: 255px;
+  /* ancho del sidebar */
+  --topbar-h: 64px;
+  /* altura del topbar */
 
-    /* Animaciones */
-    --trans: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Animaciones */
+  --trans: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* Bordes redondeados */
-    --r: 10px;
-    --r-sm: 6px;
+  /* Bordes redondeados */
+  --r: 10px;
+  --r-sm: 6px;
 
-    /* Tipografía */
-    --f-main: 'Outfit', sans-serif;
-    --f-mono: 'Space Mono', monospace;
-    /* logo y números grandes */
+  /* Tipografía */
+  --f-main: "Outfit", sans-serif;
+  --f-mono: "Space Mono", monospace;
+  /* logo y números grandes */
 
-    /* Sombras */
-    --sombra-sidebar: none;
-    --sombra-card: none;
-    --sombra-topbar: none;
+  /* Sombras */
+  --sombra-sidebar: none;
+  --sombra-card: none;
+  --sombra-topbar: none;
 
-    /* Overlay del sidebar en mobile */
-    --overlay-bg: rgba(0, 0, 0, .65);
+  /* Overlay del sidebar en mobile */
+  --overlay-bg: rgba(0, 0, 0, 0.65);
 
-    /* Scrollbar */
-    --scroll-track: var(--negro-2);
-    --scroll-thumb: var(--borde);
-    --scroll-thumb-hover: var(--texto-3);
+  /* Scrollbar */
+  --scroll-track: var(--negro-2);
+  --scroll-thumb: var(--borde);
+  --scroll-thumb-hover: var(--texto-3);
 
-    /* VARIABLES ESTÁTICAS PARA EL SIDEBAR (Siempre oscuro) */
-    --sb-bg: #141414;
-    --sb-border: #2a2a2a;
-    --sb-text: #f5f5f5;
-    --sb-text-2: #d0d0d0;
-    --sb-text-3: #b5b5b5;
-    --sb-hover: #222222;
-    --sb-active-bg: rgba(245, 197, 24, .12);
+  /* VARIABLES ESTÁTICAS PARA EL SIDEBAR (Siempre oscuro) */
+  --sb-bg: #141414;
+  --sb-border: #2a2a2a;
+  --sb-text: #f5f5f5;
+  --sb-text-2: #d0d0d0;
+  --sb-text-3: #b5b5b5;
+  --sb-hover: #222222;
+  --sb-active-bg: rgba(245, 197, 24, 0.12);
 }
 
 /* VARIABLES — TEMA CLARO */
 [data-theme="light"] {
-    --amarillo: #E8B800;
-    --amarillo-2: #d4a600;
-    --negro: #f2f0ec;
-    /* fondo general — crema suave, más amigable que gris frío */
-    --negro-2: #faf9f7;
-    /* fondo sidebar y topbar — blanco cálido */
-    --negro-3: #ffffff;
-    /* fondo tarjetas */
-    --negro-4: #ebe9e4;
-    /* hover de items */
-    --borde: #e0dcd5;
-    /* líneas divisorias — tono cálido */
+  --amarillo: #e8b800;
+  --amarillo-2: #d4a600;
+  --negro: #f2f0ec;
+  /* fondo general — crema suave, más amigable que gris frío */
+  --negro-2: #faf9f7;
+  /* fondo sidebar y topbar — blanco cálido */
+  --negro-3: #ffffff;
+  /* fondo tarjetas */
+  --negro-4: #ebe9e4;
+  /* hover de items */
+  --borde: #e0dcd5;
+  /* líneas divisorias — tono cálido */
 
-    /* Colores de texto */
-    --texto: #1a1a2e;
-    /* texto principal */
-    --texto-2: #4a4a5a;
-    /* texto secundario */
-    --texto-3: #7a7a8a;
-    /* texto tenue (labels) */
+  /* Colores de texto */
+  --texto: #1a1a2e;
+  /* texto principal */
+  --texto-2: #4a4a5a;
+  /* texto secundario */
+  --texto-3: #7a7a8a;
+  /* texto tenue (labels) */
 
-    /* Colores de estado — ligeramente más saturados para fondo claro */
-    --verde: #2ebd6b;
-    --azul: #3b8fd4;
-    --rojo: #d44848;
-    --naranja: #d47a48;
+  /* Colores de estado — ligeramente más saturados para fondo claro */
+  --verde: #2ebd6b;
+  --azul: #3b8fd4;
+  --rojo: #d44848;
+  --naranja: #d47a48;
 
-    /* Sombras para dar profundidad en modo claro */
-    --sombra-sidebar: 2px 0 20px rgba(0, 0, 0, .08);
-    --sombra-card: 0 2px 8px rgba(0, 0, 0, .07);
-    --sombra-topbar: 0 1px 8px rgba(0, 0, 0, .06);
+  /* Sombras para dar profundidad en modo claro */
+  --sombra-sidebar: 2px 0 20px rgba(0, 0, 0, 0.08);
+  --sombra-card: 0 2px 8px rgba(0, 0, 0, 0.07);
+  --sombra-topbar: 0 1px 8px rgba(0, 0, 0, 0.06);
 
-    /* Overlay del sidebar en mobile */
-    --overlay-bg: rgba(0, 0, 0, .3);
+  /* Overlay del sidebar en mobile */
+  --overlay-bg: rgba(0, 0, 0, 0.3);
 
-    /* Scrollbar */
-    --scroll-track: #ebe9e4;
-    --scroll-thumb: #c9c5bc;
-    --scroll-thumb-hover: #a8a49c;
+  /* Scrollbar */
+  --scroll-track: #ebe9e4;
+  --scroll-thumb: #c9c5bc;
+  --scroll-thumb-hover: #a8a49c;
 }
 
 /* RESET BASE */
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html,
 body {
-    height: 100%;
-    font-family: var(--f-main);
-    background: var(--negro);
-    color: var(--texto);
-    overflow-x: hidden;
-    font-size: 16px;
-    transition: background 0.35s ease, color 0.35s ease;
+  height: 100%;
+  font-family: var(--f-main);
+  background: var(--negro);
+  color: var(--texto);
+  overflow-x: hidden;
+  font-size: 16px;
+  transition:
+    background 0.35s ease,
+    color 0.35s ease;
 }
 
 a {
-    text-decoration: none;
-    color: inherit;
+  text-decoration: none;
+  color: inherit;
 }
 
 ul {
-    list-style: none;
-    padding: 0;
+  list-style: none;
+  padding: 0;
 }
 
 /* SIDEBAR */
 /* Contenedor principal — fijo a la izquierda, full altura */
 .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: var(--sidebar-w);
-    height: 100vh;
-    background: var(--sb-bg);
-    border-right: 1px solid var(--sb-border);
-    display: flex;
-    flex-direction: column;
-    z-index: 1000;
-    transition: transform var(--trans);
-    box-shadow: none; /* Sidebar siempre sin sombra */
-    color: var(--sb-text);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--sb-bg);
+  border-right: 1px solid var(--sb-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  transition: transform var(--trans);
+  box-shadow: none; /* Sidebar siempre sin sombra */
+  color: var(--sb-text);
 }
 
 /* Zona del logo RF + botón X (móvil) */
 .sidebar-brand {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    height: var(--topbar-h);
-    border-bottom: 1px solid var(--sb-border);
-    flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: var(--topbar-h);
+  border-bottom: 1px solid var(--sb-border);
+  flex-shrink: 0;
 }
 
 .brand-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* "RF" en amarillo, fuente monoespaciada */
 .brand-rf {
-    font-family: var(--f-mono);
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--amarillo);
+  font-family: var(--f-mono);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--amarillo);
 }
 
 /* "MARKETING" pequeño y espaciado */
 .brand-name {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: var(--sb-text-2);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--sb-text-2);
 }
 
 /* Botón X — oculto en escritorio, visible en móvil (ver responsive) */
 .sidebar-close-btn {
-    display: none;
-    background: none;
-    border: none;
-    color: var(--sb-text-2);
-    font-size: 16px;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: var(--r-sm);
-    transition: color var(--trans), background var(--trans);
+  display: none;
+  background: none;
+  border: none;
+  color: var(--sb-text-2);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--r-sm);
+  transition:
+    color var(--trans),
+    background var(--trans);
 }
 
 .sidebar-close-btn:hover {
-    color: var(--sb-text);
-    background: var(--sb-hover);
+  color: var(--sb-text);
+  background: var(--sb-hover);
 }
 
 /* Zona del perfil (avatar + nombre + rol) */
 .sidebar-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 20px;
-    border-bottom: 1px solid var(--sb-border);
-    flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border-bottom: 1px solid var(--sb-border);
+  flex-shrink: 0;
 }
 
 /* Círculo amarillo con iniciales */
 .profile-avatar {
-    position: relative;
-    width: 42px;
-    height: 42px;
-    background: var(--amarillo);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--f-mono);
-    font-size: 14px;
-    font-weight: 700;
-    color: #111;
-    flex-shrink: 0;
+  position: relative;
+  width: 42px;
+  height: 42px;
+  background: var(--amarillo);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+  flex-shrink: 0;
 }
 
 /* Punto verde "en línea" sobre el avatar */
 .avatar-status {
-    position: absolute;
-    bottom: 1px;
-    right: 1px;
-    width: 9px;
-    height: 9px;
-    background: var(--verde);
-    border-radius: 50%;
-    border: 2px solid var(--sb-bg);
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 9px;
+  height: 9px;
+  background: var(--verde);
+  border-radius: 50%;
+  border: 2px solid var(--sb-bg);
 }
 
 .profile-info {
-    min-width: 0;
-    flex: 1;
+  min-width: 0;
+  flex: 1;
 }
 
 .profile-name {
-    font-size: 14px;
-    font-weight: 700;
-    margin: 0;
-    line-height: 1.2;
-    color: var(--sb-text);
-    word-break: break-word;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+  color: var(--sb-text);
+  word-break: break-word;
 }
 
 /* Rol en amarillo pequeño y espaciado */
 .profile-rol {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--amarillo);
-    opacity: 0.85;
-    display: block;
-    line-height: 1.2;
-    margin-top: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--amarillo);
+  opacity: 0.85;
+  display: block;
+  line-height: 1.2;
+  margin-top: 2px;
 }
 
 /* Menú de navegación */
 .sidebar-nav {
-    flex: 1;
-    padding: 20px 12px;
-    overflow-y: auto;
-    scrollbar-width: none;
-    /* oculta scrollbar en Firefox */
+  flex: 1;
+  padding: 20px 12px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  /* oculta scrollbar en Firefox */
 }
 
 .sidebar-nav::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 /* oculta en Chrome */
 
 /* Etiqueta de sección (ej: "MI CUENTA", "CONFIGURACIÓN") */
 .nav-section-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: var(--sb-text-3);
-    padding: 0 8px;
-    margin-bottom: 8px;
-    margin-top: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--sb-text-3);
+  padding: 0 8px;
+  margin-bottom: 8px;
+  margin-top: 16px;
 }
 
 .nav-section-label:first-child {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 /* Cada link del menú */
 .nav-link-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    border-radius: var(--r-sm);
-    color: var(--sb-text-2);
-    font-size: 15px;
-    font-weight: 500;
-    transition: all var(--trans);
-    margin-bottom: 2px;
-    position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  color: var(--sb-text-2);
+  font-size: 15px;
+  font-weight: 500;
+  transition: all var(--trans);
+  margin-bottom: 2px;
+  position: relative;
 }
 
 .nav-link-item:hover {
-    color: var(--sb-text);
-    background: var(--sb-hover);
+  color: var(--sb-text);
+  background: var(--sb-hover);
 }
 
 /* Link activo — fondo amarillo tenue + línea izquierda */
 .nav-link-item.active {
-    background: var(--sb-active-bg);
-    color: var(--amarillo);
-    font-weight: 600;
+  background: var(--sb-active-bg);
+  color: var(--amarillo);
+  font-weight: 600;
 }
 
 .nav-link-item.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 20%;
-    bottom: 20%;
-    width: 3px;
-    background: var(--amarillo);
-    border-radius: 0 3px 3px 0;
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 20%;
+  bottom: 20%;
+  width: 3px;
+  background: var(--amarillo);
+  border-radius: 0 3px 3px 0;
+}
+
+/* Logout link special style */
+.logout-link:hover {
+  background: rgba(224, 92, 92, 0.1) !important;
+  color: #e05c5c !important;
+}
+.logout-link:hover .nav-icon {
+  color: #e05c5c !important;
 }
 
 /* En tema claro el sidebar mantiene su estilo oscuro */
 [data-theme="light"] .nav-link-item.active {
-    background: var(--sb-active-bg);
+  background: var(--sb-active-bg);
 }
 
 .nav-icon {
-    font-size: 15px;
-    flex-shrink: 0;
+  font-size: 15px;
+  flex-shrink: 0;
 }
 
 .nav-text {
-    flex: 1;
+  flex: 1;
 }
 
 /* Badge numérico del sidebar (pedidos / notificaciones) */
 .nav-badge {
-    min-width: 20px;
-    height: 20px;
-    background: var(--amarillo);
-    color: #111;
-    font-size: 11px;
-    font-weight: 800;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 6px;
+  min-width: 20px;
+  height: 20px;
+  background: var(--amarillo);
+  color: #111;
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
 }
 
 .nav-badge.notif {
-    background: var(--rojo);
-    color: #fff;
+  background: var(--rojo);
+  color: #fff;
 }
 
 /* versión roja para notificaciones */
 
 /* Pie del sidebar */
 .sidebar-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 20px;
-    border-top: 1px solid var(--sb-border);
-    flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-top: 1px solid var(--sb-border);
+  flex-shrink: 0;
 }
 
 .sidebar-footer span {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    color: var(--sb-text-3);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--sb-text-3);
 }
 
 /* TOPBAR */
 .main-wrapper {
-    /* Empuja el contenido a la derecha del sidebar */
-    margin-left: var(--sidebar-w);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    transition: var(--trans);
-    position: relative;
+  /* Empuja el contenido a la derecha del sidebar */
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: var(--trans);
+  position: relative;
 }
 
 .topbar {
-    position: sticky;
-    top: 0;
-    height: var(--topbar-h);
-    background: var(--negro-2);
-    border-bottom: 1px solid var(--borde);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 28px;
-    z-index: 900;
-    gap: 16px;
-    transition: background 0.35s ease, box-shadow 0.35s ease;
-    box-shadow: var(--sombra-topbar);
+  position: sticky;
+  top: 0;
+  height: var(--topbar-h);
+  background: var(--negro-2);
+  border-bottom: 1px solid var(--borde);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  z-index: 900;
+  gap: 16px;
+  transition:
+    background 0.35s ease,
+    box-shadow 0.35s ease;
+  box-shadow: var(--sombra-topbar);
 }
 
 .topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
 }
 
 /* Botón hamburger — 3 líneas que se convierten en X con JS + CSS */
 .hamburger-btn {
-    display: none;
-    /* oculto en escritorio */
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-    width: 36px;
-    height: 36px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: var(--r-sm);
+  display: none;
+  /* oculto en escritorio */
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--r-sm);
 }
 
 .hamburger-btn span {
-    display: block;
-    width: 20px;
-    height: 2px;
-    background: var(--texto);
-    border-radius: 2px;
-    transition: all var(--trans);
-    transform-origin: center;
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--texto);
+  border-radius: 2px;
+  transition: all var(--trans);
+  transform-origin: center;
 }
 
 /* Animación ☰ → X cuando el sidebar está abierto */
 .hamburger-btn.is-active span:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
+  transform: translateY(7px) rotate(45deg);
 }
 
 .hamburger-btn.is-active span:nth-child(2) {
-    opacity: 0;
-    transform: scaleX(0);
+  opacity: 0;
+  transform: scaleX(0);
 }
 
 .hamburger-btn.is-active span:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 .page-title {
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin: 0;
 }
 
 /* Botones icono (campana, logout) */
 .topbar-icon-btn {
-    position: relative;
-    width: 38px;
-    height: 38px;
-    border-radius: var(--r-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--texto-2);
-    font-size: 17px;
-    transition: all var(--trans);
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--texto-2);
+  font-size: 17px;
+  transition: all var(--trans);
 }
 
 .topbar-icon-btn:hover {
-    color: var(--texto);
-    background: var(--negro-4);
+  color: var(--texto);
+  background: var(--negro-4);
 }
 
 /* Punto rojo sobre la campana cuando hay notificaciones */
 .notif-dot {
-    position: absolute;
-    top: 7px;
-    right: 7px;
-    width: 10px;
-    height: 10px;
-    background: var(--rojo);
-    border-radius: 50%;
-    border: 2px solid var(--negro-2);
-    animation: ping-notif 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 10px;
+  height: 10px;
+  background: var(--rojo);
+  border-radius: 50%;
+  border: 2px solid var(--negro-2);
+  animation: ping-notif 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 @keyframes ping-notif {
-    0% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.8); }
-    70% { box-shadow: 0 0 0 6px rgba(255, 82, 82, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.8);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(255, 82, 82, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 82, 82, 0);
+  }
 }
 
 /* Sección usuario del topbar (avatar + nombre + empresa) */
 .topbar-user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 12px;
-    border-left: 1px solid var(--borde);
-    border-right: 1px solid var(--borde);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  border-left: 1px solid var(--borde);
+  border-right: 1px solid var(--borde);
 }
 
 /* Avatar pequeño en el topbar */
 .topbar-avatar {
-    width: 34px;
-    height: 34px;
-    background: var(--amarillo);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--f-mono);
-    font-size: 12px;
-    font-weight: 700;
-    color: #111;
+  width: 34px;
+  height: 34px;
+  background: var(--amarillo);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: #111;
 }
 
 .topbar-user-name {
-    display: block;
-    font-size: 13.5px;
-    font-weight: 700;
-    line-height: 1.2;
-    color: var(--texto);
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--texto);
 }
 
 .topbar-user-empresa {
-    display: block;
-    font-size: 10.5px;
-    font-weight: 500;
-    color: var(--texto-3);
-    line-height: 1.2;
-    margin-top: 1px;
+  display: block;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--texto-3);
+  line-height: 1.2;
+  margin-top: 1px;
 }
 
 .topbar-user-info.text-end {
-    text-align: right;
+  text-align: right;
 }
-
 
 /* CONTENIDO PRINCIPAL */
 .page-content {
-    flex: 1;
-    padding: 32px 36px;
+  flex: 1;
+  padding: 32px 36px;
 }
-
 
 /*  COMPONENTES REUTILIZABLES*/
 
 /* Tarjeta oscura con borde */
 .rf-card {
-    background: var(--negro-3);
-    border: 1px solid var(--borde);
-    border-radius: var(--r);
-    padding: 24px;
-    transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
-    box-shadow: var(--sombra-card);
+  background: var(--negro-3);
+  border: 1px solid var(--borde);
+  border-radius: var(--r);
+  padding: 24px;
+  transition:
+    background 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+  box-shadow: var(--sombra-card);
 }
 
 /* Encabezado estándar de página (título + botón acción) */
 .page-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
-    gap: 16px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .page-header h2 {
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 4px;
-    color: var(--texto-2);
-    margin-bottom: 4px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--texto-2);
+  margin-bottom: 4px;
 }
 
 .page-header h1 {
-    font-family: var(--f-mono);
-    font-size: 40px;
-    font-weight: 700;
-    line-height: 1;
+  font-family: var(--f-mono);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .page-header p {
-    font-size: 16px;
-    color: var(--texto-2);
-    margin-top: 6px;
-    margin-bottom: 0;
+  font-size: 16px;
+  color: var(--texto-2);
+  margin-top: 6px;
+  margin-bottom: 0;
 }
 
 /* Badges de ESTADO del pedido */
 .badge-estado {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .badge-por-aprobar {
-    background: rgba(245, 197, 24, .15);
-    color: var(--amarillo);
+  background: rgba(245, 197, 24, 0.15);
+  color: var(--amarillo);
 }
 
 .badge-en-proceso {
-    background: rgba(79, 163, 224, .15);
-    color: var(--azul);
+  background: rgba(79, 163, 224, 0.15);
+  color: var(--azul);
 }
 
 .badge-completado {
-    background: rgba(61, 220, 132, .15);
-    color: var(--verde);
+  background: rgba(61, 220, 132, 0.15);
+  color: var(--verde);
 }
 
 .badge-rechazado {
-    background: rgba(224, 92, 92, .15);
-    color: var(--rojo);
+  background: rgba(224, 92, 92, 0.15);
+  color: var(--rojo);
 }
 
 .badge-en-revision {
-    background: rgba(224, 135, 92, .15);
-    color: var(--naranja);
+  background: rgba(224, 135, 92, 0.15);
+  color: var(--naranja);
 }
 
 /* Badges de PRIORIDAD */
 .badge-alta {
-    background: rgba(224, 92, 92, .15);
-    color: var(--rojo);
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 4px;
+  background: rgba(224, 92, 92, 0.15);
+  color: var(--rojo);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
 }
 
 .badge-media {
-    background: rgba(245, 197, 24, .15);
-    color: var(--amarillo);
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 4px;
+  background: rgba(245, 197, 24, 0.15);
+  color: var(--amarillo);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
 }
 
 .badge-baja {
-    background: rgba(61, 220, 132, .15);
-    color: var(--verde);
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 4px;
+  background: rgba(61, 220, 132, 0.15);
+  color: var(--verde);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
 }
 
 /* Botón primario amarillo */
 .btn-rf {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--amarillo);
-    color: #111;
-    font-family: var(--f-main);
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    padding: 11px 22px;
-    border-radius: var(--r-sm);
-    border: none;
-    cursor: pointer;
-    transition: all var(--trans);
-    white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--amarillo);
+  color: #111;
+  font-family: var(--f-main);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 11px 22px;
+  border-radius: var(--r-sm);
+  border: none;
+  cursor: pointer;
+  transition: all var(--trans);
+  white-space: nowrap;
 }
 
 .btn-rf:hover {
-    background: var(--amarillo-2);
-    transform: translateY(-1px);
-    color: #111;
+  background: var(--amarillo-2);
+  transform: translateY(-1px);
+  color: #111;
 }
 
 /* Botón secundario con borde */
 .btn-rf-outline {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: transparent;
-    color: var(--texto-2);
-    font-family: var(--f-main);
-    font-size: 14px;
-    font-weight: 600;
-    padding: 10px 20px;
-    border-radius: var(--r-sm);
-    border: 1px solid var(--borde);
-    cursor: pointer;
-    transition: all var(--trans);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--texto-2);
+  font-family: var(--f-main);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--borde);
+  cursor: pointer;
+  transition: all var(--trans);
 }
 
 .btn-rf-outline:hover {
-    border-color: var(--texto-2);
-    color: var(--texto);
+  border-color: var(--texto-2);
+  color: var(--texto);
 }
 
 /* Scrollbar personalizada (Chrome/Edge) */
 ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--scroll-track);
+  background: var(--scroll-track);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--scroll-thumb);
-    border-radius: 10px;
+  background: var(--scroll-thumb);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--scroll-thumb-hover);
+  background: var(--scroll-thumb-hover);
 }
-
-
 
 /* BOTÓN TOGGLE TEMA (SOL / LUNA) */
 
 .theme-toggle-btn {
-    position: relative;
-    width: 38px;
-    height: 38px;
-    border-radius: var(--r-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--texto-2);
-    font-size: 18px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: all var(--trans);
-    overflow: hidden;
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--texto-2);
+  font-size: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all var(--trans);
+  overflow: hidden;
 }
 
 .theme-toggle-btn:hover {
-    color: var(--amarillo);
-    background: var(--negro-4);
+  color: var(--amarillo);
+  background: var(--negro-4);
 }
 
 /* Contenedor de los iconos sol/luna */
 .theme-toggle-btn .theme-icon {
-    position: absolute;
-    transition: transform 0.4s cubic-bezier(.4, 0, .2, 1), opacity 0.3s ease;
+  position: absolute;
+  transition:
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s ease;
 }
 
 /* SOL — visible en tema oscuro (para cambiar a claro) */
 .theme-toggle-btn .icon-sun {
-    transform: translateY(0) rotate(0);
-    opacity: 1;
+  transform: translateY(0) rotate(0);
+  opacity: 1;
 }
 
 .theme-toggle-btn .icon-moon {
-    transform: translateY(30px) rotate(90deg);
-    opacity: 0;
+  transform: translateY(30px) rotate(90deg);
+  opacity: 0;
 }
 
 /* LUNA — visible en tema claro (para cambiar a oscuro) */
 [data-theme="light"] .theme-toggle-btn .icon-sun {
-    transform: translateY(-30px) rotate(-90deg);
-    opacity: 0;
+  transform: translateY(-30px) rotate(-90deg);
+  opacity: 0;
 }
 
 [data-theme="light"] .theme-toggle-btn .icon-moon {
-    transform: translateY(0) rotate(0);
-    opacity: 1;
+  transform: translateY(0) rotate(0);
+  opacity: 1;
 }
 
 /* Tooltip hover */
 .theme-toggle-btn::after {
-    content: 'Modo Claro';
-    position: absolute;
-    bottom: -32px;
-    left: 50%;
-    transform: translateX(-50%) scale(0.85);
-    background: var(--negro-3);
-    border: 1px solid var(--borde);
-    color: var(--texto-2);
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 6px;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s, transform 0.2s;
+  content: "Modo Claro";
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.85);
+  background: var(--negro-3);
+  border: 1px solid var(--borde);
+  color: var(--texto-2);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
 }
 
 [data-theme="light"] .theme-toggle-btn::after {
-    content: 'Modo Oscuro';
+  content: "Modo Oscuro";
 }
 
 .theme-toggle-btn:hover::after {
-    opacity: 1;
-    transform: translateX(-50%) scale(1);
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
 }
-
 
 /* RESPONSIVE — MÓVIL (pantallas < 900px) */
 @media (max-width: 900px) {
+  /* Sidebar oculto hacia la izquierda por defecto */
+  .sidebar {
+    transform: translateX(calc(-1 * var(--sidebar-w)));
+  }
 
+  /* Clase que agrega JS para mostrarlo — con sombra */
+  .sidebar.is-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 40px rgba(0, 0, 0, 0.7);
+  }
 
-    /* Sidebar oculto hacia la izquierda por defecto */
-    .sidebar {
-        transform: translateX(calc(-1 * var(--sidebar-w)));
-    }
+  /* Mostrar el botón X dentro del sidebar */
+  .sidebar-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-    /* Clase que agrega JS para mostrarlo — con sombra */
-    .sidebar.is-open {
-        transform: translateX(0);
-        box-shadow: 4px 0 40px rgba(0, 0, 0, .7);
-    }
+  /* El contenido ocupa todo el ancho (sin margen del sidebar) */
+  .main-wrapper {
+    margin-left: 0 !important;
+  }
 
-    /* Mostrar el botón X dentro del sidebar */
-    .sidebar-close-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+  /* Mostrar el hamburger en el topbar */
+  .hamburger-btn {
+    display: flex;
+  }
 
-    /* El contenido ocupa todo el ancho (sin margen del sidebar) */
-    .main-wrapper {
-        margin-left: 0 !important;
-    }
+  /* Overlay — oculto por defecto, JS agrega .is-open */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--overlay-bg);
+    backdrop-filter: blur(3px);
+    z-index: 999;
+  }
 
-    /* Mostrar el hamburger en el topbar */
-    .hamburger-btn {
-        display: flex;
-    }
+  .sidebar-overlay.is-open {
+    display: block;
+  }
 
-    /* Overlay — oculto por defecto, JS agrega .is-open */
-    .sidebar-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: var(--overlay-bg);
-        backdrop-filter: blur(3px);
-        z-index: 999;
-    }
+  /* Ajustes de espaciado en móvil */
+  .page-content {
+    padding: 20px 16px;
+  }
 
-    .sidebar-overlay.is-open {
-        display: block;
-    }
+  .topbar {
+    padding: 0 16px;
+  }
 
-    /* Ajustes de espaciado en móvil */
-    .page-content {
-        padding: 20px 16px;
-    }
+  .page-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
 
-    .topbar {
-        padding: 0 16px;
-    }
+  /* Ocultar nombre del usuario en topbar para ahorrar espacio */
+  .topbar-user-info {
+    display: none;
+  }
 
-    .page-title {
-        font-size: 11px;
-        letter-spacing: 2px;
-    }
+  /* Encabezado de página en columna */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-    /* Ocultar nombre del usuario en topbar para ahorrar espacio */
-    .topbar-user-info {
-        display: none;
-    }
+  .page-header h1 {
+    font-size: 26px;
+  }
 
-    /* Encabezado de página en columna */
-    .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .page-header h1 {
-        font-size: 26px;
-    }
-
-    /* Tooltip del toggle — arriba en vez de abajo para no tapar */
-    .theme-toggle-btn::after {
-        bottom: auto;
-        top: -32px;
-    }
+  /* Tooltip del toggle — arriba en vez de abajo para no tapar */
+  .theme-toggle-btn::after {
+    bottom: auto;
+    top: -32px;
+  }
 }

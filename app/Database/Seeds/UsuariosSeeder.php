@@ -201,7 +201,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => true,
                 'estado' => true,
             ],
-            // CLIENTES (representantes de empresa) 
+            // CLIENTES (representantes de empresa)     
             // ID 13: ANA (cliente de UNIVERSIDAD AUTÓNOMA DE ICA)
             [
                 'nombre' => 'ANA',

@@ -146,7 +146,7 @@
                 </div>
             </div>
             <div class="modal-footer border-0 p-3">
-                <button type="button" class="btn btn-link text-muted text-decoration-none font-size-12"
+                <button type="button" class="btn btn-link text-decoration-none font-size-12"
                     data-bs-dismiss="modal">CANCELAR</button>
                 <button type="button" class="btn-rf px-4 py-2" id="btn-confirmar-asignacion" disabled>
                     <i class="bi bi-person-plus-fill me-2"></i> CONFIRMAR ASIGNACIÓN

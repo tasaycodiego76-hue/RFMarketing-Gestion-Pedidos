@@ -24,26 +24,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Listado de canales donde se puede difundir el diseño solicitado.
   const CANALES = [
-    "Por correo","Página web","Redes sociales","SIGU o Aula Virtual Estudiantes","SIGU o Aula Virtual Docentes",
-    "Impresión física de folletos","Banner físico","Letreros","Merch para eventos específicos",
+    "Por correo", "Página web", "Redes sociales", "SIGU o Aula Virtual Estudiantes", "SIGU o Aula Virtual Docentes",
+    "Impresión física de folletos", "Banner físico", "Letreros", "Merch para eventos específicos",
   ];
   // Opciones de formato que aparecen según el tipo de servicio seleccionado.
   const FORMATOS = {
     // Para Diseño Gráfico (ID 1)
     1: [
-      "Emailing","Post Facebook/IG","Historia FB/IG","Historia WhatsApp","Post LinkedIn","SIGU","Aula Virtual","Wallpaper","Banner Web",
-      "Volante A5","Afiche A4/A3","Credenciales","Banner 2x1","Tarjeta Personal","Tríptico","Díptico","Folder","Brochure","Cartilla",
-      "Banderola","Módulos","SMS","IVR","Marcos Selfie","Boletín","Guías","Imagen JPG/PNG","Otros"
+      "Emailing", "Post Facebook/IG", "Historia FB/IG", "Historia WhatsApp", "Post LinkedIn", "SIGU", "Aula Virtual", "Wallpaper", "Banner Web",
+      "Volante A5", "Afiche A4/A3", "Credenciales", "Banner 2x1", "Tarjeta Personal", "Tríptico", "Díptico", "Folder", "Brochure", "Cartilla",
+      "Banderola", "Módulos", "SMS", "IVR", "Marcos Selfie", "Boletín", "Guías", "Imagen JPG/PNG", "Otros"
     ],
     // Para Audiovisual/Media (ID 2)
     2: [
-      "Reels FB/IG","Historia FB/IG","Reel/TikTok","Reels LinkedIn","Historia WhatsApp","Video YouTube",
-      "SIGU","Aula Virtual","Pantallas LED","Spot TV","Videos eventos","Reels Pauta","Otros",
+      "Reels FB/IG", "Historia FB/IG", "Reel/TikTok", "Reels LinkedIn", "Historia WhatsApp", "Video YouTube",
+      "SIGU", "Aula Virtual", "Pantallas LED", "Spot TV", "Videos eventos", "Reels Pauta", "Otros",
     ],
     // Para otros servicios o personalizado (ID 0)
     0: [
-      "Post FB/IG","Historia FB/IG","Historia WhatsApp","Reels FB/IG","Reel/TikTok","Video YouTube","Afiche A4/A3",
-      "Banner Web","Spot TV","Banner físico","Emailing","Imagen JPG/PNG","Otros",
+      "Post FB/IG", "Historia FB/IG", "Historia WhatsApp", "Reels FB/IG", "Reel/TikTok", "Video YouTube", "Afiche A4/A3",
+      "Banner Web", "Spot TV", "Banner físico", "Emailing", "Imagen JPG/PNG", "Otros",
     ],
   };
   // Tiempos de entrega mínimos para servicios de Diseño.
@@ -148,8 +148,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (mimeType?.startsWith("image/")) return "bi-file-earmark-image";
     if (mimeType?.startsWith("video/")) return "bi-file-earmark-play";
     if (mimeType?.includes("pdf")) return "bi-file-earmark-pdf";
-    if (mimeType?.includes("word") ||fileName?.endsWith(".doc") ||fileName?.endsWith(".docx")) return "bi-file-earmark-word";
-    if (mimeType?.includes("excel") ||fileName?.endsWith(".xls") ||fileName?.endsWith(".xlsx")) return "bi-file-earmark-excel";
+    if (mimeType?.includes("word") || fileName?.endsWith(".doc") || fileName?.endsWith(".docx")) return "bi-file-earmark-word";
+    if (mimeType?.includes("excel") || fileName?.endsWith(".xls") || fileName?.endsWith(".xlsx")) return "bi-file-earmark-excel";
     return "bi-file-earmark";
   };
   // Configuración de colores y fondo para las alertas de SweetAlert2 (dinámico).
@@ -392,6 +392,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Cambia la visibilidad de las secciones del formulario para simular pasos.
   function irAlPaso(paso) {
+    if (paso < 1) paso = 1;
     pasoActual = paso;
     // Escondemos todas las secciones primero.
     qsAll(".wizard-section").forEach((s) => s.classList.add("d-none"));
@@ -680,6 +681,18 @@ document.addEventListener("DOMContentLoaded", function () {
       .classList.toggle("d-none", e.target.value !== "1");
   });
 
+  // Muestra/oculta el campo de texto libre cuando el usuario marca/desmarca "Otros" en Formatos.
+  document.getElementById("formatos-checks")?.addEventListener("change", (e) => {
+    if (e.target.type === "checkbox") {
+      const algunOtrosChecked = document.querySelector(
+        '#formatos-checks input[value="Otros"]:checked'
+      );
+      document
+        .getElementById("contenedor-formato-otros")
+        ?.classList.toggle("d-none", !algunOtrosChecked);
+    }
+  });
+
   // Acciones de los botones de navegación.
   btnSiguiente?.addEventListener("click", validarYPasar);
   btnAtras?.addEventListener("click", () => irAlPaso(pasoActual - 1));
@@ -845,8 +858,20 @@ document.addEventListener("DOMContentLoaded", function () {
     listaArchivos.innerHTML = "";
     document.getElementById("contenedor-materiales")?.classList.add("d-none");
     document.getElementById("info-tipo-container")?.classList.add("d-none");
+    // Ocultar también el campo "Otros" de formatos
+    document.getElementById("contenedor-formato-otros")?.classList.add("d-none");
   });
 
   obtenerPedidos();
   modalNuevoPedidoEl?.addEventListener("shown.bs.modal", cargarServicios);
+
+  // Guardia anti "Paso 0: undefined": asegura el título correcto al abrir el modal wizard.
+  modalFormularioDetalleEl?.addEventListener("shown.bs.modal", () => {
+    if (pasoActual < 1 || pasoActual > 3) {
+      irAlPaso(1);
+    } else {
+      // Re-sincroniza el título por si el modal fue reabierto sin reset.
+      irAlPaso(pasoActual);
+    }
+  });
 });

@@ -25,13 +25,13 @@
     <link rel="stylesheet" href="<?= base_url('recursos/styles/responsable/plantilla/responsable-light.css') ?>">
 
     <?= $this->renderSection('estilos') ?>
-    
+
     <!-- Aplicar tema guardado ANTES del render (evita flash) -->
     <script>
-    (function(){
-        var t = localStorage.getItem('rf-responsable-theme');
-        if(t === 'light') document.documentElement.setAttribute('data-theme','light');
-    })();
+        (function () {
+            var t = localStorage.getItem('rf-responsable-theme');
+            if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        })();
     </script>
 </head>
 

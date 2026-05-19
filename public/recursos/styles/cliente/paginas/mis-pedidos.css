@@ -345,11 +345,17 @@
 .modal-rf-header {
   background: #141414;
   border-bottom: 1px solid #222;
-  padding: 25px;
-  padding-right: 50px;
+  padding: 20px 50px 20px 20px;
   display: flex;
-  gap: 15px;
+  gap: 12px;
   position: relative;
+  overflow: hidden; /* evita que el contenido salga del header */
+}
+@media (max-width: 768px) {
+  .modal-rf-header {
+    padding: 14px 46px 14px 14px;
+    gap: 8px;
+  }
 }
 
 /* Botón de cierre del modal - NEGRO TOTAL */
@@ -374,8 +380,8 @@
   height: 32px !important;
   border-radius: 50% !important;
   cursor: pointer !important;
-  text-shadow: 0 0 4px rgba(0,0,0,1) !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,1) !important;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 1) !important;
 }
 
 /* Override Bootstrap's default white icon for btn-close-white */
@@ -444,7 +450,7 @@
   background: #000 !important;
   border: 2px solid #000 !important;
   transform: scale(1.1) !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 1) !important;
 }
 
 .modal-rf-header .btn-close:hover i,
@@ -460,67 +466,67 @@
     height: 28px !important;
     padding: 4px !important;
   }
-  
+
   .modal-rf-header .btn-close i,
   .modal-rf-header .btn-close-white i {
     font-size: 14px !important;
   }
-  
+
   .modal-rf-body {
     padding: 20px;
   }
-  
+
   /* Prioridad opciones en móvil */
   .prioridad-opciones {
     display: flex;
     gap: 10px;
     justify-content: space-between;
   }
-  
+
   .prio-opcion {
     flex: 1;
   }
-  
+
   .prio-badge {
     display: block;
     text-align: center;
     padding: 8px 4px;
     font-size: 11px;
   }
-  
+
   /* Campos del formulario */
   .field {
     margin-bottom: 15px;
   }
-  
+
   .field label {
     font-size: 12px;
     margin-bottom: 8px;
   }
-  
+
   .field-input {
     padding: 10px 12px;
     font-size: 14px;
   }
-  
+
   #campo-titulo {
     min-height: 50px;
     font-size: 15px;
   }
-  
+
   /* Autofill en móvil */
   .autofill {
     padding: 12px;
   }
-  
+
   .autofill-row {
     padding: 8px 0;
   }
-  
+
   .autofill-k {
     font-size: 12px;
   }
-  
+
   .autofill-v {
     font-size: 13px;
   }
@@ -834,20 +840,20 @@ textarea.form-control:focus {
     padding: 12px;
     margin-bottom: 8px;
   }
-  
+
   .servicio-card-icon {
     font-size: 24px;
     width: 40px;
   }
-  
+
   .servicio-card-nombre {
     font-size: 14px;
   }
-  
+
   .servicio-card-desc {
     font-size: 12px;
   }
-  
+
   .servicio-card-arrow {
     font-size: 14px;
   }
@@ -1465,4 +1471,177 @@ textarea.form-control:focus {
   background: rgba(255, 255, 255, 0.08);
   border-color: #888;
   color: #fff;
+}
+
+/* ─── CORRECCIONES RESPONSIVAS RF (MOBILE FIRST) ─── */
+@media (max-width: 768px) {
+  /* Títulos */
+  .cliente-nombre {
+    font-size: 1.5rem !important;
+    line-height: 1.2;
+  }
+
+  /* Botones full width en móvil */
+  .w-100-mobile {
+    width: 100% !important;
+    justify-content: center;
+  }
+
+  /* Métricas */
+  .met-num {
+    font-size: 36px;
+  }
+  .met-label {
+    font-size: 12px;
+  }
+
+  /* Wizard Steps — cabecera más compacta en móvil */
+  .wizard-header-full {
+    min-width: 0; /* evita overflow */
+  }
+  .wizard-step-titulo {
+    font-size: 14px !important;
+    margin-bottom: 12px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .wizard-steps {
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .step-wrapper {
+    min-width: 40px;
+    gap: 4px;
+  }
+  .step {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .step-label {
+    font-size: 8px;
+    max-width: 55px;
+    text-align: center;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.2;
+  }
+  .step-line {
+    width: 18px;
+    flex-shrink: 0;
+  }
+
+  /* Autofill / Datos Cuenta */
+  .autofill-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .autofill-v {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  /* Checkboxes */
+  .checks-grid.compact {
+    grid-template-columns: 1fr !important; /* Stacked en móvil */
+    gap: 8px !important;
+  }
+  .check-item {
+    padding: 10px !important;
+  }
+
+  /* Prio Box */
+  .prio-consejo-box {
+    min-width: 0;
+    flex-direction: column;
+    text-align: center;
+    padding: 15px;
+  }
+
+  /* Resumen Paso 3 */
+  .resumen-fila:not(.vertical) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .resumen-valor {
+    text-align: left;
+    max-width: 100%;
+    font-size: 14px;
+  }
+  .resumen-label {
+    font-size: 11px;
+  }
+  .resumen-titulo {
+    font-size: 18px;
+  }
+  .resumen-sub {
+    font-size: 13px;
+  }
+  .resumen-aviso {
+    padding: 15px;
+    font-size: 14px;
+  }
+  .resumen-aviso span {
+    font-size: 14px;
+  }
+
+  /* Modal Footer — botones compactos en móvil, NO full width */
+  .modal-footer-wizard {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    justify-content: space-between !important;
+    gap: 8px;
+  }
+  .modal-footer-wizard .btn,
+  .modal-footer-wizard .btn-rf,
+  .modal-footer-wizard .btn-outline-wizard {
+    flex: 1 1 auto;
+    min-width: 100px;
+    max-width: 48%;
+    padding: 10px 12px;
+    font-size: 13px;
+    justify-content: center;
+  }
+
+  /* Tablas responsivas */
+  .card-tabla-pedidos {
+    border: none;
+    background: transparent;
+  }
+  .tabla-header {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+  }
+  .buscador-wrap {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .wizard-section {
+    max-height: 60vh;
+  }
+
+  .modal-rf-header {
+    padding: 20px 15px;
+  }
+
+  .wizard-step-titulo {
+    font-size: 16px;
+  }
+
+  .field label {
+    font-size: 14px;
+  }
+
+  .field-input,
+  .select-grande {
+    font-size: 14px !important;
+    padding: 12px;
+  }
 }

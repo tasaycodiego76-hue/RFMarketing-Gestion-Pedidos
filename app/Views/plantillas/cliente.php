@@ -26,10 +26,10 @@
     <?= $this->renderSection('estilos') ?>
     <!-- Aplicar tema guardado ANTES del render (evita flash) -->
     <script>
-    (function(){
-        var t = localStorage.getItem('rf-cliente-theme');
-        if(t === 'light') document.documentElement.setAttribute('data-theme','light');
-    })();
+        (function () {
+            var t = localStorage.getItem('rf-cliente-theme');
+            if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        })();
     </script>
 </head>
 
@@ -112,6 +112,15 @@
                                 <?= $notif_no_leidas ?>
                             </span>
                         <?php endif; ?>
+                    </a>
+            </ul>
+
+            <p class="nav-section-label">SESIÓN</p>
+            <ul>
+                <li>
+                    <a href="<?= base_url('auth/logout') ?>" class="nav-link-item logout-link">
+                        <span class="nav-icon"><i class="bi bi-box-arrow-right"></i></span>
+                        <span class="nav-text">Cerrar Sesión</span>
                     </a>
                 </li>
             </ul>

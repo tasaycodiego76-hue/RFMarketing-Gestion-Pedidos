@@ -10,7 +10,9 @@
 <div class="seccion-titulo">HISTORIAL</div>
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="mb-0 cliente-nombre"><?= esc($user['nombre'] . ' ' . $user['apellidos']) ?></h2>
+        <h2 class="mb-0 cliente-nombre">
+            <?= esc($user['nombre'] . ' ' . $user['apellidos']) ?>
+        </h2>
         <p class="small mb-0 cliente-subtitulo">Proyectos completados y entregados</p>
     </div>
     <a href="<?= base_url('cliente/mis_solicitudes') ?>" class="btn-rf">
@@ -39,8 +41,8 @@
 
 <script>
     const base_url = "<?= base_url() ?>";
-    const userId   = "<?= esc($user['id']) ?>";
-    const userRol  = "<?= esc($user['rol']) ?>";
+    const userId = "<?= esc($user['id']) ?>";
+    const userRol = "<?= esc($user['rol']) ?>";
 </script>
 
 <?= $this->endSection() ?>

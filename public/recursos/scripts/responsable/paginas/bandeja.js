@@ -447,7 +447,7 @@ function renderizarDetalleRequerimiento(req, archivos) {
                         <div class="row g-4">
                             <div class="col-md-6"><span class="case-label">Objetivo</span><div class="case-value">${escaparHtml(req.objetivo_comunicacion || "---")}</div></div>
                             <div class="col-md-6"><span class="case-label">Público</span><div class="case-value">${escaparHtml(req.publico_objetivo || "---")}</div></div>
-                            <div class="col-12"><span class="case-label">Instrucciones</span><div class="case-value-box"><div class="case-value" style="white-space:pre-wrap;">${escaparHtml(req.descripcion || "Sin descripción.")}</div></div></div>
+                            <div class="col-12"><span class="case-label">Descripcion</span><div class="case-value-box"><div class="case-value" style="white-space:pre-wrap;">${escaparHtml(req.descripcion || "Sin descripción.")}</div></div></div>
                             <div class="col-md-6"><span class="case-label">Canales</span><div class="d-flex flex-wrap gap-2 mt-2">${formatearLista(req.canales_difusion)}</div></div>
                             <div class="col-md-6"><span class="case-label">Formatos</span><div class="d-flex flex-wrap gap-2 mt-2">${formatearLista(req.formatos_solicitados)}</div></div>
                             <div class="col-12">

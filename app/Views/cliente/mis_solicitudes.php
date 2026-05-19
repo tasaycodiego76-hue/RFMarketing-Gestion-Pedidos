@@ -26,28 +26,36 @@
     <div class="col-6 col-md-3">
         <div class="card p-3">
             <div class="met-label">Por Aprobar</div>
-            <div class="met-num amarillo"><?= $metrics['pendientes'] ?? 0 ?></div>
+            <div class="met-num amarillo">
+                <?= $metrics['pendientes'] ?? 0 ?>
+            </div>
             <div class="met-sub">Pendientes de revisión</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
         <div class="card p-3">
             <div class="met-label">En Proceso</div>
-            <div class="met-num azul"><?= $metrics['en_proceso'] ?? 0 ?></div>
+            <div class="met-num azul">
+                <?= $metrics['en_proceso'] ?? 0 ?>
+            </div>
             <div class="met-sub">En curso</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
         <div class="card p-3">
             <div class="met-label">Completados</div>
-            <div class="met-num verde"><?= $metrics['finalizados'] ?? 0 ?></div>
+            <div class="met-num verde">
+                <?= $metrics['finalizados'] ?? 0 ?>
+            </div>
             <div class="met-sub">Total histórico</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
         <div class="card p-3">
             <div class="met-label">Total</div>
-            <div class="met-num met-num-total"><?= $metrics['total'] ?? 0 ?></div>
+            <div class="met-num met-num-total">
+                <?= $metrics['total'] ?? 0 ?>
+            </div>
             <div class="met-sub">Todos los pedidos</div>
         </div>
     </div>
@@ -154,7 +162,9 @@
                             <div class="autofill-title"><span>&#10003;</span> DATOS DE TU CUENTA</div>
                             <div class="autofill-row">
                                 <span class="autofill-k">Solicitante</span>
-                                <span class="autofill-v"><?= esc($user['nombre'] . ' ' . $user['apellidos']) ?></span>
+                                <span class="autofill-v">
+                                    <?= esc($user['nombre'] . ' ' . $user['apellidos']) ?>
+                                </span>
                             </div>
                             <div class="autofill-row">
                                 <span class="autofill-k">Empresa / Área</span>
@@ -186,7 +196,8 @@
                             <input type="hidden" name="prioridad" value="Media">
                             <div class="prio-consejo-box">
                                 <i class="bi bi-info-circle-fill text-warning"></i>
-                                <p class="m-0">La prioridad se aplica por defecto como <strong>Media</strong>. Si deseas un cambio especial en la prioridad, comunícate con el administrador.</p>
+                                <p class="m-0">La prioridad se aplica por defecto como <strong>Media</strong>. Si deseas
+                                    un cambio especial en la prioridad, comunícate con el administrador.</p>
                             </div>
                         </div>
                         <div class="field mb-3">
@@ -323,7 +334,7 @@
                                 <span class="resumen-numero">1</span>
                                 <span class="resumen-card-titulo">Información Principal</span>
                             </div>
-                            <div class="resumen-card-body" >
+                            <div class="resumen-card-body">
                                 <div class="resumen-fila">
                                     <span class="resumen-label">Servicio</span>
                                     <span class="resumen-valor" id="res-servicio">—</span>
