@@ -82,7 +82,7 @@ $routes->group('responsable', ['filter' => 'auth'], function ($routes) {
 
     // GESTIÓN DE EQUIPO 
     // Vistas
-    $routes->get('equipo', 'Responsable\EquipoController::index');
+    $routes->get('equipo', 'Responsable\EquipoController::vistaEquipo');
     $routes->get('en-proceso', 'Responsable\EquipoController::vistaTareasEnProceso');
     // Datos (JSON)
     $routes->get('empleados/mi-area-json', 'Responsable\EquipoController::empleadosMiAreaJson');

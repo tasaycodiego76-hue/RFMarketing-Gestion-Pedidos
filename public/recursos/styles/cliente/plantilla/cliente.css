@@ -23,6 +23,8 @@
   /* texto secundario — claro para proyector */
   --texto-3: #b5b5b5;
   /* texto tenue (labels) — claro para proyector */
+  --text-muted: rgba(255, 255, 255, 0.7);
+  /* texto atenuado legible en tema oscuro */
 
   /* Colores de estado — badges */
   --verde: #3ddc84;
@@ -97,6 +99,8 @@
   /* texto secundario */
   --texto-3: #7a7a8a;
   /* texto tenue (labels) */
+  --text-muted: #7a7a8a;
+  /* texto atenuado para tema claro */
 
   /* Colores de estado — ligeramente más saturados para fondo claro */
   --verde: #2ebd6b;
@@ -116,6 +120,11 @@
   --scroll-track: #ebe9e4;
   --scroll-thumb: #c9c5bc;
   --scroll-thumb-hover: #a8a49c;
+}
+
+/* Regla global para sobrescribir .text-muted de Bootstrap según el tema activo */
+.text-muted {
+  color: var(--text-muted) !important;
 }
 
 /* RESET BASE */

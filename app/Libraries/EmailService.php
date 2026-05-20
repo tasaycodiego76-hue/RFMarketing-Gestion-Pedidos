@@ -247,7 +247,7 @@ class EmailService
         if (!empty($archivos)) {
             $seccionArchivos .= "
             <div style='margin-top: 25px; border-top: 2px solid #eef2f6; padding-top: 20px;'>
-                <h3 style='font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 0; margin-bottom: 12px;'>📁 Archivos Finales Entregados:</h3>
+                <h3 style='font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 0; margin-bottom: 12px;'> Archivos Finales Entregados:</h3>
                 <table style='width: 100%; border-collapse: collapse; font-size: 14px;'>
             ";
             foreach ($archivos as $archivo) {
@@ -278,7 +278,7 @@ class EmailService
         if (!empty($urlEntrega)) {
             $seccionEnlaces .= "
             <div style='margin-top: 20px; background-color: #f0f9ff; border: 1px dashed #bae6fd; padding: 15px; border-radius: 8px;'>
-                <h4 style='font-size: 13px; font-weight: 700; color: #0369a1; margin: 0 0 6px 0;'>🔗 Enlace de Entrega (Recurso Externo):</h4>
+                <h4 style='font-size: 13px; font-weight: 700; color: #0369a1; margin: 0 0 6px 0;'>Enlace de Entrega (Recurso Externo):</h4>
                 <a href='{$urlEntrega}' target='_blank' style='color: #0284c7; text-decoration: underline; font-size: 13px; word-break: break-all; font-weight: 500;'>
                     " . htmlspecialchars($urlEntrega) . "
                 </a>
@@ -307,10 +307,6 @@ class EmailService
             {$seccionArchivos}
 
             <p style='margin-top: 25px;'>Agradecemos tu confianza. Si tienes nuevos requerimientos, puedes registrarlos en cualquier momento desde tu panel.</p>
-            
-            <div style='text-align: center;'>
-                <a href='" . base_url('cliente/mis_solicitudes') . "' class='btn'>Ir a mis Pedidos</a>
-            </div>
         ";
 
         $htmlFinal = $this->obtenerPlantillaBase($asunto, $cuerpo);

@@ -1,6 +1,48 @@
 document.addEventListener("DOMContentLoaded", function () {
   cargarTareasEnProceso();
   setTimeout(verificarHighlight, 1500); // Dar tiempo a que las tareas se carguen por AJAX
+
+  // Lógica para el input de archivos de entrega (Responsable)
+  const area = document.getElementById("area-subida-entrega");
+  const input = document.getElementById("entrega-archivos");
+  const lista = document.getElementById("lista-archivos-entrega");
+
+  if (area && input && lista) {
+    area.addEventListener("click", () => input.click());
+
+    // Drag and drop event listeners
+    area.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      area.classList.add("dragover");
+    });
+
+    area.addEventListener("dragleave", () => {
+      area.classList.remove("dragover");
+    });
+
+    area.addEventListener("drop", (e) => {
+      e.preventDefault();
+      area.classList.remove("dragover");
+      if (e.dataTransfer.files.length > 0) {
+        input.files = e.dataTransfer.files;
+        input.dispatchEvent(new Event("change"));
+      }
+    });
+
+    input.addEventListener("change", () => {
+      const esClaro = document.documentElement.getAttribute("data-theme") === "light";
+      lista.innerHTML = "";
+      Array.from(input.files).forEach((f) => {
+        lista.innerHTML += `
+            <div style="background:${esClaro ? "#f8fafc" : "#111"}; border:1px solid ${esClaro ? "#cbd5e1" : "#222"}; border-radius:8px; padding:10px 15px; display:flex; align-items:center; gap:12px; color:${esClaro ? "#334155" : "#aaa"}; font-size:12px;">
+                <i class="bi bi-file-earmark-check" style="color:#f5c400; font-size:16px;"></i>
+                <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f.name}</span>
+                <small style="color:${esClaro ? "#64748b" : "#444"};">${(f.size / 1024 / 1024).toFixed(2)} MB</small>
+            </div>
+        `;
+      });
+    });
+  }
 });
 
 /* FUNCIONES DE CARGA (API) */
@@ -185,16 +227,11 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
                         </button>
                     `
         }
-                    ${!isMe
-          ? `
                         <button class="btn btn-sm btn-outline-secondary ep-btn-ver" 
                                 onclick="abrirModalReasignar(${tarea.id}, ${tarea.idempleado || 0}, '${escaparHtml(tarea.titulo || 'Sin título').replace(/'/g, "\\'")}')"
                                 title="Reasignar esta tarea a otro especialista">
                             <i class="bi bi-person-gear"></i>
                         </button>
-                    `
-          : ""
-        }
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-between mt-1">
@@ -799,78 +836,60 @@ function obtenerIniciales(nombre) {
  * @param {number|string} idAtencion - ID de la atención a entregar.
  */
 function abrirModalEntregar(idAtencion) {
-  const esClaro = document.documentElement.getAttribute("data-theme") === "light";
-  Swal.fire({
-    title:
-      '<i class="bi bi-cloud-arrow-up mr-2" style="color:#F5C400;"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">REALIZAR ENTREGA</span>',
-    html: `
-            <div class="text-start" style="font-family: 'Inter', sans-serif;">
-                <div class="mb-3">
-                    <label class="form-label ${esClaro ? "text-dark" : "text-white-50"} text-uppercase fw-bold ep-swal-label">Link del Entregable</label>
-                    <input type="text" id="swal-url-entrega" class="form-control form-control-sm ${esClaro ? "bg-white text-dark" : "bg-dark text-white"} border-secondary" placeholder="Google Drive, Canva, Figma...">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label ${esClaro ? "text-dark" : "text-white-50"} text-uppercase fw-bold ep-swal-label">Subir Archivos (Opcional)</label>
-                    <input type="file" id="swal-archivos-entrega" class="form-control form-control-sm ${esClaro ? "bg-white text-dark" : "bg-dark text-white"} border-secondary" multiple>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label ${esClaro ? "text-dark" : "text-white-50"} text-uppercase fw-bold ep-swal-label">Notas adicionales</label>
-                    <textarea id="swal-notas-entrega" class="form-control form-control-sm ${esClaro ? "bg-white text-dark" : "bg-dark text-white"} border-secondary" placeholder="Escribe aquí algún detalle..." rows="3"></textarea>
-                </div>
-            </div>
-            <script>
-                document.getElementById('swal-upload-area').onclick = () => document.getElementById('swal-archivos-entrega').click();
-                document.getElementById('swal-archivos-entrega').onchange = (e) => {
-                    const list = document.getElementById('swal-file-list');
-                    list.innerHTML = '';
-                    Array.from(e.target.files).forEach(f => {
-                        list.innerHTML += \`
-                            <div style="background:${esClaro ? "#f8f9fa" : "#111"}; border:1px solid ${esClaro ? "#ddd" : "#222"}; border-radius:6px; padding:8px 12px; display:flex; align-items:center; gap:10px; color:${esClaro ? "#333" : "#999"}; font-size:11px;">
-                                <i class="bi bi-file-earmark-check" style="color:#F5C400;"></i>
-                                <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">\${f.name}</span>
-                            </div>\`;
-                    });
-                };
-            </script>
-        `,
-    background: esClaro ? "#fff" : "#0a0a0a",
-    color: esClaro ? "#000" : "#fff",
-    showCancelButton: true,
-    confirmButtonText: "ENVIAR ENTREGA",
-    cancelButtonText: "CANCELAR",
-    confirmButtonColor: "#22c55e",
-    cancelButtonColor: esClaro ? "#6c757d" : "#333",
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    preConfirm: () => {
-      const url = document.getElementById("swal-url-entrega").value;
-      const files = document.getElementById("swal-archivos-entrega").files;
-      const notas = document.getElementById("swal-notas-entrega").value;
+  // Limpiar e inicializar campos
+  document.getElementById("entrega-idatencion").value = idAtencion;
+  document.getElementById("entrega-url").value = "";
+  document.getElementById("entrega-archivos").value = "";
+  document.getElementById("lista-archivos-entrega").innerHTML = "";
+  document.getElementById("entrega-notas").value = "";
 
-      if (url) {
-        const urlPattern = /^(https?:\/\/)/i;
-        if (!urlPattern.test(url)) {
-          Swal.showValidationMessage(
-            "El enlace debe comenzar con http:// o https://",
-          );
-          return false;
-        }
-      }
+  // Mostrar el modal Bootstrap
+  const modalElement = document.getElementById("modal-entregar");
+  const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+  modal.show();
+}
 
-      if (!url && files.length === 0) {
-        Swal.showValidationMessage(
-          "Debes proporcionar al menos un link o un archivo",
-        );
-        return false;
-      }
+window.confirmarEntregaResponsable = function () {
+  const idAtencion = document.getElementById("entrega-idatencion").value;
+  const url = document.getElementById("entrega-url").value;
+  const files = document.getElementById("entrega-archivos").files;
+  const notas = document.getElementById("entrega-notas").value;
 
-      return { url, files, notas };
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      ejecutarEntrega(idAtencion, result.value);
+  if (url) {
+    const urlPattern = /^(https?:\/\/)/i;
+    if (!urlPattern.test(url)) {
+      const esClaro = document.documentElement.getAttribute("data-theme") === "light";
+      Swal.fire({
+        icon: "warning",
+        title: "URL Inválida",
+        text: "El enlace debe comenzar con http:// o https://",
+        background: esClaro ? "#fff" : "#0a0a0a",
+        color: esClaro ? "#000" : "#fff",
+        confirmButtonColor: "#f5c400"
+      });
+      return;
     }
-  });
+  }
+
+  if (!url && files.length === 0) {
+    const esClaro = document.documentElement.getAttribute("data-theme") === "light";
+    Swal.fire({
+      icon: "warning",
+      title: "Falta información",
+      text: "Por favor, proporciona un enlace o adjunta los archivos de tu trabajo.",
+      background: esClaro ? "#fff" : "#0a0a0a",
+      color: esClaro ? "#000" : "#fff",
+      confirmButtonColor: "#f5c400"
+    });
+    return;
+  }
+
+  // Ocultar modal
+  const modal = bootstrap.Modal.getInstance(document.getElementById("modal-entregar"));
+  if (modal) modal.hide();
+
+  // Ejecutar el backend
+  ejecutarEntrega(idAtencion, { url, files, notas });
 }
 
 function ejecutarEntrega(idAtencion, data) {

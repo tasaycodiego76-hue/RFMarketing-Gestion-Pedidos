@@ -22,8 +22,12 @@ class PedidosAreaController extends BaseResponsableController
     {
         // Validación de sesión y rol
         $userS = $this->ValidarSesion_DatosUser();
-        if (!$userS['ok'])
-            return redirect()->to('auth/login');
+        if (!$userS['ok']) {
+            if (isset($userS['unauthorized']) && $userS['unauthorized'] === true) {
+                return redirect()->back()->with('error', $userS['message']);
+            }
+            return redirect()->to('/auth/logout');
+        }
 
         $user = $userS['user'];
         $userData = $userS['userData'];
@@ -103,7 +107,10 @@ class PedidosAreaController extends BaseResponsableController
         // Validación de sesión y rol
         $userS = $this->ValidarSesion_DatosUser();
         if (!$userS['ok']) {
-            return redirect()->to('auth/login');
+            if (isset($userS['unauthorized']) && $userS['unauthorized'] === true) {
+                return redirect()->back()->with('error', $userS['message']);
+            }
+            return redirect()->to(base_url('/'))->with('error', $userS['message']);
         }
 
         $idAreaAgencia = $userS['user']['idarea_agencia'];
@@ -133,8 +140,12 @@ class PedidosAreaController extends BaseResponsableController
     public function vistaBandeja()
     {
         $userS = $this->ValidarSesion_DatosUser();
-        if (!$userS['ok'])
-            return redirect()->to('login');
+        if (!$userS['ok']) {
+            if (isset($userS['unauthorized']) && $userS['unauthorized'] === true) {
+                return redirect()->back()->with('error', $userS['message']);
+            }
+            return redirect()->to(base_url('/'))->with('error', $userS['message']);
+        }
 
         $metrics = $this->_getMetrics((int) $userS['user']['idarea_agencia']);
 
@@ -364,7 +375,7 @@ class PedidosAreaController extends BaseResponsableController
     }
 
     /**
-     * Endpoint API que construye el "Full Profile" de un pedido, uniendo datos de
+     * Endpoint API que construye todo de un pedido, uniendo datos de
      * atencion, requerimiento, archivos adjuntos y todo el historial de tracking.
      * @return \CodeIgniter\HTTP\ResponseInterface
      */

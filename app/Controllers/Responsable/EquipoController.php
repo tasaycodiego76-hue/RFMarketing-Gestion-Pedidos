@@ -11,14 +11,18 @@ use App\Models\TrackingModel;
 class EquipoController extends BaseResponsableController
 {
     /**
-     * Renderiza la página principal de "Mi Equipo", donde se listan los técnicos 
-     * a cargo del responsable.
+     * Renderiza la página principal de "Mi Equipo", donde se listan los Empleados a cargo del responsable.
      * @return string|\CodeIgniter\HTTP\RedirectResponse
      */
-    public function index()
+    public function vistaEquipo()
     {
         $userS = $this->ValidarSesion_DatosUser();
-        if (!$userS['ok']) return redirect()->to('login');
+        if (!$userS['ok']) {
+            if (isset($userS['unauthorized']) && $userS['unauthorized'] === true) {
+                return redirect()->back()->with('error', $userS['message']);
+            }
+            return redirect()->to(base_url('/'))->with('error', $userS['message']);
+        }
 
         $metrics = $this->_getMetrics((int) $userS['user']['idarea_agencia']);
 
@@ -39,7 +43,12 @@ class EquipoController extends BaseResponsableController
     public function vistaTareasEnProceso()
     {
         $userS = $this->ValidarSesion_DatosUser();
-        if (!$userS['ok']) return redirect()->to('login');
+        if (!$userS['ok']) {
+            if (isset($userS['unauthorized']) && $userS['unauthorized'] === true) {
+                return redirect()->back()->with('error', $userS['message']);
+            }
+            return redirect()->to(base_url('/'))->with('error', $userS['message']);
+        }
 
         $idAreaAgencia = (int) $userS['user']['idarea_agencia'];
         $metrics = $this->_getMetrics($idAreaAgencia);
@@ -298,10 +307,6 @@ class EquipoController extends BaseResponsableController
      * Reasigna una tarea de un especialista a otro.
      * Solo el Responsable de Área puede hacer esto.
      * Registra el cambio en historial_asignaciones y en tracking.
-     *
-     * POST responsable/pedidos/reasignar
-     * Body: { idatencion, idempleado_nuevo, motivo }
-     *
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function reasignarTarea()
@@ -318,7 +323,7 @@ class EquipoController extends BaseResponsableController
         $idNuevoEmpleado = (int) $this->request->getPost('idempleado_nuevo');
         $motivo          = trim($this->request->getPost('motivo') ?? '');
 
-        // ─── Validaciones básicas ────────────────────────────────────────────
+        // Validaciones básicas
         if ($idAtencion <= 0 || $idNuevoEmpleado <= 0) {
             return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos. Faltan el ID de la tarea o el nuevo especialista.']);
         }
@@ -362,7 +367,7 @@ class EquipoController extends BaseResponsableController
         $idEmpleadoAnterior = (int) $tarea['idempleado'];
         $ahora = (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s');
 
-        // ─── Transacción ────────────────────────────────────────────────────
+        // Transacción
         $db = \Config\Database::connect();
         $db->transBegin();
 
@@ -412,10 +417,6 @@ class EquipoController extends BaseResponsableController
     /**
      * Devuelve la lista de empleados del área aptos para ser asignados
      * (excluyendo al actual asignado de la tarea si se pasa su ID).
-     * Usado por el modal de reasignación.
-     *
-     * GET responsable/empleados/para-reasignar?excluir=<idEmpleado>
-     *
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function empleadosParaReasignar()
@@ -443,7 +444,7 @@ class EquipoController extends BaseResponsableController
     }
 
     /**
-    * Devuelve el historial de reasignaciones de una tarea específica.
+     * Devuelve el historial de reasignaciones de una tarea específica.
      * Solo accesible si la tarea pertenece al área del responsable.
      * @return \CodeIgniter\HTTP\ResponseInterface
      */

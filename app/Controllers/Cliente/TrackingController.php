@@ -57,6 +57,9 @@ class TrackingController extends BaseClienteController
         // Validación de sesión y rol
         $auth = $this->ValidarSesion_DatosUser();
         if (!$auth['ok']) {
+            if (isset($auth['unauthorized']) && $auth['unauthorized'] === true) {
+                return redirect()->back()->with('error', $auth['message']);
+            }
             return redirect()->to(base_url('/'))->with('error', $auth['message']);
         }
 
@@ -102,6 +105,9 @@ class TrackingController extends BaseClienteController
         // Validación de sesión
         $auth = $this->ValidarSesion_DatosUser();
         if (!$auth['ok']) {
+            if (isset($auth['unauthorized']) && $auth['unauthorized'] === true) {
+                return redirect()->back()->with('error', $auth['message']);
+            }
             return redirect()->to(base_url('/'))->with('error', $auth['message']);
         }
 

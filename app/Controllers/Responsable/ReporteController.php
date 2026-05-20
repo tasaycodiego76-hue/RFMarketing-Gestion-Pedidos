@@ -20,6 +20,9 @@ class ReporteController extends BaseResponsableController
         // Validacion Credenciales
         $userS = $this->ValidarSesion_DatosUser();
         if (!$userS['ok']) {
+            if (isset($userS['unauthorized']) && $userS['unauthorized'] === true) {
+                return redirect()->back()->with('error', $userS['message']);
+            }
             return redirect()->to('auth/login');
         }
 

@@ -16,13 +16,26 @@ async function verDetalleHistorial(idAtencion) {
     const baseUrl = window.BASE_URL || '/';
 
     try {
-        const response = await fetch(`${baseUrl}responsable/pedidos/detalle?id=${idAtencion}`);
+        // Cargamos detalle e historial de asignaciones en paralelo
+        const [response, responseHist] = await Promise.all([
+            fetch(`${baseUrl}responsable/pedidos/detalle?id=${idAtencion}`),
+            fetch(`${baseUrl}responsable/empleados/historial-asignaciones?idatencion=${idAtencion}`).catch(() => null)
+        ]);
+
         const res = await response.json();
+        let histData = { success: false, data: [] };
+        if (responseHist) {
+            try {
+                histData = await responseHist.json();
+            } catch (e) {
+                console.error('Error parseando historial de asignaciones:', e);
+            }
+        }
 
         Swal.close();
 
         if (res.success) {
-            renderizarDetalleHistorial(res.data, res.archivos, res.tracking);
+            renderizarDetalleHistorial(res.data, res.archivos, res.tracking, histData.data || []);
         } else {
             Swal.fire({ icon: 'error', title: 'Error', text: res.message, background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#0d0d0d", color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff" });
         }
@@ -38,9 +51,10 @@ async function verDetalleHistorial(idAtencion) {
  * @param {*} req 
  * @param {*} archivos 
  * @param {*} tracking 
+ * @param {*} historialAsignaciones 
  * @returns 
  */
-function renderizarDetalleHistorial(req, archivos, tracking) {
+function renderizarDetalleHistorial(req, archivos, tracking, historialAsignaciones = []) {
     const modalElement = document.getElementById('modalHistorial');
     if (!modalElement) { return };
 
@@ -204,6 +218,9 @@ function renderizarDetalleHistorial(req, archivos, tracking) {
                 </div>
             </div>
         </div>
+
+        <!-- HISTORIAL DE ASIGNACIONES (Solo si se ha reasignado) -->
+        ${_renderHistorialAsignaciones(historialAsignaciones)}
     `;
 
     modal.show();
@@ -270,6 +287,54 @@ function formatearLista(v) {
         items = v.split(',').map(s => s.trim());
     }
     return items.filter(i => i).map(item => `<span class="kd-tag">${escaparHtml(item)}</span>`).join('');
+}
+
+/**
+ * Renderiza la sección de historial de asignaciones como una línea de tiempo.
+ * Solo se muestra si el historial no está vacío (es decir, si se ha reasignado).
+ * @param {Array} historial
+ * @returns {string} HTML
+ */
+function _renderHistorialAsignaciones(historial) {
+    if (!historial || historial.length === 0) return '';
+
+    const items = historial.map((h, i) => {
+        const nombreAnterior = h.nombre_anterior
+            ? `${escaparHtml(h.nombre_anterior)} ${escaparHtml(h.apellidos_anterior || '')}`
+            : '<em>Sin asignar</em>';
+        const nombreNuevo = `${escaparHtml(h.nombre_nuevo || '')} ${escaparHtml(h.apellidos_nuevo || '')}`;
+        const responsable = `${escaparHtml(h.nombre_responsable || '')} ${escaparHtml(h.apellidos_responsable || '')}`;
+        const fecha = h.fecha_asignacion ? formatearFechaLimpia(h.fecha_asignacion) : '---';
+
+        return `
+            <div class="hist-asig-item ${i === 0 ? 'hist-asig-item--latest' : ''}">
+                <div class="hist-asig-dot"></div>
+                <div class="hist-asig-body">
+                    <div class="hist-asig-transfer">
+                        <span class="hist-asig-from">${nombreAnterior}</span>
+                        <i class="bi bi-arrow-right hist-asig-arrow"></i>
+                        <span class="hist-asig-to">${nombreNuevo}</span>
+                    </div>
+                    <div class="hist-asig-motivo">"${escaparHtml(h.motivo_cambio || 'Sin motivo registrado')}"</div>
+                    <div class="hist-asig-meta">
+                        <i class="bi bi-person-gear me-1"></i>${responsable}
+                        <span class="hist-asig-sep">·</span>
+                        <i class="bi bi-clock me-1"></i>${fecha}
+                    </div>
+                </div>
+            </div>`;
+    }).join('');
+
+    return `
+        <div class="hist-asig-section">
+            <div class="hist-asig-header">
+                <i class="bi bi-arrow-left-right me-2"></i>HISTORIAL DE REASIGNACIONES
+                <span class="hist-asig-count">${historial.length}</span>
+            </div>
+            <div class="hist-asig-timeline">
+                ${items}
+            </div>
+        </div>`;
 }
 
 // Paginación e Historial Dinámico del Responsable

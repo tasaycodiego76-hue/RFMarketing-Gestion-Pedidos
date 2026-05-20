@@ -34,6 +34,11 @@
   --transition: all 0.3s ease;
 }
 
+/* Sobrescribir .text-muted de Bootstrap para tema oscuro */
+.text-muted {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
 /* RESET Y ESTILOS BASE */
 * {
   margin: 0;
@@ -2384,6 +2389,13 @@ body {
 .modal-dialog {
   margin-top: 85px !important;
   max-height: calc(100vh - 100px) !important;
+}
+
+@media (min-width: 769px) {
+  .modal-dialog-centered {
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+  }
 }
 
 .modal-content {

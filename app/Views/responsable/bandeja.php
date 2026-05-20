@@ -108,7 +108,7 @@
 
 <!-- Modal: Asignar Requerimiento -->
 <div class="modal fade" id="modal-asignar" tabindex="-1" data-bs-backdrop="static" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content modal-rf">
             <div class="modal-header modal-rf-header">
                 <div>

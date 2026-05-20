@@ -8,16 +8,20 @@ class GestionController extends BaseResponsableController
 {
     /**
      * Muestra una vista con dos tablas:
-     * 1. Trabajos finalizados por el propio responsable (si es que ejecutó alguno).
-     * 2. Trabajos finalizados por todo su equipo del área.
+     * - Trabajos finalizados por el propio responsable (si es que ejecutó alguno).
+     * - Trabajos finalizados por todo su equipo del área.
      * @return string|\CodeIgniter\HTTP\RedirectResponse
      */
     public function historial()
     {
         // Validar identidad
         $userS = $this->ValidarSesion_DatosUser();
-        if (!$userS['ok'])
-            return redirect()->to('login');
+        if (!$userS['ok']) {
+            if (isset($userS['unauthorized']) && $userS['unauthorized'] === true) {
+                return redirect()->back()->with('error', $userS['message']);
+            }
+            return redirect()->to(base_url('/'))->with('error', $userS['message']);
+        }
 
         $user = $userS['user'];
         $idAreaAgencia = (int) $user['idarea_agencia'];
@@ -62,8 +66,12 @@ class GestionController extends BaseResponsableController
     public function retroalimentacion()
     {
         $userS = $this->ValidarSesion_DatosUser();
-        if (!$userS['ok'])
-            return redirect()->to('login');
+        if (!$userS['ok']) {
+            if (isset($userS['unauthorized']) && $userS['unauthorized'] === true) {
+                return redirect()->back()->with('error', $userS['message']);
+            }
+            return redirect()->to(base_url('/'))->with('error', $userS['message']);
+        }
 
         $idAreaAgencia = (int) $userS['user']['idarea_agencia'];
         $metrics = $this->_getMetrics($idAreaAgencia);

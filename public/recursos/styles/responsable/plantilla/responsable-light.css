@@ -22,6 +22,11 @@
     --accent-glow: rgba(232, 184, 0, 0.15);
 }
 
+/* Restaurar .text-muted original de Bootstrap en tema claro */
+[data-theme="light"] .text-muted {
+    color: var(--text-muted, #5a5a6a) !important;
+}
+
 /* COMPONENTES  */
 
 /* Tarjetas */
@@ -3036,6 +3041,13 @@
 .modal-dialog {
   margin-top: 85px !important;
   max-height: calc(100vh - 100px) !important;
+}
+
+@media (min-width: 769px) {
+  .modal-dialog-centered {
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+  }
 }
 
 .modal-content {

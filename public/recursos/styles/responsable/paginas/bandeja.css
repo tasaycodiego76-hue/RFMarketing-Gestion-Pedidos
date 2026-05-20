@@ -601,15 +601,14 @@
 #modal-asignar .modal-dialog {
   max-width: 620px !important;
   width: 90vw !important;
-}
-
-#modal-asignar .modal-body {
-  max-height: 70vh;
-  overflow-y: auto;
+  margin-top: auto !important;
+  margin-bottom: auto !important;
 }
 
 #modal-asignar .lista-empleados {
-  max-height: 55vh;
+  max-height: none !important;
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
 }
 
 #modal-asignar .empleado-item {

@@ -22,6 +22,9 @@ class RequerimientoController extends BaseClienteController
         // Validación centralizada de sesión y rol
         $auth = $this->ValidarSesion_DatosUser();
         if (!$auth['ok']) {
+            if (isset($auth['unauthorized']) && $auth['unauthorized'] === true) {
+                return redirect()->back()->with('error', $auth['message']);
+            }
             return redirect()->to(base_url('/'))->with('error', $auth['message']);
         }
 

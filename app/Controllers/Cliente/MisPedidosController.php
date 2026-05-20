@@ -22,7 +22,10 @@ class MisPedidosController extends BaseClienteController
         
         // Si no es válido (ej: no es cliente), redirigir o mostrar error
         if (!$auth['ok']) {
-            return redirect()->to(base_url('/'))->with('error', $auth['message']);
+            if (isset($auth['unauthorized']) && $auth['unauthorized'] === true) {
+                return redirect()->back()->with('error', $auth['message']);
+            }
+            return redirect()->to(base_url('/auth/logout'))->with('error', $auth['message']);
         }
 
         $user = $auth['user'];
@@ -96,6 +99,9 @@ class MisPedidosController extends BaseClienteController
     {
         $auth = $this->ValidarSesion_DatosUser();
         if (!$auth['ok']) {
+            if (isset($auth['unauthorized']) && $auth['unauthorized'] === true) {
+                return redirect()->back()->with('error', $auth['message']);
+            }
             return redirect()->to(base_url('/'))->with('error', $auth['message']);
         }
 

@@ -21,6 +21,14 @@ class BaseResponsableController extends BaseController
     {
         $user = $this->getActiveUser();
 
+        // Si no existe usuario en sesión (No ha iniciado sesión / Sesión expirada)
+        if (!$user) {
+            return [
+                'ok' => false,
+                'message' => 'Acceso denegado. Solo los Jefes de Área/Responsables pueden acceder a esta sección.'
+            ];
+        }
+
         // El responsable en la base de datos se identifica como un empleado 
         // que tiene la marca 'esresponsable' habilitada. Validamos varios tipos de verdad (PostgreSQL/MySQL).
         $esResponsable = isset($user['esresponsable']) &&
@@ -29,10 +37,11 @@ class BaseResponsableController extends BaseController
                 $user['esresponsable'] === 1 ||
                 $user['esresponsable'] === '1');
 
-        // Denegamos acceso si no cumple los requisitos de rol
-        if (!$user || $user['rol'] !== 'empleado' || !$esResponsable) {
+        // Si el usuario ya inició sesión pero tiene un rol diferente a responsable (Sin autorización)
+        if ($user['rol'] !== 'empleado' || !$esResponsable) {
             return [
                 'ok' => false,
+                'unauthorized' => true,
                 'message' => 'Acceso denegado. Solo los Jefes de Área/Responsables pueden acceder a esta sección.'
             ];
         }

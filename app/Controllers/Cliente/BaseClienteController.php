@@ -18,10 +18,19 @@ class BaseClienteController extends BaseController
         // Obtener usuario básico de la sesión
         $user = $this->getActiveUser();
         
-        // Verificar si existe el usuario y si tiene el rol de cliente
-        if (!$user || $user['rol'] !== 'cliente') {
+        // Si no existe usuario en sesión (No ha iniciado sesión / Sesión expirada)
+        if (!$user) {
             return [
                 'ok' => false, 
+                'message' => 'Acceso denegado. Se requiere cuenta de Cliente.'
+            ];
+        }
+
+        // Si el usuario ya inició sesión pero tiene un rol diferente a cliente (Sin autorización)
+        if ($user['rol'] !== 'cliente') {
+            return [
+                'ok' => false,
+                'unauthorized' => true,
                 'message' => 'Acceso denegado. Se requiere cuenta de Cliente.'
             ];
         }
