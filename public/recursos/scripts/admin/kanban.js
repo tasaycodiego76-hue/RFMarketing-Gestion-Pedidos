@@ -463,11 +463,57 @@ async function cambiarPrioridad(id, valor) {
     idatencion: id,
     prioridad: valor,
   });
+
   if (data.status === "success") {
     Swal.fire({ icon: 'success', title: 'Prioridad actualizada', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#0a0a0a', color: '#fff' });
-  } else alert(data.msg);
+
+    // 1. Actualizar modal si está abierto y es de la misma tarea
+    const tplId = document.querySelector('#modalDetalle .tpl-idatencion');
+    if (tplId && parseInt(tplId.textContent, 10) === parseInt(id, 10)) {
+      document.querySelectorAll('#modalDetalle .btn-prio').forEach(btn => {
+        btn.classList.remove('active', 'prio-baja', 'prio-media', 'prio-alta');
+        if (btn.getAttribute('data-prio') === valor) {
+          btn.classList.add('active', 'prio-' + valor.toLowerCase());
+        }
+      });
+    }
+
+    // 2. Actualizar la tarjeta en el tablero Kanban visualmente
+    const tarjeta = document.querySelector(`.kb-card[data-id="${id}"]`);
+    if (tarjeta) {
+      try {
+        const res = await fetch(BASE_URL + 'admin/kanban/tarjetaHTML/' + id);
+        const html = await res.text();
+        if (html.trim()) {
+          const temp = document.createElement('div');
+          temp.innerHTML = html.trim();
+          const nuevaTarjeta = temp.firstElementChild;
+          const columnaParent = tarjeta.closest('.kb-col-body');
+          tarjeta.replaceWith(nuevaTarjeta);
+          if (columnaParent) _ordenarColumnaPorPrioridad(columnaParent);
+        }
+      } catch (e) {
+        console.error("Error al recargar tarjeta", e);
+      }
+    }
+  } else {
+    alert(data.msg);
+  }
 }
 
+// ── ORDENAR COLUMNA SEGÚN PRIORIDAD (ALTA > MEDIA > BAJA) ──
+function _ordenarColumnaPorPrioridad(columnaBody) {
+  const prioridades = { 'alta': 3, 'media': 2, 'baja': 1 };
+  const tarjetas = Array.from(columnaBody.querySelectorAll('.kb-card'));
+
+  tarjetas.sort((a, b) => {
+    const pA = prioridades[a.getAttribute('data-prio')] || 2;
+    const pB = prioridades[b.getAttribute('data-prio')] || 2;
+    return pB - pA;
+  });
+
+  tarjetas.forEach(t => columnaBody.appendChild(t));
+}
 
 async function cambiarEstado(id, est, acc) {
   const esFinalizar = (est === 'finalizado');
@@ -713,7 +759,7 @@ document.addEventListener("DOMContentLoaded", () => {
           estado: "pendiente_asignado",
           accion: "Su solicitud ha sido aprobada por Administrador y enviada al área correspondiente para su gestión.",
           idareaagencia: AREA_ACTUAL,
-        }).catch(() => {});
+        }).catch(() => { });
       },
     });
   }
@@ -746,6 +792,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nuevaTarjeta = temp.firstElementChild;
     nuevaTarjeta.style.animation = 'fadeIn 0.4s ease';
     columna.prepend(nuevaTarjeta);
+    if (typeof _ordenarColumnaPorPrioridad === 'function') _ordenarColumnaPorPrioridad(columna);
 
     Swal.fire({
       icon: 'info',
@@ -792,6 +839,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Quitar la vieja (en cualquier columna) e insertar en la correcta
     if (tarjeta) tarjeta.remove();
     columna.prepend(nuevaTarjeta);
+    if (typeof _ordenarColumnaPorPrioridad === 'function') _ordenarColumnaPorPrioridad(columna);
   });
 
 });

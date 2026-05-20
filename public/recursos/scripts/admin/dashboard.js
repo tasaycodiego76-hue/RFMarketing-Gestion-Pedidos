@@ -119,6 +119,8 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        const isMobile = window.innerWidth <= 480;
+
         // --- Gráfico de Dona ---
         const ctxDona = document.getElementById('chartEstados');
         if (ctxDona) {
@@ -130,15 +132,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '65%', // Dona bien gruesa como pediste
+                    layout: {
+                        padding: 0 // Sin padding extra para que use el espacio máximo posible
+                    },
+                    cutout: isMobile ? '68%' : '65%', // Anillo más grueso y estético
                     borderWidth: 0,
                     plugins: {
                         legend: {
                             position: 'bottom',
                             labels: {
-                                padding: 20,
+                                padding: isMobile ? 12 : 20,
                                 usePointStyle: true,
-                                font: { size: 11, weight: '600' },
+                                font: { size: isMobile ? 10 : 11, weight: '600' },
                                 color: getThemeColors().ticks
                             }
                         }
@@ -154,20 +159,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         ctx.save();
                         
-                        // Número más pequeño y discreto
-                        ctx.font = 'bold 32px "Bebas Neue"';
-                        ctx.fillStyle = colors.mainText;
+                        // Número adaptado
+                        ctx.font = isMobile ? 'bold 30px "Bebas Neue"' : 'bold 32px "Bebas Neue"';
+                        ctx.fillStyle = '#ffffff'; 
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
-                        ctx.fillText(totalPedidos, centerX, centerY - 6);
+                        ctx.fillText(totalPedidos, centerX, centerY - (isMobile ? 10 : 6));
 
-                        // Letras claras y ordenadas
-                        ctx.font = 'bold 9px "DM Sans"';
-                        ctx.fillStyle = colors.subText;
+                        // Letras adaptadas (dos líneas en móvil para mejor ajuste horizontal)
+                        ctx.font = isMobile ? 'bold 9px "DM Sans"' : 'bold 9px "DM Sans"';
+                        ctx.fillStyle = '#ffffff'; 
                         ctx.letterSpacing = '1px';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
-                        ctx.fillText('PEDIDOS TOTALES', centerX, centerY + 22);
+                        
+                        if (isMobile) {
+                            ctx.fillText('PEDIDOS', centerX, centerY + 8);
+                            ctx.fillText('TOTALES', centerX, centerY + 20);
+                        } else {
+                            ctx.fillText('PEDIDOS TOTALES', centerX, centerY + 22);
+                        }
                         
                         ctx.restore();
                     }

@@ -10,8 +10,8 @@
 <div class="dashboard-header mb-4">
     <p class="seccion-titulo">Gestión de Plataforma</p>
     <div class="row g-3">
-        <div class="col-6 col-lg-3">
-            <div class="card mini-card">
+        <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="card mini-card h-100">
                 <div class="mini-card-icon mini-icon-blue"><i class="bi bi-building"></i></div>
                 <div class="mini-card-info">
                     <div class="mini-card-num" data-count="<?= $totalEmpresas ?? 0 ?>">0</div>
@@ -19,8 +19,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card mini-card">
+        <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="card mini-card h-100">
                 <div class="mini-card-icon mini-icon-cyan"><i class="bi bi-people"></i></div>
                 <div class="mini-card-info">
                     <div class="mini-card-num" data-count="<?= $totalEmpleados ?? 0 ?>">0</div>
@@ -28,8 +28,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card mini-card">
+        <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="card mini-card h-100">
                 <div class="mini-card-icon mini-icon-yellow"><i class="bi bi-person-badge"></i></div>
                 <div class="mini-card-info">
                     <div class="mini-card-num" data-count="<?= $totalResponsables ?? 0 ?>">0</div>
@@ -37,8 +37,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card mini-card">
+        <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="card mini-card h-100">
                 <div class="mini-card-icon mini-icon-green"><i class="bi bi-clipboard-check"></i></div>
                 <div class="mini-card-info">
                     <div class="mini-card-num" data-count="<?= $totalPedidos ?? 0 ?>">0</div>
@@ -51,8 +51,8 @@
 
 <!-- ── SECCIÓN 2: ESTADO OPERATIVO ── -->
 <p class="seccion-titulo">Estado Operativo</p>
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
+<div class="row mb-4 estado-operativo-row">
+    <div class="col-6 col-md-3 mb-3 mb-md-0">
         <div class="card met-card met-morado h-100">
             <div class="met-icon"><i class="bi bi-hourglass-split"></i></div>
             <div class="met-label">Por Aprobar</div>
@@ -60,7 +60,7 @@
             <div class="met-sub">En espera</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-3 mb-3 mb-md-0">
         <div class="card met-card met-amarillo h-100">
             <div class="met-icon"><i class="bi bi-lightning-charge-fill"></i></div>
             <div class="met-label">Activos</div>
@@ -68,7 +68,7 @@
             <div class="met-sub">En proceso</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-3 mb-3 mb-md-0">
         <div class="card met-card met-naranja h-100">
             <div class="met-icon"><i class="bi bi-search"></i></div>
             <div class="met-label">En Revisión</div>
@@ -76,7 +76,7 @@
             <div class="met-sub">Por validar</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-3 mb-3 mb-md-0">
         <div class="card met-card met-verde h-100">
             <div class="met-icon"><i class="bi bi-check-circle-fill"></i></div>
             <div class="met-label">Completados</div>
