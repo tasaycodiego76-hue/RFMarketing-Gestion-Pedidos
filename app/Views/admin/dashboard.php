@@ -10,8 +10,8 @@
 <div class="dashboard-header mb-4">
     <p class="seccion-titulo">Gestión de Plataforma</p>
     <div class="row g-3">
-        <div class="col-6 col-lg-3">
-            <div class="card mini-card">
+        <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="card mini-card h-100">
                 <div class="mini-card-icon mini-icon-blue"><i class="bi bi-building"></i></div>
                 <div class="mini-card-info">
                     <div class="mini-card-num" data-count="<?= $totalEmpresas ?? 0 ?>">0</div>
@@ -19,8 +19,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card mini-card">
+        <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="card mini-card h-100">
                 <div class="mini-card-icon mini-icon-cyan"><i class="bi bi-people"></i></div>
                 <div class="mini-card-info">
                     <div class="mini-card-num" data-count="<?= $totalEmpleados ?? 0 ?>">0</div>
@@ -28,8 +28,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card mini-card">
+        <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="card mini-card h-100">
                 <div class="mini-card-icon mini-icon-yellow"><i class="bi bi-person-badge"></i></div>
                 <div class="mini-card-info">
                     <div class="mini-card-num" data-count="<?= $totalResponsables ?? 0 ?>">0</div>
@@ -37,8 +37,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card mini-card">
+        <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="card mini-card h-100">
                 <div class="mini-card-icon mini-icon-green"><i class="bi bi-clipboard-check"></i></div>
                 <div class="mini-card-info">
                     <div class="mini-card-num" data-count="<?= $totalPedidos ?? 0 ?>">0</div>
@@ -51,8 +51,8 @@
 
 <!-- ── SECCIÓN 2: ESTADO OPERATIVO ── -->
 <p class="seccion-titulo">Estado Operativo</p>
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
+<div class="row mb-4 estado-operativo-row">
+    <div class="col-6 col-md-3 mb-3 mb-md-0">
         <div class="card met-card met-morado h-100">
             <div class="met-icon"><i class="bi bi-hourglass-split"></i></div>
             <div class="met-label">Por Aprobar</div>
@@ -60,7 +60,7 @@
             <div class="met-sub">En espera</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-3 mb-3 mb-md-0">
         <div class="card met-card met-amarillo h-100">
             <div class="met-icon"><i class="bi bi-lightning-charge-fill"></i></div>
             <div class="met-label">Activos</div>
@@ -68,7 +68,7 @@
             <div class="met-sub">En proceso</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-3 mb-3 mb-md-0">
         <div class="card met-card met-naranja h-100">
             <div class="met-icon"><i class="bi bi-search"></i></div>
             <div class="met-label">En Revisión</div>
@@ -76,7 +76,7 @@
             <div class="met-sub">Por validar</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-3 mb-3 mb-md-0">
         <div class="card met-card met-verde h-100">
             <div class="met-icon"><i class="bi bi-check-circle-fill"></i></div>
             <div class="met-label">Completados</div>
@@ -187,7 +187,12 @@
 
 <?= $this->section('scripts') ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 <script>
+    const PUSHER_KEY     = '<?= env('PUSHER_KEY') ?>';
+    const PUSHER_CLUSTER = '<?= env('PUSHER_CLUSTER') ?>';
+    const PUSHER_CANAL   = 'kanban-admin';
+
     // Variables globales para Chart.js
     const dataEmpresas = {
         labels: <?= json_encode(array_values(array_map(fn($e) => $e['nombreempresa'], $empresas))) ?>,
@@ -210,6 +215,36 @@
             hoverOffset: 12
         }]
     };
+</script>
+<script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
+<script>
+    if (typeof RFPusher !== 'undefined') {
+        function recargarDashboard() {
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }
+
+        RFPusher.on('solicitud.nueva', function(data) {
+            Swal.fire({
+                icon: 'info',
+                title: `¡Nuevo pedido recibido!`,
+                text: `El pedido #${data.id} - ${data.titulo} ha sido registrado.`,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true,
+                background: '#0a0a0a',
+                color: '#fff'
+            });
+            recargarDashboard();
+        });
+
+        RFPusher.on('solicitud.actualizada', function(data) {
+            recargarDashboard();
+        });
+    }
 </script>
 <script src="<?= base_url('recursos/scripts/admin/dashboard.js') ?>"></script>
 <?= $this->endSection() ?>

@@ -31,6 +31,7 @@
     </table>
 </div>
 
+<!-- Modal Empresa (Editar / Nuevo) -->
 <div class="modal fade" id="modal-empresa" data-backdrop="static" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -61,6 +62,35 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                 <button type="submit" form="form-empresa" class="btn btn-primary" id="btn-guardar">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nueva Área (Mismo estilo que Editar) -->
+<div class="modal fade" id="modal-area-empresa" data-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Área para <span id="nombre-empresa-modal" class="text-warning"></span></h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-nueva-area-empresa" autocomplete="off">
+                    <input type="hidden" id="area-idempresa">
+                    <div class="form-group">
+                        <label>Nombre del Área <span class="text-danger">*</span></label>
+                        <input type="text" id="nombre_area_emp" class="form-control" maxlength="100" placeholder="Ej: Marketing, Recursos Humanos..." required>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción del Área (Opcional)</label>
+                        <textarea id="descripcion_area_emp" class="form-control" rows="3" placeholder="Breve descripción de las funciones del área..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" form="form-nueva-area-empresa" class="btn btn-primary" id="btn-guardar-area-empresa">Registrar Área</button>
             </div>
         </div>
     </div>

@@ -237,6 +237,20 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        const PUSHER_KEY = '<?= env('PUSHER_KEY') ?>';
+        const PUSHER_CLUSTER = '<?= env('PUSHER_CLUSTER') ?>';
+        const PUSHER_CANAL = 'kanban-responsables';
+       
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) { registration.unregister(); }
+            });
+        }
+    </script>
+    <script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
     <!-- JS de la plantilla -->
     <script src="<?= base_url('recursos/scripts/responsable/plantilla/responsable.js') ?>"></script>
 

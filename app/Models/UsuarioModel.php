@@ -116,9 +116,16 @@ class UsuarioModel extends Model
                 ->groupEnd();
         }
 
-        $result = $builder->orderBy('area_nombre', 'ASC')
-            ->orderBy('u.rol', 'ASC')
-            ->orderBy('u.nombre', 'ASC')
+        $result = $builder->orderBy("
+            CASE 
+                WHEN u.rol = 'empleado' AND u.esresponsable = false THEN 1
+                WHEN u.rol = 'empleado' AND u.esresponsable = true THEN 2
+                WHEN u.rol = 'cliente' THEN 3
+                WHEN u.rol = 'administrador' THEN 4
+                ELSE 5
+            END", 'ASC', false)
+            ->orderBy('area_nombre', 'ASC')
+            ->orderBy('u.fechacreacion', 'ASC')
             ->get()->getResultArray();
 
 

@@ -6,8 +6,10 @@ use CodeIgniter\Controller;
 use App\Models\UsuarioModel;
 use App\Models\EmpresaModel;
 use App\Models\AreasAgenciaModel;
+use App\Models\AreasModel;
 use App\Models\ResponsablesEmpresaModel;
 use App\Models\ServicioModel;
+use App\Models\RequerimientoModel;
 
 class UsuarioController extends Controller
 {
@@ -55,6 +57,17 @@ class UsuarioController extends Controller
     }
 
     /**
+     * Retorna las áreas de una empresa específica
+     * @param int $idEmpresa
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function listarAreasPorEmpresa($idEmpresa)
+    {
+        $model = new AreasModel();
+        return $this->response->setJSON($model->listarActivasPorEmpresa((int) $idEmpresa));
+    }
+
+    /**
      * Verifica si un área de agencia ya tiene un responsable asignado.
      * @param int $idArea
      * @param int|null $excludeId ID de usuario a excluir de la búsqueda
@@ -81,7 +94,7 @@ class UsuarioController extends Controller
 
 
     /**
-     * Registra un nuevo usuario. Si es cliente, también crea su empresa y lo asigna como responsable.
+     * Registra un nuevo usuario. 
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function registrar()
@@ -98,8 +111,34 @@ class UsuarioController extends Controller
 
         $datos['clave'] = password_hash($datos['clave'], PASSWORD_DEFAULT);
 
+        // Si es Responsable de Área (Cliente), el idarea ya viene seleccionado
         if ($datos['rol'] === 'responsable_area') {
-            return $this->registrarAreaResponsable($datos);
+            
+            // Verificar si el área ya tiene un responsable activo
+            $responsableExistente = $model->where('idarea', $datos['idarea'])
+                ->where('estado', true)
+                ->first();
+
+            if ($responsableExistente) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Ya existe un responsable asignado a esta área: ' . $responsableExistente['nombre'] . ' ' . $responsableExistente['apellidos'] . '. Solo puede haber un responsable por área.',
+                ]);
+            }
+
+            $datos['rol'] = 'cliente';
+            $datos['esresponsable'] = true;
+            $datos['estado'] = true;
+
+            $id = $model->insert($datos, true);
+            if (!$id) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Error al registrar el responsable']);
+            }
+
+            $responsablesModel = new ResponsablesEmpresaModel();
+            $responsablesModel->asignarResponsable($id, $datos['idempresa']);
+
+            return $this->response->setJSON(['success' => true, 'message' => 'Responsable de área registrado correctamente']);
         }
 
         // Automatización: El primer empleado en un área es el responsable
@@ -109,10 +148,8 @@ class UsuarioController extends Controller
                 ->where('estado', true)
                 ->first();
 
-            // Si no hay responsable, este nuevo usuario lo será automáticamente
             $datos['esresponsable'] = ($responsableActual === null);
         } else if ($datos['rol'] === 'cliente') {
-            // Los clientes creados con área son siempre responsables de su área
             $datos['esresponsable'] = true;
         } else {
             $datos['esresponsable'] = false;
@@ -281,116 +318,7 @@ class UsuarioController extends Controller
     }
 
     /**
-     * Registra un área nueva con su responsable (flujo especial).
-     * @param array $datos Datos del usuario y área
-     * @return \CodeIgniter\HTTP\ResponseInterface
-     */
-    private function registrarAreaResponsable(array $datos)
-    {
-        $db = \Config\Database::connect();
-        $areasModel = new \App\Models\AreasModel();
-        $usuarioModel = new UsuarioModel();
-
-        $nombreAreaInput = trim((string) $datos['nombre_area']);
-
-        // Verificar si el área ya existe para esta empresa (Búsqueda insensible a mayúsculas/minúsculas)
-        $areaExistente = $areasModel->where('idempresa', $datos['idempresa'])
-            ->where('LOWER(nombre)', mb_strtolower($nombreAreaInput))
-            ->first();
-
-        if ($areaExistente) {
-            // Verificar si esta área ya tiene un responsable activo
-            // Para áreas de empresa, cualquier usuario 'cliente' asignado es considerado responsable
-            $responsableExistente = $usuarioModel->where('idarea', $areaExistente['id'])
-                ->where('estado', true)
-                ->first();
-
-            if ($responsableExistente) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Ya existe un responsable asignado al área "' . $areaExistente['nombre'] . '" para esta empresa: ' . $responsableExistente['nombre'] . ' ' . $responsableExistente['apellidos'] . '. Solo puede haber un responsable por área.',
-                    'id_responsable_actual' => $responsableExistente['id'],
-                    'id_area' => $areaExistente['id'],
-                    'nombre_area' => $areaExistente['nombre'],
-                    'requiere_reasignacion' => true
-                ]);
-            }
-        }
-
-        $db->transBegin();
-
-        try {
-            // 1. Crear el usuario como cliente
-            $datosUsuario = [
-                'nombre' => $datos['nombre'],
-                'apellidos' => $datos['apellidos'],
-                'correo' => $datos['correo'],
-                'telefono' => $datos['telefono'],
-                'tipodoc' => $datos['tipodoc'],
-                'numerodoc' => $datos['numerodoc'],
-                'usuario' => $datos['usuario'],
-                'clave' => $datos['clave'],
-                'rol' => 'cliente',
-                'idarea' => null,
-                'idarea_agencia' => null,
-                'esresponsable' => true,
-                'estado' => true,
-            ];
-
-            $idUsuario = $usuarioModel->insert($datosUsuario, true);
-
-            if (!$idUsuario) {
-                throw new \Exception('Error al crear el usuario');
-            }
-
-            // 2. Crear o reutilizar el área
-            if ($areaExistente) {
-                $idArea = $areaExistente['id'];
-                // Asegurar que esté activa
-                $areasModel->update($idArea, ['activo' => true]);
-            } else {
-                $datosArea = [
-                    'idempresa' => $datos['idempresa'],
-                    'nombre' => $datos['nombre_area'],
-                    'descripcion' => $datos['descripcion_area'] ?? 'Área creada desde registro de responsable',
-                    'activo' => true,
-                ];
-
-                $idArea = $areasModel->insert($datosArea, true);
-
-                if (!$idArea) {
-                    throw new \Exception('Error al crear el área');
-                }
-            }
-
-            // 3. Actualizar el usuario con el idarea asignado
-            $usuarioModel->update($idUsuario, ['idarea' => $idArea]);
-
-            // 4. Asignar como responsable de la empresa
-            $responsablesModel = new ResponsablesEmpresaModel();
-            $responsablesModel->asignarResponsable($idUsuario, $datos['idempresa']);
-
-            $db->transCommit();
-
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Área y responsable registrados correctamente'
-            ]);
-
-        } catch (\Exception $e) {
-            $db->transRollback();
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
-
-    /**
      * Garantiza que exista un servicio para el área de agencia seleccionada.
-     * Equivalencias especiales:
-     * - "Diseño" => "Diseño Gráfico"
-     * - "Edición y Video" => "AudioVisual"
      * @param int $idAreaAgencia
      * @return void
      */
@@ -463,7 +391,6 @@ class UsuarioController extends Controller
     public function infoReasignar($id)
     {
         $userModel = new UsuarioModel();
-        // Usar getDetalleUsuario para tener info completa de empresa/área
         $u = $userModel->getDetalleUsuario((int) $id);
 
         if (!$u)
@@ -471,20 +398,17 @@ class UsuarioController extends Controller
 
         $respModel = new ResponsablesEmpresaModel();
 
-        // CASO A: CLIENTE (Responsable de Empresa / Área)
         if ($u['rol'] === 'cliente') {
             $activo = $respModel->obtenerActivoPorUsuario((int) $id);
 
-            // Si no tiene registro en responsables_empresa, intentamos deducirlo de su idarea
             if (!$activo && !empty($u['idarea'])) {
-                $areasModel = new \App\Models\AreasModel();
+                $areasModel = new AreasModel();
                 $area = $areasModel->find($u['idarea']);
                 if ($area) {
-                    // Crear un objeto "activo" virtual para no romper el flujo
                     $empModel = new EmpresaModel();
                     $emp = $empModel->find($area['idempresa']);
                     $activo = [
-                        'id' => null, // No tiene registro en responsables_empresa
+                        'id' => null,
                         'idusuario' => $id,
                         'idempresa' => $area['idempresa'],
                         'nombreempresa' => $emp['nombreempresa'] ?? 'Empresa Desconocida',
@@ -502,7 +426,6 @@ class UsuarioController extends Controller
                 ]);
             }
 
-            // Añadir nombre del área al objeto activo para mostrarlo en el modal
             $activo['nombre_area'] = $u['nombre_area'] ?? 'General';
 
             $historial = $respModel->historialPorEmpresa((int) $activo['idempresa']);
@@ -515,10 +438,7 @@ class UsuarioController extends Controller
             ]);
         }
 
-        // CASO B: EMPLEADO (Responsable de Área de la Agencia)
-        // Nota: También verificamos si el rol es 'responsable_area' por si acaso
-        $esResponsable = ($u['rol'] === 'empleado' && ($u['esresponsable'] === true || $u['esresponsable'] === 't' || $u['esresponsable'] == 1))
-            || ($u['rol'] === 'responsable_area');
+        $esResponsable = ($u['rol'] === 'empleado' && ($u['esresponsable'] === true || $u['esresponsable'] === 't' || $u['esresponsable'] == 1));
 
         if ($esResponsable) {
             if (empty($u['idarea_agencia'])) {
@@ -538,7 +458,7 @@ class UsuarioController extends Controller
             ]);
         }
 
-        return $this->response->setJSON(['success' => false, 'message' => 'El usuario seleccionado no cumple con los requisitos para ser reasignado (debe ser Responsable de Empresa o de Área)']);
+        return $this->response->setJSON(['success' => false, 'message' => 'El usuario seleccionado no cumple con los requisitos para ser reasignado']);
     }
 
     public function reasignarCliente()
@@ -546,7 +466,7 @@ class UsuarioController extends Controller
         $datos = $this->request->getJSON(true);
         $respModel = new ResponsablesEmpresaModel();
         $userModel = new UsuarioModel();
-        $reqModel = new \App\Models\RequerimientoModel();
+        $reqModel = new RequerimientoModel();
 
         $db = \Config\Database::connect();
         $db->transBegin();
@@ -557,7 +477,6 @@ class UsuarioController extends Controller
 
             if ($nuevoUsuario) {
                 $idNuevo = $nuevoUsuario['id'];
-                // Actualizar sus datos para que coincidan con la empresa/area actual
                 $userModel->update($idNuevo, [
                     'rol' => 'cliente',
                     'idarea' => $idArea,
@@ -584,25 +503,20 @@ class UsuarioController extends Controller
             $idActual = !empty($datos['id_registro_actual']) ? (int) $datos['id_registro_actual'] : null;
             $idUsuarioAnterior = (int) $datos['id_usuario_anterior'];
 
-            // 1. Reasignación en la tabla de responsables_empresa
             $ok = $respModel->reasignar($idActual, $idNuevo, (int) $datos['id_empresa'], $idUsuarioAnterior);
 
             if (!$ok) {
-                throw new \Exception('Error al procesar la reasignación en el modelo de responsables');
+                throw new \Exception('Error al procesar la reasignación');
             }
 
-            // 2. Transferencia de Pedidos (Requerimientos)
-            // Esto asegura que el nuevo responsable pueda ver todo el historial del área
             $reqModel->transferirRequerimientos($idUsuarioAnterior, $idNuevo);
-
-            // 3. Desactivar al usuario anterior automáticamente
             $userModel->update($idUsuarioAnterior, ['estado' => false]);
 
             $db->transCommit();
 
             return $this->response->setJSON([
                 'success' => true,
-                'message' => 'Reasignación exitosa. Los pedidos han sido transferidos y el responsable anterior ha sido desactivado.'
+                'message' => 'Reasignación exitosa.'
             ]);
 
         } catch (\Exception $e) {

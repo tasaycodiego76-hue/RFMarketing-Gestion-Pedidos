@@ -12,6 +12,13 @@ use App\Libraries\EmailService;
 
 class MisPedidosController extends BaseController
 {
+    protected $pusher;
+
+    public function __construct()
+    {
+        $this->pusher = new \App\Services\PusherService();
+    }
+
     /**
      * Endpoint principal: muestra lista de pedidos del empleado
      */
@@ -154,12 +161,20 @@ class MisPedidosController extends BaseController
         // Combinar todos los archivos
         $archivos = array_merge($archivosCliente, $archivosEmpleado);
 
+        // Tracking del pedido (historial de acciones)
+        $trackingModel = new TrackingModel();
+        $tracking = $trackingModel
+            ->where('idatencion', $id)
+            ->orderBy('fecha_registro', 'ASC')
+            ->findAll();
+
         return $this->response->setJSON([
-            'status' => 'success',
-            'data' => $data,
-            'archivos' => $archivos,
-            'archivos_cliente' => $archivosCliente,
-            'archivos_empleado' => $archivosEmpleado
+            'status'            => 'success',
+            'data'              => $data,
+            'archivos'          => $archivos,
+            'archivos_cliente'  => $archivosCliente,
+            'archivos_empleado' => $archivosEmpleado,
+            'tracking'          => $tracking
         ]);
     }
 
@@ -208,6 +223,9 @@ class MisPedidosController extends BaseController
                 log_message('error', 'Error al enviar correo de inicio de trabajo (empleado): ' . $e->getMessage());
             }
 
+
+            $this->pusher->notificarCambioEstado($id, 'en_proceso');
+
             return $this->response->setJSON(['status' => 'success', 'message' => '¡Trabajo iniciado correctamente!']);
         }
 
@@ -253,6 +271,7 @@ class MisPedidosController extends BaseController
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
 
+            $this->pusher->notificarCambioEstado($id, 'en_revision');
             return $this->response->setJSON(['status' => 'success', 'message' => '¡Entrega realizada con éxito!']);
         }
 

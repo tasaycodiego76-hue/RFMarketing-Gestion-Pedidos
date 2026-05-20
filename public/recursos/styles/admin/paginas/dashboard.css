@@ -719,16 +719,29 @@ html[data-theme="light"] .area-badge-notif {
     box-shadow: 0 2px 6px rgba(239, 68, 68, .3);
 }
 
-/* ── Grid de tarjetas ── */
+/* ── Carrusel de tarjetas (Movimiento Natural y Suave) ── */
 .emp-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
     gap: 1.5rem;
     padding: 10px 0 25px 0;
+    overflow-x: auto; /* Permitir scroll táctil natural */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.emp-grid::-webkit-scrollbar {
+    height: 4px;
+}
+
+.emp-grid::-webkit-scrollbar-thumb {
+    background: rgba(245, 196, 0, 0.3);
+    border-radius: 10px;
 }
 
 .emp-grid .emp-card {
-    width: 100%;
+    flex: 0 0 calc(50% - 0.75rem);
+    min-width: 380px;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Suavidad extra */
 }
 
 /* ── Botones de navegación (flechas) ── */
@@ -832,3 +845,57 @@ html[data-theme="light"] .nav-btn {
         display: none;
     }
 }
+
+/* --- BLINDAJE RESPONSIVO ADICIONAL --- */
+@media (max-width: 992px) {
+    .mini-card { padding: 15px; gap: 10px; }
+    .mini-card-icon { width: 44px; height: 44px; font-size: 20px; }
+    .mini-card-num { font-size: 28px; }
+    .mini-card-label { font-size: 11px; letter-spacing: 1px; }
+    
+    .met-card { padding: 18px; }
+    .met-num { font-size: 42px; }
+    .met-label { font-size: 11px; letter-spacing: 1px; }
+}
+
+@media (max-width: 768px) {
+    .mini-card-num { font-size: 26px; }
+    .met-num { font-size: 38px; }
+    .met-sub { font-size: 11px; }
+
+    .emp-grid { gap: 1rem; }
+    .emp-grid .emp-card {
+        flex: 0 0 100%;
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .mini-card { padding: 10px; gap: 8px; border-radius: 10px; }
+    .mini-card-icon { width: 32px; height: 32px; font-size: 16px; border-radius: 8px; }
+    .mini-card-num { font-size: 20px; }
+    .mini-card-label { font-size: 9px; letter-spacing: 0.5px; }
+    
+    .estado-operativo-row {
+        --bs-gutter-x: 12px;
+    }
+    
+    .met-card { padding: 12px 8px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .met-num { font-size: 26px; }
+    .met-icon { margin: 0 auto 6px auto; width: 28px; height: 28px; font-size: 12px; border-radius: 8px; }
+    .met-label { font-size: 9px; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .met-sub { font-size: 8px; margin-top: 2px; }
+
+    .emp-grid .emp-card {
+        flex: 0 0 85%; /* Permitir ver un poco de la siguiente tarjeta */
+        min-width: 280px;
+    }
+    
+    .emp-stat-num { font-size: 28px; }
+    .emp-areas { padding: 8px; gap: 4px; }
+    .area-btn { font-size: 8px; padding: 6px 2px; }
+    
+    .graf-body { height: 180px; }
+    .graf-titulo { font-size: 11px; letter-spacing: 1px; }
+}
+@media (max-width: 480px) { .graf-card { margin-bottom: 25px !important; } }

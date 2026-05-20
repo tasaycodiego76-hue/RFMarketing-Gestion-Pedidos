@@ -11,6 +11,7 @@ class RequerimientoSeeder extends Seeder
         $this->db->query('TRUNCATE TABLE requerimiento RESTART IDENTITY CASCADE');
 
         $data = [
+
             // SEMANA 1
             [
                 'idusuarioempresa' => 13,
@@ -30,7 +31,9 @@ class RequerimientoSeeder extends Seeder
                 'prioridad' => 'Alta'
             ],
             [
+
                 'idusuarioempresa' => 14,
+
                 'idservicio' => 4,
                 'servicio_personalizado' => null,
                 'titulo' => 'Sesión Retratos Docentes',

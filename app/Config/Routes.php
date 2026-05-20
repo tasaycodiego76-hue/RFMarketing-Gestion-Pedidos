@@ -20,6 +20,7 @@ $routes->get('logout', 'AuthController::logout');
 //Rutas para el Administrador
 $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('dashboard', 'Administrador\DashboardController::index');
+    $routes->get('notificaciones/revisiones', 'Administrador\NotificationController::getRevisions');
     $routes->get('usuarios', 'Administrador\UsuarioController::index');
     $routes->get('usuarios/listar', 'Administrador\UsuarioController::listar');
     $routes->get('usuarios/obtener/(:num)', 'Administrador\UsuarioController::obtener/$1');
@@ -32,6 +33,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('usuarios/infoReasignar/(:num)', 'Administrador\UsuarioController::infoReasignar/$1');
     $routes->post('usuarios/reasignarCliente', 'Administrador\UsuarioController::reasignarCliente');
     $routes->post('usuarios/reasignarEmpleadoArea', 'Administrador\UsuarioController::reasignarEmpleadoArea');
+    $routes->get('usuarios/listarAreasPorEmpresa/(:num)', 'Administrador\UsuarioController::listarAreasPorEmpresa/$1');
 
     $routes->get('areas', 'Administrador\AreasController::index');
     $routes->get('areas/listar', 'Administrador\AreasController::listar');
@@ -54,6 +56,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('kanban/asignarEmpleado', 'Administrador\Kanban::asignarEmpleado');
     $routes->post('kanban/iniciarTrabajo', 'Administrador\kanban::iniciarTrabajo');
     $routes->post('kanban/regresarAProceso', 'Administrador\kanban::regresarAProceso');
+    $routes->get('kanban/tarjetaHTML/(:num)', 'Administrador\Kanban::tarjetaHTML/$1');
 
     //EMPRESAS 
     $routes->get('empresas', 'Administrador\EmpresasController::index');
@@ -62,9 +65,12 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('empresas/registrar', 'Administrador\EmpresasController::registrar');
     $routes->put('empresas/editar/(:num)', 'Administrador\EmpresasController::editar/$1');
     $routes->post('empresas/toggleEstado', 'Administrador\EmpresasController::toggleEstado');
+    $routes->post('empresas/registrarArea', 'Administrador\EmpresasController::registrarArea');
 
     $routes->get('historial', 'Administrador\HistorialController::index');
     $routes->get('reportes', 'Administrador\ReportesController::index');
+    $routes->get('reporte-gestion', 'Administrador\ReportesController::generarReporte');
+    $routes->get('reportes/vista-previa', 'Administrador\ReportesController::obtenerVistaPrevia');
 });
 
 // Rutas para el Responsable (Jefe de Área)

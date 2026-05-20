@@ -119,4 +119,23 @@ document.addEventListener("DOMContentLoaded", function () {
       title: mensaje,
     });
   };
+
+  // INTEGRACIÓN PUSHER (TIEMPO REAL)
+  if (typeof RFPusher !== 'undefined') {
+    function recargarVistasResponsable() {
+        if (typeof cargarBandeja === 'function') cargarBandeja();
+        if (typeof cargarTareas === 'function') cargarTareas();
+        if (typeof cargarDatosDashboard === 'function') cargarDatosDashboard();
+        if (typeof cargarTareasEquipo === 'function') cargarTareasEquipo();
+    }
+
+    RFPusher.on('solicitud.nueva', function(data) {
+        recargarVistasResponsable();
+        window.mostrarToast(`Nuevo pedido #${data.id} recibido`, 'info');
+    });
+
+    RFPusher.on('solicitud.actualizada', function(data) {
+        recargarVistasResponsable();
+    });
+  }
 });

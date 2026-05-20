@@ -1,13 +1,19 @@
 function verDetalleSolicitud(id) {
+  // Registrar el ID activo para que Pusher pueda refrescarlo sin recargar
+  window._modalIdActual = id;
+
   const modal = $("#modal");
   const titulo = $("#modal-titulo");
   const cuerpo = $("#modal-cuerpo");
   const pie = $("#modal-pie");
 
+  // Limpiar ID al cerrar el modal
+  modal.off('hidden.bs.modal.emp').on('hidden.bs.modal.emp', function() {
+    window._modalIdActual = null;
+  });
+
   Swal.fire({
     title: "Cargando expediente...",
-    background: "#0a0a0a",
-    color: "#fff",
     didOpen: () => {
       Swal.showLoading();
     },
@@ -18,51 +24,51 @@ function verDetalleSolicitud(id) {
     if (res.status === "success") {
       const d = res.data;
       titulo.html(
-        `<i class="bi bi-file-earmark-text mr-2" style="color:var(--amarillo);"></i> EXPEDIENTE: #REQ-${d.idrequerimiento}`,
+        `<i class="bi bi-file-earmark-text mr-2" style="color:var(--amarillo);"></i> EXPEDIENTE: #REQ-${d.id_requerimiento || d.idrequerimiento}`,
       );
 
       let html = `
-                <div style="font-family:'DM Sans', sans-serif; padding: 10px;">
+                <div class="expediente-contenedor" style="font-family:'DM Sans', sans-serif; padding: 10px;">
                     <!-- CABECERA -->
-                    <div class="mb-4" style="background:rgba(245, 196, 0, 0.03); border:1px solid rgba(245, 196, 0, 0.1); border-radius:12px; padding:20px;">
+                    <div class="mb-4 expediente-header-card" style="background:var(--sidebar-active-glow); border:1px solid var(--amarillo); border-radius:12px; padding:20px;">
                         <div class="row align-items-center">
                             <div class="col-md-8">
                                 <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; letter-spacing:1px; font-size:10px;">PROYECTO ASIGNADO</small>
-                                <h4 style="color:#fff; font-weight:700; margin:5px 0 0; font-size:22px;">${d.titulo}</h4>
+                                <h4 class="exp-titulo" style="color:var(--texto); font-weight:700; margin:5px 0 0; font-size:22px;">${d.titulo}</h4>
                                 <p style="color:var(--amarillo); font-weight:600; margin:5px 0 0; font-size:13px; text-transform:uppercase;">${d.nombreempresa} — ${d.servicio}</p>
                             </div>
                             <div class="col-md-4 text-md-right mt-3 mt-md-0">
-                                <span class="task-status-pill pill-process" style="padding:8px 16px; font-size:12px;">${d.estado.replace("_", " ").toUpperCase()}</span>
+                                <span class="task-status-pill ${d.estado === 'pendiente_asignado' ? 'pill-new' : (d.estado === 'en_proceso' ? 'pill-process' : 'pill-revision')}" style="padding:8px 16px; font-size:12px;">${d.estado.replace("_", " ").toUpperCase()}</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- 1. DESCRIPCIÓN -->
                     <div class="mb-4">
-                        <h6 style="color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
-                            <span style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-card-text"></i></span>
+                        <h6 class="exp-subseccion-titulo" style="color:var(--texto); font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                            <span class="exp-icon-bg" style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-card-text"></i></span>
                             DESCRIPCIÓN DEL REQUERIMIENTO
                         </h6>
-                        <div style="background:#0d0d0d; padding:25px; border-radius:12px; border:1px solid #1e1e1e; color:#bbb; font-size:14px; line-height:1.7; white-space:pre-wrap;">${d.descripcion || "Sin descripción detallada."}</div>
+                        <div class="exp-card-info" style="background:var(--mini-card-bg); padding:25px; border-radius:12px; border:1px solid var(--borde); color:var(--texto-2); font-size:14px; line-height:1.7; white-space:pre-wrap;">${d.descripcion || "Sin descripción detallada."}</div>
                     </div>
 
                     <!-- 2. ESTRATEGIA -->
                     <div class="mb-4">
-                        <h6 style="color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
-                            <span style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-compass"></i></span>
+                        <h6 class="exp-subseccion-titulo" style="color:var(--texto); font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                            <span class="exp-icon-bg" style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-compass"></i></span>
                             ESTRATEGIA DE COMUNICACIÓN
                         </h6>
                         <div class="row">
                             <div class="col-md-6 mb-3 mb-md-0">
-                                <div style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e; height:100%;">
+                                <div class="exp-card-info" style="background:var(--mini-card-bg); padding:20px; border-radius:12px; border:1px solid var(--borde); height:100%;">
                                     <small style="color:var(--amarillo); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:10px; letter-spacing:1px;">OBJETIVO PRINCIPAL</small>
-                                    <p style="color:#eee; font-size:14px; font-weight:600; margin:0; line-height:1.5;">${d.objetivo_comunicacion || "No especificado"}</p>
+                                    <p style="color:var(--texto); font-size:14px; font-weight:600; margin:0; line-height:1.5;">${d.objetivo_comunicacion || "No especificado"}</p>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e; height:100%;">
+                                <div class="exp-card-info" style="background:var(--mini-card-bg); padding:20px; border-radius:12px; border:1px solid var(--borde); height:100%;">
                                     <small style="color:var(--amarillo); text-transform:uppercase; font-weight:800; font-size:10px; display:block; margin-bottom:10px; letter-spacing:1px;">PÚBLICO OBJETIVO</small>
-                                    <p style="color:#eee; font-size:14px; font-weight:600; margin:0; line-height:1.5;">${d.publico_objetivo || "No especificado"}</p>
+                                    <p style="color:var(--texto); font-size:14px; font-weight:600; margin:0; line-height:1.5;">${d.publico_objetivo || "No especificado"}</p>
                                 </div>
                             </div>
                         </div>
@@ -71,32 +77,32 @@ function verDetalleSolicitud(id) {
                     <!-- 3. TÉCNICO -->
                     <div class="row mb-4">
                         <div class="col-md-6 mb-4 mb-md-0">
-                            <h6 style="color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
-                                <span style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-broadcast"></i></span>
+                            <h6 class="exp-subseccion-titulo" style="color:var(--texto); font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                                <span class="exp-icon-bg" style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-broadcast"></i></span>
                                 CANALES
                             </h6>
-                            <div id="canales-container" style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e; display:flex; flex-wrap:wrap; gap:8px;">
-                                ${d.canales_difusion ? JSON.parse(d.canales_difusion).map(c => `<span style="background:#1a1a1a; color:#fff; border:1px solid #333; padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${c}</span>`).join("") : '<span style="color:#444; font-size:11px; font-style:italic;">No especificados</span>'}
+                            <div id="canales-container" class="exp-card-info" style="background:var(--mini-card-bg); padding:20px; border-radius:12px; border:1px solid var(--borde); display:flex; flex-wrap:wrap; gap:8px;">
+                                ${d.canales_difusion ? JSON.parse(d.canales_difusion).map(c => `<span style="background:var(--panel); color:var(--texto); border:1px solid var(--borde); padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${c}</span>`).join("") : '<span style="color:var(--texto-3); font-size:11px; font-style:italic;">No especificados</span>'}
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <h6 style="color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
-                                <span style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-layers"></i></span>
+                            <h6 class="exp-subseccion-titulo" style="color:var(--texto); font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                                <span class="exp-icon-bg" style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-layers"></i></span>
                                 FORMATOS
                             </h6>
-                            <div id="formatos-container" style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e; display:flex; flex-wrap:wrap; gap:8px;">
-                                ${d.formatos_solicitados ? JSON.parse(d.formatos_solicitados).map(f => `<span style="background:#1a1a1a; color:#fff; border:1px solid #333; padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${f}</span>`).join("") : '<span style="color:#444; font-size:11px; font-style:italic;">No especificados</span>'}
+                            <div id="formatos-container" class="exp-card-info" style="background:var(--mini-card-bg); padding:20px; border-radius:12px; border:1px solid var(--borde); display:flex; flex-wrap:wrap; gap:8px;">
+                                ${d.formatos_solicitados ? JSON.parse(d.formatos_solicitados).map(f => `<span style="background:var(--panel); color:var(--texto); border:1px solid var(--borde); padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${f}</span>`).join("") : '<span style="color:var(--texto-3); font-size:11px; font-style:italic;">No especificados</span>'}
                             </div>
                         </div>
                     </div>
 
                     <!-- 4. RECURSOS -->
                     <div class="mb-2">
-                        <h6 style="color:#fff; font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
-                            <span style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-folder2-open"></i></span>
+                        <h6 class="exp-subseccion-titulo" style="color:var(--texto); font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                            <span class="exp-icon-bg" style="background:var(--amarillo); color:#000; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-folder2-open"></i></span>
                             RECURSOS DEL CLIENTE
                         </h6>
-                        <div style="background:#0d0d0d; padding:20px; border-radius:12px; border:1px solid #1e1e1e;">
+                        <div class="exp-card-info" style="background:var(--mini-card-bg); padding:20px; border-radius:12px; border:1px solid var(--borde);">
                             <div id="lista-archivos-requerimiento" class="mb-3"></div>
                             <div id="lista-enlaces-requerimiento"></div>
                         </div>
@@ -115,7 +121,7 @@ function verDetalleSolicitud(id) {
           '<div style="display:flex; flex-direction:column; gap:8px;">';
         res.archivos.forEach((a) => {
           arcHtml += `
-                        <a href="${BASE_URL}/${a.ruta}" target="_blank" style="display:flex; align-items:center; gap:10px; padding:10px; background:#161616; border:1px solid #222; border-radius:8px; color:#aaa; text-decoration:none; font-size:12px; transition:border-color .2s;" onmouseover="this.style.borderColor='var(--amarillo)'" onmouseout="this.style.borderColor='#222'">
+                        <a href="${BASE_URL}/${a.ruta}" target="_blank" class="exp-archivo-item" style="display:flex; align-items:center; gap:10px; padding:12px; background:var(--panel); border:1px solid var(--borde); border-radius:10px; color:var(--texto-2); text-decoration:none; font-size:12px; transition:all .2s;">
                             <i class="bi bi-cloud-arrow-down" style="color:var(--amarillo); font-size:16px;"></i>
                             <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${a.nombre}</span>
                         </a>`;
@@ -149,14 +155,24 @@ function verDetalleSolicitud(id) {
           '<p style="font-size:11px; color:#444; font-style:italic;">No hay enlaces externos.</p>',
       );
 
+      // ── TRACKING DEL PEDIDO en tiempo real ────────────────────────────────
+      const _trackHtml = (res.tracking && res.tracking.length > 0)
+          ? _renderTrackingEmpleado(res.tracking)
+          : '<p style="font-size:11px;color:#555;font-style:italic;">Sin historial registrado.</p>';
+      cuerpo.append(
+        '<div class="mt-4" style="border-top:1px solid var(--borde);padding-top:15px;">'
+        + '<h6 style="color:var(--texto);font-family:\'Bebas Neue\';letter-spacing:2px;font-size:18px;margin-bottom:12px;">'
+        + '<i class="bi bi-clock-history" style="color:var(--amarillo);margin-right:8px;"></i>HISTORIAL DEL PEDIDO</h6>'
+        + '<div id="emp-tracking-container" style="max-height:200px;overflow-y:auto;">'
+        + _trackHtml + '</div></div>'
+      );
+
       modal.modal("show");
     } else {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: res.message,
-        background: "#0a0a0a",
-        color: "#fff",
+        text: res.message
       });
     }
   });
@@ -180,9 +196,7 @@ function abrirModalAccion(id, tipo) {
       showCancelButton: true,
       confirmButtonColor: '#f5c400',
       confirmButtonText: 'Sí, empezar ahora',
-      cancelButtonText: 'Cancelar',
-      background: '#111',
-      color: '#fff'
+      cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
         ejecutarAccion(id, 'iniciar');
@@ -197,24 +211,24 @@ function abrirModalAccion(id, tipo) {
             <div class="p-3" style="font-family:'DM Sans', sans-serif;">
                 <form id="form-entrega">
                     <div class="form-group mb-4">
-                        <label style="color:#fff; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Enlace del entregable (Drive, Canva, Wetransfer, etc.)</label>
-                        <div class="input-group" style="background:#000; border:1px solid #222; border-radius:12px; overflow:hidden; transition:border-color 0.3s;">
+                        <label style="color:var(--texto); font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Enlace del entregable (Drive, Canva, Wetransfer, etc.)</label>
+                        <div class="input-group" style="background:var(--mini-card-bg); border:1px solid var(--borde); border-radius:12px; overflow:hidden; transition:border-color 0.3s;">
                             <div class="input-group-prepend">
                                 <span class="input-group-text" style="background:transparent; border:none; color:var(--amarillo); font-size:18px;"><i class="bi bi-link-45deg"></i></span>
                             </div>
                             <input type="url" name="url_entrega" id="url_entrega" class="form-control" placeholder="https://..." 
-                                style="background:transparent; border:none; color:#fff; font-size:14px; height:45px; padding-left:0;">
+                                style="background:transparent; border:none; color:var(--texto); font-size:14px; height:45px; padding-left:0;">
                         </div>
-                        <small style="color:#555; font-size:10px; margin-top:8px; display:block;"><i class="bi bi-info-circle mr-1"></i> El enlace debe comenzar con http:// o https://</small>
+                        <small style="color:var(--texto-3); font-size:10px; margin-top:8px; display:block;"><i class="bi bi-info-circle mr-1"></i> El enlace debe comenzar con http:// o https://</small>
                     </div>
                     
                     <div class="form-group mb-4">
-                        <label style="color:#fff; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Cargar Archivos Directos (Opcional)</label>
+                        <label style="color:var(--texto); font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Cargar Archivos Directos (Opcional)</label>
                         
-                        <div class="upload-area-simple" id="area-subida-entrega" style="border:2px dashed #222; border-radius:15px; padding:30px; text-align:center; background:#050505; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.borderColor='var(--amarillo)'; this.style.background='#080808';" onmouseout="this.style.borderColor='#222'; this.style.background='#050505';">
+                        <div class="upload-area-simple" id="area-subida-entrega" style="border:2px dashed var(--borde); border-radius:15px; padding:30px; text-align:center; background:var(--panel); cursor:pointer; transition:all 0.3s;">
                             <i class="bi bi-cloud-plus-fill mb-2" style="font-size:32px; color:var(--amarillo); display:block;"></i>
-                            <span style="color:#eee; font-weight:600; font-size:13px;">Click para agregar archivos</span>
-                            <p style="color:#444; font-size:10px; margin:5px 0 0;">Puedes seleccionar varios archivos (Imágenes, PDF, etc.)</p>
+                            <span style="color:var(--texto); font-weight:600; font-size:13px;">Click para agregar archivos</span>
+                            <p style="color:var(--texto-3); font-size:10px; margin:5px 0 0;">Puedes seleccionar varios archivos (Imágenes, PDF, etc.)</p>
                         </div>
                         
                         <input type="file" name="archivos_entrega[]" id="archivos_entrega" class="d-none" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.zip">
@@ -223,9 +237,9 @@ function abrirModalAccion(id, tipo) {
                     </div>
 
                     <div class="form-group">
-                        <label style="color:#fff; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Mensaje para el administrador</label>
+                        <label style="color:var(--texto); font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:12px;">Mensaje para el administrador</label>
                         <textarea name="notas" id="notas" class="form-control" 
-                            style="background:#000; border:1px solid #222; color:#fff; border-radius:12px; padding:15px; font-size:14px; resize:none;" 
+                            style="background:var(--mini-card-bg); border:1px solid var(--borde); color:var(--texto); border-radius:12px; padding:15px; font-size:14px; resize:none;" 
                             placeholder="Describe detalles sobre la entrega o instrucciones especiales..." rows="3"></textarea>
                     </div>
                 </form>
@@ -243,10 +257,10 @@ function abrirModalAccion(id, tipo) {
       lista.innerHTML = "";
       Array.from(input.files).forEach((f) => {
         lista.innerHTML += `
-                    <div style="background:#111; border:1px solid #222; border-radius:8px; padding:10px 15px; display:flex; align-items:center; gap:12px; color:#aaa; font-size:12px;">
+                    <div style="background:var(--panel); border:1px solid var(--borde); border-radius:8px; padding:10px 15px; display:flex; align-items:center; gap:12px; color:var(--texto-2); font-size:12px;">
                         <i class="bi bi-file-earmark-check" style="color:var(--amarillo); font-size:16px;"></i>
                         <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${f.name}</span>
-                        <small style="color:#444;">${(f.size / 1024 / 1024).toFixed(2)} MB</small>
+                        <small style="color:var(--texto-3);">${(f.size / 1024 / 1024).toFixed(2)} MB</small>
                     </div>
                 `;
       });
@@ -278,9 +292,7 @@ function ejecutarAccion(id, tipo) {
         Swal.fire({
           icon: "warning",
           title: "URL Inválida",
-          text: "El enlace debe comenzar con http:// o https://",
-          background: "#0a0a0a",
-          color: "#fff",
+          text: "El enlace debe comenzar con http:// o https://"
         });
         return;
       }
@@ -290,9 +302,7 @@ function ejecutarAccion(id, tipo) {
       Swal.fire({
         icon: "warning",
         title: "Falta información",
-        text: "Por favor, proporciona un enlace o adjunta los archivos de tu trabajo.",
-        background: "#0a0a0a",
-        color: "#fff",
+        text: "Por favor, proporciona un enlace o adjunta los archivos de tu trabajo."
       });
       return;
     }
@@ -307,8 +317,6 @@ function ejecutarAccion(id, tipo) {
   Swal.fire({
     title: "¿Confirmar envío?",
     text: "Asegúrate de que todo esté correcto.",
-    background: "#0a0a0a",
-    color: "#fff",
     confirmButtonColor: "#F5C400",
     confirmButtonText: "SÍ, CONFIRMAR",
     cancelButtonText: "CANCELAR",
@@ -317,8 +325,6 @@ function ejecutarAccion(id, tipo) {
     if (result.isConfirmed) {
       Swal.fire({
         title: "Procesando...",
-        background: "#0a0a0a",
-        color: "#fff",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
@@ -337,9 +343,7 @@ function ejecutarAccion(id, tipo) {
             Swal.fire({
               icon: "success",
               title: "¡Hecho!",
-              text: res.message,
-              background: "#0a0a0a",
-              color: "#fff",
+              text: res.message
             }).then(() => {
               location.reload();
             });
@@ -347,9 +351,7 @@ function ejecutarAccion(id, tipo) {
             Swal.fire({
               icon: "error",
               title: "Error",
-              text: res.message,
-              background: "#0a0a0a",
-              color: "#fff",
+              text: res.message
             });
           }
         },
@@ -357,12 +359,108 @@ function ejecutarAccion(id, tipo) {
           Swal.fire({
             icon: "error",
             title: "Error fatal",
-            text: "No se pudo procesar la solicitud.",
-            background: "#0a0a0a",
-            color: "#fff",
+            text: "No se pudo procesar la solicitud."
           });
         },
       });
     }
   });
 }
+
+// LÓGICA DE BÚSQUEDA CON DEBOUNCE (1.5 SEGUNDOS)
+$(document).ready(function() {
+    let timeoutBusqueda = null;
+
+    $('#busqueda').on('input', function() {
+        const query = $(this).val().toLowerCase().trim();
+
+        // Limpiar el timeout previo
+        if (timeoutBusqueda) clearTimeout(timeoutBusqueda);
+
+        // Iniciar nuevo timeout
+        timeoutBusqueda = setTimeout(function() {
+            filtrarResultados(query);
+        }, 1500); // 1.5 segundos
+    });
+
+    function filtrarResultados(query) {
+        $('.emp-task-card').each(function() {
+            const card = $(this);
+            const titulo = card.find('.task-title').text().toLowerCase();
+            const cliente = card.find('.task-client').text().toLowerCase();
+
+            if (titulo.includes(query) || cliente.includes(query)) {
+                card.closest('.col-12').fadeIn(300);
+            } else {
+                card.closest('.col-12').fadeOut(300);
+            }
+        });
+    }
+
+    // ── PUSHER: TIEMPO REAL PARA EMPLEADO ──────────────────────────────────────
+    if (typeof RFPusher !== 'undefined') {
+        function _actualizarVista() {
+            const modalAbierto = $('#modal').hasClass('show');
+
+            if (modalAbierto && window._modalIdActual) {
+                // Modal abierto → refrescar SOLO el contenido sin cerrar
+                _refrescarModalEmpleado(window._modalIdActual);
+            } else {
+                // Modal cerrado → recargar la lista de tarjetas
+                location.reload();
+            }
+        }
+
+        RFPusher.on('solicitud.actualizada', _actualizarVista);
+        RFPusher.on('solicitud.nueva',       _actualizarVista);
+    }
+});
+
+// ── REFRESCAR MODAL DEL EMPLEADO (tracking + datos en tiempo real) ──────────
+function _refrescarModalEmpleado(id) {
+    $.get(`${BASE_URL}/empleado/pedido-detalle/${id}`, function(res) {
+        if (res.status !== 'success') return;
+
+        const d = res.data;
+
+        // Actualizar estado en el header del modal
+        const pill = document.querySelector('.emp-estado-pill');
+        if (pill) {
+            const estadoLabel = { pendiente_asignado: 'PENDIENTE', en_proceso: 'EN PROCESO', en_revision: 'EN REVISIÓN', finalizado: 'FINALIZADO' };
+            pill.textContent = estadoLabel[d.estado] || d.estado.toUpperCase();
+        }
+
+        // Actualizar sección de tracking si existe
+        const trackingContainer = document.getElementById('emp-tracking-container');
+        if (trackingContainer && res.tracking && res.tracking.length > 0) {
+            trackingContainer.innerHTML = _renderTrackingEmpleado(res.tracking);
+        }
+    });
+}
+
+function _renderTrackingEmpleado(tracking) {
+    const iconos = {
+        pendiente_asignado : { icon: 'bi-person-check-fill', color: '#f59e0b' },
+        en_proceso         : { icon: 'bi-play-circle-fill',   color: '#a855f7' },
+        en_revision        : { icon: 'bi-send-check-fill',    color: '#f97316' },
+        finalizado         : { icon: 'bi-check-circle-fill',  color: '#10b981' },
+    };
+
+    return tracking.map(t => {
+        const cfg   = iconos[t.estado] || { icon: 'bi-circle', color: '#888' };
+        const fecha = t.fecha_registro
+            ? new Date(t.fecha_registro).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+            : '---';
+        return `
+            <div style="display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--borde);">
+                <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:${cfg.color}22; display:flex; align-items:center; justify-content:center;">
+                    <i class="bi ${cfg.icon}" style="color:${cfg.color}; font-size:14px;"></i>
+                </div>
+                <div style="flex:1;">
+                    <p style="margin:0; font-size:12px; color:var(--texto); font-weight:600; line-height:1.4;">${t.accion}</p>
+                    <small style="color:var(--texto-3); font-size:10px;">${fecha}</small>
+                </div>
+            </div>`;
+    }).join('');
+}
+

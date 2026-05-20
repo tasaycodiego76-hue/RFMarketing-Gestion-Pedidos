@@ -201,6 +201,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => true,
                 'estado' => true,
             ],
+
             // CLIENTES (representantes de empresa)     
             // ID 13: ANA (cliente de UNIVERSIDAD AUTÓNOMA DE ICA)
             [
@@ -298,6 +299,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
+
             [
                 'nombre' => 'DIEGO',
                 'apellidos' => 'TASAYCO HUACCAMAYTA',
@@ -329,6 +331,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
+
             // ID 20: MILAGROS (cliente de URBANO & MODERNO)
             [
                 'nombre' => 'MILAGROS ROCIO',
@@ -345,6 +348,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
+
             // ID 21: JORGE (cliente de URBANO & MODERNO)
             [
                 'nombre' => 'JORGE LUIS',

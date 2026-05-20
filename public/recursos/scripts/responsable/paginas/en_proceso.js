@@ -198,6 +198,7 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
                             <i class="bi bi-geo-alt me-1"></i> ${escaparHtml(tarea.nombre_area || "---")}
                         </div>
                     </div>
+
                     ${parseInt(tarea.num_modificaciones) > 0 ||
           tarea.observacion_revision
           ? `
@@ -836,60 +837,56 @@ function obtenerIniciales(nombre) {
  * @param {number|string} idAtencion - ID de la atención a entregar.
  */
 function abrirModalEntregar(idAtencion) {
-  // Limpiar e inicializar campos
-  document.getElementById("entrega-idatencion").value = idAtencion;
-  document.getElementById("entrega-url").value = "";
-  document.getElementById("entrega-archivos").value = "";
-  document.getElementById("lista-archivos-entrega").innerHTML = "";
-  document.getElementById("entrega-notas").value = "";
+  Swal.fire({
+    title: '<i class="bi bi-cloud-arrow-up mr-2" style="color:#F5C400;"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">REALIZAR ENTREGA</span>',
+    html: `
+      <div class="text-start" style="font-family: 'Inter', sans-serif;">
+        <div class="mb-3">
+          <label class="form-label text-white-50 text-uppercase fw-bold ep-swal-label">Link del Entregable</label>
+          <input type="text" id="swal-url-entrega" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Google Drive, Canva, Figma...">
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-white-50 text-uppercase fw-bold ep-swal-label">Subir Archivos (Opcional)</label>
+          <input type="file" id="swal-archivos-entrega" class="form-control form-control-sm bg-dark text-white border-secondary" multiple>
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-white-50 text-uppercase fw-bold ep-swal-label">Notas adicionales</label>
+          <textarea id="swal-notas-entrega" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Escribe aquí algún detalle..." rows="3"></textarea>
+        </div>
+      </div>`,
+    background: "#0a0a0a",
+    color: "#fff",
+    showCancelButton: true,
+    confirmButtonText: "ENVIAR ENTREGA",
+    cancelButtonText: "CANCELAR",
+    confirmButtonColor: "#22c55e",
+    cancelButtonColor: "#333",
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    preConfirm: () => {
+      const url = document.getElementById("swal-url-entrega").value;
+      const files = document.getElementById("swal-archivos-entrega").files;
+      const notas = document.getElementById("swal-notas-entrega").value;
 
-  // Mostrar el modal Bootstrap
-  const modalElement = document.getElementById("modal-entregar");
-  const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-  modal.show();
-}
+      if (url) {
+        if (!/^(https?:\/\/)/i.test(url)) {
+          Swal.showValidationMessage("El enlace debe comenzar con http:// o https://");
+          return false;
+        }
+      }
 
-window.confirmarEntregaResponsable = function () {
-  const idAtencion = document.getElementById("entrega-idatencion").value;
-  const url = document.getElementById("entrega-url").value;
-  const files = document.getElementById("entrega-archivos").files;
-  const notas = document.getElementById("entrega-notas").value;
+      if (!url && files.length === 0) {
+        Swal.showValidationMessage("Proporciona un enlace o adjunta archivos de tu trabajo.");
+        return false;
+      }
 
-  if (url) {
-    const urlPattern = /^(https?:\/\/)/i;
-    if (!urlPattern.test(url)) {
-      const esClaro = document.documentElement.getAttribute("data-theme") === "light";
-      Swal.fire({
-        icon: "warning",
-        title: "URL Inválida",
-        text: "El enlace debe comenzar con http:// o https://",
-        background: esClaro ? "#fff" : "#0a0a0a",
-        color: esClaro ? "#000" : "#fff",
-        confirmButtonColor: "#f5c400"
-      });
-      return;
+      return { url, files, notas };
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      ejecutarEntrega(idAtencion, result.value);
     }
-  }
-
-  if (!url && files.length === 0) {
-    const esClaro = document.documentElement.getAttribute("data-theme") === "light";
-    Swal.fire({
-      icon: "warning",
-      title: "Falta información",
-      text: "Por favor, proporciona un enlace o adjunta los archivos de tu trabajo.",
-      background: esClaro ? "#fff" : "#0a0a0a",
-      color: esClaro ? "#000" : "#fff",
-      confirmButtonColor: "#f5c400"
-    });
-    return;
-  }
-
-  // Ocultar modal
-  const modal = bootstrap.Modal.getInstance(document.getElementById("modal-entregar"));
-  if (modal) modal.hide();
-
-  // Ejecutar el backend
-  ejecutarEntrega(idAtencion, { url, files, notas });
+  });
 }
 
 function ejecutarEntrega(idAtencion, data) {

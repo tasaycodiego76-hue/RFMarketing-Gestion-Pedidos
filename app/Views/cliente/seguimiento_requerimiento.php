@@ -34,11 +34,44 @@
                 <!-- LINEA DE TIEMPO -->
                 <div class="timeline-seguimiento">
                     <?php foreach ($historial as $item): ?>
+                        <?php
+                        $estadoRaw = strtolower($item['estado'] ?? 'default');
+                        $accion = strtolower($item['accion'] ?? '');
+                        
+                        // Mapeo lógico y profesional de estados para la vista del cliente
+                        $badgeLabel = strtoupper(str_replace('_', ' ', $item['estado'] ?? 'Estado actualizado'));
+                        $estadoCls = 'pendiente';
+                        
+                        if ($estadoRaw === 'pendiente_sin_asignar') {
+                            $badgeLabel = 'RECIBIDO';
+                            $estadoCls = 'pendiente';
+                        } elseif ($estadoRaw === 'pendiente_asignado') {
+                            // Si ya fue asignado a un empleado (delegado/planificado)
+                            if (stripos($accion, 'delegado al') !== false || stripos($accion, 'empleado') !== false || stripos($accion, 'técnico') !== false) {
+                                $badgeLabel = 'ASIGNADO';
+                                $estadoCls = 'pendiente';
+                            } else {
+                                $badgeLabel = 'APROBADO';
+                                $estadoCls = 'pendiente';
+                            }
+                        } elseif ($estadoRaw === 'en_proceso') {
+                            $badgeLabel = 'EN PROCESO';
+                            $estadoCls = 'proceso';
+                        } elseif ($estadoRaw === 'en_revision') {
+                            $badgeLabel = 'EN REVISIÓN';
+                            $estadoCls = 'revision';
+                        } elseif ($estadoRaw === 'finalizado') {
+                            $badgeLabel = 'FINALIZADO';
+                            $estadoCls = 'finalizado';
+                        } elseif ($estadoRaw === 'cancelado') {
+                            $badgeLabel = 'CANCELADO';
+                            $estadoCls = 'cancelado';
+                        }
+                        ?>
                         <div class="timeline-item-seg">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span
-                                    class="timeline-estado estado-<?= str_replace(['pendiente_sin_asignar', 'pendiente_asignado', 'en_proceso', 'en_revision'], ['pendiente', 'pendiente', 'proceso', 'revision'], strtolower($item['estado'] ?? 'default')) ?>">
-                                    <?= strtoupper(str_replace('_', ' ', esc($item['estado'] ?? 'Estado actualizado'))) ?>
+                                <span class="timeline-estado estado-<?= $estadoCls ?>">
+                                    <?= esc($badgeLabel) ?>
                                 </span>
                                 <small class="text-muted-timeline">
                                     <i class="bi bi-calendar3"></i>

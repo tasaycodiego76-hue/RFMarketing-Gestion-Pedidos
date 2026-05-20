@@ -16,6 +16,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <!-- Estilos Base (MATCH ADMIN) -->
+    <link href="<?= base_url('recursos/styles/admin/paginas/tema.css') ?>" rel="stylesheet">
     <link href="<?= base_url('recursos/styles/empleado/plantilla/empleado.css') ?>" rel="stylesheet">
 
     <?= $this->renderSection('styles') ?>
@@ -87,15 +88,26 @@
 
         <!-- BARRA SUPERIOR -->
         <header class="topbar">
-            <button class="btn-menu-toggle d-lg-none" id="btn-menu-toggle" aria-label="Abrir menú"
-                style="background:none; border:none; color:#fff; font-size:22px; margin-right:15px;">
-                <i class="bi bi-list"></i>
-            </button>
-            <div class="topbar-titulo"><?= esc($tituloPagina ?? 'PANEL') ?></div>
-            <div class="ml-auto d-flex align-items-center"
-                style="font-size: 20px; color: #fff; text-transform: uppercase; font-weight: 400; letter-spacing: 4px; font-family: 'Bebas Neue', sans-serif;">
-                <i class="bi bi-palette mr-3" style="color: var(--amarillo); font-size: 24px;"></i>
-                <?= esc($user['nombre_areaagencia'] ?? 'Agencia') ?>
+            <div style="display: flex; align-items: center;">
+                <button class="btn-menu-toggle d-lg-none" id="btn-menu-toggle" aria-label="Abrir menú"
+                    style="background:none; border:none; color:inherit; font-size:22px; margin-right:15px;">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="topbar-titulo"><?= esc($tituloPagina ?? 'PANEL') ?></div>
+            </div>
+            
+            <div class="ml-auto d-flex align-items-center" style="gap: 15px;">
+                <!-- TITULO ÁREA (RESTORED STYLE) -->
+                <div class="d-none d-md-flex align-items-center"
+                    style="font-size: 19px; color: inherit; text-transform: uppercase; font-weight: 400; letter-spacing: 3px; font-family: 'Bebas Neue', sans-serif;">
+                    <i class="bi bi-palette mr-3" style="color: var(--amarillo); font-size: 22px;"></i>
+                    <?= esc($user['nombre_areaagencia'] ?? 'Agencia') ?>
+                </div>
+
+                <!-- BOTÓN DE TEMA (NEXT TO TITLE LIKE IMAGE) -->
+                <button class="theme-toggle-btn" id="theme-toggle-btn" title="Cambiar tema">
+                    <i class="bi bi-sun-fill"></i>
+                </button>
             </div>
         </header>
 
@@ -138,11 +150,28 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        const PUSHER_KEY = '<?= env('PUSHER_KEY') ?>';
+        const PUSHER_CLUSTER = '<?= env('PUSHER_CLUSTER') ?>';
+        const PUSHER_CANAL = 'kanban-empleados';
+    </script>
+    <script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
+    
+    <!-- Sistema de Cambio de Tema -->
+    <script src="<?= base_url('recursos/scripts/cambiador-tema.js') ?>"></script>
+
     <script>
         const BASE_URL = '<?= base_url() ?>';
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
         });
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) { registration.unregister(); }
+            });
+        }
     </script>
     <?= $this->renderSection('scripts') ?>
 

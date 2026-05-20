@@ -42,9 +42,13 @@ function cargarBandeja() {
   const tbody = document.getElementById("contenido-bandeja");
   const tbodyRev = document.getElementById("contenido-revision");
 
-  // Mostramos animación de carga antes de recibir los datos.
-  if (tbody) tbody.innerHTML = generarSkeletonFilas();
-  if (tbodyRev) tbodyRev.innerHTML = generarSkeletonFilas();
+  // Solo mostrar animación si es la primera carga o está vacío, para evitar parpadeos con Pusher
+  if (requerimientosData.length === 0 && tbody) {
+      tbody.innerHTML = generarSkeletonFilas();
+  }
+  if (revisionData.length === 0 && tbodyRev) {
+      tbodyRev.innerHTML = generarSkeletonFilas();
+  }
 
   fetch(`${base_url}responsable/pedidos/bandeja-json`)
     .then((r) => r.json())

@@ -439,3 +439,8 @@ a:hover {
     border-color: var(--card-border);
     color: var(--texto);
 }
+
+/* Hamburguesa (Mobile Toggle) */
+html[data-theme="light"] .btn-menu-toggle {
+    color: #000000 !important;
+}

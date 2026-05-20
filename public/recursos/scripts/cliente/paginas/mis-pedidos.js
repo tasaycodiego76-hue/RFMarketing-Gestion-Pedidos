@@ -862,6 +862,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("contenedor-formato-otros")?.classList.add("d-none");
   });
 
+  // Exponer globalmente para que Pusher (cliente.php) pueda invocarla desde cualquier contexto
+  window.cargarPedidos = obtenerPedidos;
+
   obtenerPedidos();
   modalNuevoPedidoEl?.addEventListener("shown.bs.modal", cargarServicios);
 

@@ -6,18 +6,28 @@
 
 <?= $this->section('scripts') ?>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-
-<!-- Declarando variables AQUÍ -->
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 <script>
-    const ADMIN_ID = "<?= session()->get('id') ?? 1 ?>";
-    const ADMIN_ROL = "<?= session()->get('rol') ?? 'admin' ?>";
-    const AREA_ACTUAL = <?= $idAreaAgencia ?>;
-    const AREA_NOMBRE = "<?= esc($areaActual['nombre'] ?? '') ?>";
+  const PUSHER_KEY     = '<?= env('PUSHER_KEY') ?>';
+  const PUSHER_CLUSTER = '<?= env('PUSHER_CLUSTER') ?>';
+  <?php
+    $canalPusher = match(session()->get('rol')) {
+        'admin'       => 'kanban-admin',
+        'empleado'    => 'kanban-empleados',
+        'responsable' => 'kanban-responsables',
+        'cliente'     => 'cliente-' . session()->get('id'),
+        default       => 'kanban-admin'
+    };
+  ?>
+  const PUSHER_CANAL   = '<?= $canalPusher ?>';
+  const ADMIN_ID       = "<?= session()->get('id') ?? 1 ?>";
+  const ADMIN_ROL      = "<?= session()->get('rol') ?? 'admin' ?>";
+  const AREA_ACTUAL    = <?= $idAreaAgencia ?>;
+  const AREA_NOMBRE    = "<?= esc($areaActual['nombre'] ?? '') ?>";
 </script>
-
+<script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
 <script src="<?= base_url('recursos/scripts/admin/kanban.js') ?>"></script>
 <?= $this->endSection() ?>
-
 <?= $this->section('contenido') ?>
 
 <?php $inicial = mb_strtoupper(mb_substr($empresa['nombreempresa'], 0, 1)); ?>
@@ -32,99 +42,76 @@
                 RUC <span style="color:#fff;"><?= esc($empresa['ruc'] ?? '—') ?></span>
                 <?php if (!empty($empresa['correo'])): ?> · <span
                         style="color:#fff;"><?= esc($empresa['correo']) ?></span><?php endif ?>
-                <?php if (!empty($empresa['telefono'])): ?> · <span
-                        style="color:#fff;"><?= esc($empresa['telefono']) ?></span><?php endif ?>
             </div>
         </div>
     </div>
+
+    <!-- ESTADÍSTICAS PRINCIPALES -->
     <div class="kb-head-stats">
-        <div class="kb-stat"><span
-                class="st-amarillo"><?= $stats['por_aprobar'] ?? 0 ?></span><small>SOLICITUDES</small>
+        <div class="kb-stat">
+            <span class="st-amarillo"><?= $stats['por_aprobar'] ?? 0 ?></span>
+            <small>SOLICITUDES</small>
         </div>
-        <div class="kb-stat"><span class="st-morado"><?= $stats['activos'] ?? 0 ?></span><small>PROCESO</small></div>
-        <div class="kb-stat"><span class="st-naranja"><?= $stats['en_revision'] ?? 0 ?></span><small>REVISIÓN</small>
+        <div class="kb-stat">
+            <span class="st-morado"><?= $stats['activos'] ?? 0 ?></span>
+            <small>PROCESO</small>
         </div>
-        <div class="kb-stat"><span class="st-verde"><?= $stats['completados'] ?? 0 ?></span><small>COMPLETADOS</small>
+        <div class="kb-stat">
+            <span class="st-naranja"><?= $stats['en_revision'] ?? 0 ?></span>
+            <small>REVISIÓN</small>
         </div>
-    </div>
-
-    <!-- ═══ WIDGET DE SATURACIÓN  ═══ -->
-    <div class="kb-saturation-widget">
-        <div
-            style="font-size: 9px; color: #fff; font-weight: 800; text-align: right; line-height: 1.2; letter-spacing: 0.5px;">
-            CARGA DE<br>TRABAJO
-        </div>
-        <div class="kb-saturation-item">
-            <?php
-            $valHoy = $carga_diaria['hoy'] ?? 0;
-            $clHoy = ($valHoy >= 40) ? 'sat-high' : (($valHoy >= 30) ? 'sat-mid' : 'sat-low');
-            ?>
-            <span class="kb-saturation-val <?= $clHoy ?>"><?= $valHoy ?></span>
-            <span class="kb-saturation-label" style="color:#fff;">HOY</span>
-        </div>
-        <div style="width:1px; height:25px; background:#1a1a1a;"></div>
-        <div class="kb-saturation-item">
-            <?php
-            $valMan = $carga_diaria['manana'] ?? 0;
-            $clMan = ($valMan >= 40) ? 'sat-high' : (($valMan >= 30) ? 'sat-mid' : 'sat-low');
-            ?>
-            <span class="kb-saturation-val <?= $clMan ?>"><?= $valMan ?></span>
-            <span class="kb-saturation-label" style="color:#fff;">MAÑANA</span>
+        <div class="kb-stat">
+            <span class="st-verde"><?= $stats['completados'] ?? 0 ?></span>
+            <small>COMPLETADOS</small>
         </div>
     </div>
 
-    <!-- ═══ FILTROS RÁPIDOS  ═══ -->
-    <div class="kb-quick-filters"
-        style="display:flex; align-items:center; gap:8px; margin-left: 25px; border-left: 1px solid #1a1a1a; padding-left: 20px;">
-        <button onclick="filterKanban('all')" class="kb-filter-btn active" id="btn-filter-all">TODO</button>
-        <button onclick="filterKanban('hoy')" class="kb-filter-btn" id="btn-filter-hoy">HOY</button>
-        <button onclick="filterKanban('manana')" class="kb-filter-btn" id="btn-filter-manana">MAÑANA</button>
-
-    </div>
-</div>
-
-<!-- ═══ LEYENDA + ALERTA ATRASADOS ═══ -->
-<div
-    style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:18px; padding:10px 14px; background:#0a0a0a; border:1px solid #151515; border-radius:12px;">
-
-    <!-- Leyenda de colores -->
-    <div style="display:flex; align-items:center; gap:22px;">
-        <span
-            style="display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#ff4d4d; letter-spacing:0.3px;">
-            <span
-                style="width:12px; height:12px; border-radius:4px; background:#ff4d4d; box-shadow:0 0 6px rgba(255,77,77,0.35);"></span>
-            Atrasado
-        </span>
-        <span
-            style="display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#f97316; letter-spacing:0.3px;">
-            <span
-                style="width:12px; height:12px; border-radius:4px; background:#f97316; box-shadow:0 0 6px rgba(249,115,22,0.35);"></span>
-            Vence Hoy
-        </span>
-        <span
-            style="display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#ffcc00; letter-spacing:0.3px;">
-            <span
-                style="width:12px; height:12px; border-radius:4px; background:#ffcc00; box-shadow:0 0 6px rgba(255,204,0,0.35);"></span>
-            Vence Mañana
-        </span>
-        <span
-            style="display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#10b981; letter-spacing:0.3px;">
-            <span
-                style="width:12px; height:12px; border-radius:4px; background:#10b981; box-shadow:0 0 6px rgba(16,185,129,0.35);"></span>
-            En Tiempo
-        </span>
+    <!-- LEYENDA SLA CON CONTEOS REALES -->
+    <div class="kb-sla-summary">
+        <div class="sla-sum-item">
+            <div class="sla-sum-dot bg-atrasado"></div>
+            <div class="sla-sum-info">
+                <span class="sla-sum-val color-atrasado"><?= $stats['atrasados'] ?? 0 ?></span>
+                <span class="sla-sum-lbl">ATRASADO</span>
+            </div>
+        </div>
+        <div class="sla-sum-item">
+            <div class="sla-sum-dot bg-hoy"></div>
+            <div class="sla-sum-info">
+                <span class="sla-sum-val color-hoy"><?= $stats['hoy'] ?? 0 ?></span>
+                <span class="sla-sum-lbl">VENCE HOY</span>
+            </div>
+        </div>
+        <div class="sla-sum-item">
+            <div class="sla-sum-dot bg-manana"></div>
+            <div class="sla-sum-info">
+                <span class="sla-sum-val color-manana"><?= $stats['manana'] ?? 0 ?></span>
+                <span class="sla-sum-lbl">VENCE MAÑANA</span>
+            </div>
+        </div>
+        <div class="sla-sum-item">
+            <div class="sla-sum-dot bg-tiempo"></div>
+            <div class="sla-sum-info">
+                <span class="sla-sum-val color-tiempo"><?= $stats['en_tiempo'] ?? 0 ?></span>
+                <span class="sla-sum-lbl">EN TIEMPO</span>
+            </div>
+        </div>
     </div>
 
-    <!-- Botón Atrasados -->
-    <?php if (!empty($atrasados)): ?>
-        <button onclick="document.getElementById('modalAtrasados').style.display='flex'"
-            style="display:flex; align-items:center; gap:8px; background:rgba(255,77,77,0.1); border:1px solid rgba(255,77,77,0.35); color:#ff4d4d; padding:7px 16px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer; letter-spacing:0.4px; transition:all 0.25s;"
-            onmouseover="this.style.background='rgba(255,77,77,0.22)'; this.style.borderColor='#ff4d4d';"
-            onmouseout="this.style.background='rgba(255,77,77,0.1)'; this.style.borderColor='rgba(255,77,77,0.35)';">
-            <i class="bi bi-exclamation-triangle-fill" style="font-size:13px;"></i>
-            VER ATRASADOS (<?= count($atrasados) ?>)
-        </button>
-    <?php endif ?>
+    <!-- FILTROS Y ACCIÓN -->
+    <div class="kb-head-right">
+        <div class="kb-quick-filters">
+            <button onclick="filterKanban('all')" class="kb-filter-btn active" id="btn-filter-all">TODO</button>
+            <button onclick="filterKanban('hoy')" class="kb-filter-btn" id="btn-filter-hoy">HOY</button>
+            <button onclick="filterKanban('manana')" class="kb-filter-btn" id="btn-filter-manana">MAÑANA</button>
+        </div>
+        <?php if (!empty($atrasados)): ?>
+            <button onclick="document.getElementById('modalAtrasados').style.display='flex'" class="btn-atrasados-top">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>(<?= count($atrasados) ?>)</span>
+            </button>
+        <?php endif ?>
+    </div>
 </div>
 
 <!-- ═══ TABS ÁREAS AGENCIA ═══ -->
@@ -185,153 +172,7 @@
                     </div>
                 <?php else: ?>
                     <?php foreach ($col['items'] as $p): ?>
-                        <?php
-                        // Cálculo de SLA para Filtros y Colores
-                        $slaCls = 'sla-normal';
-                        $slaType = 'tiempo';
-                        $slaText = ' • EN TIEMPO';
-                        if (!empty($p['fecharequerida'])) {
-                            $t_hoy = strtotime(date('Y-m-d'));
-                            $t_vence = strtotime(date('Y-m-d', strtotime($p['fecharequerida'])));
-                            $diff_dias = ($t_vence - $t_hoy) / 86400;
-                            if ($diff_dias < 0) {
-                                $slaCls = 'sla-critico';
-                                $slaType = 'hoy';
-                                $slaText = ' • ATRASADO';
-                            } elseif ($diff_dias == 0) {
-                                $slaCls = 'sla-urgente';
-                                $slaType = 'hoy';
-                                $slaText = ' • HOY';
-                            } elseif ($diff_dias == 1) {
-                                $slaCls = 'sla-advertencia';
-                                $slaType = 'manana';
-                                $slaText = ' • MAÑANA';
-                            }
-                        }
-                        ?>
-                        <div class="kb-card <?= ($estado === 'pendiente_sin_asignar') ? 'js-draggable' : '' ?>"
-                            data-id="<?= $p['id'] ?>" data-sla="<?= $slaType ?>" style="display: block;">
-                            <div class="kb-card-top">
-                                <div class="kb-card-info" style="flex: 1; min-width: 0;">
-                                    <span class="kb-card-empresa"
-                                        style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%;"><?= esc($p['nombreempresa']) ?></span>
-                                    <span class="kb-card-title"
-                                        style="white-space: normal; word-break: break-word;"><?= esc($p['titulo'] ?? 'Sin título') ?></span>
-                                </div>
-                                <div
-                                    style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px; margin-left: 10px;">
-                                    <div class="kb-card-id">#<?= $p['id'] ?></div>
-                                    <?php if (!empty($p['fecharequerida'])): ?>
-                                        <div class="sla-badge <?= $slaCls ?>">
-                                            <?= date('d/m', strtotime($p['fecharequerida'])) ?>                 <?= $slaText ?>
-                                        </div>
-                                    <?php endif ?>
-                                </div>
-                            </div>
-
-                            <?php if (($p['num_modificaciones'] ?? 0) > 0): ?>
-                                <?php if ($estado === 'en_proceso'): ?>
-                                    <div class="kb-returned-banner">
-                                        <i class="bi bi-arrow-counterclockwise"></i> CORRECCIÓN SOLICITADA
-                                    </div>
-                                <?php elseif ($estado === 'en_revision'): ?>
-                                    <div class="kb-corrected-banner">
-                                        <i class="bi bi-check-all"></i> CORRECCIÓN REALIZADA
-                                    </div>
-                                <?php endif ?>
-                            <?php endif ?>
-
-                            <div class="kb-card-tags">
-                                <span class="kb-tag-servicio">
-                                    <i class="bi bi-tag-fill"></i> <?= esc($p['servicio'] ?? 'General') ?>
-                                </span>
-                                <?php
-                                $prio = $p['prioridad_admin'] ?? ($p['prioridad'] ?? 'Media');
-                                $prioCls = strtolower($prio);
-                                ?>
-                                <span class="kb-tag-pri kb-pri-<?= $prioCls ?>">
-                                    <i class="bi bi-flag-fill"></i> <?= $prio ?>
-                                </span>
-                            </div>
-
-                            <div class="kb-card-footer">
-                                <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                                    <?php if ($p['idempleado']): ?>
-                                        <?php
-                                        $nombreComp = $p['empleado_nombre'] . ' ' . ($p['empleado_apellidos'] ?? '');
-                                        $empIni = mb_strtoupper(mb_substr($p['empleado_nombre'], 0, 1) . (mb_substr($p['empleado_apellidos'] ?? '', 0, 1)));
-                                        $enDesarrolloReal = (!empty($p['fechainicio']) && $estado === 'en_proceso');
-                                        ?>
-                                        <div class="kb-card-user <?= $enDesarrolloReal ? 'en-desarrollo' : '' ?>">
-                                            <div class="kb-user-avatar-wrapper">
-                                                <span class="kb-user-avatar" title="<?= esc($nombreComp) ?>"><?= $empIni ?></span>
-                                            </div>
-                                            <div class="kb-user-info-col">
-                                                <?php if ($enDesarrolloReal): ?>
-                                                    <span class="kb-badge-developing">
-                                                        <span class="kb-dot-pulse"></span> TRABAJANDO
-                                                    </span>
-                                                <?php endif ?>
-                                                <span class="kb-user-name">
-                                                    <?php
-                                                    $primerApellido = explode(' ', trim($p['empleado_apellidos'] ?? ''))[0];
-                                                    echo esc($p['empleado_nombre'] . ' ' . $primerApellido);
-                                                    ?>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    <?php elseif ($estado !== 'pendiente_sin_asignar'): ?>
-                                        <div class="kb-card-user">
-                                            <div class="kb-user-avatar-wrapper sin-asignar">
-                                                <span class="kb-user-avatar"><i class="bi bi-person-dash"></i></span>
-                                            </div>
-                                            <span class="kb-user-name sin-asignar-text">Pendiente</span>
-                                        </div>
-                                    <?php endif ?>
-                                </div>
-                            </div>
-
-                            <div class="kb-card-actions">
-                                <?php if ($estado === 'pendiente_sin_asignar'): ?>
-                                    <div class="kb-action-group" style="width: 100%; display: flex; gap: 8px;">
-                                        <button class="kb-btn kb-btn-primary" onclick="verDetalle(<?= $p['id'] ?>)"
-                                            style="flex: 1; min-width: 120px;">
-                                            <i class="bi bi-search"></i> REVISAR
-                                        </button>
-                                        <button class="kb-btn kb-btn-danger" onclick="cancelarAtencion(<?= $p['id'] ?>)"
-                                            title="Cancelar Requerimiento" style="width: 40px; flex-shrink: 0;">
-                                            <i class="bi bi-x-lg"></i>
-                                        </button>
-                                    </div>
-                                <?php elseif ($estado === 'en_proceso'): ?>
-                                    <div class="kb-action-group" style="width: 100%; display: flex; gap: 8px;">
-                                        <button class="kb-btn kb-btn-secondary" onclick="verDetalle(<?= $p['id'] ?>)"
-                                            style="flex: 1; min-width: 120px;">
-                                            <i class="bi bi-info-circle"></i> DETALLES
-                                        </button>
-                                    </div>
-                                <?php elseif ($estado === 'en_revision'): ?>
-                                    <div class="kb-action-group">
-                                        <button class="kb-btn kb-btn-view" onclick="verDetalle(<?= $p['id'] ?>)" title="Ver">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                        <button class="kb-btn kb-btn-danger" onclick="solicitarRetroalimentacion(<?= $p['id'] ?>)"
-                                            title="Regresar">
-                                            <i class="bi bi-arrow-counterclockwise"></i>
-                                        </button>
-
-                                        <button class="kb-btn kb-btn-success"
-                                            onclick="cambiarEstado(<?= $p['id'] ?>, 'finalizado', 'Aprobar')" title="Aprobar">
-                                            <i class="bi bi-check-lg"></i> OK
-                                        </button>
-                                    </div>
-                                <?php else: ?>
-                                    <button class="kb-btn kb-btn-info" onclick="verDetalle(<?= $p['id'] ?>)">
-                                        <i class="bi bi-folder-check"></i> EXPEDIENTE
-                                    </button>
-                                <?php endif ?>
-                            </div>
-                        </div>
+                        <?= view('admin/_tarjeta', ['p' => $p, 'estado' => $estado]) ?>
                     <?php endforeach ?>
 
                     <?php if ($estado === 'finalizado'): ?>

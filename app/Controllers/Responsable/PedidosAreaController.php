@@ -13,6 +13,13 @@ use App\Libraries\EmailService;
 
 class PedidosAreaController extends BaseResponsableController
 {
+    protected $pusher;
+
+    public function __construct()
+    {
+        $this->pusher = new \App\Services\PusherService();
+    }
+
     /**
      * Muestra el Dashboard del Responsable con resúmenes estadísticos, 
      * gráficos de carga de trabajo por empleado y métricas de prioridad.
@@ -268,6 +275,7 @@ class PedidosAreaController extends BaseResponsableController
             }
 
             $db->transCommit();
+            $this->pusher->notificarCambioEstado($idAtencion, 'pendiente_asignado');
             return $this->response->setJSON(['success' => true, 'message' => '¡Delegación exitosa! El técnico ha sido notificado en su bandeja.']);
         } catch (\Throwable $e) {
             $db->transRollback();
@@ -371,6 +379,7 @@ class PedidosAreaController extends BaseResponsableController
         if ($db->transStatus() === false)
             return $this->response->setJSON(['success' => false, 'message' => 'Error crítico al intentar guardar los cambios.']);
 
+        $this->pusher->notificarCambioEstado($atencion['id'], $atencion['estado']);
         return $this->response->setJSON(['success' => true, 'message' => '¡Información actualizada! Los cambios serán visibles para el técnico asignado.']);
     }
 
@@ -507,6 +516,8 @@ class PedidosAreaController extends BaseResponsableController
                 log_message('error', 'Error al enviar correo de inicio de trabajo: ' . $e->getMessage());
             }
 
+            $this->pusher->notificarCambioEstado($id, 'en_proceso');
+
             return $this->response->setJSON(['status' => 'success', 'message' => 'Cronómetro iniciado. ¡A trabajar!']);
         }
         return $this->response->setJSON(['status' => 'error', 'message' => 'Error al intentar iniciar el cronómetro.']);
@@ -587,6 +598,7 @@ class PedidosAreaController extends BaseResponsableController
             ]);
 
             $db->transCommit();
+            $this->pusher->notificarCambioEstado($id, 'en_revision');
             return $this->response->setJSON(['status' => 'success', 'message' => '¡Excelente! El pedido ha sido enviado a revisión final por administración.']);
         } catch (\Throwable $e) {
             $db->transRollback();

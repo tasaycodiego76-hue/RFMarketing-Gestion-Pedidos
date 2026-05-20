@@ -11,9 +11,15 @@ use App\Models\RetroalimentacionModel;
 use App\Models\TrackingModel;
 use App\Libraries\EmailService;
 use App\Models\RequerimientoModel;
+use App\Services\PusherService;
 
 class kanban extends Controller
 {
+     private PusherService $pusher;
+       public function __construct()  // ← AGREGA TODO EL CONSTRUCTOR
+    {
+        $this->pusher = new PusherService();
+    }
     public function index($idEmpresa, $idAreaAgencia = null)
     {
         $empresaModel = new EmpresaModel();
@@ -87,6 +93,48 @@ class kanban extends Controller
             'carga_diaria' => $cargaDiaria,
             'atrasados' => $atrasados,
         ]);
+    }
+
+    /**
+     * Retorna el HTML renderizado de una sola tarjeta para actualizaciones en tiempo real (Pusher)
+     */
+    public function tarjetaHTML($idAtencion)
+    {
+        $db = \Config\Database::connect();
+        $p = $db->query("
+            SELECT
+                a.id, a.titulo, a.estado, a.prioridad, a.fechafin, a.num_modificaciones,
+                a.fechainicio, a.fechacreacion, a.fechacompletado, a.idempleado, a.idrequerimiento,
+                a.idarea_agencia,
+                COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
+                r.fecharequerida,
+                r.prioridad AS prioridad_cliente,
+                e.nombreempresa,
+                u.nombre AS empleado_nombre,
+                u.apellidos AS empleado_apellidos,
+                CASE 
+                    WHEN a.servicio_personalizado IS NOT NULL THEN 1 
+                    ELSE 0 
+                END AS es_servicio_personalizado,
+                CAST(a.prioridad AS TEXT) AS prioridad_admin
+            FROM atencion a
+            INNER JOIN requerimiento r ON r.id = a.idrequerimiento
+            INNER JOIN usuarios u_sol ON u_sol.id = r.idusuarioempresa
+            INNER JOIN areas ar ON ar.id = u_sol.idarea
+            INNER JOIN empresas e ON e.id = ar.idempresa
+            LEFT JOIN servicios s ON s.id = a.idservicio
+            LEFT JOIN usuarios u ON u.id = a.idempleado
+            WHERE a.id = ?
+        ", [$idAtencion])->getRowArray();
+
+        if (!$p) return "";
+
+        $estado = $p['estado'];
+        if ($estado === 'pendiente_asignado') {
+            $estado = 'en_proceso'; // Ajuste visual
+        }
+
+        return view('admin/_tarjeta', ['p' => $p, 'estado' => $estado]);
     }
 
     /**
@@ -242,6 +290,9 @@ class kanban extends Controller
             ]);
         }
 
+        $estadoFinal = $esServicioPersonalizado ? 'pendiente_asignado' : $atencion['estado'];
+        $this->pusher->notificarCambioEstado($idAtencion, $estadoFinal);
+
         $msg = $esServicioPersonalizado
             ? 'Servicio personalizado asignado correctamente al área'
             : 'Área asignada';
@@ -282,6 +333,9 @@ class kanban extends Controller
         FROM atencion WHERE id = ?
     ", [$idAtencion, $idUsuario, $idAtencion]);
 
+        // Notificar asignación (mantiene estado)
+        $this->pusher->notificarCambioEstado($idAtencion, 'pendiente_asignado');
+
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Empleado asignado correctamente']);
     }
 
@@ -303,6 +357,8 @@ class kanban extends Controller
         INSERT INTO tracking (idatencion, idusuario, accion, estado)
         VALUES (?, ?, 'Trabajo iniciado por responsable/empleado', 'en_proceso')
     ", [$idAtencion, $idUsuario]);
+
+        $this->pusher->notificarCambioEstado($idAtencion, 'en_proceso');
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Trabajo iniciado correctamente']);
     }
@@ -345,6 +401,7 @@ class kanban extends Controller
             ", [$nuevoEstado, $idAreaAgencia, $idAtencion]);
         } elseif ($nuevoEstado === 'finalizado') {
             $db->query("UPDATE atencion SET estado = ?, fechacompletado = NOW(), observacion_revision = NULL WHERE id = ?", [$nuevoEstado, $idAtencion]);
+            $accion = 'Requerimiento finalizado y entregado con éxito.';
         } else {
             // Si el Admin regresa el pedido, le ponemos un mensaje por defecto para que aparezca en Retroalimentación
             $obs = null;
@@ -400,6 +457,9 @@ class kanban extends Controller
             }
         }
 
+        $this->pusher->notificarCambioEstado($idAtencion, $nuevoEstado);
+
+
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Estado actualizado']);
     }
 
@@ -423,6 +483,7 @@ class kanban extends Controller
             VALUES (?, ?, 'El pedido ha sido cancelado por la Administración. Motivo: ' || ?, 'cancelado')
         ", [$idAtencion, $idAdmin, $motivo]);
 
+
         // Enviar notificación por correo al cliente
         try {
             $atencionModel = new AtencionModel();
@@ -443,6 +504,8 @@ class kanban extends Controller
         } catch (\Throwable $e) {
             log_message('error', 'Error al enviar correo de cancelacion: ' . $e->getMessage());
         }
+
+        $this->pusher->notificarCambioEstado($idAtencion, 'cancelado');
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Solicitud cancelada, El Motivo:' . $motivo . ' Si tienes dudas, contáctanos']);
     }
@@ -505,7 +568,6 @@ class kanban extends Controller
             'fecha' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
         ]);
 
-        // 3. Registrar en tracking
         $trackingModel->insert([
             'idatencion' => $idAtencion,
             'idusuario' => $idAdmin,
@@ -513,6 +575,8 @@ class kanban extends Controller
             'estado' => 'en_proceso',
             'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
         ]);
+        
+        $this->pusher->notificarCambioEstado($idAtencion, 'en_proceso');
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Pedido regresado correctamente con retroalimentación']);
     }
