@@ -205,13 +205,12 @@
                 for(let registration of registrations) { registration.unregister(); }
             });
         }
-
-        // Escuchar canal personal del cliente
-        if (PUSHER_KEY && CLIENTE_ID) {
-            const pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
-            const canal  = pusher.subscribe('cliente-' + CLIENTE_ID);
-
-            canal.bind('solicitud.actualizada', function(data) {
+    </script>
+    <script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
+    <script>
+        // Registrar callback para actualizar pedidos del cliente
+        if (typeof RFPusher !== 'undefined') {
+            RFPusher.on('solicitud.actualizada', function(data) {
                 if (typeof window.cargarPedidos === 'function') {
                     window.cargarPedidos();
                 } else {

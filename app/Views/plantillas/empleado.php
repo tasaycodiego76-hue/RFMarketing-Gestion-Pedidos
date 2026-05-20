@@ -156,6 +156,7 @@
         const PUSHER_CLUSTER = '<?= env('PUSHER_CLUSTER') ?>';
         const PUSHER_CANAL = 'kanban-empleados';
     </script>
+    <script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
     
     <!-- Sistema de Cambio de Tema -->
     <script src="<?= base_url('recursos/scripts/cambiador-tema.js') ?>"></script>

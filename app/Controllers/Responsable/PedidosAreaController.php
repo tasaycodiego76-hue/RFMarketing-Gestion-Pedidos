@@ -19,36 +19,6 @@ class PedidosAreaController extends BaseResponsableController
         $this->pusher = new \App\Services\PusherService();
     }
 
-    private function emitirActualizacion($idAtencion, $estadoNuevo)
-    {
-        try {
-            $db = \Config\Database::connect();
-            $atencion = $db->query("
-                SELECT r.idusuarioempresa, a.idarea_agencia 
-                FROM atencion a 
-                JOIN requerimiento r ON r.id = a.idrequerimiento 
-                WHERE a.id = ?
-            ", [$idAtencion])->getRowArray();
-
-            $clienteId = $atencion['idusuarioempresa'] ?? null;
-            $idAreaAgencia = $atencion['idarea_agencia'] ?? null;
-
-            $data = [
-                'id' => $idAtencion, 
-                'estado_nuevo' => $estadoNuevo,
-                'idarea_agencia' => $idAreaAgencia
-            ];
-            $this->pusher->emitir('kanban-admin',         'solicitud.actualizada', $data);
-            $this->pusher->emitir('kanban-empleados',     'solicitud.actualizada', $data);
-            $this->pusher->emitir('kanban-responsables',  'solicitud.actualizada', $data);
-            if ($clienteId) {
-                $this->pusher->emitir("cliente-{$clienteId}", 'solicitud.actualizada', $data);
-            }
-        } catch (\Exception $e) {
-            log_message('error', 'Pusher error: ' . $e->getMessage());
-        }
-    }
-
     /**
      * Muestra el Dashboard del Responsable con resúmenes estadísticos, 
      * gráficos de carga de trabajo por empleado y métricas de prioridad.
@@ -276,7 +246,7 @@ class PedidosAreaController extends BaseResponsableController
             ]);
 
             $db->transCommit();
-            $this->emitirActualizacion($idAtencion, 'pendiente_asignado');
+            $this->pusher->notificarCambioEstado($idAtencion, 'pendiente_asignado');
             return $this->response->setJSON(['success' => true, 'message' => '¡Delegación exitosa! El técnico ha sido notificado en su bandeja.']);
         } catch (\Throwable $e) {
             $db->transRollback();
@@ -374,7 +344,7 @@ class PedidosAreaController extends BaseResponsableController
         if ($db->transStatus() === false)
             return $this->response->setJSON(['success' => false, 'message' => 'Error crítico al intentar guardar los cambios.']);
 
-        $this->emitirActualizacion($atencion['id'], $atencion['estado']);
+        $this->pusher->notificarCambioEstado($atencion['id'], $atencion['estado']);
         return $this->response->setJSON(['success' => true, 'message' => '¡Información actualizada! Los cambios serán visibles para el técnico asignado.']);
     }
 
@@ -491,7 +461,7 @@ class PedidosAreaController extends BaseResponsableController
                 'estado' => 'en_proceso',
                 'fecha_registro' => $data['fechainicio']
             ]);
-            $this->emitirActualizacion($id, 'en_proceso');
+            $this->pusher->notificarCambioEstado($id, 'en_proceso');
             return $this->response->setJSON(['status' => 'success', 'message' => 'Cronómetro iniciado. ¡A trabajar!']);
         }
         return $this->response->setJSON(['status' => 'error', 'message' => 'Error al intentar iniciar el cronómetro.']);
@@ -572,7 +542,7 @@ class PedidosAreaController extends BaseResponsableController
             ]);
 
             $db->transCommit();
-            $this->emitirActualizacion($id, 'en_revision');
+            $this->pusher->notificarCambioEstado($id, 'en_revision');
             return $this->response->setJSON(['status' => 'success', 'message' => '¡Excelente! El pedido ha sido enviado a revisión final por administración.']);
         } catch (\Throwable $e) {
             $db->transRollback();

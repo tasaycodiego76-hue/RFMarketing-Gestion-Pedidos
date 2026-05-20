@@ -25,6 +25,7 @@
   const AREA_ACTUAL    = <?= $idAreaAgencia ?>;
   const AREA_NOMBRE    = "<?= esc($areaActual['nombre'] ?? '') ?>";
 </script>
+<script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
 <script src="<?= base_url('recursos/scripts/admin/kanban.js') ?>"></script>
 <?= $this->endSection() ?>
 <?= $this->section('contenido') ?>

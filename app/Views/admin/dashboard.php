@@ -187,7 +187,12 @@
 
 <?= $this->section('scripts') ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 <script>
+    const PUSHER_KEY     = '<?= env('PUSHER_KEY') ?>';
+    const PUSHER_CLUSTER = '<?= env('PUSHER_CLUSTER') ?>';
+    const PUSHER_CANAL   = 'kanban-admin';
+
     // Variables globales para Chart.js
     const dataEmpresas = {
         labels: <?= json_encode(array_values(array_map(fn($e) => $e['nombreempresa'], $empresas))) ?>,
@@ -210,6 +215,36 @@
             hoverOffset: 12
         }]
     };
+</script>
+<script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
+<script>
+    if (typeof RFPusher !== 'undefined') {
+        function recargarDashboard() {
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }
+
+        RFPusher.on('solicitud.nueva', function(data) {
+            Swal.fire({
+                icon: 'info',
+                title: `¡Nuevo pedido recibido!`,
+                text: `El pedido #${data.id} - ${data.titulo} ha sido registrado.`,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true,
+                background: '#0a0a0a',
+                color: '#fff'
+            });
+            recargarDashboard();
+        });
+
+        RFPusher.on('solicitud.actualizada', function(data) {
+            recargarDashboard();
+        });
+    }
 </script>
 <script src="<?= base_url('recursos/scripts/admin/dashboard.js') ?>"></script>
 <?= $this->endSection() ?>

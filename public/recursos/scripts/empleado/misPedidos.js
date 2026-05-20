@@ -398,10 +398,7 @@ $(document).ready(function() {
     }
 
     // ── PUSHER: TIEMPO REAL PARA EMPLEADO ──────────────────────────────────────
-    if (typeof PUSHER_KEY !== 'undefined' && typeof Pusher !== 'undefined') {
-        const pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
-        const canal  = pusher.subscribe(PUSHER_CANAL);
-
+    if (typeof RFPusher !== 'undefined') {
         function _actualizarVista() {
             const modalAbierto = $('#modal').hasClass('show');
 
@@ -414,8 +411,8 @@ $(document).ready(function() {
             }
         }
 
-        canal.bind('solicitud.actualizada', _actualizarVista);
-        canal.bind('solicitud.nueva',       _actualizarVista);
+        RFPusher.on('solicitud.actualizada', _actualizarVista);
+        RFPusher.on('solicitud.nueva',       _actualizarVista);
     }
 });
 

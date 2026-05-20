@@ -18,36 +18,6 @@ class MisPedidosController extends BaseController
         $this->pusher = new \App\Services\PusherService();
     }
 
-    private function emitirActualizacion($idAtencion, $estadoNuevo)
-    {
-        try {
-            $db = \Config\Database::connect();
-            $atencion = $db->query("
-                SELECT r.idusuarioempresa, a.idarea_agencia 
-                FROM atencion a 
-                JOIN requerimiento r ON r.id = a.idrequerimiento 
-                WHERE a.id = ?
-            ", [$idAtencion])->getRowArray();
-
-            $clienteId = $atencion['idusuarioempresa'] ?? null;
-            $idAreaAgencia = $atencion['idarea_agencia'] ?? null;
-
-            $data = [
-                'id' => $idAtencion, 
-                'estado_nuevo' => $estadoNuevo,
-                'idarea_agencia' => $idAreaAgencia
-            ];
-            $this->pusher->emitir('kanban-admin',         'solicitud.actualizada', $data);
-            $this->pusher->emitir('kanban-empleados',     'solicitud.actualizada', $data);
-            $this->pusher->emitir('kanban-responsables',  'solicitud.actualizada', $data);
-            if ($clienteId) {
-                $this->pusher->emitir("cliente-{$clienteId}", 'solicitud.actualizada', $data);
-            }
-        } catch (\Exception $e) {
-            log_message('error', 'Pusher error: ' . $e->getMessage());
-        }
-    }
-
     /**
      * Endpoint principal: muestra lista de pedidos del empleado
      */
@@ -236,7 +206,7 @@ class MisPedidosController extends BaseController
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
 
-            $this->emitirActualizacion($id, 'en_proceso');
+            $this->pusher->notificarCambioEstado($id, 'en_proceso');
             return $this->response->setJSON(['status' => 'success', 'message' => '¡Trabajo iniciado correctamente!']);
         }
 
@@ -282,7 +252,7 @@ class MisPedidosController extends BaseController
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
 
-            $this->emitirActualizacion($id, 'en_revision');
+            $this->pusher->notificarCambioEstado($id, 'en_revision');
             return $this->response->setJSON(['status' => 'success', 'message' => '¡Entrega realizada con éxito!']);
         }
 

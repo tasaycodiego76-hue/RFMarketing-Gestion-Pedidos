@@ -250,6 +250,7 @@
             });
         }
     </script>
+    <script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
     <!-- JS de la plantilla -->
     <script src="<?= base_url('recursos/scripts/responsable/plantilla/responsable.js') ?>"></script>
 

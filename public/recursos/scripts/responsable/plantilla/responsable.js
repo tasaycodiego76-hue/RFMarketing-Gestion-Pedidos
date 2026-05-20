@@ -118,10 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // INTEGRACIÓN PUSHER (TIEMPO REAL)
-  if (typeof PUSHER_KEY !== 'undefined' && typeof Pusher !== 'undefined') {
-    const pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
-    const canal = pusher.subscribe(PUSHER_CANAL);
-
+  if (typeof RFPusher !== 'undefined') {
     function recargarVistasResponsable() {
         if (typeof cargarBandeja === 'function') cargarBandeja();
         if (typeof cargarTareas === 'function') cargarTareas();
@@ -129,12 +126,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (typeof cargarTareasEquipo === 'function') cargarTareasEquipo();
     }
 
-    canal.bind('solicitud.nueva', function(data) {
+    RFPusher.on('solicitud.nueva', function(data) {
         recargarVistasResponsable();
         window.mostrarToast(`Nuevo pedido #${data.id} recibido`, 'info');
     });
 
-    canal.bind('solicitud.actualizada', function(data) {
+    RFPusher.on('solicitud.actualizada', function(data) {
         recargarVistasResponsable();
     });
   }

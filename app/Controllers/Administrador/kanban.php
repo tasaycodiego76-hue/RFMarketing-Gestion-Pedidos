@@ -93,36 +93,6 @@ class kanban extends Controller
         ]);
     }
 
-    private function emitirActualizacion($idAtencion, $estadoNuevo)
-    {
-        try {
-            $db = \Config\Database::connect();
-            $atencion = $db->query("
-                SELECT r.idusuarioempresa, a.idarea_agencia 
-                FROM atencion a 
-                JOIN requerimiento r ON r.id = a.idrequerimiento 
-                WHERE a.id = ?
-            ", [$idAtencion])->getRowArray();
-
-            $clienteId = $atencion['idusuarioempresa'] ?? null;
-            $idAreaAgencia = $atencion['idarea_agencia'] ?? null;
-
-            $data = [
-                'id' => $idAtencion, 
-                'estado_nuevo' => $estadoNuevo,
-                'idarea_agencia' => $idAreaAgencia
-            ];
-            $this->pusher->emitir('kanban-admin',         'solicitud.actualizada', $data);
-            $this->pusher->emitir('kanban-empleados',     'solicitud.actualizada', $data);
-            $this->pusher->emitir('kanban-responsables',  'solicitud.actualizada', $data);
-            if ($clienteId) {
-                $this->pusher->emitir("cliente-{$clienteId}", 'solicitud.actualizada', $data);
-            }
-        } catch (\Exception $e) {
-            log_message('error', 'Pusher error: ' . $e->getMessage());
-        }
-    }
-
     /**
      * Retorna el HTML renderizado de una sola tarjeta para actualizaciones en tiempo real (Pusher)
      */
@@ -319,7 +289,7 @@ class kanban extends Controller
         }
 
         $estadoFinal = $esServicioPersonalizado ? 'pendiente_asignado' : $atencion['estado'];
-        $this->emitirActualizacion($idAtencion, $estadoFinal);
+        $this->pusher->notificarCambioEstado($idAtencion, $estadoFinal);
 
         $msg = $esServicioPersonalizado
             ? 'Servicio personalizado asignado correctamente al área'
@@ -362,7 +332,7 @@ class kanban extends Controller
     ", [$idAtencion, $idUsuario, $idAtencion]);
 
         // Notificar asignación (mantiene estado)
-        $this->emitirActualizacion($idAtencion, 'pendiente_asignado');
+        $this->pusher->notificarCambioEstado($idAtencion, 'pendiente_asignado');
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Empleado asignado correctamente']);
     }
@@ -386,7 +356,7 @@ class kanban extends Controller
         VALUES (?, ?, 'Trabajo iniciado por responsable/empleado', 'en_proceso')
     ", [$idAtencion, $idUsuario]);
 
-        $this->emitirActualizacion($idAtencion, 'en_proceso');
+        $this->pusher->notificarCambioEstado($idAtencion, 'en_proceso');
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Trabajo iniciado correctamente']);
     }
@@ -457,7 +427,7 @@ class kanban extends Controller
             VALUES (?, ?, ?, ?)
         ", [$idAtencion, $idAdmin, $accion, $nuevoEstado]);
 
-        $this->emitirActualizacion($idAtencion, $nuevoEstado);
+        $this->pusher->notificarCambioEstado($idAtencion, $nuevoEstado);
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Estado actualizado']);
     }
@@ -482,7 +452,7 @@ class kanban extends Controller
             VALUES (?, ?, 'El pedido ha sido cancelado por la Administración. Motivo: ' || ?, 'cancelado')
         ", [$idAtencion, $idAdmin, $motivo]);
 
-        $this->emitirActualizacion($idAtencion, 'cancelado');
+        $this->pusher->notificarCambioEstado($idAtencion, 'cancelado');
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Solicitud cancelada, El Motivo:' . $motivo . ' Si tienes dudas, contáctanos']);
     }
@@ -553,7 +523,7 @@ class kanban extends Controller
             'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
         ]);
         
-        $this->emitirActualizacion($idAtencion, 'en_proceso');
+        $this->pusher->notificarCambioEstado($idAtencion, 'en_proceso');
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Pedido regresado correctamente con retroalimentación']);
     }

@@ -285,19 +285,14 @@ class RequerimientoController extends BaseClienteController
             }
 
             $pusher = new \App\Services\PusherService();
-            $pusherData = [
-                'id'             => $idAtn,
+            $pusher->notificarNuevaSolicitud($idAtn, [
                 'titulo'         => $dataReq['titulo'],
                 'cliente'        => $auth['user']['nombre'] . ' ' . ($auth['user']['apellidos'] ?? ''),
                 'empresa'        => $empresaNombre,
                 'servicio'       => $servicioNombre,
                 'fecharequerida' => $dataReq['fecharequerida'],
                 'prioridad'      => $dataReq['prioridad']
-            ];
-
-            $pusher->emitir('kanban-admin',        'solicitud.nueva', $pusherData);
-            $pusher->emitir('kanban-responsables', 'solicitud.nueva', $pusherData);
-            $pusher->emitir('kanban-empleados',    'solicitud.nueva', $pusherData);
+            ]);
 
         } catch (\Exception $e) {
             log_message('error', 'Pusher error en guardar: ' . $e->getMessage());

@@ -769,10 +769,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // ═══ PUSHER — TIEMPO REAL            ══
 // ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  if (typeof PUSHER_KEY === 'undefined') return;
-
-  const pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
-  const canal = pusher.subscribe(PUSHER_CANAL);
+  if (typeof RFPusher === 'undefined') return;
 
   async function _getTarjetaHTML(id) {
     const res = await fetch(BASE_URL + 'admin/kanban/tarjetaHTML/' + id);
@@ -780,7 +777,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Nueva solicitud → columna Nuevas Solicitudes en tiempo real
-  canal.bind('solicitud.nueva', async function (data) {
+  RFPusher.on('solicitud.nueva', async function (data) {
     const columna = document.querySelector('.kb-col-body[data-estado="pendiente_sin_asignar"]');
     if (!columna) return;
 
@@ -808,7 +805,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Cambio de estado → mueve la tarjeta a la columna correcta en tiempo real
-  canal.bind('solicitud.actualizada', async function (data) {
+  RFPusher.on('solicitud.actualizada', async function (data) {
     const tarjeta = document.querySelector(`.kb-card[data-id="${data.id}"]`);
 
     let estadoDestino = data.estado_nuevo;
