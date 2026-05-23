@@ -115,21 +115,17 @@
                     </a>
             </ul>
 
-            <p class="nav-section-label">SESIÓN</p>
-            <ul>
-                <li>
-                    <a href="<?= base_url('auth/logout') ?>" class="nav-link-item logout-link">
-                        <span class="nav-icon"><i class="bi bi-box-arrow-right"></i></span>
-                        <span class="nav-text">Cerrar Sesión</span>
-                    </a>
-                </li>
-            </ul>
         </nav>
-
+        
         <!-- Footer del sidebar -->
         <div class="sidebar-footer">
-            <span>RF MARKETING SAC</span>
-            <span>v1.0</span>
+            <a href="<?= base_url('auth/logout') ?>" class="logout-link">
+                <i class="bi bi-box-arrow-left"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+            <div class="version-info">
+                <span>RF MARKETING</span>
+            </div>
         </div>
     </aside>
 
@@ -213,9 +209,44 @@
     </script>
     <script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
     <script>
+        // Función para actualizar contador de notificaciones
+        async function actualizarNotificaciones() {
+            try {
+                const response = await fetch('<?= base_url('cliente/notificaciones/contar') ?>');
+                const data = await response.json();
+                
+                // Actualizar badge del sidebar
+                const sidebarBadge = document.querySelector('.nav-badge.notif');
+                if (sidebarBadge) {
+                    if (data.total > 0) {
+                        sidebarBadge.textContent = data.total;
+                        sidebarBadge.style.display = 'inline-block';
+                    } else {
+                        sidebarBadge.style.display = 'none';
+                    }
+                }
+                
+                // Actualizar dot del topbar
+                const topbarDot = document.querySelector('.notif-dot');
+                if (topbarDot) {
+                    if (data.total > 0) {
+                        topbarDot.style.display = 'inline-block';
+                    } else {
+                        topbarDot.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error actualizando notificaciones:', error);
+            }
+        }
+
         // Registrar callback para actualizar pedidos del cliente
         if (typeof RFPusher !== 'undefined') {
             RFPusher.on('solicitud.actualizada', function(data) {
+                // Actualizar contador de notificaciones
+                actualizarNotificaciones();
+                
+                // Recargar pedidos si estamos en la página de mis solicitudes
                 if (typeof window.cargarPedidos === 'function') {
                     window.cargarPedidos();
                 } else {

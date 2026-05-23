@@ -275,6 +275,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Hacer la función global para que Pusher pueda llamarla
+  window.cargarPedidos = obtenerPedidos;
+
   /* FORMULARIO WIZARD */
   // Función que calcula qué fecha es permitida según los días de trabajo (ignora Sábados y Domingos).
   const calcularFechaMinima = (dias) => {

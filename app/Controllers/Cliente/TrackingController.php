@@ -178,4 +178,25 @@ class TrackingController extends BaseClienteController
             'data' => $data
         ]);
     }
+
+    /**
+     * Endpoint API: Cuenta las notificaciones no leídas del cliente.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function contar()
+    {
+        // Validación rápida de sesión
+        $auth = $this->ValidarSesion_DatosUser();
+        if (!$auth['ok']) {
+            return $this->response->setJSON(['status' => 'ERROR', 'mensaje' => $auth['message']])->setStatusCode(401);
+        }
+
+        $model = new TrackingModel();
+        $total = $model->countNotificacionesRecientes($auth['user']['id']);
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'total' => $total
+        ]);
+    }
 }

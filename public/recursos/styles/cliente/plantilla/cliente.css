@@ -411,19 +411,42 @@ ul {
 
 /* Pie del sidebar */
 .sidebar-footer {
+  padding: 12px 18px;
+  border-top: 1px solid var(--border-color);
+}
+
+.logout-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: 0;
+  transition: var(--transition);
+  margin-bottom: 8px;
+}
+
+.logout-link:hover {
+  background: transparent;
+  color: var(--danger);
+}
+
+.version-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 20px;
-  border-top: 1px solid var(--sb-border);
-  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 0;
 }
 
-.sidebar-footer span {
-  font-size: 11px;
+.rol-tag {
+  background: var(--accent-primary);
+  color: #000;
+  padding: 2px 8px;
+  border-radius: 3px;
   font-weight: 600;
-  letter-spacing: 2px;
-  color: var(--sb-text-3);
 }
 
 /* TOPBAR */

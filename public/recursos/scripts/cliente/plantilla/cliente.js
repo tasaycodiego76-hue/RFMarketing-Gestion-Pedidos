@@ -75,7 +75,7 @@ if (sidebarCloseBtn) {
 
 // Confirmación de cierre de sesión
 document.addEventListener("DOMContentLoaded", function() {
-  const logoutBtn = document.querySelector(".logout-btn");
+  const logoutBtn = document.querySelector(".logout-link");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", function (e) {
       e.preventDefault();

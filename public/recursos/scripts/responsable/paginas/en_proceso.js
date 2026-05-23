@@ -833,60 +833,87 @@ function obtenerIniciales(nombre) {
 /*  ACCIONES DE ENTREGABLE */
 
 /**
- * Abre el formulario (SweetAlert) para que el diseñador envíe su trabajo final (link o archivos).
+ * Abre el modal de Bootstrap para que el diseñador envíe su trabajo final (link o archivos).
  * @param {number|string} idAtencion - ID de la atención a entregar.
  */
 function abrirModalEntregar(idAtencion) {
-  Swal.fire({
-    title: '<i class="bi bi-cloud-arrow-up mr-2" style="color:#F5C400;"></i> <span style="font-family:\'Bebas Neue\'; letter-spacing:1px; font-size:24px;">REALIZAR ENTREGA</span>',
-    html: `
-      <div class="text-start" style="font-family: 'Inter', sans-serif;">
-        <div class="mb-3">
-          <label class="form-label text-white-50 text-uppercase fw-bold ep-swal-label">Link del Entregable</label>
-          <input type="text" id="swal-url-entrega" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Google Drive, Canva, Figma...">
-        </div>
-        <div class="mb-3">
-          <label class="form-label text-white-50 text-uppercase fw-bold ep-swal-label">Subir Archivos (Opcional)</label>
-          <input type="file" id="swal-archivos-entrega" class="form-control form-control-sm bg-dark text-white border-secondary" multiple>
-        </div>
-        <div class="mb-3">
-          <label class="form-label text-white-50 text-uppercase fw-bold ep-swal-label">Notas adicionales</label>
-          <textarea id="swal-notas-entrega" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Escribe aquí algún detalle..." rows="3"></textarea>
-        </div>
-      </div>`,
-    background: "#0a0a0a",
-    color: "#fff",
-    showCancelButton: true,
-    confirmButtonText: "ENVIAR ENTREGA",
-    cancelButtonText: "CANCELAR",
-    confirmButtonColor: "#22c55e",
-    cancelButtonColor: "#333",
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    preConfirm: () => {
-      const url = document.getElementById("swal-url-entrega").value;
-      const files = document.getElementById("swal-archivos-entrega").files;
-      const notas = document.getElementById("swal-notas-entrega").value;
+  // Limpiar el formulario
+  document.getElementById('entrega-idatencion').value = idAtencion;
+  document.getElementById('entrega-url').value = '';
+  document.getElementById('entrega-archivos').value = '';
+  document.getElementById('entrega-notas').value = '';
+  document.getElementById('lista-archivos-entrega').innerHTML = '';
 
-      if (url) {
-        if (!/^(https?:\/\/)/i.test(url)) {
-          Swal.showValidationMessage("El enlace debe comenzar con http:// o https://");
-          return false;
-        }
-      }
+  // Abrir el modal de Bootstrap
+  const modalElement = document.getElementById('modal-entregar');
+  const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+  modal.show();
+}
 
-      if (!url && files.length === 0) {
-        Swal.showValidationMessage("Proporciona un enlace o adjunta archivos de tu trabajo.");
-        return false;
-      }
+// Variable global para guardar los datos de la entrega temporalmente
+let entregaTemporal = null;
 
-      return { url, files, notas };
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      ejecutarEntrega(idAtencion, result.value);
+function confirmarEntregaResponsable() {
+  const idAtencion = document.getElementById('entrega-idatencion').value;
+  const url = document.getElementById('entrega-url').value;
+  const files = document.getElementById('entrega-archivos').files;
+  const notas = document.getElementById('entrega-notas').value;
+
+  // Validaciones
+  if (url) {
+    if (!/^(https?:\/\/)/i.test(url)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'URL Inválida',
+        text: 'El enlace debe comenzar con http:// o https://',
+        background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#161616",
+        color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
+      });
+      return;
     }
-  });
+  }
+
+  if (!url && files.length === 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Falta información',
+      text: 'Por favor, proporciona un enlace o adjunta los archivos de tu trabajo.',
+      background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#161616",
+      color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff",
+    });
+    return;
+  }
+
+  // Guardar datos temporalmente
+  entregaTemporal = { idAtencion, url, files, notas };
+
+  // Cerrar el modal de entrega
+  const modalElement = document.getElementById('modal-entregar');
+  const modal = bootstrap.Modal.getInstance(modalElement);
+  if (modal) {
+    modal.hide();
+  }
+
+  // Abrir el modal de confirmación de Bootstrap
+  const confirmModalElement = document.getElementById('modal-confirmar-entrega');
+  const confirmModal = bootstrap.Modal.getOrCreateInstance(confirmModalElement);
+  confirmModal.show();
+}
+
+function ejecutarEntregaConfirmada() {
+  if (!entregaTemporal) return;
+
+  const { idAtencion, url, files, notas } = entregaTemporal;
+
+  // Cerrar el modal de confirmación
+  const confirmModalElement = document.getElementById('modal-confirmar-entrega');
+  const confirmModal = bootstrap.Modal.getInstance(confirmModalElement);
+  if (confirmModal) {
+    confirmModal.hide();
+  }
+
+  ejecutarEntrega(idAtencion, { url, files, notas });
+  entregaTemporal = null;
 }
 
 function ejecutarEntrega(idAtencion, data) {
@@ -901,12 +928,18 @@ function ejecutarEntrega(idAtencion, data) {
   const esClaro = document.documentElement.getAttribute("data-theme") === "light";
   Swal.fire({
     title: "Enviando entrega...",
-    didOpen: () => {
-      Swal.showLoading();
-    },
+    html: `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;padding:20px 0;">
+        <div style="width:50px;height:50px;border:3px solid #f5c400;border-top:3px solid transparent;border-radius:50%;animation:spin 1s linear infinite;"></div>
+        <span style="color:${esClaro ? '#000' : '#fff'};font-size:14px;">Procesando tu entrega...</span>
+      </div>
+      <style>@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}</style>
+    `,
     background: esClaro ? "#fff" : "#161616",
     color: esClaro ? "#000" : "#fff",
     allowOutsideClick: false,
+    showConfirmButton: false,
+    showCancelButton: false,
   });
 
   fetch(`${window.base_url}responsable/pedido-entregar/${idAtencion}`, {
@@ -916,10 +949,9 @@ function ejecutarEntrega(idAtencion, data) {
     .then((r) => r.json())
     .then((res) => {
       if (res.status === "success") {
-        const esClaro = document.documentElement.getAttribute("data-theme") === "light";
         Swal.fire({
           icon: "success",
-          title: "¡Éxito!",
+          title: "¡Entrega enviada!",
           text: res.message,
           background: esClaro ? "#fff" : "#161616",
           color: esClaro ? "#000" : "#fff",
@@ -930,7 +962,6 @@ function ejecutarEntrega(idAtencion, data) {
           location.reload();
         });
       } else {
-        const esClaro = document.documentElement.getAttribute("data-theme") === "light";
         Swal.fire({
           icon: "error",
           title: "Error",
@@ -939,21 +970,18 @@ function ejecutarEntrega(idAtencion, data) {
           color: esClaro ? "#000" : "#fff",
           confirmButtonColor: "#f5c400",
           allowOutsideClick: false,
-          allowEscapeKey: false,
         });
       }
     })
-    .catch(() => {
-      const esClaro = document.documentElement.getAttribute("data-theme") === "light";
+    .catch((err) => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Error de conexión al servidor",
+        text: "No se pudo conectar con el servidor",
         background: esClaro ? "#fff" : "#161616",
         color: esClaro ? "#000" : "#fff",
         confirmButtonColor: "#f5c400",
         allowOutsideClick: false,
-        allowEscapeKey: false,
       });
     });
 }

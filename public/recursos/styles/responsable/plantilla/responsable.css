@@ -123,11 +123,9 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 8px;
-  background: linear-gradient(
-    135deg,
-    var(--accent-primary),
-    var(--accent-secondary)
-  );
+  background: linear-gradient(135deg,
+      var(--accent-primary),
+      var(--accent-secondary));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -343,7 +341,7 @@ body {
   gap: 16px;
 }
 
-/* BotÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â³n hamburguesa */
+/*  hamburguesa */
 .hamburger-btn {
   width: 32px;
   height: 32px;
@@ -512,11 +510,9 @@ body {
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  background: linear-gradient(
-    135deg,
-    var(--accent-primary),
-    var(--accent-secondary)
-  );
+  background: linear-gradient(135deg,
+      var(--accent-primary),
+      var(--accent-secondary));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -939,10 +935,8 @@ body {
   background: #444;
 }
 
-/* =====================================================
-   RESPONSABLE  MOBILE RESPONSIVE OVERRIDES
-   Aplica a todas las  del  Responsable
-   ===================================================== */
+/* RESPONSABLE  MOBILE RESPONSIVE OVERRIDES
+   Aplica a todas las  del  Responsable */
 
 /*  TOPBAR  */
 @media (max-width: 768px) {
@@ -1074,10 +1068,12 @@ body {
     flex-direction: column !important;
     gap: 10px !important;
     padding: 12px !important;
-   align-items: flex-start !important;}
+    align-items: flex-start !important;
+  }
 
   .buscador-wrap-responsable {
-    max-width: 100% !important; width: 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
   }
 
   .input-buscar-responsable {
@@ -1139,6 +1135,7 @@ body {
 
 /*  MODALES GENERALES (todos los modales)  */
 @media (max-width: 768px) {
+
   /* Modal de Detalle */
   #modal-ver-detalle .modal-dialog {
     max-width: 98vw !important;
@@ -1555,7 +1552,7 @@ body {
 
 /*  EN PROCESO: SIDEBAR DE DETALLE  */
 @media (max-width: 768px) {
-  .ep-sidebar > div {
+  .ep-sidebar>div {
     padding: 14px !important;
     border-radius: 14px !important;
   }
@@ -1708,6 +1705,7 @@ body {
 
 /*  BADGES RESPONSIVE  */
 @media (max-width: 768px) {
+
   .badge-type,
   .badge-priority {
     font-size: 11px !important;
@@ -1737,7 +1735,14 @@ body {
   }
 
   .case-badge {
-    padding:  8px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex: 1 !important; text-align: center !important; white-space: normal !important; height: 100% !important;
+    padding: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 1 !important;
+    text-align: center !important;
+    white-space: normal !important;
+    height: 100% !important;
     font-size: 12px !important;
   }
 
@@ -1887,12 +1892,19 @@ body {
     font-size: 12px !important;
   }
 
-  .case-expediente { padding: 0px !important; gap: 12px !important; }
-  .case-value-box { padding: 10px !important; }
+  .case-expediente {
+    padding: 0px !important;
+    gap: 12px !important;
+  }
+
+  .case-value-box {
+    padding: 10px !important;
+  }
 }
 
 /* === BALANCED RESPONSIVE MOBILE MODALS === */
 @media (max-width: 768px) {
+
   /* Modales amplios pero conservando mrgenes para que parezcan modales */
   .modal-dialog {
     max-width: 94vw !important;
@@ -1900,17 +1912,20 @@ body {
     margin: 16px auto !important;
     min-height: auto !important;
   }
-  .modal-content, .modal-rf {
+
+  .modal-content,
+  .modal-rf {
     border-radius: 20px !important;
     min-height: auto !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
   }
-  
+
   /* Cajas interiores ms fluidas para evitar que el contenido se vea "aplastado" */
-  .modal-body, .modal-rf-body {
+  .modal-body,
+  .modal-rf-body {
     padding: 16px !important;
   }
-  
+
   #modal-ver-detalle .case-card,
   .modal-detalle-body .case-card {
     padding: 14px 12px !important;
@@ -1927,6 +1942,7 @@ body {
     gap: 8px !important;
     align-items: stretch !important;
   }
+
   .case-badge {
     flex: 1 1 0px !important;
     display: flex !important;
@@ -1940,10 +1956,13 @@ body {
     line-height: 1.2 !important;
     font-size: 11px !important;
   }
-}/* === FIX EN PROCESO TAREAS (MOBILE LAYOUT) === */
+}
+
+/* === FIX EN PROCESO TAREAS (MOBILE LAYOUT) === */
 @media (max-width: 768px) {
+
   /* Apilar info y botn verticalmente dentro de cada tarea */
-  .tarea-item > .justify-content-between {
+  .tarea-item>.justify-content-between {
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 12px !important;
@@ -1974,12 +1993,12 @@ body {
     display: flex !important;
     align-items: center !important;
   }
-  
+
   /* Alinear el badge y el ttulo correctamente en caso de salto de lnea */
   .tarea-item .d-flex.align-items-center.gap-2 {
     align-items: flex-start !important;
   }
-  
+
   .tarea-item .badge-prio {
     margin-top: 2px !important;
   }
@@ -1987,26 +2006,29 @@ body {
 
 /* === FIX: TAMAO Y ESPACIADO DE METRICAS (STAT CARDS EN MODO CLARO Y OSCURO) === */
 @media (max-width: 768px) {
+
   .stat-card,
   [data-theme="light"] .stat-card,
   [data-theme="dark"] .stat-card {
     border-radius: 12px !important;
     padding: 16px !important;
-    margin-bottom: 14px !important; /* Espacio entre secciones mtricas */
+    margin-bottom: 14px !important;
+    /* Espacio entre secciones mtricas */
   }
-  
+
   .stat-value,
   [data-theme="light"] .stat-value,
   [data-theme="dark"] .stat-value {
-    font-size: 1.8rem !important; /* Tamao unificado y ms pequeo */
+    font-size: 1.8rem !important;
+    /* Tamao unificado y ms pequeo */
   }
-  
+
   .stat-label,
   [data-theme="light"] .stat-label,
   [data-theme="dark"] .stat-label {
     font-size: 0.75rem !important;
   }
-  
+
   .stat-icon,
   [data-theme="light"] .stat-icon,
   [data-theme="dark"] .stat-icon {
@@ -2014,13 +2036,13 @@ body {
     height: 45px !important;
     border-radius: 12px !important;
   }
-  
+
   .stat-icon i,
   [data-theme="light"] .stat-icon i,
   [data-theme="dark"] .stat-icon i {
     font-size: 1.2rem !important;
   }
-  
+
   /* Incrementar el espacio inferior del grupo de mtricas */
   .row.mb-4 {
     margin-bottom: 24px !important;
@@ -2029,57 +2051,66 @@ body {
 
 /* HOMOLOGACIN MODALES BANDEJA A DISEO PREMIUM (EN PROCESO) */
 .modal-rf {
-    background: #111 !important;
-    border: 1px solid #2a2a2a !important;
-    color: #fff !important;
-    border-radius: 20px !important;
-    overflow: hidden !important;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8) !important;
+  background: #111 !important;
+  border: 1px solid #2a2a2a !important;
+  color: #fff !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8) !important;
 }
 
 .modal-rf-header {
-    background: linear-gradient(90deg, #161616 0%, #111 100%) !important;
-    border-bottom: 1px solid #2a2a2a !important;
-    padding: 20px 28px !important;
+  background: linear-gradient(90deg, #161616 0%, #111 100%) !important;
+  border-bottom: 1px solid #2a2a2a !important;
+  padding: 20px 28px !important;
 }
 
 .modal-rf-header .modal-title {
-    font-size: 18px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.5px !important;
-    color: #f5c400 !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  color: #f5c400 !important;
 }
 
 .modal-rf-body {
-    padding: 35px 40px !important;
-    background: #111 !important;
+  padding: 35px 40px !important;
+  background: #111 !important;
 }
 
 .modal-rf .modal-footer {
-    background: #161616 !important;
-    border-top: 1px solid #2a2a2a !important;
-    padding: 12px 24px !important;
+  background: #161616 !important;
+  border-top: 1px solid #2a2a2a !important;
+  padding: 12px 24px !important;
 }
 
 /* Modales ocupando TODO y sin padding excesivo en mvil */
 @media (max-width: 768px) {
-    .modal-dialog {
-        max-width: 100vw !important;
-        width: 100vw !important;
-        margin: 0 !important;
-        min-height: 100vh !important;
-    }
-    .modal-content, .modal-rf, .modal-detalle-content {
-        border-radius: 0 !important;
-        min-height: 100vh !important;
-        border: none !important;
-    }
-    .modal-body, .modal-rf-body, .modal-detalle-body {
-        padding: 16px 12px !important;
-    }
-    .modal-header, .modal-rf-header, .modal-detalle-header {
-        padding: 16px 12px !important;
-    }
+  .modal-dialog {
+    max-width: 100vw !important;
+    width: 100vw !important;
+    margin: 0 !important;
+    min-height: 100vh !important;
+  }
+
+  .modal-content,
+  .modal-rf,
+  .modal-detalle-content {
+    border-radius: 0 !important;
+    min-height: 100vh !important;
+    border: none !important;
+  }
+
+  .modal-body,
+  .modal-rf-body,
+  .modal-detalle-body {
+    padding: 16px 12px !important;
+  }
+
+  .modal-header,
+  .modal-rf-header,
+  .modal-detalle-header {
+    padding: 16px 12px !important;
+  }
 }
 
 /* UNIFICACION TOTAL DE MODALES - OSCURO Y CLARO                */
@@ -2092,7 +2123,7 @@ body {
   background: #111111 !important;
   border: 1px solid #262626 !important;
   border-radius: 20px !important;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.5) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5) !important;
   overflow: hidden !important;
   color: #f0f0f0 !important;
 }
@@ -2148,7 +2179,7 @@ body {
 
 /* === SECCIONES INTERNAS (kd-sec) UNIFICADAS === */
 .kd-sec {
-  background: rgba(255,255,255,0.03) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
   border: 1px solid #222222 !important;
   border-left: 4px solid #f5c400 !important;
   border-radius: 12px !important;
@@ -2160,7 +2191,7 @@ body {
 
 .kd-sec:hover {
   transform: none !important;
-  background: rgba(255,255,255,0.05) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
   border-left-color: #f5c400 !important;
 }
 
@@ -2198,7 +2229,7 @@ body {
   background: #f4f2ed !important;
   border: 1px solid #d8d5cf !important;
   border-radius: 20px !important;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.12) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12) !important;
   color: #111111 !important;
 }
 
@@ -2239,7 +2270,7 @@ body {
   border: 1px solid #e0dcd5 !important;
   border-left: 4px solid #f5c400 !important;
   border-radius: 12px !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
 
 [data-theme="light"] .kd-sec:hover {
@@ -2280,13 +2311,14 @@ body {
 
 /* === MOBILE RESPONSIVE PARA TODOS LOS MODALES === */
 @media (max-width: 768px) {
+
   .modal-historial-content,
   .modal-detalle-content,
   .modal-rf {
     border-radius: 0 !important;
     min-height: 100vh !important;
   }
-  
+
   .modal-body-historial,
   .modal-detalle-body,
   .modal-rf-body {
@@ -2313,7 +2345,7 @@ body {
 
 /*  HISTORIAL: archivos adjuntos unificados === */
 .archivo-entrega-item {
-  background: rgba(255,255,255,0.04) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid #f5c40033 !important;
   border-radius: 10px !important;
   padding: 10px 14px !important;
@@ -2324,15 +2356,18 @@ body {
   gap: 10px !important;
   transition: all 0.2s !important;
 }
+
 .archivo-entrega-item:hover {
   border-color: #f5c400 !important;
-  background: rgba(245,196,0,0.06) !important;
+  background: rgba(245, 196, 0, 0.06) !important;
 }
+
 .archivo-entrega-icon {
   color: #f5c400 !important;
   font-size: 18px !important;
   flex-shrink: 0 !important;
 }
+
 .archivo-entrega-name {
   font-size: 13px !important;
   font-weight: 500 !important;
@@ -2348,31 +2383,37 @@ body {
   border: 1px solid #f5c40055 !important;
   color: #111111 !important;
 }
+
 [data-theme="light"] .archivo-entrega-item:hover {
   border-color: #f5c400 !important;
   background: #fffbeb !important;
 }
+
 [data-theme="light"] .archivo-entrega-icon {
   color: #c4950a !important;
 }
 
 /*  TIMELINE unificado  */
 .timeline-panel {
-  background: rgba(255,255,255,0.02) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
   border: 1px solid #222 !important;
   border-radius: 12px !important;
   padding: 18px !important;
 }
+
 [data-theme="light"] .timeline-panel {
   background: #ffffff !important;
   border-color: #e0dcd5 !important;
 }
+
 [data-theme="light"] .timeline-entry {
   border-left-color: #e0dcd5 !important;
 }
+
 [data-theme="light"] .timeline-action {
   color: #111 !important;
 }
+
 [data-theme="light"] .timeline-date {
   color: #6b7280 !important;
 }
@@ -2381,6 +2422,7 @@ body {
 .modal {
   z-index: 2000 !important;
 }
+
 .modal-backdrop {
   z-index: 1990 !important;
 }
@@ -2405,7 +2447,10 @@ body {
   overflow: hidden !important;
 }
 
-.modal-body, .modal-rf-body, .modal-detalle-body, .modal-body-historial {
+.modal-body,
+.modal-rf-body,
+.modal-detalle-body,
+.modal-body-historial {
   flex: 1 1 auto !important;
   overflow-y: auto !important;
 }

@@ -1134,6 +1134,29 @@
   border-top-color: #e0dcd5 !important;
 }
 
+/* SIDEBAR FOOTER - TEMA CLARO */
+[data-theme="light"] .sidebar-footer {
+    border-color: #1a1a1a !important;
+}
+
+[data-theme="light"] .logout-link {
+    color: #d1d1d6 !important;
+}
+
+[data-theme="light"] .logout-link:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #fff !important;
+}
+
+[data-theme="light"] .version-info {
+    color: #888 !important;
+}
+
+[data-theme="light"] .rol-tag {
+    background: var(--accent-primary) !important;
+    color: #000 !important;
+}
+
 /* Autofill box */
 [data-theme="light"] .autofill {
   background: #f0ece5;

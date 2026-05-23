@@ -162,6 +162,27 @@
     </div>
 </div>
 
+<!-- Modal de confirmación de entrega -->
+<div class="modal fade" id="modal-confirmar-entrega" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: #161616; border: 1px solid #333; color: #ccc; border-radius: 20px;">
+            <div class="modal-header" style="background: linear-gradient(90deg, #141414 0%, #111 100%); border-bottom: 1px solid #222; padding: 20px 28px;">
+                <h5 class="modal-title" style="font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1.5px; color: #f5c400;">
+                    <i class="bi bi-question-circle me-2"></i>CONFIRMAR ENTREGA
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p style="color: #ccc; font-size: 16px;">¿Estás seguro de que deseas enviar esta entrega? Asegúrate de que todos los datos sean correctos.</p>
+            </div>
+            <div class="modal-footer d-flex justify-content-end gap-2" style="background: #111; border-top: 1px solid #222; padding: 15px 20px;">
+                <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal" style="background: #333; border: 1px solid #444; color: #fff; padding: 8px 24px; border-radius: 8px;">CANCELAR</button>
+                <button type="button" class="btn btn-primary fw-bold" onclick="ejecutarEntregaConfirmada()" style="background: #f5c400; border: none; color: #000; padding: 8px 24px; border-radius: 8px;">CONFIRMAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Input oculto para guardar el ID de la tarea en curso -->
 <input type="hidden" id="reasignar-idatencion" value="">
 <input type="hidden" id="reasignar-idempleado-actual" value="">

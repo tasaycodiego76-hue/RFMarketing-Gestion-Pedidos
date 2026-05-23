@@ -109,6 +109,7 @@ $routes->group('responsable', ['filter' => 'auth'], function ($routes) {
     // SEGUIMIENTO Y RETROALIMENTACIÓN
     $routes->get('historial', 'Responsable\GestionController::historial');
     $routes->get('retroalimentacion', 'Responsable\GestionController::retroalimentacion');
+    $routes->get('notificaciones/contar', 'Responsable\PedidosAreaController::contarNotificaciones');
 
     // RECURSOS
     $routes->get('archivos/vista-previa/(:num)', 'Responsable\PedidosAreaController::vistaPrevia/$1');
@@ -151,6 +152,7 @@ $routes->group('cliente', ['filter' => 'auth'], function ($routes) {
     $routes->get('seguimiento/(:num)', 'Cliente\TrackingController::vistaSeguimiento/$1');
     // Datos (JSON)
     $routes->get('notificaciones-json', 'Cliente\TrackingController::notificacionesJson');
+    $routes->get('notificaciones/contar', 'Cliente\TrackingController::contar');
     $routes->get('requerimiento/seguimiento/(:num)', 'Cliente\TrackingController::seguimiento/$1');
 
     // HISTORIAL (pedidos finalizados)

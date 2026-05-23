@@ -175,7 +175,7 @@
                 <span>Cerrar Sesión</span>
             </a>
             <div class="version-info">
-                <span>RF Marketing v1.0</span>
+                <span>RF MARKETING</span>
                 <span class="rol-tag">RESPONSABLE</span>
             </div>
         </div>
@@ -242,7 +242,6 @@
         const PUSHER_KEY = '<?= env('PUSHER_KEY') ?>';
         const PUSHER_CLUSTER = '<?= env('PUSHER_CLUSTER') ?>';
         const PUSHER_CANAL = 'kanban-responsables';
-       
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
@@ -251,6 +250,97 @@
         }
     </script>
     <script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
+    <script>
+        // Función para actualizar contadores de notificaciones del responsable
+        async function actualizarNotificacionesResponsable() {
+            try {
+                const response = await fetch('<?= base_url('responsable/notificaciones/contar') ?>');
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Actualizar badge de Bandeja de Entrada
+                    const bandejaLink = document.querySelector('a[href*="bandeja"]');
+                    let bandejaBadge = bandejaLink ? bandejaLink.querySelector('.nav-badge') : null;
+                    if (bandejaLink) {
+                        if (data.pendientes_asignar > 0) {
+                            if (!bandejaBadge) {
+                                bandejaBadge = document.createElement('span');
+                                bandejaBadge.className = 'nav-badge';
+                                bandejaLink.appendChild(bandejaBadge);
+                            }
+                            bandejaBadge.textContent = data.pendientes_asignar;
+                            bandejaBadge.style.display = 'inline-block';
+                        } else if (bandejaBadge) {
+                            bandejaBadge.style.display = 'none';
+                        }
+                    }
+
+                    // Actualizar badge de Gestión de Área (En Proceso)
+                    const enProcesoLink = document.querySelector('a[href*="en-proceso"]');
+                    let enProcesoBadge = enProcesoLink ? enProcesoLink.querySelector('.nav-badge') : null;
+                    if (enProcesoLink) {
+                        if (data.en_proceso > 0) {
+                            if (!enProcesoBadge) {
+                                enProcesoBadge = document.createElement('span');
+                                enProcesoBadge.className = 'nav-badge accent';
+                                enProcesoLink.appendChild(enProcesoBadge);
+                            }
+                            enProcesoBadge.textContent = data.en_proceso;
+                            enProcesoBadge.style.display = 'inline-block';
+                        } else if (enProcesoBadge) {
+                            enProcesoBadge.style.display = 'none';
+                        }
+                    }
+
+                    // Actualizar badge de Retroalimentación
+                    const retroLink = document.querySelector('a[href*="retroalimentacion"]');
+                    let retroBadge = retroLink ? retroLink.querySelector('.nav-badge') : null;
+                    if (retroLink) {
+                        if (data.devoluciones > 0) {
+                            if (!retroBadge) {
+                                retroBadge = document.createElement('span');
+                                retroBadge.className = 'nav-badge warning';
+                                retroLink.appendChild(retroBadge);
+                            }
+                            retroBadge.textContent = data.devoluciones;
+                            retroBadge.style.display = 'inline-block';
+                        } else if (retroBadge) {
+                            retroBadge.style.display = 'none';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error actualizando notificaciones del responsable:', error);
+            }
+        }
+
+        // Registrar callback para actualizar notificaciones del responsable
+        if (typeof RFPusher !== 'undefined') {
+            RFPusher.on('solicitud.actualizada', function(data) {
+                // Actualizar contadores de notificaciones
+                actualizarNotificacionesResponsable();
+
+                // Recargar contenido según la página actual
+                const currentPath = window.location.pathname;
+                if (currentPath.includes('responsable/bandeja') && typeof window.cargarBandeja === 'function') {
+                    window.cargarBandeja();
+                } else if (currentPath.includes('responsable/en-proceso') && typeof window.cargarTareasEnProceso === 'function') {
+                    window.cargarTareasEnProceso();
+                } else if (currentPath.includes('responsable/retroalimentacion') && typeof window.cargarRetroalimentacion === 'function') {
+                    window.cargarRetroalimentacion();
+                } else {
+                    setTimeout(function() {
+                        window.location.reload(true);
+                    }, 600);
+                }
+            });
+        }
+
+        // Llamar a actualizarNotificacionesResponsable al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            actualizarNotificacionesResponsable();
+        });
+    </script>
     <!-- JS de la plantilla -->
     <script src="<?= base_url('recursos/scripts/responsable/plantilla/responsable.js') ?>"></script>
 
