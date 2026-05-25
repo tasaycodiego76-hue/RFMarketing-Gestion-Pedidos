@@ -1,6 +1,16 @@
 $(document).ready(function() {
-    $("#busquedaHistorial").on("keyup", function() { filtrarTabla(); });
-    $("#filtroFecha").on("change", function() { filtrarTabla(); });
+    let timeoutBusqueda = null;
+
+    $("#busquedaHistorial").on("input", function() {
+        clearTimeout(timeoutBusqueda);
+        timeoutBusqueda = setTimeout(function() {
+            filtrarTabla();
+        }, 1500); // 1.5 segundos
+    });
+
+    $("#filtroFecha").on("change", function() {
+        filtrarTabla();
+    });
 
     function filtrarTabla() {
         var search = $("#busquedaHistorial").val().toLowerCase();

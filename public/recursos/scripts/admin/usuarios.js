@@ -23,8 +23,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
+    let paginaActual = 1;
+    const itemsPorPagina = 8;
+    let todosLosUsuarios = [];
+
     // ─── LISTAR USUARIOS ───────────────────────────────────
-    async function obtenerUsuarios(search = '') {
+    async function obtenerUsuarios(search = '', keepPage = false) {
         try {
             const baseUrl = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
             const query = search ? '?search=' + encodeURIComponent(search) : '';
@@ -35,115 +39,205 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const data = await response.json();
-
-            tabla.innerHTML = '';
-            if (data.length === 0) {
-                tabla.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No se encontraron resultados para su búsqueda.</td></tr>';
-                return;
+            todosLosUsuarios = await response.json();
+            
+            if (!keepPage) {
+                paginaActual = 1;
             }
 
-            data.forEach(u => {
-
-                if (u.rol && u.rol.toLowerCase().includes('administrador')) {
-                    tabla.innerHTML += `
-        <tr>
-            <td class="td-nombre" data-label="Nombre">${u.nombre} ${u.apellidos}</td>
-            <td class="td-usuario" data-label="Usuario">${u.usuario ?? '-'}</td>
-            <td class="td-correo" data-label="Correo">${u.correo}</td>
-            <td data-label="Rol">-</td>
-            <td data-label="Área / Empresa">-</td>
-            <td data-label="Estado">-</td>
-            <td data-label="Acciones">-</td>
-        </tr>`;
-                    return;
-                }
-
-                //  ROLES (Responsable > Empleado > Cliente)
-                let rolClase = 'rol-empleado';
-                let rolTexto = 'Empleado';
-
-                const esCliente = u.rol === 'cliente';
-
-                const esResponsable = u.rol === 'responsable_area'
-                    || u.esresponsable === true
-                    || u.esresponsable === 't'
-                    || u.esresponsable == 1;
-
-                if (esCliente) {
-                    rolClase = 'rol-cliente';
-                    rolTexto = 'Cliente';
-                }
-                else if (esResponsable) {
-                    rolClase = 'rol-responsable';
-                    rolTexto = 'Responsable';
-                }
-
-                const rolBadge = `<span class="rol-badge ${rolClase}">${rolTexto}</span>`;
-
-                // 🔹 ÁREA
-                let areaMostrar = u.area_completa || u.area_nombre || '-';
-
-                if (areaMostrar.includes('(')) {
-                    areaMostrar = areaMostrar.split(' (')[0];
-                }
-
-                //  EMPRESA
-                const empresaMostrar = u.empresa_nombre || '';
-
-                //  MOSTRAR EN DOS LÍNEAS
-                const mostrarIcono = u.rol === 'cliente' || (u.empresa_nombre && u.empresa_nombre !== '');
-
-                const areaEmpresa = `
-    <div class="area-empresa-contenedor">
-        ${mostrarIcono ? '<i class="bi bi-building area-icon"></i>' : ''}
-        <div class="area-info">
-            <div class="area-nombre">${areaMostrar}</div>
-            ${empresaMostrar ? `<div class="area-empresa">${empresaMostrar}</div>` : ''}
-        </div>
-    </div>`;
-
-                //  ESTADO
-                const badge = u.estado
-                    ? `<span class="badge-activo">Activo</span>`
-                    : `<span class="badge-inactivo">Inactivo</span>`;
-
-                //  BOTONES
-                const btnEditar = `<button class="btn-icon btn-icon-editar" onclick="editarUsuario(${u.id})" title="Editar usuario" style="cursor:pointer;">✎</button>`;
-                const btnToggle = u.estado
-                    ? `<button class="btn-icon btn-icon-toggle activo" onclick="toggleEstado(${u.id}, true)" title="Desactivar usuario" style="cursor:pointer;">✕</button>`
-                    : `<button class="btn-icon btn-icon-toggle inactivo" onclick="toggleEstado(${u.id}, false)" title="Activar usuario" style="cursor:pointer;">✓</button>`;
-
-                // Botón Reasignar (Solo para Clientes o Responsables de Área ACTIVO)
-                let btnReasignar = '';
-                if ((esCliente || esResponsable) && u.estado) {
-                    btnReasignar = `<button class="btn-icon btn-icon-reasignar" onclick="abrirModalReasignar(${u.id})" title="Reasignar responsable" style="cursor:pointer;"><i class="bi bi-person-gear"></i></button>`;
-                }
-
-                tabla.innerHTML += `
-                <tr>
-                    <td class="td-nombre" data-label="Nombre">${u.nombre} ${u.apellidos}</td>
-                    <td class="td-usuario" data-label="Usuario">${u.usuario ?? '-'}</td>
-                    <td class="td-correo" data-label="Correo/Telf.">
-                        <div class="user-email">${u.correo}</div>
-                        <div class="user-phone"><i class="bi bi-telephone"></i> ${u.telefono ?? '-'}</div>
-                    </td>
-                    <td data-label="Rol">${rolBadge}</td>
-                    <td class="td-area-empresa" data-label="Área / Empresa">${areaEmpresa}</td>
-                    <td data-label="Estado">${badge}</td>
-                    <td data-label="Acciones">
-                        <div class="acciones-contenedor">
-                            ${btnEditar}
-                            ${btnToggle}
-                            ${btnReasignar}
-                        </div>
-                    </td>
-                </tr>`;
-            });
+            mostrarUsuariosPaginados();
 
         } catch (error) {
             console.error('Error al procesar usuarios:', error);
         }
+    }
+
+    function mostrarUsuariosPaginados() {
+        tabla.innerHTML = '';
+        const paginacionContenedor = document.querySelector('#paginacion-contenedor');
+        if (!paginacionContenedor) return;
+
+        if (todosLosUsuarios.length === 0) {
+            tabla.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No se encontraron resultados para su búsqueda.</td></tr>';
+            paginacionContenedor.style.display = 'none';
+            return;
+        }
+
+        const totalRegistros = todosLosUsuarios.length;
+        const totalPaginas = Math.ceil(totalRegistros / itemsPorPagina);
+
+        if (paginaActual > totalPaginas) {
+            paginaActual = Math.max(1, totalPaginas);
+        }
+
+        const inicio = (paginaActual - 1) * itemsPorPagina;
+        const fin = Math.min(inicio + itemsPorPagina, totalRegistros);
+        const usuariosPagina = todosLosUsuarios.slice(inicio, fin);
+
+        usuariosPagina.forEach(u => {
+            if (u.rol && u.rol.toLowerCase().includes('administrador')) {
+                tabla.innerHTML += `
+                <tr>
+                    <td class="td-nombre" data-label="Nombre">${u.nombre} ${u.apellidos}</td>
+                    <td class="td-usuario" data-label="Usuario">${u.usuario ?? '-'}</td>
+                    <td class="td-correo" data-label="Correo">${u.correo}</td>
+                    <td data-label="Rol">-</td>
+                    <td data-label="Área / Empresa">-</td>
+                    <td data-label="Estado">-</td>
+                    <td data-label="Acciones">-</td>
+                </tr>`;
+                return;
+            }
+
+            // ROLES (Responsable > Empleado > Cliente)
+            let rolClase = 'rol-empleado';
+            let rolTexto = 'Empleado';
+
+            const esCliente = u.rol === 'cliente';
+            const esResponsable = u.rol === 'responsable_area'
+                || u.esresponsable === true
+                || u.esresponsable === 't'
+                || u.esresponsable == 1;
+
+            if (esCliente) {
+                rolClase = 'rol-cliente';
+                rolTexto = 'Cliente';
+            } else if (esResponsable) {
+                rolClase = 'rol-responsable';
+                rolTexto = 'Responsable';
+            }
+
+            const rolBadge = `<span class="rol-badge ${rolClase}">${rolTexto}</span>`;
+
+            // ÁREA
+            let areaMostrar = u.area_completa || u.area_nombre || '-';
+            if (areaMostrar.includes('(')) {
+                areaMostrar = areaMostrar.split(' (')[0];
+            }
+
+            // EMPRESA
+            const empresaMostrar = u.empresa_nombre || '';
+
+            // MOSTRAR EN DOS LÍNEAS
+            const mostrarIcono = u.rol === 'cliente' || (u.empresa_nombre && u.empresa_nombre !== '');
+            const areaEmpresa = `
+            <div class="area-empresa-contenedor">
+                ${mostrarIcono ? '<i class="bi bi-building area-icon"></i>' : ''}
+                <div class="area-info">
+                    <div class="area-nombre">${areaMostrar}</div>
+                    ${empresaMostrar ? `<div class="area-empresa">${empresaMostrar}</div>` : ''}
+                </div>
+            </div>`;
+
+            // ESTADO
+            const badge = u.estado
+                ? `<span class="badge-activo">Activo</span>`
+                : `<span class="badge-inactivo">Inactivo</span>`;
+
+            // BOTONES
+            const btnEditar = `<button class="btn-icon btn-icon-editar" onclick="editarUsuario(${u.id})" title="Editar usuario" style="cursor:pointer;">✎</button>`;
+            const btnToggle = u.estado
+                ? `<button class="btn-icon btn-icon-toggle activo" onclick="toggleEstado(${u.id}, true)" title="Desactivar usuario" style="cursor:pointer;">✕</button>`
+                : `<button class="btn-icon btn-icon-toggle inactivo" onclick="toggleEstado(${u.id}, false)" title="Activar usuario" style="cursor:pointer;">✓</button>`;
+
+            // Botón Reasignar (Solo para Clientes o Responsables de Área ACTIVO)
+            let btnReasignar = '';
+            if ((esCliente || esResponsable) && u.estado) {
+                btnReasignar = `<button class="btn-icon btn-icon-reasignar" onclick="abrirModalReasignar(${u.id})" title="Reasignar responsable" style="cursor:pointer;"><i class="bi bi-person-gear"></i></button>`;
+            }
+
+            tabla.innerHTML += `
+            <tr>
+                <td class="td-nombre" data-label="Nombre">${u.nombre} ${u.apellidos}</td>
+                <td class="td-usuario" data-label="Usuario">${u.usuario ?? '-'}</td>
+                <td class="td-correo" data-label="Correo/Telf.">
+                    <div class="user-email">${u.correo}</div>
+                    <div class="user-phone"><i class="bi bi-telephone"></i> ${u.telefono ?? '-'}</div>
+                </td>
+                <td data-label="Rol">${rolBadge}</td>
+                <td class="td-area-empresa" data-label="Área / Empresa">${areaEmpresa}</td>
+                <td data-label="Estado">${badge}</td>
+                <td data-label="Acciones">
+                    <div class="acciones-contenedor">
+                        ${btnEditar}
+                        ${btnToggle}
+                        ${btnReasignar}
+                    </div>
+                </td>
+            </tr>`;
+        });
+
+        if (totalPaginas <= 1) {
+            paginacionContenedor.style.display = 'none';
+            return;
+        }
+
+        paginacionContenedor.style.display = 'flex';
+        
+        let paginadorHtml = `
+            <small class="text-white">Mostrando página ${paginaActual} de ${totalPaginas} (Total: ${totalRegistros} usuarios)</small>
+            <nav aria-label="Paginación de usuarios">
+                <ul class="pagination pagination-rf mb-0">
+                    <li class="page-item ${paginaActual === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="#" data-page="${paginaActual - 1}" title="Anterior"><i class="bi bi-chevron-left"></i></a>
+                    </li>
+        `;
+
+        const range = 2;
+        const startPage = Math.max(1, paginaActual - range);
+        const endPage = Math.min(totalPaginas, paginaActual + range);
+
+        if (startPage > 1) {
+            paginadorHtml += `
+                <li class="page-item">
+                    <a class="page-link" href="#" data-page="1">1</a>
+                </li>
+            `;
+            if (startPage > 2) {
+                paginadorHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            paginadorHtml += `
+                <li class="page-item ${paginaActual === i ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>
+            `;
+        }
+
+        if (endPage < totalPaginas) {
+            if (endPage < totalPaginas - 1) {
+                paginadorHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            }
+            paginadorHtml += `
+                <li class="page-item">
+                    <a class="page-link" href="#" data-page="${totalPaginas}">${totalPaginas}</a>
+                </li>
+            `;
+        }
+
+        paginadorHtml += `
+                    <li class="page-item ${paginaActual === totalPaginas ? 'disabled' : ''}">
+                        <a class="page-link" href="#" data-page="${paginaActual + 1}" title="Siguiente"><i class="bi bi-chevron-right"></i></a>
+                    </li>
+                </ul>
+            </nav>
+        `;
+
+        paginacionContenedor.innerHTML = paginadorHtml;
+
+        paginacionContenedor.querySelectorAll('.page-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetPage = parseInt(this.getAttribute('data-page'));
+                if (!isNaN(targetPage) && targetPage >= 1 && targetPage <= totalPaginas) {
+                    paginaActual = targetPage;
+                    mostrarUsuariosPaginados();
+                    document.querySelector('.tabla-contenedor').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+        });
     }
 
     // ─── CARGAR ÁREAS DE EMPRESA DINÁMICAMENTE ─────────────
@@ -370,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function () {
         formulario.reset();
         delete formulario.dataset.editId;
         delete formulario.dataset.rolOriginal;
-        obtenerUsuarios();
+        obtenerUsuarios(document.querySelector('#input-busqueda').value, true);
     });
 
     // ─── EDITAR USUARIO ────────────────────────────────────
@@ -451,7 +545,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await response.json();
 
             notificar(data.message, data.success ? 'success' : 'error');
-            if (data.success) obtenerUsuarios();
+            if (data.success) obtenerUsuarios(document.querySelector('#input-busqueda').value, true);
         });
     };
 
@@ -632,7 +726,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 notificar(res.message, res.success ? 'success' : 'error');
                 if (res.success) {
                     $('#modal-reasignar').modal('hide');
-                    obtenerUsuarios();
+                    obtenerUsuarios(document.querySelector('#input-busqueda').value, true);
                 }
             } catch (e) {
                 notificar('Error al procesar el cambio', 'error');

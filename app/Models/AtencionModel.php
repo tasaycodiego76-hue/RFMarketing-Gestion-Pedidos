@@ -888,4 +888,125 @@ class AtencionModel extends Model
             ->orderBy('a.fechacreacion', 'DESC') // O usar la fecha de entrega si existiera
             ->get()->getResultArray();
     }
+
+    /**
+     * Obtiene el listado detallado de atenciones para el reporte de Administrador.
+     * @param string|null $desde
+     * @param string|null $hasta
+     * @param array $filtros
+     * @return array
+     */
+    public function obtenerReporteDetalladoAdmin(?string $desde = null, ?string $hasta = null, array $filtros = []): array
+    {
+        $params = [];
+        $where = " WHERE 1=1 ";
+
+        if (!empty($filtros['idarea_int'])) {
+            $where .= " AND a.idarea_agencia = ? ";
+            $params[] = (int)$filtros['idarea_int'];
+        }
+        if (!empty($filtros['idempresa'])) {
+            $where .= " AND e.id = ? ";
+            $params[] = (int)$filtros['idempresa'];
+        }
+        if (!empty($filtros['idempleado'])) {
+            $where .= " AND a.idempleado = ? ";
+            $params[] = (int)$filtros['idempleado'];
+        }
+        if (!empty($desde)) {
+            $where .= " AND a.fechacreacion >= ? ";
+            $params[] = $desde . ' 00:00:00';
+        }
+        if (!empty($hasta)) {
+            $where .= " AND a.fechacreacion <= ? ";
+            $params[] = $hasta . ' 23:59:59';
+        }
+        if (!empty($filtros['solo_completados'])) {
+            $where .= " AND a.estado = 'finalizado' ";
+        }
+
+        $sql = "SELECT a.id, a.titulo, a.estado, a.fechacreacion, e.nombreempresa as empresa_nombre,
+                       aa.nombre as area_agencia_nombre,
+                       u_emp.nombre as empleado_nombre, u_emp.apellidos as empleado_apellidos,
+                       COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre,
+                       CASE WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL 
+                       THEN ROUND(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600, 2) ELSE 0 END as horas_usadas
+                FROM atencion a
+                JOIN requerimiento r ON r.id = a.idrequerimiento
+                JOIN usuarios u_cli ON r.idusuarioempresa = u_cli.id
+                JOIN areas ar_cli ON u_cli.idarea = ar_cli.id
+                JOIN empresas e ON ar_cli.idempresa = e.id
+                JOIN areas_agencia aa ON a.idarea_agencia = aa.id
+                LEFT JOIN servicios s ON s.id = a.idservicio
+                LEFT JOIN usuarios u_emp ON u_emp.id = a.idempleado
+                $where 
+                ORDER BY aa.nombre ASC, e.nombreempresa ASC, a.fechacreacion DESC";
+
+        return $this->db->query($sql, $params)->getResultArray();
+    }
+
+    /**
+     * Obtiene métricas del equipo técnico para el Administrador.
+     * @param int|null $idAreaInt
+     * @return array
+     */
+    public function obtenerMetricasTecnicosAdmin(?int $idAreaInt = null): array
+    {
+        $whereMet = $idAreaInt ? " AND u.idarea_agencia = ? " : "";
+        $params = $idAreaInt ? [$idAreaInt] : [];
+
+        $sql = "SELECT u.nombre, u.apellidos, COUNT(a.id) as asignados,
+                       COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) as completados,
+                       CASE WHEN COUNT(a.id) > 0 THEN ROUND((COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END)::numeric / COUNT(a.id)) * 100, 1) ELSE 0 END as eficiencia,
+                       COALESCE(SUM(CASE WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL THEN EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600 ELSE 0 END), 0) as horas_totales
+                FROM usuarios u 
+                LEFT JOIN atencion a ON a.idempleado = u.id
+                WHERE u.rol = 'empleado' $whereMet 
+                GROUP BY u.id, u.nombre, u.apellidos 
+                ORDER BY eficiencia DESC";
+
+        return $this->db->query($sql, $params)->getResultArray();
+    }
+
+    /**
+     * Obtiene los datos necesarios para la vista previa ajax del Administrador.
+     * @param string|null $desde
+     * @param string|null $hasta
+     * @param array $filtros
+     * @return array
+     */
+    public function obtenerVistaPreviaAdmin(?string $desde = null, ?string $hasta = null, array $filtros = []): array
+    {
+        $params = [];
+        $where = " WHERE 1=1 ";
+
+        if (!empty($filtros['idarea_int']) && $filtros['idarea_int'] > 0) {
+            $where .= " AND a.idarea_agencia = ? ";
+            $params[] = (int)$filtros['idarea_int'];
+        }
+        if (!empty($filtros['idempresa'])) {
+            $where .= " AND e.id = ? ";
+            $params[] = (int)$filtros['idempresa'];
+        }
+        if (!empty($desde)) {
+            $where .= " AND a.fechacreacion >= ? ";
+            $params[] = $desde . ' 00:00:00';
+        }
+        if (!empty($hasta)) {
+            $where .= " AND a.fechacreacion <= ? ";
+            $params[] = $hasta . ' 23:59:59';
+        }
+
+        $sql = "SELECT a.id, a.estado, 
+                       CASE WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL 
+                       THEN ROUND(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600, 2) ELSE 0 END as horas
+                FROM atencion a
+                JOIN requerimiento r ON r.id = a.idrequerimiento
+                JOIN usuarios u_cli ON r.idusuarioempresa = u_cli.id
+                JOIN areas ar_cli ON u_cli.idarea = ar_cli.id
+                JOIN empresas e ON ar_cli.idempresa = e.id
+                $where";
+
+        return $this->db->query($sql, $params)->getResultArray();
+    }
 }

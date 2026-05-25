@@ -367,32 +367,41 @@ function ejecutarAccion(id, tipo) {
   });
 }
 
-// LÓGICA DE BÚSQUEDA CON DEBOUNCE (1.5 SEGUNDOS)
+// LÓGICA DE BÚSQUEDA Y FILTRADO
 $(document).ready(function() {
     let timeoutBusqueda = null;
 
     $('#busqueda').on('input', function() {
-        const query = $(this).val().toLowerCase().trim();
-
         // Limpiar el timeout previo
         if (timeoutBusqueda) clearTimeout(timeoutBusqueda);
 
         // Iniciar nuevo timeout
         timeoutBusqueda = setTimeout(function() {
-            filtrarResultados(query);
-        }, 1500); // 1.5 segundos
+            filtrarResultados();
+        }, 300); // Reducido a 300ms para mejor respuesta
     });
 
-    function filtrarResultados(query) {
+    $('#filtro-estado').on('change', function() {
+        filtrarResultados();
+    });
+
+    function filtrarResultados() {
+        const query = $('#busqueda').val().toLowerCase().trim();
+        const estado = $('#filtro-estado').val();
+
         $('.emp-task-card').each(function() {
             const card = $(this);
             const titulo = card.find('.task-title').text().toLowerCase();
             const cliente = card.find('.task-client').text().toLowerCase();
+            const cardEstado = card.data('estado') || '';
 
-            if (titulo.includes(query) || cliente.includes(query)) {
-                card.closest('.col-12').fadeIn(300);
+            const coincideQuery = query === '' || titulo.includes(query) || cliente.includes(query);
+            const coincideEstado = estado === '' || cardEstado === estado;
+
+            if (coincideQuery && coincideEstado) {
+                card.closest('.col-12').fadeIn(200);
             } else {
-                card.closest('.col-12').fadeOut(300);
+                card.closest('.col-12').fadeOut(200);
             }
         });
     }

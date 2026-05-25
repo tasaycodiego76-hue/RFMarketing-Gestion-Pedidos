@@ -1103,3 +1103,70 @@ html[data-theme="light"] .rea-text-muted {
     .area-nombre { font-size: 11px; }
     .area-empresa { font-size: 9px; }
 }
+
+/* Paginación RF para Administrador (Estilo Minimalista Amarillo) */
+.pagination-rf {
+  display: flex;
+  list-style: none;
+  padding-left: 0;
+  gap: 4px;
+}
+.pagination-rf .page-link {
+  background-color: #161616;
+  border: 1px solid #2d2d2d;
+  color: #e2e8f0;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  text-decoration: none;
+}
+.pagination-rf .page-link:hover {
+  background: var(--amarillo) !important;
+  color: #000000 !important;
+  border-color: transparent !important;
+  box-shadow: 0 0 12px rgba(245, 196, 0, 0.4);
+}
+.pagination-rf .page-item.active .page-link {
+  background: var(--amarillo) !important;
+  color: #000000 !important;
+  border-color: transparent !important;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(245, 196, 0, 0.4);
+}
+.pagination-rf .page-item.disabled .page-link {
+  background-color: #111111;
+  color: #444444;
+  border-color: #1a1a1a;
+  pointer-events: none;
+}
+
+/* Soporte para Modo Claro (Light Mode) */
+[data-theme="light"] .pagination-rf .page-link {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+[data-theme="light"] .pagination-rf .page-link:hover {
+  background: var(--amarillo) !important;
+  color: #000000 !important;
+  border-color: transparent !important;
+  box-shadow: 0 0 12px rgba(245, 196, 0, 0.3);
+}
+[data-theme="light"] .pagination-rf .page-item.active .page-link {
+  background: var(--amarillo) !important;
+  color: #000000 !important;
+  border-color: transparent !important;
+  box-shadow: 0 0 12px rgba(245, 196, 0, 0.3);
+}
+[data-theme="light"] .pagination-rf .page-item.disabled .page-link {
+  background-color: #f8fafc;
+  color: #cbd5e1;
+  border-color: #f1f5f9;
+}

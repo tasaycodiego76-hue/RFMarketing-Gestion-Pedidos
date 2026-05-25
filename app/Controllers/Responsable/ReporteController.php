@@ -49,10 +49,11 @@ class ReporteController extends BaseResponsableController
 
         // Calcular Resumen
         $resumen = [
-            'total'       => count($dataDetallada),
-            'completados' => count(array_filter($dataDetallada, fn($i) => $i['estado'] === 'finalizado')),
-            'en_proceso'  => count(array_filter($dataDetallada, fn($i) => $i['estado'] === 'en_proceso')),
-            'pendientes'  => count(array_filter($dataDetallada, fn($i) => in_array($i['estado'], ['pendiente_asignado', 'pendiente_sin_asignar']))),
+            'total'        => count($dataDetallada),
+            'completados'  => count(array_filter($dataDetallada, fn($i) => $i['estado'] === 'finalizado')),
+            'en_proceso'   => count(array_filter($dataDetallada, fn($i) => $i['estado'] === 'en_proceso')),
+            'en_revision'  => count(array_filter($dataDetallada, fn($i) => $i['estado'] === 'en_revision')),
+            'pendientes'   => count(array_filter($dataDetallada, fn($i) => in_array($i['estado'], ['pendiente_asignado', 'pendiente_sin_asignar']))),
             'hrs_promedio' => count($dataDetallada) > 0 ? array_sum(array_column($dataDetallada, 'horas_usadas')) / count($dataDetallada) : 0
         ];
 

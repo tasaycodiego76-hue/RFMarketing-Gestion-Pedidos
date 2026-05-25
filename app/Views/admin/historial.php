@@ -22,8 +22,8 @@
         <p style="font-size: 12px; color: #888; margin: 0;">Registro visual de todos los proyectos finalizados.</p>
     </div>
 
-    <div class="d-flex align-items-center gap-3">
-        <div class="d-flex align-items-center gap-2">
+    <div class="d-flex align-items-center gap-4">
+        <div class="d-flex align-items-center gap-3">
             <label style="font-size: 10px; color: #555; font-weight: 800; text-transform: uppercase; margin: 0;">Filtrar
                 día:</label>
             <input type="date" id="filtroFecha" class="form-control input-calendario" style="width: 170px;">

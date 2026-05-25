@@ -50,7 +50,7 @@
             style="background: var(--panel); border: 1px solid var(--borde); color: var(--texto); font-size: 12px; height: 36px; border-radius: 6px;">
     </div>
     <div class="col-md-6 col-lg-4 mt-2 mt-md-0">
-        <select class="form-control" style="background: var(--panel); border: 1px solid var(--borde); color: var(--texto-2); font-size: 12px; height: 36px; border-radius: 6px;">
+        <select id="filtro-estado" class="form-control" style="background: var(--panel); border: 1px solid var(--borde); color: var(--texto-2); font-size: 12px; height: 36px; border-radius: 6px;">
             <option value="">TODOS LOS ESTADOS</option>
             <option value="pendiente_asignado">POR INICIAR</option>
             <option value="en_proceso">EN DESARROLLO</option>
@@ -81,7 +81,7 @@
                                   (($pedido['estado'] == 'en_proceso') ? 'EN CURSO' : 'REVISIÓN');
                 ?>
                 <div class="col-12 col-xl-6 mb-4">
-                    <div class="emp-task-card <?= $claseStatus ?>" id="pedido-<?= $pedido['id'] ?>">
+                    <div class="emp-task-card <?= $claseStatus ?>" id="pedido-<?= $pedido['id'] ?>" data-estado="<?= esc($pedido['estado']) ?>">
                         
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div class="task-client">

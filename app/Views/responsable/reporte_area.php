@@ -28,6 +28,7 @@
         .estado-fin   { font-size: 9.5px; font-weight: bold; color: #1a7a3c; }
         .estado-proc  { font-size: 9.5px; font-weight: bold; color: #856404; }
         .estado-pend  { font-size: 9.5px; font-weight: bold; color: #8B0000; }
+        .estado-rev   { font-size: 9.5px; font-weight: bold; color: #d97706; }
 
         /* PIE_PAGINA */
         .page-footer { text-align: center; font-size: 13px; color: #777; border-top: 0.5pt solid #bbb; padding-top: 5px; padding-bottom: 25px; }
@@ -85,32 +86,37 @@
     <div class="section-title">I. Resumen Operativo del Área</div>
     <table>
         <colgroup>
-            <col style="width: 20%;">
-            <col style="width: 20%;">
-            <col style="width: 20%;">
-            <col style="width: 20%;">
-            <col style="width: 20%;">
+            <col style="width: 16%;">
+            <col style="width: 16%;">
+            <col style="width: 17%;">
+            <col style="width: 17%;">
+            <col style="width: 16%;">
+            <col style="width: 18%;">
         </colgroup>
         <thead>
             <tr>
-                <th style="width: 20%;">TOTAL</th>
-                <th style="width: 20%;">COMPLETADOS</th>
-                <th style="width: 20%;">EN PROCESO</th>
-                <th style="width: 20%;">PENDIENTES</th>
-                <th style="width: 20%;">HRS. PROM.</th>
+                <th style="width: 16%;">TOTAL</th>
+                <th style="width: 16%;">PENDIENTES</th>
+                <th style="width: 17%;">EN PROCESO</th>
+                <th style="width: 17%;">EN REVISIÓN</th>
+                <th style="width: 16%;">COMPLETADOS</th>
+                <th style="width: 18%;">HRS. PROM.</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td style="text-align: center; font-size: 14px; font-weight: bold;"><?= $resumen['total'] ?></td>
-                <td style="text-align: center; font-size: 14px; font-weight: bold; color: #1a7a3c;">
-                    <?= $resumen['completados'] ?>
+                <td style="text-align: center; font-size: 14px; font-weight: bold; color: #8B0000;">
+                    <?= $resumen['pendientes'] ?>
                 </td>
                 <td style="text-align: center; font-size: 14px; font-weight: bold; color: #856404;">
                     <?= $resumen['en_proceso'] ?>
                 </td>
-                <td style="text-align: center; font-size: 14px; font-weight: bold; color: #8B0000;">
-                    <?= $resumen['pendientes'] ?>
+                <td style="text-align: center; font-size: 14px; font-weight: bold; color: #d97706;">
+                    <?= $resumen['en_revision'] ?>
+                </td>
+                <td style="text-align: center; font-size: 14px; font-weight: bold; color: #1a7a3c;">
+                    <?= $resumen['completados'] ?>
                 </td>
                 <td style="text-align: center; font-size: 14px; font-weight: bold;">
                     <?= $formatHrs(floatval($resumen['hrs_promedio'])) ?>
@@ -165,8 +171,15 @@
                     <td class="col-est">
                         <?php
                         $est = $p['estado'];
-                        $cls = str_starts_with($est, 'finalizado') ? 'estado-fin'
-                            : (str_starts_with($est, 'en_proceso') ? 'estado-proc' : 'estado-pend');
+                        if (str_starts_with($est, 'finalizado')) {
+                            $cls = 'estado-fin';
+                        } elseif (str_starts_with($est, 'en_proceso')) {
+                            $cls = 'estado-proc';
+                        } elseif ($est === 'en_revision') {
+                            $cls = 'estado-rev';
+                        } else {
+                            $cls = 'estado-pend';
+                        }
                         ?>
                         <span class="<?= $cls ?>"
                             style="font-size: 13px"><?= mb_strtoupper(str_replace('_', ' ', $est)) ?></span>

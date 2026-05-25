@@ -42,6 +42,12 @@
         <tbody id="tabla-usuarios"></tbody>
     </table>
 </div>
+
+<!-- Paginación -->
+<div id="paginacion-contenedor" class="d-flex flex-wrap justify-content-between align-items-center py-3 px-4 mt-3" style="background: var(--panel); border: 1px solid var(--borde); border-radius: 12px;">
+    <!-- Se genera dinámicamente vía JS -->
+</div>
+
 <div class="modal fade" id="modal-usuario" data-backdrop="static" tabindex="-1">
       <div class="modal-dialog modal-lg">
           <div class="modal-content">

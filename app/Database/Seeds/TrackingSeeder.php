@@ -28,8 +28,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 1,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: JESUS DE LA CRUZ GARCÍA. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 12,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-01 11:00:00'
             ],
@@ -71,8 +71,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 2,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: RODRIGO ALEXANDER FELIX HUAMAN. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 2,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-01 12:00:00'
             ],
@@ -114,8 +114,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 3,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: NICOL MICHELLE GUERRERO TORREALBA. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 3,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-01 13:00:00'
             ],
@@ -157,8 +157,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 4,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: NAYRU GOMEZ MAGALLANES. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 12,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-02 11:00:00'
             ],
@@ -200,8 +200,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 5,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: JONATHAN MEDINA CAMPOS. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 9,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-02 12:00:00'
             ],
@@ -243,8 +243,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 6,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: RODRIGO ALEXANDER FELIX HUAMAN. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 2,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-03 11:00:00'
             ],
@@ -286,8 +286,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 7,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: FABRIZIO RAMOS TIPISMANA. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 12,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-03 12:00:00'
             ],
@@ -329,8 +329,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 8,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: MARIA PIA CASTILLA. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 3,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-03 13:00:00'
             ],
@@ -372,8 +372,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 9,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: NOEMI TORRES TINEDO. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 3,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-03 16:00:00'
             ],
@@ -415,8 +415,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 10,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: JOSE GUERRA CHACÓN. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 9,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-04 11:00:00'
             ],
@@ -458,8 +458,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 11,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: JESUS DE LA CRUZ GARCÍA. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 12,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-04 12:00:00'
             ],
@@ -501,8 +501,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 12,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: RODRIGO ALEXANDER FELIX HUAMAN. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 12,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-04 13:00:00'
             ],
@@ -544,8 +544,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 13,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: JHENINFER MIRELLI CCOICCA ALVAREZ. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 3,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-05 11:00:00'
             ],
@@ -587,8 +587,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 14,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: FABRIZIO RAMOS TIPISMANA. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 12,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-05 12:00:00'
             ],
@@ -630,8 +630,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 15,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: SONIA ALEJANDRA TELLO ROJAS. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 9,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-05 13:00:00'
             ],
@@ -673,8 +673,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 16,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: RODRIGO ALEXANDER FELIX HUAMAN. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 2,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-08 11:00:00'
             ],
@@ -716,8 +716,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 17,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: NAYRU GOMEZ MAGALLANES. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 12,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-08 12:00:00'
             ],
@@ -759,8 +759,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 18,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: NICOL MICHELLE GUERRERO TORREALBA. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 3,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-08 13:00:00'
             ],
@@ -802,8 +802,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 19,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: JESUS DE LA CRUZ GARCÍA. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 12,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-08 16:00:00'
             ],
@@ -845,8 +845,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 20,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: SONIA ALEJANDRA TELLO ROJAS. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 9,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-09 11:00:00'
             ],
@@ -888,8 +888,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 21,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: FABRIZIO RAMOS TIPISMANA. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 12,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-09 12:00:00'
             ],
@@ -931,8 +931,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 22,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: RODRIGO ALEXANDER FELIX HUAMAN. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 2,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-10 11:00:00'
             ],
@@ -974,8 +974,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 23,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: MARIA PIA CASTILLA. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 3,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-10 12:00:00'
             ],
@@ -1017,8 +1017,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 24,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: NAYRU GOMEZ MAGALLANES. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 12,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-10 13:00:00'
             ],
@@ -1060,8 +1060,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 25,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: JONATHAN MEDINA CAMPOS. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 9,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-11 11:00:00'
             ],
@@ -1103,8 +1103,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 26,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: FABRIZIO RAMOS TIPISMANA. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 12,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-11 12:00:00'
             ],
@@ -1146,8 +1146,8 @@ class TrackingSeeder extends Seeder
             ],
             [
                 'idatencion' => 27,
-                'idusuario' => 1,
-                'accion' => 'Pedido delegado al Empleado: NICOL MICHELLE GUERRERO TORREALBA. Estado Pendiente de inicio por parte del Empleado.',
+                'idusuario' => 3,
+                'accion' => 'Su Solicitud fue delegado. Estado Pendiente de inicio por parte del Empleado.',
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => '2026-05-11 13:00:00'
             ],

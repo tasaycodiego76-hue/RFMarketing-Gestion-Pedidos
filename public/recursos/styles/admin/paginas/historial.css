@@ -154,6 +154,12 @@ html[data-theme="light"] .historial-area-badge {
     color: #b45309;
 }
 
+html[data-theme="light"] .input-calendario {
+    background: var(--panel) !important;
+    border-color: var(--borde) !important;
+    color: var(--texto) !important;
+}
+
 /* Tabla */
 html[data-theme="light"] .tabla-contenedor {
     background: var(--panel);
