@@ -168,60 +168,70 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+
   /* En móvil: estado y fecha ambos a la izquierda, uno debajo del otro */
   .notificacion-layout {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .notificacion-contenido {
     width: 100%;
   }
-  
+
   .notificacion-meta {
     align-items: flex-start;
     width: 100%;
   }
-  
+
   .badge-estado {
     align-self: flex-start;
-    font-size: 12px !important; /* Más grande en móvil */
-    padding: 8px 14px !important; /* Más padding */
+    font-size: 12px !important;
+    /* Más grande en móvil */
+    padding: 8px 14px !important;
+    /* Más padding */
   }
-  
+
   .notificacion-fecha {
     text-align: left;
     margin-top: 4px;
   }
-  
+
   /* Ajustes de espaciado en móvil - texto más grande */
   .list-group-item {
-    padding: 18px !important; /* Más padding */
+    padding: 18px !important;
+    /* Más padding */
   }
-  
+
   .notificacion-titulo {
-    font-size: 17px !important; /* Aún más grande */
+    font-size: 17px !important;
+    /* Aún más grande */
   }
-  
+
   .notificacion-accion {
-    font-size: 16px !important; /* Aún más grande */
+    font-size: 16px !important;
+    /* Aún más grande */
   }
-  
+
   .notificacion-fecha {
-    font-size: 15px !important; /* Aún más grande */
+    font-size: 15px !important;
+    /* Aún más grande */
   }
 }
 
 /* Vista normal: estado y fecha en extremos opuestos */
 @media (min-width: 769px) {
   .notificacion-layout {
-    justify-content: space-between; /* Empujar a extremos opuestos */
+    justify-content: space-between;
+    /* Empujar a extremos opuestos */
   }
-  
+
   .notificacion-meta {
-    flex-direction: column; /* Badge arriba, fecha abajo */
-    align-items: flex-end; /* Alineados a la derecha */
+    flex-direction: column;
+    /* Badge arriba, fecha abajo */
+    align-items: flex-end;
+    /* Alineados a la derecha */
     gap: 8px;
   }
 }
@@ -258,6 +268,7 @@
   padding-left: 0;
   gap: 4px;
 }
+
 .pagination-rf .page-link {
   background-color: #161616;
   border: 1px solid #2d2d2d;
@@ -274,19 +285,24 @@
   height: 36px;
   text-decoration: none;
 }
+
 .pagination-rf .page-link:hover {
   background: var(--accent-yellow) !important;
+  background: linear-gradient(135deg, #f5c400, #d9a300) !important;
   color: #000000 !important;
   border-color: transparent !important;
   box-shadow: 0 0 12px rgba(245, 196, 0, 0.4);
 }
+
 .pagination-rf .page-item.active .page-link {
   background: var(--accent-yellow) !important;
+  background: linear-gradient(135deg, #f5c400, #d9a300) !important;
   color: #000000 !important;
   border-color: transparent !important;
   font-weight: 700;
   box-shadow: 0 0 12px rgba(245, 196, 0, 0.4);
 }
+
 .pagination-rf .page-item.disabled .page-link {
   background-color: #111111;
   color: #444444;
@@ -300,33 +316,41 @@
   border-color: #e5e7eb !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
 }
+
 [data-theme="light"] .card-header {
   background: #f8fafc !important;
   border-bottom-color: #e5e7eb !important;
   color: #0f172a !important;
 }
+
 [data-theme="light"] .card-header h5 {
   color: #0f172a !important;
 }
+
 [data-theme="light"] .card-body {
   background: #ffffff !important;
   color: #334155 !important;
 }
+
 [data-theme="light"] .list-group-item {
   background: #ffffff !important;
   border-color: #f1f5f9 !important;
   color: #334155 !important;
 }
+
 [data-theme="light"] .list-group-item:hover {
   background: #f8fafc !important;
   border-color: #e2e8f0 !important;
 }
+
 [data-theme="light"] .notificacion-titulo {
   color: #0f172a !important;
 }
+
 [data-theme="light"] .notificacion-accion {
   color: #475569 !important;
 }
+
 [data-theme="light"] .notificacion-fecha {
   color: #64748b !important;
 }
@@ -334,23 +358,29 @@
 [data-theme="light"] .card-footer {
   border-top: 1px solid #e5e7eb !important;
 }
+
 [data-theme="light"] .pagination-rf .page-link {
   background-color: #ffffff;
   border-color: #e2e8f0;
   color: #475569;
 }
+
 [data-theme="light"] .pagination-rf .page-link:hover {
   background: var(--accent-yellow) !important;
+  background: linear-gradient(135deg, #f5c400, #d9a300) !important;
   color: #000000 !important;
   border-color: transparent !important;
   box-shadow: 0 0 12px rgba(245, 196, 0, 0.3);
 }
+
 [data-theme="light"] .pagination-rf .page-item.active .page-link {
   background: var(--accent-yellow) !important;
+  background: linear-gradient(135deg, #f5c400, #d9a300) !important;
   color: #000000 !important;
   border-color: transparent !important;
   box-shadow: 0 0 12px rgba(245, 196, 0, 0.3);
 }
+
 [data-theme="light"] .pagination-rf .page-item.disabled .page-link {
   background-color: #f8fafc;
   color: #cbd5e1;

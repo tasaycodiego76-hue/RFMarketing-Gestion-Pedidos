@@ -81,7 +81,6 @@
                     <th>Título</th>
                     <th>Servicio</th>
                     <th>Estado</th>
-                    <th>Prioridad</th>
                     <th>Fecha</th>
                     <th></th>
                 </tr>

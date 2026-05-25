@@ -18,7 +18,7 @@ $routes->get('logout', 'AuthController::logout');
 
 
 //Rutas para el Administrador
-$routes->group('admin', ['filter' => 'auth'], function ($routes) {
+$routes->group('admin', ['filter' => 'auth:administrador'], function ($routes) {
     $routes->get('dashboard', 'Administrador\DashboardController::index');
     $routes->get('notificaciones/revisiones', 'Administrador\NotificationController::getRevisions');
     $routes->get('usuarios', 'Administrador\UsuarioController::index');
@@ -74,7 +74,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 });
 
 // Rutas para el Responsable (Jefe de Área)
-$routes->group('responsable', ['filter' => 'auth'], function ($routes) {
+$routes->group('responsable', ['filter' => 'auth:empleado'], function ($routes) {
     // DASHBOARD
     $routes->get('dashboard', 'Responsable\PedidosAreaController::index');
     $routes->get('dashboard/metricas', 'Responsable\PedidosAreaController::getMetricasDashboard');
@@ -120,7 +120,7 @@ $routes->group('responsable', ['filter' => 'auth'], function ($routes) {
 });
 
 // Rutas para el Empleado
-$routes->group('empleado', ['filter' => 'auth'], function ($routes) {
+$routes->group('empleado', ['filter' => 'auth:empleado'], function ($routes) {
     $routes->get('dashboard', 'Empleado\MisPedidosController::dashboard');
     $routes->get('mis_pedidos', 'Empleado\MisPedidosController::index');
     $routes->get('historial', 'Empleado\MisPedidosController::historial');
@@ -131,7 +131,7 @@ $routes->group('empleado', ['filter' => 'auth'], function ($routes) {
 });
 
 // Rutas para el Cliente
-$routes->group('cliente', ['filter' => 'auth'], function ($routes) {
+$routes->group('cliente', ['filter' => 'auth:cliente'], function ($routes) {
     // DASHBOARD / MIS SOLICITUDES
     // Vistas
     $routes->get('mis_solicitudes', 'Cliente\MisPedidosController::index');
@@ -164,4 +164,4 @@ $routes->group('cliente', ['filter' => 'auth'], function ($routes) {
     
     // RECURSOS
     $routes->get('archivos/(:num)', 'Cliente\RequerimientoController::verArchivo/$1');
-}); 
+});

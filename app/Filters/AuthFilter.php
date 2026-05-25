@@ -21,7 +21,7 @@ class AuthFilter implements FilterInterface
             // Identificacion el nivel de acceso = administrador | invitado
             $nivelRequerido = $arguments[0] ?? null;
             // Ya tenemos identificado el nivel, ¿es el mismo que el almacenado en la session?
-            if ($nivelRequerido && $session->get('nivelacceso') !== $nivelRequerido) {
+            if ($nivelRequerido && $session->get('rol') !== $nivelRequerido) {
                 return redirect()->to('/sin-permiso');
             }
         }
