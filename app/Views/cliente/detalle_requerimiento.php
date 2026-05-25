@@ -110,12 +110,12 @@
             <div class="timeline-item">
                 <i class="bi bi-person-badge"></i>
                 <div>
-                    <span class="t-label">RESPONSABLE ASIGNADO</span>
+                    <span class="t-label">RESPONSABLE DE LA SOLICITUD</span>
                     <span class="t-value <?= !empty($requerimiento['idempleado']) ? 't-value-accent' : 'text-secondary' ?>">
                         <?php if (!empty($requerimiento['idempleado'])): ?>
-                            <?= esc($requerimiento['empleado_nombre']) ?>
+                            ASIGNADO
                         <?php else: ?>
-                            Pendiente de asignar
+                            PENDIENTE DE ASIGNAR
                         <?php endif; ?>
                     </span>
                 </div>
@@ -184,7 +184,7 @@
             <div class="timeline-item">
                 <i class="bi bi-pencil-square"></i>
                 <div>
-                    <span class="t-label">MODIFICACIONES SOLICITADAS</span>
+                    <span class="t-label">MODIFICACIONES REALIZADAS</span>
                     <span class="t-value"><?= $requerimiento['num_modificaciones'] ?? 0 ?></span>
                 </div>
             </div>

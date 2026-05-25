@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="historial-info-item">
                     <span class="historial-info-label">Completado</span>
                     <span class="historial-info-value">
-                        <i class="bi bi-calendar-check-fill"></i> ${(p.fechacompletado)}
+                        <i class="bi bi-calendar-check-fill"></i> ${formatearFecha(p.fechacompletado)}
                     </span>
                 </div>
                 <div class="historial-info-item">
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="historial-info-item">
                     <span class="historial-info-label">Creado</span>
                     <span class="historial-info-value">
-                        <i class="bi bi-calendar-plus"></i> ${(p.fechacreacion)}
+                        <i class="bi bi-calendar-plus"></i> ${formatearFecha(p.fechacreacion)}
                     </span>
                 </div>
             </div>
@@ -202,6 +202,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>`;
             counter.textContent = "";
         }
+    }
+
+    /**
+     * Formatea fechas con hora (DD/MM/YYYY HH:MM)
+     * @param {*} f 
+     * @returns 
+     */
+    function formatearFecha(f) {
+        if (!f) {
+            return "---";
+        }
+        const d = new Date(f);
+        if (isNaN(d.getTime())) {
+            return f;
+        }
+        return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}<br><span style="font-size:0.9em;">${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}</span>`;
     }
 
     // Buscador en tiempo real (debounced y llamando al backend)

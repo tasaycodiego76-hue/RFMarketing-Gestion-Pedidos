@@ -137,6 +137,7 @@ $routes->group('cliente', ['filter' => 'auth'], function ($routes) {
     $routes->get('mis_solicitudes', 'Cliente\MisPedidosController::index');
     // Datos (JSON)
     $routes->get('pedidos/listar', 'Cliente\MisPedidosController::listar');
+    $routes->get('pedidos/metricas', 'Cliente\MisPedidosController::metricas');
 
     // REQUERIMIENTOS
     // Vistas

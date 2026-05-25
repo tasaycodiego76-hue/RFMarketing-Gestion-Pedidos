@@ -114,7 +114,7 @@
     </div>
 </div>
 
-<!-- Modal para realizar entrega de tarea (Idéntico al del empleado) -->
+<!-- Modal para realizar entrega de tarea -->
 <div class="modal fade" id="modal-entregar" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-entrega-content">

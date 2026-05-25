@@ -402,6 +402,14 @@ class EquipoController extends BaseResponsableController
 
             $db->transCommit();
 
+            // Emitir evento Pusher en tiempo real para actualizar las vistas de todos los involucrados (incluyendo al cliente)
+            try {
+                $pusher = new \App\Services\PusherService();
+                $pusher->notificarCambioEstado($idAtencion, 'pendiente_asignado');
+            } catch (\Exception $exPusher) {
+                log_message('error', '[reasignarTarea Pusher] ' . $exPusher->getMessage());
+            }
+
             return $this->response->setJSON([
                 'success' => true,
                 'message' => "¡Tarea reasignada correctamente a $nombreNuevo!",

@@ -1382,6 +1382,13 @@ function verificarHighlight() {
  * @param {*} titulo 
  */
 async function abrirModalReasignar(idAtencion, idEmpleadoActual, titulo) {
+  // Restablecer el botón de confirmación por si había quedado en "PROCESANDO..." de una acción anterior
+  const btnReasig = document.querySelector('#modal-reasignar .btn-warning');
+  if (btnReasig) {
+    btnReasig.disabled = false;
+    btnReasig.innerHTML = '<i class="bi bi-person-check-fill me-1"></i> CONFIRMAR REASIGNACIÓN';
+  }
+
   // Guardamos los IDs en inputs ocultos para el submit
   document.getElementById('reasignar-idatencion').value = idAtencion;
   document.getElementById('reasignar-idempleado-actual').value = idEmpleadoActual;

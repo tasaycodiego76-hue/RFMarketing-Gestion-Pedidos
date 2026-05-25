@@ -92,6 +92,31 @@ class MisPedidosController extends BaseClienteController
     }
 
     /**
+     * Endpoint API: Retorna las métricas actualizadas del cliente como JSON.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function metricas()
+    {
+        try {
+            $auth = $this->ValidarSesion_DatosUser();
+            if (!$auth['ok']) {
+                return $this->response->setJSON(['status' => 'ERROR', 'mensaje' => $auth['message']])->setStatusCode(401);
+            }
+
+            $idUsuario = $auth['user']['id'];
+            $metrics = $this->_getMetrics($idUsuario);
+
+            return $this->response->setJSON($metrics);
+        } catch (\Exception $e) {
+            log_message('error', '[MisPedidosController::metricas] ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status' => 'ERROR',
+                'detalle' => 'Ocurrió un error al cargar las métricas.'
+            ])->setStatusCode(500);
+        }
+    }
+
+    /**
      * Vista: Pedidos finalizados del cliente (Historial)
      * @return string|\CodeIgniter\HTTP\RedirectResponse
      */

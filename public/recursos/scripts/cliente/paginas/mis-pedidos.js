@@ -225,9 +225,32 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Función para obtener y actualizar los contadores de métricas en tiempo real.
+  async function actualizarMetricas() {
+    try {
+      const response = await fetch(`${base_url}cliente/pedidos/metricas`);
+      if (!response.ok) return;
+      const metrics = await response.json();
+
+      const elPendientes = document.getElementById("metric-pendientes");
+      const elEnProceso = document.getElementById("metric-en-proceso");
+      const elFinalizados = document.getElementById("metric-finalizados");
+      const elTotal = document.getElementById("metric-total");
+
+      if (elPendientes) elPendientes.textContent = metrics.pendientes ?? 0;
+      if (elEnProceso) elEnProceso.textContent = metrics.en_proceso ?? 0;
+      if (elFinalizados) elFinalizados.textContent = metrics.finalizados ?? 0;
+      if (elTotal) elTotal.textContent = metrics.total ?? 0;
+    } catch (error) {
+      console.error("Error al actualizar las métricas:", error);
+    }
+  }
+
   // Función que obtiene la lista de pedidos del usuario y actualiza toda la interfaz.
   async function obtenerPedidos() {
     if (!tablaPedidosBody) { return; }
+    // Actualizar también las métricas en tiempo real
+    actualizarMetricas();
     try {
       const response = await fetch(`${base_url}cliente/pedidos/listar`);
       const datos = await response.json();

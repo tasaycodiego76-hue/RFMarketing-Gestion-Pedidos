@@ -251,7 +251,7 @@ class PedidosAreaController extends BaseResponsableController
             $trackingModel->insert([
                 'idatencion' => $idAtencion,
                 'idusuario' => $userS['user']['id'],
-                'accion' => "Pedido delegado al Empleado: " . trim($empleado['nombre'] . ' ' . $empleado['apellidos']) . ".\n Estado Pendiente de inicio por parte del Empleado.",
+                'accion' => "Su Solicitud fue delegado.\n Estado Pendiente de inicio por parte del Empleado.",
                 'estado' => 'pendiente_asignado',
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);

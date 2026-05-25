@@ -36,36 +36,40 @@
                     <?php foreach ($historial as $item): ?>
                         <?php
                         $estadoRaw = strtolower($item['estado'] ?? 'default');
-                        $accion = strtolower($item['accion'] ?? '');
-                        
+                        $accion    = $item['accion'] ?? '';
+
+                        // Ocultar al cliente cualquier registro de reasignación interna
+                        if (stripos($accion, 'reasignad') !== false) {
+                            continue;
+                        }
+
                         // Mapeo lógico y profesional de estados para la vista del cliente
                         $badgeLabel = strtoupper(str_replace('_', ' ', $item['estado'] ?? 'Estado actualizado'));
                         $estadoCls = 'pendiente';
-                        
+
                         if ($estadoRaw === 'pendiente_sin_asignar') {
                             $badgeLabel = 'RECIBIDO';
                             $estadoCls = 'pendiente';
                         } elseif ($estadoRaw === 'pendiente_asignado') {
-                            // Si ya fue asignado a un empleado (delegado/planificado)
                             if (stripos($accion, 'delegado al') !== false || stripos($accion, 'empleado') !== false || stripos($accion, 'técnico') !== false) {
                                 $badgeLabel = 'ASIGNADO';
-                                $estadoCls = 'pendiente';
+                                $estadoCls  = 'pendiente';
                             } else {
                                 $badgeLabel = 'APROBADO';
-                                $estadoCls = 'pendiente';
+                                $estadoCls  = 'pendiente';
                             }
                         } elseif ($estadoRaw === 'en_proceso') {
                             $badgeLabel = 'EN PROCESO';
-                            $estadoCls = 'proceso';
+                            $estadoCls  = 'proceso';
                         } elseif ($estadoRaw === 'en_revision') {
                             $badgeLabel = 'EN REVISIÓN';
-                            $estadoCls = 'revision';
+                            $estadoCls  = 'revision';
                         } elseif ($estadoRaw === 'finalizado') {
                             $badgeLabel = 'FINALIZADO';
-                            $estadoCls = 'finalizado';
+                            $estadoCls  = 'finalizado';
                         } elseif ($estadoRaw === 'cancelado') {
                             $badgeLabel = 'CANCELADO';
-                            $estadoCls = 'cancelado';
+                            $estadoCls  = 'cancelado';
                         }
                         ?>
                         <div class="timeline-item-seg">
@@ -82,8 +86,7 @@
                                 <?= nl2br(esc($item['accion'] ?? 'Sin descripción')) ?>
                             </p>
                             <small class="text-grey-timeline">
-                                <i class="bi bi-person"></i> Por:
-                                <?= esc(($item['usuario_nombre'] ?? '') . ' ' . ($item['usuario_apellido'] ?? 'Sistema')) ?>
+
                             </small>
                         </div>
                     <?php endforeach; ?>

@@ -26,7 +26,7 @@
     <div class="col-6 col-md-3">
         <div class="card p-3">
             <div class="met-label">Por Aprobar</div>
-            <div class="met-num amarillo">
+            <div id="metric-pendientes" class="met-num amarillo">
                 <?= $metrics['pendientes'] ?? 0 ?>
             </div>
             <div class="met-sub">Pendientes de revisión</div>
@@ -35,7 +35,7 @@
     <div class="col-6 col-md-3">
         <div class="card p-3">
             <div class="met-label">En Proceso</div>
-            <div class="met-num azul">
+            <div id="metric-en-proceso" class="met-num azul">
                 <?= $metrics['en_proceso'] ?? 0 ?>
             </div>
             <div class="met-sub">En curso</div>
@@ -44,7 +44,7 @@
     <div class="col-6 col-md-3">
         <div class="card p-3">
             <div class="met-label">Completados</div>
-            <div class="met-num verde">
+            <div id="metric-finalizados" class="met-num verde">
                 <?= $metrics['finalizados'] ?? 0 ?>
             </div>
             <div class="met-sub">Total histórico</div>
@@ -53,7 +53,7 @@
     <div class="col-6 col-md-3">
         <div class="card p-3">
             <div class="met-label">Total</div>
-            <div class="met-num met-num-total">
+            <div id="metric-total" class="met-num met-num-total">
                 <?= $metrics['total'] ?? 0 ?>
             </div>
             <div class="met-sub">Todos los pedidos</div>

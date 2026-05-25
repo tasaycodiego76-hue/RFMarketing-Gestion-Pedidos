@@ -107,11 +107,9 @@
                         class="nav-link-item <?= (uri_string() == 'cliente/notificaciones') ? 'active' : '' ?>">
                         <span class="nav-icon"><i class="bi bi-bell"></i></span>
                         <span class="nav-text">Notificaciones</span>
-                        <?php if (isset($notif_no_leidas) && $notif_no_leidas > 0): ?>
-                            <span class="nav-badge notif">
-                                <?= $notif_no_leidas ?>
-                            </span>
-                        <?php endif; ?>
+                        <span class="nav-badge notif" style="<?= (isset($notif_no_leidas) && $notif_no_leidas > 0) ? 'display: inline-block;' : 'display: none;' ?>">
+                            <?= $notif_no_leidas ?? 0 ?>
+                        </span>
                     </a>
             </ul>
 
@@ -155,9 +153,7 @@
                 <!-- Notificaciones -->
                 <a href="<?= base_url('cliente/notificaciones') ?>" class="topbar-icon-btn notif-btn">
                     <i class="bi bi-bell"></i>
-                    <?php if (isset($notif_no_leidas) && $notif_no_leidas > 0): ?>
-                        <span class="notif-dot"></span>
-                    <?php endif; ?>
+                    <span class="notif-dot" style="<?= (isset($notif_no_leidas) && $notif_no_leidas > 0) ? 'display: inline-block;' : 'display: none;' ?>"></span>
                 </a>
 
                 <!-- Usuario -->
@@ -195,6 +191,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Pusher JS para tiempo real -->
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <!-- Variables de configuración para pusher-global.js -->
     <script>
         const PUSHER_KEY     = '<?= env('PUSHER_KEY') ?>';
         const PUSHER_CLUSTER = '<?= env('PUSHER_CLUSTER') ?>';
@@ -207,56 +204,8 @@
             });
         }
     </script>
+    <!-- Pusher Global: conexión + lógica de cliente en tiempo real -->
     <script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
-    <script>
-        // Función para actualizar contador de notificaciones
-        async function actualizarNotificaciones() {
-            try {
-                const response = await fetch('<?= base_url('cliente/notificaciones/contar') ?>');
-                const data = await response.json();
-                
-                // Actualizar badge del sidebar
-                const sidebarBadge = document.querySelector('.nav-badge.notif');
-                if (sidebarBadge) {
-                    if (data.total > 0) {
-                        sidebarBadge.textContent = data.total;
-                        sidebarBadge.style.display = 'inline-block';
-                    } else {
-                        sidebarBadge.style.display = 'none';
-                    }
-                }
-                
-                // Actualizar dot del topbar
-                const topbarDot = document.querySelector('.notif-dot');
-                if (topbarDot) {
-                    if (data.total > 0) {
-                        topbarDot.style.display = 'inline-block';
-                    } else {
-                        topbarDot.style.display = 'none';
-                    }
-                }
-            } catch (error) {
-                console.error('Error actualizando notificaciones:', error);
-            }
-        }
-
-        // Registrar callback para actualizar pedidos del cliente
-        if (typeof RFPusher !== 'undefined') {
-            RFPusher.on('solicitud.actualizada', function(data) {
-                // Actualizar contador de notificaciones
-                actualizarNotificaciones();
-                
-                // Recargar pedidos si estamos en la página de mis solicitudes
-                if (typeof window.cargarPedidos === 'function') {
-                    window.cargarPedidos();
-                } else {
-                    setTimeout(function() {
-                        window.location.reload(true);
-                    }, 600);
-                }
-            });
-        }
-    </script>
     <!-- JS Plantilla -->
     <script src="<?= base_url('recursos/scripts/cliente/plantilla/cliente.js') ?>"></script>
     <!-- Agregar Scrips -->

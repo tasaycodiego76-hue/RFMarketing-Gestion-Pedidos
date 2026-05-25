@@ -15,7 +15,6 @@
                     <h5 class="mb-0 text-white bebas">
                         <i class="bi bi-bell text-warning"></i> Mis Notificaciones
                     </h5>
-                    <small class="text-muted">Últimas 20 notificaciones</small>
                 </div>
 
                 <div class="card-body p-0">
@@ -23,7 +22,12 @@
                         <!-- LISTA DE NOTIFICACIONES -->
                         <div class="list-group list-group-flush bg-transparent">
                             <?php foreach ($notificaciones as $notif): ?>
-                                <?php 
+                                <?php
+                                // Ocultar al cliente las notificaciones de reasignación interna
+                                if (stripos($notif['accion'] ?? '', 'reasignada') !== false) {
+                                    continue;
+                                }
+
                                 $fecha = new DateTime($notif['fecha_registro']);
                                 $fechaFormateada = $fecha->format('d/m/Y H:i');
                                 
@@ -67,10 +71,7 @@
                                                 <?= esc($notif['atencion_titulo'] ?? 'Sin título') ?>
                                             </h6>
                                             <p class="notificacion-accion text-muted mb-2"><?= esc($notif['accion']) ?></p>
-                                            <small class="notificacion-fecha text-secondary">
-                                                <i class="bi bi-person"></i>
-                                                Realizado por: <?= esc($notif['realizado_por'] ?? 'Sistema') ?>
-                                            </small>
+
                                         </div>
                                         <div class="notificacion-meta text-end">
                                             <span class="badge badge-estado <?= $estadoBadgeClass ?> mb-2">

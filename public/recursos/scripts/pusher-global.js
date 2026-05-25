@@ -1,14 +1,14 @@
-(function() {
+(function () {
     if (typeof PUSHER_KEY === 'undefined' || !PUSHER_KEY) return;
     if (typeof Pusher === 'undefined') return;
 
-    // Crear una única conexión de Pusher
+    // CONEXIÓN ÚNICA A PUSHER 
     const pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
 
-    // Sistema global de callbacks registrables
+    // SISTEMA GLOBAL DE CALLBACKS (RFPusher)
     window.RFPusher = {
         _handlers: { 'solicitud.nueva': [], 'solicitud.actualizada': [] },
-        
+
         on(evento, callback) {
             if (this._handlers[evento]) {
                 this._handlers[evento].push(callback);
@@ -16,35 +16,148 @@
         },
 
         triggerLocal(evento, data) {
-            if (this._handlers[evento]) {
-                this._handlers[evento].forEach(fn => {
-                    try {
-                        fn(data);
-                    } catch (e) {
-                        console.error('Error en callback de RFPusher:', e);
-                    }
-                });
-            }
+            (this._handlers[evento] || []).forEach(fn => {
+                try { fn(data); } catch (e) {
+                    console.error('[RFPusher] Error en callback:', e);
+                }
+            });
         }
     };
 
-    // Suscribir al canal principal si está definido (kanban-admin, kanban-responsables, kanban-empleados)
+    // CANAL PRINCIPAL (roles internos: admin, responsable, empleado) 
     if (typeof PUSHER_CANAL !== 'undefined' && PUSHER_CANAL) {
         const canalPrincipal = pusher.subscribe(PUSHER_CANAL);
         ['solicitud.nueva', 'solicitud.actualizada'].forEach(evento => {
-            canalPrincipal.bind(evento, (data) => {
-                window.RFPusher.triggerLocal(evento, data);
-            });
+            canalPrincipal.bind(evento, data => window.RFPusher.triggerLocal(evento, data));
         });
     }
 
-    // Suscribir al canal del cliente si está definido CLIENTE_ID
+    // CANAL PERSONAL DEL CLIENTE
     if (typeof CLIENTE_ID !== 'undefined' && CLIENTE_ID) {
         const canalCliente = pusher.subscribe('cliente-' + CLIENTE_ID);
-        
-        // El cliente solo escucha actualizaciones sobre sus solicitudes
-        canalCliente.bind('solicitud.actualizada', (data) => {
-            window.RFPusher.triggerLocal('solicitud.actualizada', data);
+        canalCliente.bind('solicitud.actualizada', data =>
+            window.RFPusher.triggerLocal('solicitud.actualizada', data)
+        );
+    }
+
+    // MÓDULO CLIENTE
+    // Se activa solo cuando existe CLIENTE_ID (plantilla cliente.php)
+    if (typeof CLIENTE_ID !== 'undefined' && CLIENTE_ID) {
+
+        /**
+         * Actualiza el badge y dot de notificaciones del cliente en tiempo real.
+         */
+        async function actualizarNotificacionesCliente() {
+            try {
+                const response = await fetch(BASE_URL + 'cliente/notificaciones/contar');
+                const data = await response.json();
+
+                // Badge del sidebar
+                const sidebarBadge = document.querySelector('.nav-badge.notif');
+                if (sidebarBadge) {
+                    sidebarBadge.textContent = data.total;
+                    sidebarBadge.style.display = data.total > 0 ? 'inline-block' : 'none';
+                }
+
+                // Dot del topbar
+                const topbarDot = document.querySelector('.notif-dot');
+                if (topbarDot) {
+                    topbarDot.style.display = data.total > 0 ? 'inline-block' : 'none';
+                }
+            } catch (e) {
+                console.error('[RFPusher/Cliente] Error actualizando notificaciones:', e);
+            }
+        }
+
+        // Registrar callbacks de cliente
+        window.RFPusher.on('solicitud.actualizada', function (data) {
+            actualizarNotificacionesCliente();
+
+            if (typeof window.cargarPedidos === 'function') {
+                window.cargarPedidos();
+            } else {
+                setTimeout(() => window.location.reload(true), 600);
+            }
         });
     }
+
+    // MÓDULO RESPONSABLE
+    // Se activa solo cuando PUSHER_CANAL === 'kanban-responsables'
+    if (typeof PUSHER_CANAL !== 'undefined' && PUSHER_CANAL === 'kanban-responsables') {
+
+        /**
+         * Actualiza los badges del sidebar del responsable en tiempo real.
+         */
+        async function actualizarNotificacionesResponsable() {
+            try {
+                const response = await fetch(BASE_URL + 'responsable/notificaciones/contar');
+                const data = await response.json();
+                if (data.status !== 'success') return;
+
+                // Helper: actualiza o crea un badge en un enlace del sidebar
+                function actualizarBadge(selector, count, claseExtra) {
+                    const link = document.querySelector(selector);
+                    if (!link) return;
+                    let badge = link.querySelector('.nav-badge');
+                    if (count > 0) {
+                        if (!badge) {
+                            badge = document.createElement('span');
+                            badge.className = 'nav-badge' + (claseExtra ? ' ' + claseExtra : '');
+                            link.appendChild(badge);
+                        }
+                        badge.textContent = count;
+                        badge.style.display = 'inline-block';
+                    } else if (badge) {
+                        badge.style.display = 'none';
+                    }
+                }
+
+                actualizarBadge('a[href*="bandeja"]', data.pendientes_asignar, '');
+                actualizarBadge('a[href*="en-proceso"]', data.en_proceso, 'accent');
+                actualizarBadge('a[href*="retroalimentacion"]', data.devoluciones, 'warning');
+
+            } catch (e) {
+                console.error('[RFPusher/Responsable] Error actualizando notificaciones:', e);
+            }
+        }
+
+        /**
+         * Recarga la vista activa del responsable según la URL actual.
+         */
+        function recargarVistaResponsable() {
+            const path = window.location.pathname;
+            if (path.includes('responsable/bandeja') && typeof window.cargarBandeja === 'function') {
+                window.cargarBandeja();
+            } else if (path.includes('responsable/en-proceso') && typeof window.cargarTareasEnProceso === 'function') {
+                window.cargarTareasEnProceso();
+            } else if (path.includes('responsable/retroalimentacion') && typeof window.cargarRetroalimentacion === 'function') {
+                window.cargarRetroalimentacion();
+            } else if (typeof cargarBandeja === 'function') {
+                cargarBandeja();
+            } else if (typeof cargarTareas === 'function') {
+                cargarTareas();
+            } else if (typeof cargarDatosDashboard === 'function') {
+                cargarDatosDashboard();
+            } else if (typeof cargarTareasEquipo === 'function') {
+                cargarTareasEquipo();
+            }
+        }
+
+        // Registrar callbacks de responsable
+        window.RFPusher.on('solicitud.nueva', function (data) {
+            recargarVistaResponsable();
+            if (typeof window.mostrarToast === 'function') {
+                window.mostrarToast('Nuevo pedido #' + data.id + ' recibido', 'info');
+            }
+        });
+
+        window.RFPusher.on('solicitud.actualizada', function (data) {
+            actualizarNotificacionesResponsable();
+            recargarVistaResponsable();
+        });
+
+        // Actualizar badges al cargar la página
+        document.addEventListener('DOMContentLoaded', actualizarNotificacionesResponsable);
+    }
+
 })();

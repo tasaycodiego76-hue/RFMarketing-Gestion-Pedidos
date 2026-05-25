@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
           html.setAttribute("data-theme", "light");
           localStorage.setItem(STORAGE_KEY, "light");
         }
-        
+
         // Recargar para que los gráficos y scripts detecten el cambio
         window.location.reload();
       });
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (logoutLink) {
     logoutLink.addEventListener("click", function (e) {
       e.preventDefault();
-      
+
       const esClaro = document.documentElement.getAttribute("data-theme") === "light";
 
       Swal.fire({
@@ -119,23 +119,4 @@ document.addEventListener("DOMContentLoaded", function () {
       title: mensaje,
     });
   };
-
-  // INTEGRACIÓN PUSHER (TIEMPO REAL)
-  if (typeof RFPusher !== 'undefined') {
-    function recargarVistasResponsable() {
-        if (typeof cargarBandeja === 'function') cargarBandeja();
-        if (typeof cargarTareas === 'function') cargarTareas();
-        if (typeof cargarDatosDashboard === 'function') cargarDatosDashboard();
-        if (typeof cargarTareasEquipo === 'function') cargarTareasEquipo();
-    }
-
-    RFPusher.on('solicitud.nueva', function(data) {
-        recargarVistasResponsable();
-        window.mostrarToast(`Nuevo pedido #${data.id} recibido`, 'info');
-    });
-
-    RFPusher.on('solicitud.actualizada', function(data) {
-        recargarVistasResponsable();
-    });
-  }
 });
