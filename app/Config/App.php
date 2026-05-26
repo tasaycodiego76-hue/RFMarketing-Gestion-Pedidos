@@ -27,6 +27,11 @@ class App extends BaseConfig
             $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
             $this->baseURL = $protocol . '://' . $_SERVER['HTTP_HOST'] . '/';
         }
+
+        if (ENVIRONMENT === 'development') {
+            $this->baseURL = 'http://localhost:8080/';
+            $this->forceGlobalSecureRequests = false;
+        }
     }
 
     /**

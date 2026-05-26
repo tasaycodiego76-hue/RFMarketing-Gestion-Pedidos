@@ -15,7 +15,8 @@ $routes->post('/auth/login', 'AuthController::verificar');    //Verificar la Ses
 $routes->get('/auth/logout', 'AuthController::logout');          //Cerrar Sesion
 $routes->get('logout', 'AuthController::logout');
 
-
+//RENDER PRUEBA MIGRACIONES
+$routes->get('setup', 'SetupController::index');
 
 //Rutas para el Administrador
 $routes->group('admin', ['filter' => 'auth:administrador'], function ($routes) {
