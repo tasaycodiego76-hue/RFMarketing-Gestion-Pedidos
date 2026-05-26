@@ -74,32 +74,12 @@ class Database extends Config
     //        ],
     //    ];
 
-        /**
-        * Sample database connection for SQLSRV.
-        *
-        * @var array<string, mixed>
-        */
-     public array $default = [
-        'DSN' => '',
-        'hostname' => 'localhost',
-        'username' => 'root',
-        'password' => '',
-        'database' => 'db_marketing_rf',
-        'schema' => 'public',
-        'DBDriver' => 'Postgre',
-        'DBPrefix' => '',
-        'pConnect' => false,
-        'DBDebug' => true,
-        'charset' => 'utf8',
-        'swapPre' => '',
-        'failover' => [],
-        'port' => 5432,
-        'dateFormat' => [
-            'date' => 'Y-m-d',
-            'datetime' => 'Y-m-d H:i:s',
-            'time' => 'H:i:s',
-        ],
-    ];
+    /**
+     * Sample database connection for SQLSRV.
+     *
+     * @var array<string, mixed>
+     */
+    public array $default = [];
 
     //    /**
     //     * Sample database connection for SQLSRV.
@@ -164,30 +144,30 @@ class Database extends Config
      * @var array<string, mixed>
      */
     public array $tests = [
-        'DSN'         => '',
-        'hostname'    => '127.0.0.1',
-        'username'    => '',
-        'password'    => '',
-        'database'    => ':memory:',
-        'DBDriver'    => 'SQLite3',
-        'DBPrefix'    => 'db_',  // Needed to ensure we're working correctly with prefixes live. DO NOT REMOVE FOR CI DEVS
-        'pConnect'    => false,
-        'DBDebug'     => true,
-        'charset'     => 'utf8',
-        'DBCollat'    => '',
-        'swapPre'     => '',
-        'encrypt'     => false,
-        'compress'    => false,
-        'strictOn'    => true,
-        'failover'    => [],
-        'port'        => 3306,
+        'DSN' => '',
+        'hostname' => '127.0.0.1',
+        'username' => '',
+        'password' => '',
+        'database' => ':memory:',
+        'DBDriver' => 'SQLite3',
+        'DBPrefix' => 'db_',  // Needed to ensure we're working correctly with prefixes live. DO NOT REMOVE FOR CI DEVS
+        'pConnect' => false,
+        'DBDebug' => true,
+        'charset' => 'utf8',
+        'DBCollat' => '',
+        'swapPre' => '',
+        'encrypt' => false,
+        'compress' => false,
+        'strictOn' => true,
+        'failover' => [],
+        'port' => 3306,
         'foreignKeys' => true,
         'busyTimeout' => 1000,
         'synchronous' => null,
-        'dateFormat'  => [
-            'date'     => 'Y-m-d',
+        'dateFormat' => [
+            'date' => 'Y-m-d',
             'datetime' => 'Y-m-d H:i:s',
-            'time'     => 'H:i:s',
+            'time' => 'H:i:s',
         ],
     ];
 
@@ -195,9 +175,26 @@ class Database extends Config
     {
         parent::__construct();
 
-        // Ensure that we always set the database group to 'tests' if
-        // we are currently running an automated test suite, so that
-        // we don't overwrite live data on accident.
+        $this->default = [
+            'DSN' => '',
+            'hostname' => env('database.default.hostname') ?: 'dpg-d8b0mgv7f7vs73bjqq60-a',
+            'username' => env('database.default.username') ?: 'db_rfmarketing_user',
+            'password' => env('database.default.password') ?: 'KPRdeCL1eUuNuZFniAE3WADHOVvGkvI7',
+            'database' => env('database.default.database') ?: 'db_rfmarketing',
+            'DBDriver' => 'Postgre',
+            'DBPrefix' => '',
+            'pConnect' => false,
+            'DBDebug' => true,
+            'charset' => 'utf8',
+            'DBCollat' => '',
+            'swapPre' => '',
+            'encrypt' => false,
+            'compress' => false,
+            'strictOn' => false,
+            'failover' => [],
+            'port' => 5432,
+        ];
+
         if (ENVIRONMENT === 'testing') {
             $this->defaultGroup = 'tests';
         }

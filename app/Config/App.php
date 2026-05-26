@@ -22,15 +22,17 @@ class App extends BaseConfig
     public function __construct()
     {
         parent::__construct();
-        // Hacer la URL base dinámica para permitir navegación fluida desde celular o red local
-        if (isset($_SERVER['HTTP_HOST'])) {
-            $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-            $this->baseURL = $protocol . '://' . $_SERVER['HTTP_HOST'] . '/';
-        }
 
-        if (ENVIRONMENT === 'development') {
+        // Solo local
+        if (
+            ENVIRONMENT === 'development' && isset($_SERVER['HTTP_HOST']) &&
+            str_contains($_SERVER['HTTP_HOST'], 'localhost')
+        ) {
             $this->baseURL = 'http://localhost:8080/';
             $this->forceGlobalSecureRequests = false;
+        } else {
+            $this->baseURL = env('app.baseURL') ?: 'https://rfmarketing-gestion-pedidos.onrender.com/';
+            $this->forceGlobalSecureRequests = true;
         }
     }
 
