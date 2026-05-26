@@ -122,6 +122,8 @@ _modules/*
 # Editores de Codigo (VSCode, Cursor, etc)
 .vscode/
 .cursor/
+.antigravitycli/
+.antigravity/
 
 /results/
 /phpunit*.xml

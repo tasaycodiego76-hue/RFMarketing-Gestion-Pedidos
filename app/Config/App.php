@@ -16,12 +16,12 @@ class App extends BaseConfig
      *
      * E.g., http://example.com/
      */
-    public string $baseURL = 'http://localhost:8080/';
+    public string $baseURL = 'https://rfmarketing-gestion-pedidos.onrender.com';
+
 
     public function __construct()
     {
         parent::__construct();
-
         // Hacer la URL base dinámica para permitir navegación fluida desde celular o red local
         if (isset($_SERVER['HTTP_HOST'])) {
             $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
@@ -168,7 +168,7 @@ class App extends BaseConfig
      * secure, the user will be redirected to a secure version of the page
      * and the HTTP Strict Transport Security (HSTS) header will be set.
      */
-    public bool $forceGlobalSecureRequests = false;
+    public bool $forceGlobalSecureRequests = true;
 
     /**
      * --------------------------------------------------------------------------
