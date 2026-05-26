@@ -25,85 +25,54 @@ html[data-theme="light"] {
     justify-content: space-between;
     align-items: center;
     background: #0a0a0a;
-    padding: 25px 30px;
-    border-radius: 16px;
+    padding: 12px 20px;
+    border-radius: 12px;
     border: 1px solid #151515;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
     gap: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
 .kb-head-left {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 12px;
     flex-shrink: 0;
 }
 
 .kb-emp-avatar {
-    width: 60px;
-    height: 60px;
+    width: 44px;
+    height: 44px;
     background: #F5C400;
-    border-radius: 14px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 30px;
+    font-size: 22px;
     color: #000;
     font-weight: 900;
-    box-shadow: 0 8px 20px rgba(245, 196, 0, 0.2);
+    box-shadow: 0 4px 10px rgba(245, 196, 0, 0.15);
 }
 
 .kb-emp-nombre {
-    font-size: 24px;
-    font-weight: 800;
+    font-size: 18px;
+    font-weight: 700;
     color: #fff;
     font-family: 'DM Sans', sans-serif;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.2px;
 }
 
 .kb-emp-meta {
-    font-size: 14px;
-    color: #fff;
-    margin-top: 5px;
-    font-weight: 600;
-    opacity: 0.9;
+    font-size: 12px;
+    color: #888;
+    margin-top: 1px;
+    font-weight: 500;
 }
 
 /* --- Stats --- */
 .kb-head-stats {
-    display: flex;
-    gap: 35px;
-    flex-grow: 1;
-    justify-content: center;
-    padding: 0 30px;
-    border-left: 1px solid #1a1a1a;
-    border-right: 1px solid #1a1a1a;
-}
-
-.kb-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 70px;
-}
-
-.kb-stat span {
-    font-size: 36px;
-    font-weight: 900;
-    font-family: 'Bebas Neue', sans-serif;
-    line-height: 1;
-}
-
-.kb-stat small {
-    font-size: 10px;
-    color: #fff;
-    font-weight: 900;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-top: 5px;
-    opacity: 0.8;
+    display: none; /* Removed redundant stats block */
 }
 
 /* SLA Summary Section */
@@ -111,42 +80,42 @@ html[data-theme="light"] {
     display: flex;
     gap: 15px;
     flex-shrink: 0;
+    align-items: center;
 }
 
 .sla-sum-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 12px;
-    border: 1px solid #151515;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    padding: 0;
 }
 
 .sla-sum-dot {
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
 }
 
 .sla-sum-info {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 4px;
 }
 
 .sla-sum-val {
-    font-size: 18px;
-    font-weight: 900;
+    font-size: 13px;
+    font-weight: 700;
     line-height: 1;
-    font-family: 'Bebas Neue', sans-serif;
+    color: #fff;
 }
 
 .sla-sum-lbl {
-    font-size: 8px;
-    color: #fff;
-    font-weight: 800;
+    font-size: 10px;
+    color: #888;
+    font-weight: 600;
     letter-spacing: 0.5px;
-    opacity: 0.7;
 }
 
 /* Colores SLA */
@@ -230,49 +199,78 @@ html[data-theme="light"] {
     color: #10b981;
 }
 
-/* --- Areas Tabs --- */
+/* --- Areas Row (tabs + métricas en la misma fila) --- */
+.kb-areas-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 20px;
+    background: #0a0a0a;
+    border: 1px solid #151515;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
 .kb-areas {
     display: flex;
-    gap: 10px;
-    margin-bottom: 25px;
-    padding-bottom: 10px;
-    padding-top: 8px;
-    /* Espacio para que el badge no se corte */
-    padding-right: 10px;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
     overflow-x: auto;
-    /* Scroll horizontal en movil */
     -webkit-overflow-scrolling: touch;
+    padding: 8px 12px 12px 12px;
+    align-items: center;
 }
 
 .kb-areas::-webkit-scrollbar {
     height: 4px;
+    display: block;
+}
+
+.kb-areas::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .kb-areas::-webkit-scrollbar-thumb {
-    background: #222;
-    border-radius: 10px;
+    background: #252525;
+    border-radius: 4px;
+}
+
+.kb-areas::-webkit-scrollbar-thumb:hover {
+    background: #F5C400;
 }
 
 .kb-area-tab {
-    padding: 8px 18px;
-    border-radius: 10px;
+    padding: 7px 14px;
+    border-radius: 8px;
     text-decoration: none;
-    color: #888;
-    font-size: 14px;
-    font-weight: 800;
-    background: #0f0f0f;
-    border: 1px solid #1a1a1a;
-    transition: all 0.3s ease;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.2s ease;
     white-space: nowrap;
     display: inline-flex;
-    /* Alineación natural al lado del nombre */
     align-items: center;
     gap: 8px;
+    flex-shrink: 0;
+}
+
+.kb-area-tab-txt {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .kb-area-tab:hover {
-    color: #fff;
-    border-color: #333;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.13);
+    border-color: rgba(255,255,255,0.2);
+    text-decoration: none;
 }
 
 .kb-area-tab.activo {
@@ -285,17 +283,219 @@ html[data-theme="light"] {
 .area-badge-notif {
     background: #dc2626;
     color: #fff;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 900;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: none;
-    /* Estilo opaco/mate */
+}
+
+/* --- Métricas al lado de las áreas --- */
+.kb-areas-stats {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border-left: 1px solid #1c1c1c;
+    flex-shrink: 0;
+}
+
+.kb-areas-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 18px;
+    border-right: 1px solid #1c1c1c;
+    gap: 1px;
+    min-width: 80px;
+    transition: all 0.2s ease;
+    background: transparent;
+    text-align: center;
+}
+
+.kb-areas-stat:last-child {
+    border-right: none;
+}
+
+/* Colores correspondientes de números (centrados, sin líneas de color) */
+.kb-areas-stat.stat-solicitudes .kb-areas-stat-num {
+    color: #F5C400 !important;
+}
+
+.kb-areas-stat.stat-proceso .kb-areas-stat-num {
+    color: #a855f7 !important;
+}
+
+.kb-areas-stat.stat-revision .kb-areas-stat-num {
+    color: #f97316 !important;
+}
+
+.kb-areas-stat.stat-completados .kb-areas-stat-num {
+    color: #10b981 !important;
+}
+
+.kb-areas-stat:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.kb-areas-stat-num {
+    font-size: 24px;
+    font-weight: 700;
+    font-family: 'Bebas Neue', sans-serif;
+    line-height: 1;
+}
+
+.kb-areas-stat-lbl {
+    font-size: 9px;
+    color: #ffffff !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    white-space: nowrap;
+    opacity: 0.9;
+}
+
+/* ══════════════════════════════════════
+   SOPORTE TEMA CLARO Y RESPONSIVO TABS/MÉTRICAS
+   ══════════════════════════════════════ */
+
+/* --- TEMA CLARO --- */
+html[data-theme="light"] .kb-areas-row {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .kb-areas::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+}
+
+html[data-theme="light"] a.kb-area-tab,
+html[data-theme="light"] a.kb-area-tab:link,
+html[data-theme="light"] a.kb-area-tab:visited {
+    color: #111111 !important;
+    background: rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.12);
+}
+
+html[data-theme="light"] a.kb-area-tab:hover {
+    color: #111111 !important;
+    background: rgba(0, 0, 0, 0.09);
+    border-color: rgba(0,0,0,0.2);
+}
+
+html[data-theme="light"] a.kb-area-tab.activo {
+    background: #F5C400;
+    color: #000000 !important;
+    border-color: #F5C400;
+}
+
+html[data-theme="light"] .kb-areas-stats {
+    border-left: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .kb-areas-stat {
+    border-right: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .kb-areas-stat:hover {
+    background: rgba(15, 23, 42, 0.02);
+}
+
+html[data-theme="light"] .kb-areas-stat-lbl {
+    color: #475569 !important;
+    opacity: 1;
+}
+
+/* Filtros TODO / HOY / MAÑANA — Tema Claro */
+html[data-theme="light"] .kb-quick-filters {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+}
+
+html[data-theme="light"] .kb-filter-btn {
+    color: #000000 !important;
+}
+
+html[data-theme="light"] .kb-filter-btn:hover {
+    color: #000000 !important;
+    background: rgba(0, 0, 0, 0.07);
+}
+
+html[data-theme="light"] .kb-filter-btn.active {
+    background: #F5C400;
+    color: #000000 !important;
+}
+
+/* --- RESPONSIVO TABLETS (1024px o menos) --- */
+@media (max-width: 1024px) {
+    .kb-area-tab {
+        font-size: 12px;
+        padding: 6px 11px;
+    }
+
+    .kb-area-tab-txt {
+        max-width: 100px;
+    }
+}
+
+/* --- RESPONSIVO PARA MÓVILES (768px o menos) --- */
+@media (max-width: 768px) {
+    .kb-areas-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .kb-areas {
+        width: 100%;
+        padding: 10px 12px;
+    }
+
+    .kb-area-tab {
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+
+    .kb-area-tab-txt {
+        max-width: 80px;
+    }
+
+    /* Badge visible en móvil */
+    .area-badge-notif {
+        width: 16px;
+        height: 16px;
+        font-size: 9px;
+    }
+
+    .kb-areas-stats {
+        border-left: none;
+        border-top: 1px solid #1c1c1c;
+        width: 100%;
+        justify-content: space-around;
+    }
+
+    .kb-areas-stat {
+        flex: 1;
+        border-right: 1px solid #1c1c1c;
+        min-width: unset;
+        padding: 10px 4px;
+    }
+
+    .kb-areas-stat:last-child {
+        border-right: none;
+    }
+
+    /* Adaptaciones de Tema Claro en Móvil */
+    html[data-theme="light"] .kb-areas-stats {
+        border-top: 1px solid #e2e8f0;
+    }
+
+    html[data-theme="light"] .kb-areas-stat {
+        border-right: 1px solid #e2e8f0;
+    }
 }
 
 /* --- Tablero --- */
@@ -1600,31 +1800,38 @@ html[data-theme="light"] {
 }
 
 /* --- Botones de Filtro Rápido --- */
-.kb-filter-btn {
-    background: #0a0a0a;
+.kb-quick-filters {
+    display: flex;
+    gap: 4px;
+    background: #0f0f0f;
+    padding: 4px;
+    border-radius: 10px;
     border: 1px solid #1a1a1a;
-    color: #555;
+}
+
+.kb-filter-btn {
+    background: transparent;
+    border: none;
+    color: #666;
     font-size: 10px;
     padding: 6px 14px;
-    border-radius: 8px;
+    border-radius: 7px;
     cursor: pointer;
     font-weight: 800;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     letter-spacing: 1px;
     font-family: 'Bebas Neue', cursive;
 }
 
 .kb-filter-btn:hover {
-    border-color: #333;
-    color: #aaa;
-    background: #111;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .kb-filter-btn.active {
     background: #F5C400;
     color: #000;
-    border-color: #F5C400;
-    box-shadow: 0 0 15px rgba(245, 196, 0, 0.3);
+    box-shadow: none;
 }
 
 /* Fix para nombres de empresa largos */
@@ -2807,13 +3014,14 @@ html[data-theme="light"] .kb-filter-btn:not(.active) {
    MEJORAS DE MODAL DETALLES PARA MÓVIL (MAX 580PX)
    ====================================================== */
 @media (max-width: 580px) {
+
     /* Ajustar el padding principal del modal */
     #modalDetalle .modal-dialog,
     #modal .modal-dialog {
         margin: 0.5rem;
         max-width: calc(100% - 1rem);
     }
-    
+
     #modalDetalle .modal-body,
     #modal .modal-body {
         padding: 12px !important;
@@ -2825,14 +3033,16 @@ html[data-theme="light"] .kb-filter-btn:not(.active) {
         gap: 10px !important;
         align-items: flex-start !important;
     }
-    .exp-header-layout > div {
+
+    .exp-header-layout>div {
         width: 100% !important;
         justify-content: flex-start !important;
         padding: 5px 0 !important;
         border-right: none !important;
         border-bottom: 1px solid rgba(136, 136, 136, 0.1) !important;
     }
-    .exp-header-layout > div:last-child {
+
+    .exp-header-layout>div:last-child {
         border-bottom: none !important;
     }
 
@@ -2850,28 +3060,34 @@ html[data-theme="light"] .kb-filter-btn:not(.active) {
         gap: 10px !important;
         justify-content: space-between !important;
     }
+
     .step {
         flex: 1 1 30% !important;
         margin: 5px 0 !important;
     }
+
     .step-icon {
         width: 28px !important;
         height: 28px !important;
         font-size: 12px !important;
     }
+
     .step-label {
         font-size: 9px !important;
         margin-top: 5px !important;
     }
+
     .step-line {
-        display: none !important; /* Ocultar líneas en móvil para evitar desborde */
+        display: none !important;
+        /* Ocultar líneas en móvil para evitar desborde */
     }
 
     /* Grillas de datos (Requerimiento, Detalles) */
     .exp-grid,
     .exp-grid-3,
     div[style*="display: grid"] {
-        grid-template-columns: 1fr !important; /* Forzar 1 sola columna */
+        grid-template-columns: 1fr !important;
+        /* Forzar 1 sola columna */
         gap: 12px !important;
     }
 
@@ -2880,11 +3096,13 @@ html[data-theme="light"] .kb-filter-btn:not(.active) {
         padding: 12px !important;
         border-radius: 8px !important;
     }
+
     .data-label,
     .data-label-large {
         font-size: 10px !important;
         margin-bottom: 4px !important;
     }
+
     .data-value {
         font-size: 13px !important;
         word-break: break-word !important;
@@ -2895,6 +3113,7 @@ html[data-theme="light"] .kb-filter-btn:not(.active) {
         padding-left: 15px !important;
         font-size: 12px !important;
     }
+
     .custom-list li {
         margin-bottom: 4px !important;
     }
@@ -2903,14 +3122,17 @@ html[data-theme="light"] .kb-filter-btn:not(.active) {
     .files-grid {
         grid-template-columns: 1fr !important;
     }
+
     .file-card {
         padding: 10px !important;
     }
+
     .file-icon {
         width: 35px !important;
         height: 35px !important;
         font-size: 16px !important;
     }
+
     .file-name {
         font-size: 12px !important;
     }
@@ -2920,6 +3142,7 @@ html[data-theme="light"] .kb-filter-btn:not(.active) {
         flex-direction: column !important;
         gap: 10px !important;
     }
+
     .kb-modal-footer button {
         width: 100% !important;
         margin: 0 !important;

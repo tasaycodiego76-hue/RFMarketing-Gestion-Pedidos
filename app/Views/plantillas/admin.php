@@ -50,20 +50,17 @@
                     <i class="bi bi-chevron-down ms-auto arrow-icon"></i>
                 </div>
 
-                <div class="nav-sub-menu <?= ($paginaActual == 'todas_empresas' || $paginaActual == 'kanban') ? 'show' : '' ?>"
+                <div class="nav-sub-menu <?= ($paginaActual == 'kanban') ? 'show' : '' ?>"
                     id="menu-empresas">
-                    <a href="<?= site_url('admin/empresas') ?>"
-                        class="nav-enlace sub-enlace <?= ($paginaActual == 'todas_empresas') ? 'activo' : '' ?>">
-                        <i style="font-size: 10px;"></i> Todas las Empresas
-                    </a>
                     <?php foreach ($empresas ?? [] as $emp): ?>
                         <?php
                         $estaActiva = ($emp['estado'] === true || $emp['estado'] === 't');
                         ?>
                         <a href="<?= site_url('admin/kanban/' . $emp['id'] . '/1') ?>" id="sidebar-item-<?= $emp['id'] ?>"
-                            class="nav-enlace sub-enlace <?= (!$estaActiva) ? 'd-none' : '' ?>">
+                            class="nav-enlace sub-enlace <?= (!$estaActiva) ? 'd-none' : '' ?>"
+                            title="<?= esc($emp['nombreempresa']) ?>">
                             <i class="bi bi-circle-fill nav-punto"></i>
-                            <span class="text-truncate"><?= esc($emp['nombreempresa']) ?></span>
+                            <span><?= esc($emp['nombreempresa']) ?></span>
                         </a>
                     <?php endforeach; ?>
                 </div>

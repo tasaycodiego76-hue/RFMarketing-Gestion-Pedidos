@@ -734,5 +734,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Restringir entrada a solo números para teléfono y número de documento
+    const inputsNumericos = ['#telefono', '#numerodoc', '#rea-telefono', '#rea-numerodoc'];
+    inputsNumericos.forEach(selector => {
+        const input = document.querySelector(selector);
+        if (input) {
+            input.addEventListener('input', function () {
+                this.value = this.value.replace(/\D/g, '');
+            });
+        }
+    });
+
     obtenerUsuarios();
 });

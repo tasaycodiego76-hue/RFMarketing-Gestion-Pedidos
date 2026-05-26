@@ -203,5 +203,16 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#modal-empresa').modal('show');
     });
 
+    // Restringir entrada a solo números para RUC y teléfono
+    const inputsNumericos = ['#ruc', '#telefono'];
+    inputsNumericos.forEach(selector => {
+        const input = document.querySelector(selector);
+        if (input) {
+            input.addEventListener('input', function () {
+                this.value = this.value.replace(/\D/g, '');
+            });
+        }
+    });
+
     obtenerEmpresas();
 });
