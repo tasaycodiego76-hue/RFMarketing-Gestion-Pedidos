@@ -274,7 +274,7 @@ function abrirModalAccion(id, tipo) {
   modal.modal("show");
 }
 
-function ejecutarAccion(id, tipo) {
+async function ejecutarAccion(id, tipo) {
   let url =
     tipo === "iniciar"
       ? `${BASE_URL}/empleado/pedido-iniciar/${id}`
@@ -314,57 +314,54 @@ function ejecutarAccion(id, tipo) {
     }
   }
 
-  Swal.fire({
+  const result = await Swal.fire({
     title: "¿Confirmar envío?",
     text: "Asegúrate de que todo esté correcto.",
     confirmButtonColor: "#F5C400",
     confirmButtonText: "SÍ, CONFIRMAR",
     cancelButtonText: "CANCELAR",
     showCancelButton: true,
-  }).then((result) => {
-    if (result.isConfirmed) {
-      Swal.fire({
-        title: "Procesando...",
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
+  });
 
-      $.ajax({
-        url: url,
-        type: "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        dataType: "json",
-        success: function (res) {
-          if (res.status === "success") {
-            Swal.fire({
-              icon: "success",
-              title: "¡Hecho!",
-              text: res.message
-            }).then(() => {
-              location.reload();
-            });
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: res.message
-            });
-          }
-        },
-        error: function () {
-          Swal.fire({
-            icon: "error",
-            title: "Error fatal",
-            text: "No se pudo procesar la solicitud."
-          });
-        },
+  if (result.isConfirmed) {
+    Swal.fire({
+      title: "Procesando...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+      const res = await response.json();
+
+      if (res.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "¡Hecho!",
+          text: res.message
+        }).then(() => {
+          location.reload();
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: res.message
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error fatal",
+        text: "No se pudo procesar la solicitud."
       });
     }
-  });
+  }
 }
 
 // LÓGICA DE BÚSQUEDA Y FILTRADO

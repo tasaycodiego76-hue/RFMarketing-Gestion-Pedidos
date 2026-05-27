@@ -58,7 +58,7 @@ class ReporteController extends BaseResponsableController
         ];
 
         // Preparar la Vista HTML
-        $html = view('Responsable/reporte_area', [
+        $html = view('responsable/reporte_area', [
             'titulo'    => 'REPORTE DE GESTIÓN OPERATIVA',
             'area'      => $userS['userData']['nombre_areaagencia'] ?? 'Área no asignada',
             'jefe'      => trim($userS['user']['nombre'] . ' ' . $userS['user']['apellidos']),

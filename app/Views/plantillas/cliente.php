@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?= csrf_hash() ?>">
     <title>RF Marketing —
         <?= $titulo ?? 'Panel Cliente' ?>
     </title>
@@ -197,6 +198,26 @@
         const PUSHER_CLUSTER = '<?= env('PUSHER_CLUSTER') ?>';
         const CLIENTE_ID     = '<?= session()->get('usuario_id') ?>';
         const BASE_URL       = '<?= base_url() ?>';
+
+        // Interceptor Global de Fetch para CSRF
+        (function() {
+            const originalFetch = window.fetch;
+            window.fetch = async function(...args) {
+                let [resource, config] = args;
+                if (config && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(config.method?.toUpperCase())) {
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    if (token) {
+                        config.headers = config.headers || {};
+                        if (config.headers instanceof Headers) {
+                            config.headers.set('X-CSRF-TOKEN', token);
+                        } else {
+                            config.headers['X-CSRF-TOKEN'] = token;
+                        }
+                    }
+                }
+                return originalFetch.apply(this, args);
+            };
+        })();
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {

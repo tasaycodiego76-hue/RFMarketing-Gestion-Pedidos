@@ -32,7 +32,7 @@ class EquipoController extends BaseResponsableController
             'user' => $userS['userData']
         ], $metrics);
 
-        return view('Responsable/equipo', $data);
+        return view('responsable/equipo', $data);
     }
 
     /**
@@ -77,7 +77,7 @@ class EquipoController extends BaseResponsableController
             'empleados' => $empleadosEstaticos
         ], $metrics);
 
-        return view('Responsable/en_proceso', $data);
+        return view('responsable/en_proceso', $data);
     }
 
     /**
