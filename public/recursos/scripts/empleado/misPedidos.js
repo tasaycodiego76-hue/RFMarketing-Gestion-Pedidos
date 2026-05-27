@@ -1,3 +1,14 @@
+// Helper seguro para parsear arrays provenientes de PostgreSQL
+function _parseList(data) {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    return [];
+  }
+}
+
 function verDetalleSolicitud(id) {
   // Registrar el ID activo para que Pusher pueda refrescarlo sin recargar
   window._modalIdActual = id;
@@ -82,7 +93,7 @@ function verDetalleSolicitud(id) {
                                 CANALES
                             </h6>
                             <div id="canales-container" class="exp-card-info" style="background:var(--mini-card-bg); padding:20px; border-radius:12px; border:1px solid var(--borde); display:flex; flex-wrap:wrap; gap:8px;">
-                                ${d.canales_difusion ? JSON.parse(d.canales_difusion).map(c => `<span style="background:var(--panel); color:var(--texto); border:1px solid var(--borde); padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${c}</span>`).join("") : '<span style="color:var(--texto-3); font-size:11px; font-style:italic;">No especificados</span>'}
+                                ${_parseList(d.canales_difusion).length > 0 ? _parseList(d.canales_difusion).map(c => `<span style="background:var(--panel); color:var(--texto); border:1px solid var(--borde); padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${c}</span>`).join("") : '<span style="color:var(--texto-3); font-size:11px; font-style:italic;">No especificados</span>'}
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -91,7 +102,7 @@ function verDetalleSolicitud(id) {
                                 FORMATOS
                             </h6>
                             <div id="formatos-container" class="exp-card-info" style="background:var(--mini-card-bg); padding:20px; border-radius:12px; border:1px solid var(--borde); display:flex; flex-wrap:wrap; gap:8px;">
-                                ${d.formatos_solicitados ? JSON.parse(d.formatos_solicitados).map(f => `<span style="background:var(--panel); color:var(--texto); border:1px solid var(--borde); padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${f}</span>`).join("") : '<span style="color:var(--texto-3); font-size:11px; font-style:italic;">No especificados</span>'}
+                                ${_parseList(d.formatos_solicitados).length > 0 ? _parseList(d.formatos_solicitados).map(f => `<span style="background:var(--panel); color:var(--texto); border:1px solid var(--borde); padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${f}</span>`).join("") : '<span style="color:var(--texto-3); font-size:11px; font-style:italic;">No especificados</span>'}
                             </div>
                         </div>
                     </div>
