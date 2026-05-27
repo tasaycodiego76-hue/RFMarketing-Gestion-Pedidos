@@ -163,9 +163,32 @@
 
     <script>
         const BASE_URL = '<?= base_url() ?>';
-        $.ajaxSetup({
-            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
-        });
+        
+        // Interceptor Global para inyectar token CSRF en Fetch y jQuery AJAX
+        (function() {
+            // 1. Interceptar jQuery AJAX
+            $.ajaxSetup({
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+            });
+
+            // 2. Interceptar Fetch API
+            const originalFetch = window.fetch;
+            window.fetch = async function(...args) {
+                let [resource, config] = args;
+                if (config && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(config.method?.toUpperCase())) {
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    if (token) {
+                        config.headers = config.headers || {};
+                        if (config.headers instanceof Headers) {
+                            config.headers.set('X-CSRF-TOKEN', token);
+                        } else {
+                            config.headers['X-CSRF-TOKEN'] = token;
+                        }
+                    }
+                }
+                return originalFetch.apply(this, args);
+            };
+        })();
 
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {

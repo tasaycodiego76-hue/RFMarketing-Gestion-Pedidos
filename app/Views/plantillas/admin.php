@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="<?= csrf_token() ?>">
+    <meta name="csrf-token" content="<?= csrf_hash() ?>">
     <title>RF Marketing — <?= esc($titulo ?? 'Admin') ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap"
         rel="stylesheet">
@@ -234,6 +234,37 @@
     <script>
         // URL base del proyecto — permite usarla en archivos JS externos sin depender de PHP
         const BASE_URL = '<?= base_url() ?>';
+
+        // Interceptor Global para inyectar token CSRF en Fetch y jQuery AJAX
+        (function() {
+            // 1. Interceptar jQuery AJAX si existe
+            $(document).ajaxSend(function(event, xhr, settings) {
+                if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(settings.type?.toUpperCase())) {
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    if (token) {
+                        xhr.setRequestHeader('X-CSRF-TOKEN', token);
+                    }
+                }
+            });
+
+            // 2. Interceptar Fetch API
+            const originalFetch = window.fetch;
+            window.fetch = async function(...args) {
+                let [resource, config] = args;
+                if (config && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(config.method?.toUpperCase())) {
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    if (token) {
+                        config.headers = config.headers || {};
+                        if (config.headers instanceof Headers) {
+                            config.headers.set('X-CSRF-TOKEN', token);
+                        } else {
+                            config.headers['X-CSRF-TOKEN'] = token;
+                        }
+                    }
+                }
+                return originalFetch.apply(this, args);
+            };
+        })();
 
         // Fix de compatibilidad local: Desregistrar cualquier ServiceWorker de proyectos antiguos en localhost:8080
         if ('serviceWorker' in navigator) {

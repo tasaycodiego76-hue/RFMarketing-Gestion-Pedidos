@@ -797,6 +797,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", `${base_url}cliente/requerimiento/guardar`, true);
 
+    // 🆕 Inyectar token CSRF para peticiones directas de XMLHttpRequest
+    const tokenCsrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    if (tokenCsrf) {
+      xhr.setRequestHeader("X-CSRF-TOKEN", tokenCsrf);
+    }
+
     xhr.upload.onprogress = (ev) => {
       if (ev.lengthComputable) {
         const percent = Math.round((ev.loaded / ev.total) * 100);

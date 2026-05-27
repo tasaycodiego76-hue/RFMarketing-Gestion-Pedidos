@@ -57,9 +57,9 @@ RUN chown -R www-data:www-data /var/www/html \
 
 # 10. Configurar ajustes de producción para PHP
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
-    && echo "upload_max_filesize = 64M" >> "$PHP_INI_DIR/php.ini" \
-    && echo "post_max_size = 64M" >> "$PHP_INI_DIR/php.ini" \
-    && echo "memory_limit = 256M" >> "$PHP_INI_DIR/php.ini"
+    && echo "upload_max_filesize = 256M" >> "$PHP_INI_DIR/php.ini" \
+    && echo "post_max_size = 256M" >> "$PHP_INI_DIR/php.ini" \
+    && echo "memory_limit = 512M" >> "$PHP_INI_DIR/php.ini"
 
 # Quita el EXPOSE 80 fijo y el CMD anterior, pon esto:
 EXPOSE 10000
