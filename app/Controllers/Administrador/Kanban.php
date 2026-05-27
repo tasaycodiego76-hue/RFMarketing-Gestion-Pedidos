@@ -13,7 +13,7 @@ use App\Libraries\EmailService;
 use App\Models\RequerimientoModel;
 use App\Services\PusherService;
 
-class kanban extends Controller
+class Kanban extends Controller
 {
      private PusherService $pusher;
        public function __construct()  // ← AGREGA TODO EL CONSTRUCTOR

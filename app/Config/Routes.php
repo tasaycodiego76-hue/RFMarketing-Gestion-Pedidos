@@ -55,8 +55,8 @@ $routes->group('admin', ['filter' => 'auth:administrador'], function ($routes) {
     $routes->get('kanban/areas', 'Administrador\Kanban::areasAgencia');
     $routes->post('kanban/cambiarPrioridad', 'Administrador\Kanban::cambiarPrioridad');
     $routes->post('kanban/asignarEmpleado', 'Administrador\Kanban::asignarEmpleado');
-    $routes->post('kanban/iniciarTrabajo', 'Administrador\kanban::iniciarTrabajo');
-    $routes->post('kanban/regresarAProceso', 'Administrador\kanban::regresarAProceso');
+    $routes->post('kanban/iniciarTrabajo', 'Administrador\Kanban::iniciarTrabajo');
+    $routes->post('kanban/regresarAProceso', 'Administrador\Kanban::regresarAProceso');
     $routes->get('kanban/tarjetaHTML/(:num)', 'Administrador\Kanban::tarjetaHTML/$1');
 
     //EMPRESAS 
