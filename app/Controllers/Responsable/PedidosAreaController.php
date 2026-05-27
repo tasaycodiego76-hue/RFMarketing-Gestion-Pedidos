@@ -100,7 +100,7 @@ class PedidosAreaController extends BaseResponsableController
             'empleados' => $empleados,
         ], $metrics);
 
-        return view('Responsable/dashboard', $data);
+        return view('responsable/dashboard', $data);
     }
 
     /**
@@ -161,7 +161,7 @@ class PedidosAreaController extends BaseResponsableController
             'user' => $userS['userData']
         ], $metrics);
 
-        return view('Responsable/bandeja', $data);
+        return view('responsable/bandeja', $data);
     }
 
     /**
