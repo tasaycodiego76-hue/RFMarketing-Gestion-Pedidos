@@ -327,11 +327,12 @@ class Kanban extends Controller
         WHERE id = ?
     ", [$idEmpleado, $idAtencion]);
 
+        $limaTime = (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s');
         $db->query("
-        INSERT INTO tracking (idatencion, idusuario, accion, estado)
-        SELECT ?, ?, 'Empleado asignado por responsable de área', estado
+        INSERT INTO tracking (idatencion, idusuario, accion, estado, fecha_registro)
+        SELECT ?, ?, 'Empleado asignado por responsable de área', estado, ?
         FROM atencion WHERE id = ?
-    ", [$idAtencion, $idUsuario, $idAtencion]);
+    ", [$idAtencion, $idUsuario, $limaTime, $idAtencion]);
 
         // Notificar asignación (mantiene estado)
         $this->pusher->notificarCambioEstado($idAtencion, 'pendiente_asignado');
@@ -347,16 +348,17 @@ class Kanban extends Controller
 
         $db = \Config\Database::connect();
 
+        $limaTime = (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s');
         $db->query("
         UPDATE atencion
-        SET estado = 'en_proceso', fechainicio = NOW()
+        SET estado = 'en_proceso', fechainicio = ?
         WHERE id = ?
-    ", [$idAtencion]);
+    ", [$limaTime, $idAtencion]);
 
         $db->query("
-        INSERT INTO tracking (idatencion, idusuario, accion, estado)
-        VALUES (?, ?, 'Trabajo iniciado por responsable/empleado', 'en_proceso')
-    ", [$idAtencion, $idUsuario]);
+        INSERT INTO tracking (idatencion, idusuario, accion, estado, fecha_registro)
+        VALUES (?, ?, 'Trabajo iniciado por responsable/empleado', 'en_proceso', ?)
+    ", [$idAtencion, $idUsuario, $limaTime]);
 
         $this->pusher->notificarCambioEstado($idAtencion, 'en_proceso');
 
@@ -400,7 +402,8 @@ class Kanban extends Controller
                 WHERE id = ?
             ", [$nuevoEstado, $idAreaAgencia, $idAtencion]);
         } elseif ($nuevoEstado === 'finalizado') {
-            $db->query("UPDATE atencion SET estado = ?, fechacompletado = NOW(), observacion_revision = NULL WHERE id = ?", [$nuevoEstado, $idAtencion]);
+            $limaTimeFin = (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s');
+            $db->query("UPDATE atencion SET estado = ?, fechacompletado = ?, observacion_revision = NULL WHERE id = ?", [$nuevoEstado, $limaTimeFin, $idAtencion]);
             $accion = 'Requerimiento finalizado y entregado con éxito.';
         } else {
             // Si el Admin regresa el pedido, le ponemos un mensaje por defecto para que aparezca en Retroalimentación
@@ -424,10 +427,11 @@ class Kanban extends Controller
             }
         }
 
+        $limaTimeTrack = (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s');
         $db->query("
-            INSERT INTO tracking (idatencion, idusuario, accion, estado)
-            VALUES (?, ?, ?, ?)
-        ", [$idAtencion, $idAdmin, $accion, $nuevoEstado]);
+            INSERT INTO tracking (idatencion, idusuario, accion, estado, fecha_registro)
+            VALUES (?, ?, ?, ?, ?)
+        ", [$idAtencion, $idAdmin, $accion, $nuevoEstado, $limaTimeTrack]);
 
         // Enviar notificación por correo al cliente si se finaliza (aprueba) el pedido
         if ($nuevoEstado === 'finalizado') {
@@ -472,16 +476,17 @@ class Kanban extends Controller
         $motivo = $json['motivo'] ?? 'Sin motivo';
         $idAdmin = session()->get('id') ?? 1;
 
+        $limaTimeCancel = (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s');
         $db->query("
             UPDATE atencion 
-            SET estado = 'cancelado', cancelacionmotivo = ?, fechacancelacion = NOW() 
+            SET estado = 'cancelado', cancelacionmotivo = ?, fechacancelacion = ?
             WHERE id = ?
-        ", [$motivo, $idAtencion]);
+        ", [$motivo, $limaTimeCancel, $idAtencion]);
 
         $db->query("
-            INSERT INTO tracking (idatencion, idusuario, accion, estado)
-            VALUES (?, ?, 'El pedido ha sido cancelado por la Administración. Motivo: ' || ?, 'cancelado')
-        ", [$idAtencion, $idAdmin, $motivo]);
+            INSERT INTO tracking (idatencion, idusuario, accion, estado, fecha_registro)
+            VALUES (?, ?, 'El pedido ha sido cancelado por la Administración. Motivo: ' || ?, 'cancelado', ?)
+        ", [$idAtencion, $idAdmin, $motivo, $limaTimeCancel]);
 
 
         // Enviar notificación por correo al cliente

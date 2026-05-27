@@ -177,10 +177,10 @@ class Database extends Config
 
         $this->default = [
             'DSN' => '',
-            'hostname' => env('database.default.hostname') ?: 'dpg-d8b0mgv7f7vs73bjqq60-a',
-            'username' => env('database.default.username') ?: 'db_rfmarketing_user',
-            'password' => env('database.default.password') ?: 'KPRdeCL1eUuNuZFniAE3WADHOVvGkvI7',
-            'database' => env('database.default.database') ?: 'db_rfmarketing',
+            'hostname' => env('database.default.hostname') ?: 'dpg-d8bhr5mq1p3s73ci051g-a',
+            'username' => env('database.default.username') ?: 'postgresql_s25n_user',
+            'password' => env('database.default.password') ?: 'YaWpT2gN9BEbuaPN9dXCgJJrzqNoZJAf',
+            'database' => env('database.default.database') ?: 'postgresql_s25n',
             'DBDriver' => 'Postgre',
             'DBPrefix' => '',
             'pConnect' => false,

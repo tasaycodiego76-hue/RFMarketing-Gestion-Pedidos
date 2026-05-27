@@ -136,7 +136,7 @@ class TrackingModel extends Model
             $row = $this->db->query($sql, [$idUsuario, $idUsuario, $ultimaVez])->getRowArray();
         } else {
             // Fallback de 24 horas si es su primer inicio de sesión
-            $sql .= " AND t.fecha_registro >= NOW() - INTERVAL '24 HOURS'";
+            $sql .= " AND t.fecha_registro >= NOW() AT TIME ZONE 'America/Lima' - INTERVAL '24 HOURS'";
             $row = $this->db->query($sql, [$idUsuario, $idUsuario])->getRowArray();
         }
 
