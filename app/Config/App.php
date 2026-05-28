@@ -25,7 +25,11 @@ class App extends BaseConfig
 
         // Hacer la URL base dinámica para permitir navegación fluida desde celular o red local
         if (isset($_SERVER['HTTP_HOST'])) {
-            $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+            $protocol = 'http';
+            if ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || 
+                (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) {
+                $protocol = 'https';
+            }
             $this->baseURL = $protocol . '://' . $_SERVER['HTTP_HOST'] . '/';
         }
     }
