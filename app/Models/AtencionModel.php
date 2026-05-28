@@ -487,7 +487,7 @@ class AtencionModel extends Model
             ->where('a.idarea_agencia', $idAreaAgencia)
             ->where('a.observacion_revision IS NOT NULL')
             ->where("a.observacion_revision != ''")
-            ->whereIn('a.estado', ['en_proceso', 'pendiente_asignado', 'en_revision'])
+            ->whereIn('a.estado', ['en_proceso', 'pendiente_asignado'])
             ->orderBy('fecha_retro', 'DESC')
             ->get()->getResultArray();
     }
