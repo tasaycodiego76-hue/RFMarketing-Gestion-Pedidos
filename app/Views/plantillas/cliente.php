@@ -199,19 +199,7 @@
         const CLIENTE_ID     = '<?= session()->get('usuario_id') ?>';
         const BASE_URL       = '<?= base_url() ?>';
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) { registration.unregister(); }
-            });
-        }
-    </script>
-    <!-- Pusher Global: conexión + lógica de cliente en tiempo real -->
-    <script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
-    <!-- JS Plantilla -->
-    <script src="<?= base_url('recursos/scripts/cliente/plantilla/cliente.js') ?>"></script>
-    
-    <!-- Interceptor Global de Fetch para CSRF -->
-    <script>
+        // Interceptor Global de Fetch para CSRF
         (function() {
             const originalFetch = window.fetch;
             window.fetch = async function(...args) {
@@ -230,8 +218,17 @@
                 return originalFetch.apply(this, args);
             };
         })();
-    </script>
 
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) { registration.unregister(); }
+            });
+        }
+    </script>
+    <!-- Pusher Global: conexión + lógica de cliente en tiempo real -->
+    <script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
+    <!-- JS Plantilla -->
+    <script src="<?= base_url('recursos/scripts/cliente/plantilla/cliente.js') ?>"></script>
     <!-- Agregar Scrips -->
     <?= $this->renderSection('scripts') ?>
 </body>

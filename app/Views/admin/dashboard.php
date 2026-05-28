@@ -1,3 +1,10 @@
+<?php
+if (!function_exists('simplificarNombreArea')) {
+    function simplificarNombreArea($nombre) {
+        return mb_strlen($nombre) > 15 ? mb_substr($nombre, 0, 13) . '...' : $nombre;
+    }
+}
+?>
 <?= $this->extend('plantillas/admin') ?>
 
 <?= $this->section('styles') ?>
@@ -143,8 +150,9 @@
                     <?php foreach ($areas as $area): ?>
                         <?php $countNuevas = $empresa['stats_areas'][$area['id']] ?? 0; ?>
                         <button class="area-btn"
+                            title="<?= esc($area['nombre']) ?>"
                             onclick="window.location.href='<?= site_url('admin/kanban/' . $empresa['id'] . '/' . $area['id']) ?>'">
-                            <?= esc($area['nombre']) ?>
+                            <span class="area-btn-txt"><?= esc(simplificarNombreArea($area['nombre'])) ?></span>
                             <?php if ($countNuevas > 0): ?>
                                 <span class="area-badge-notif"><?= $countNuevas ?></span>
                             <?php endif ?>

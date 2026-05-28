@@ -46,25 +46,7 @@
         </div>
     </div>
 
-    <!-- ESTADÍSTICAS PRINCIPALES -->
-    <div class="kb-head-stats">
-        <div class="kb-stat">
-            <span class="st-amarillo"><?= $stats['por_aprobar'] ?? 0 ?></span>
-            <small>SOLICITUDES</small>
-        </div>
-        <div class="kb-stat">
-            <span class="st-morado"><?= $stats['activos'] ?? 0 ?></span>
-            <small>PROCESO</small>
-        </div>
-        <div class="kb-stat">
-            <span class="st-naranja"><?= $stats['en_revision'] ?? 0 ?></span>
-            <small>REVISIÓN</small>
-        </div>
-        <div class="kb-stat">
-            <span class="st-verde"><?= $stats['completados'] ?? 0 ?></span>
-            <small>COMPLETADOS</small>
-        </div>
-    </div>
+
 
     <!-- LEYENDA SLA CON CONTEOS REALES -->
     <div class="kb-sla-summary">
@@ -114,18 +96,39 @@
     </div>
 </div>
 
-<!-- ═══ TABS ÁREAS AGENCIA ═══ -->
-<div class="kb-areas">
-    <?php foreach ($areasAgencia as $area): ?>
-        <?php $countNuevasArea = $stats_areas[$area['id']] ?? 0; ?>
-        <a href="<?= site_url('admin/kanban/' . $idEmpresa . '/' . $area['id']) ?>"
-            class="kb-area-tab <?= $idAreaAgencia == $area['id'] ? 'activo' : '' ?>">
-            <?= esc($area['nombre']) ?>
-            <?php if ($countNuevasArea > 0): ?>
-                <span class="area-badge-notif"><?= $countNuevasArea ?></span>
-            <?php endif ?>
-        </a>
-    <?php endforeach ?>
+<!-- ═══ TABS ÁREAS AGENCIA + MÉTRICAS ═══ -->
+<div class="kb-areas-row">
+    <div class="kb-areas">
+        <?php foreach ($areasAgencia as $area): ?>
+            <?php $countNuevasArea = $stats_areas[$area['id']] ?? 0; ?>
+            <a href="<?= site_url('admin/kanban/' . $idEmpresa . '/' . $area['id']) ?>"
+                class="kb-area-tab <?= $idAreaAgencia == $area['id'] ? 'activo' : '' ?>"
+                title="<?= esc($area['nombre']) ?>">
+                <span class="kb-area-tab-txt"><?= esc($area['nombre']) ?></span>
+                <?php if ($countNuevasArea > 0): ?>
+                    <span class="area-badge-notif"><?= $countNuevasArea ?></span>
+                <?php endif ?>
+            </a>
+        <?php endforeach ?>
+    </div>
+    <div class="kb-areas-stats">
+        <div class="kb-areas-stat stat-solicitudes">
+            <span class="kb-areas-stat-num"><?= $stats['por_aprobar'] ?? 0 ?></span>
+            <span class="kb-areas-stat-lbl">Solicitudes</span>
+        </div>
+        <div class="kb-areas-stat stat-proceso">
+            <span class="kb-areas-stat-num"><?= $stats['activos'] ?? 0 ?></span>
+            <span class="kb-areas-stat-lbl">En Proceso</span>
+        </div>
+        <div class="kb-areas-stat stat-revision">
+            <span class="kb-areas-stat-num"><?= $stats['en_revision'] ?? 0 ?></span>
+            <span class="kb-areas-stat-lbl">Revisión</span>
+        </div>
+        <div class="kb-areas-stat stat-completados">
+            <span class="kb-areas-stat-num"><?= $stats['completados'] ?? 0 ?></span>
+            <span class="kb-areas-stat-lbl">Completados</span>
+        </div>
+    </div>
 </div>
 
 <!-- ═══ TABLERO KANBAN ═══ -->

@@ -78,7 +78,8 @@
                 <span class="profile-rol">
                     <i class="bi bi-shield-check"></i> Jefe de Área
                 </span>
-                <span class="profile-area">
+                <span class="profile-area" title="<?= esc($nombre_area) ?>"
+                    style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">
                     <i class="bi bi-diagram-3"></i>
                     <?= esc($nombre_area) ?>
                 </span>
@@ -256,6 +257,8 @@
 
     <script src="<?= base_url('recursos/scripts/responsable/plantilla/responsable.js') ?>"></script>
 
+    <?= $this->renderSection('scripts') ?>
+
     <!-- Interceptor Global de Fetch para CSRF -->
     <script>
         (function() {
@@ -277,8 +280,6 @@
             };
         })();
     </script>
-
-    <?= $this->renderSection('scripts') ?>
 
 </body>
 

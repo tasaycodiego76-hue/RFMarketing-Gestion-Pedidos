@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             todosLosUsuarios = await response.json();
-            
+
             if (!keepPage) {
                 paginaActual = 1;
             }
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         paginacionContenedor.style.display = 'flex';
-        
+
         let paginadorHtml = `
             <small class="text-white">Mostrando página ${paginaActual} de ${totalPaginas} (Total: ${totalRegistros} usuarios)</small>
             <nav aria-label="Paginación de usuarios">
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
         paginacionContenedor.innerHTML = paginadorHtml;
 
         paginacionContenedor.querySelectorAll('.page-link').forEach(link => {
-            link.addEventListener('click', function(e) {
+            link.addEventListener('click', function (e) {
                 e.preventDefault();
                 const targetPage = parseInt(this.getAttribute('data-page'));
                 if (!isNaN(targetPage) && targetPage >= 1 && targetPage <= totalPaginas) {
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    document.querySelector('#idempresa').addEventListener('change', function() {
+    document.querySelector('#idempresa').addEventListener('change', function () {
         cargarAreasEmpresa(this.value);
     });
 
@@ -333,22 +333,22 @@ document.addEventListener('DOMContentLoaded', function () {
     function actualizarValidacionDoc(tipo, inputSelector) {
         const nd = document.querySelector(inputSelector);
         if (!nd) return;
-        
+
         const limites = {
             DNI: { max: '8', min: '8', ph: '8 dígitos' },
             RUC: { max: '11', min: '11', ph: '11 dígitos' },
             CE: { max: '12', min: '9', ph: '9-12 caracteres' }
         };
-        
+
         const l = limites[tipo];
         if (!l) return;
-        
+
         nd.setAttribute('maxlength', l.max);
         nd.setAttribute('minlength', l.min);
         nd.placeholder = l.ph;
     }
 
-    document.querySelector('#tipodoc').addEventListener('change', function() {
+    document.querySelector('#tipodoc').addEventListener('change', function () {
         actualizarValidacionDoc(this.value, '#numerodoc');
     });
 
@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const url = BASE_URL + 'admin/usuarios/verificarAreaResponsable/' + idArea;
             const response = await fetch(url);
             const data = await response.json();
-            
+
             msgDiv.style.display = 'block';
             if (data.ocupado) {
                 msgDiv.innerHTML = `<i class="bi bi-info-circle-fill text-info"></i> El área ya cuenta con un responsable: <strong>${data.nombre}</strong>. El nuevo usuario será un colaborador.`;
@@ -732,6 +732,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 notificar('Error al procesar el cambio', 'error');
             }
         });
+    });
+
+    // Restringir entrada a solo números para teléfono y número de documento
+    const inputsNumericos = ['#telefono', '#numerodoc', '#rea-telefono', '#rea-numerodoc'];
+    inputsNumericos.forEach(selector => {
+        const input = document.querySelector(selector);
+        if (input) {
+            input.addEventListener('input', function () {
+                this.value = this.value.replace(/\D/g, '');
+            });
+        }
     });
 
     obtenerUsuarios();

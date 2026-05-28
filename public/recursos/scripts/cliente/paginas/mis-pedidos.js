@@ -723,7 +723,7 @@ document.addEventListener("DOMContentLoaded", function () {
   btnAtras?.addEventListener("click", () => irAlPaso(pasoActual - 1));
 
   // ENVÍO FINAL
-  formNuevoPedido?.addEventListener("submit", (e) => {
+  formNuevoPedido?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const btnEnv = document.getElementById("btn-enviar");
@@ -794,67 +794,46 @@ document.addEventListener("DOMContentLoaded", function () {
       archivosSeleccionados.forEach((f) => fd.append("documentos[]", f));
     }
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${base_url}cliente/requerimiento/guardar`, true);
+    // Convertir a fetch (sin progreso de carga nativo)
+    btnEnv.disabled = true;
+    btnEnv.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Enviando...`;
 
-    // 🆕 Inyectar token CSRF para peticiones directas de XMLHttpRequest
-    const tokenCsrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-    if (tokenCsrf) {
-      xhr.setRequestHeader("X-CSRF-TOKEN", tokenCsrf);
-    }
+    try {
+      const response = await fetch(`${base_url}cliente/requerimiento/guardar`, {
+        method: "POST",
+        body: fd,
+      });
 
-    xhr.upload.onprogress = (ev) => {
-      if (ev.lengthComputable) {
-        const percent = Math.round((ev.loaded / ev.total) * 100);
-        progressLine.style.width = percent + "%";
-        btnEnv.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Subiendo ${percent}%`;
-
-        if (percent >= 100) {
-          btnEnv.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Procesando...`;
-        }
-      }
-    };
-
-    xhr.onload = function () {
       btnEnv.disabled = false;
       btnEnv.innerHTML = textoOriginal;
       if (progressLine) progressLine.style.width = "0%";
 
-      if (xhr.status === 200) {
-        try {
-          const data = JSON.parse(xhr.responseText);
-          if (data.status === "success") {
-            bootstrap.Modal.getInstance(modalFormularioDetalleEl)?.hide();
-            Swal.fire({
-              ...getSwalConfig(),
-              icon: "success",
-              title: "¡Enviado!",
-              text: "Tu pedido ha sido registrado correctamente.",
-            });
-            formNuevoPedido.reset();
-            archivosSeleccionados = [];
-            listaArchivos.innerHTML = "";
-            document
-              .getElementById("contenedor-materiales")
-              ?.classList.add("d-none");
-            document
-              .getElementById("info-tipo-container")
-              ?.classList.add("d-none");
-            obtenerPedidos();
-          } else {
-            Swal.fire({
-              ...getSwalConfig(),
-              icon: "error",
-              title: "Error",
-              html: data.msg || "Error en el servidor",
-            });
-          }
-        } catch (e) {
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === "success") {
+          bootstrap.Modal.getInstance(modalFormularioDetalleEl)?.hide();
+          Swal.fire({
+            ...getSwalConfig(),
+            icon: "success",
+            title: "¡Enviado!",
+            text: "Tu pedido ha sido registrado correctamente.",
+          });
+          formNuevoPedido.reset();
+          archivosSeleccionados = [];
+          listaArchivos.innerHTML = "";
+          document
+            .getElementById("contenedor-materiales")
+            ?.classList.add("d-none");
+          document
+            .getElementById("info-tipo-container")
+            ?.classList.add("d-none");
+          obtenerPedidos();
+        } else {
           Swal.fire({
             ...getSwalConfig(),
             icon: "error",
-            title: "Error de Servidor",
-            text: "Respuesta inesperada. Posible archivo muy pesado.",
+            title: "Error",
+            html: data.msg || "Error en el servidor",
           });
         }
       } else {
@@ -865,9 +844,7 @@ document.addEventListener("DOMContentLoaded", function () {
           text: "No se pudo conectar con el servidor.",
         });
       }
-    };
-
-    xhr.onerror = () => {
+    } catch (error) {
       btnEnv.disabled = false;
       btnEnv.innerHTML = textoOriginal;
       Swal.fire({
@@ -876,9 +853,7 @@ document.addEventListener("DOMContentLoaded", function () {
         title: "Error de Red",
         text: "No se pudo completar la subida.",
       });
-    };
-
-    xhr.send(fd);
+    }
   });
 
   // Limpiar formulario cuando se cierra el modal sin enviar
@@ -908,4 +883,4 @@ document.addEventListener("DOMContentLoaded", function () {
       irAlPaso(pasoActual);
     }
   });
-});
+}); 

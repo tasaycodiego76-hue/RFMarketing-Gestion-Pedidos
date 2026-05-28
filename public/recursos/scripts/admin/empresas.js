@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const btnToggle = esActivo
                 ? `<button class="btn-icon btn-icon-toggle activo" onclick="toggleEstado(${e.id}, true)" title="Desactivar" style="cursor:pointer;">✕</button>`
                 : `<button class="btn-icon btn-icon-toggle inactivo" onclick="toggleEstado(${e.id}, false)" title="Activar" style="cursor:pointer;">✓</button>`;
-            
+
             const btnAddArea = `<button class="btn-icon" onclick="abrirModalNuevaArea(${e.id}, '${e.nombreempresa.replace(/'/g, "\\'")}')" title="Nueva Área" style="cursor:pointer; background: rgba(167, 139, 250, 0.1); color: #a78bfa; border: 1px solid rgba(167, 139, 250, 0.3);"><i class="bi bi-diagram-3-fill"></i></button>`;
 
             tabla.innerHTML += `
@@ -102,16 +102,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // --- GESTIÓN DE ÁREAS ---
-    window.abrirModalNuevaArea = function(idEmpresa, nombreEmpresa) {
+    window.abrirModalNuevaArea = function (idEmpresa, nombreEmpresa) {
         formArea.reset();
         document.querySelector('#area-idempresa').value = idEmpresa;
         document.querySelector('#nombre-empresa-modal').textContent = nombreEmpresa;
         $('#modal-area-empresa').modal('show');
     };
 
-    formArea.addEventListener('submit', async function(e) {
+    formArea.addEventListener('submit', async function (e) {
         e.preventDefault();
-        
+
         const idEmpresa = document.querySelector('#area-idempresa').value;
         const nombre = document.querySelector('#nombre_area_emp').value.trim();
         const descripcion = document.querySelector('#descripcion_area_emp').value.trim();
@@ -161,8 +161,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.toggleEstado = async function (id, estadoActual) {
         const titulo = estadoActual ? '¿Deshabilitar Empresa?' : '¿Habilitar Empresa?';
-        const texto = estadoActual 
-            ? 'Esta acción desactivará también a todos los responsables vinculados a esta empresa.' 
+        const texto = estadoActual
+            ? 'Esta acción desactivará también a todos los responsables vinculados a esta empresa.'
             : 'Esta acción volverá a habilitar la empresa.';
 
         const isLight = document.documentElement.getAttribute('data-theme') === 'light';
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const response = await fetch(BASE_URL + 'admin/empresas/toggleEstado', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id, estado: !estadoActual }) 
+                    body: JSON.stringify({ id, estado: !estadoActual })
                 });
                 const data = await response.json();
                 if (data.success) {
@@ -201,6 +201,17 @@ document.addEventListener('DOMContentLoaded', function () {
         delete formulario.dataset.editId;
         document.querySelector('#modal-titulo').textContent = 'Nueva Empresa';
         $('#modal-empresa').modal('show');
+    });
+
+    // Restringir entrada a solo números para RUC y teléfono
+    const inputsNumericos = ['#ruc', '#telefono'];
+    inputsNumericos.forEach(selector => {
+        const input = document.querySelector(selector);
+        if (input) {
+            input.addEventListener('input', function () {
+                this.value = this.value.replace(/\D/g, '');
+            });
+        }
     });
 
     obtenerEmpresas();

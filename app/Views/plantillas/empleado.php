@@ -163,15 +163,9 @@
 
     <script>
         const BASE_URL = '<?= base_url() ?>';
-        
-        // Interceptor Global para inyectar token CSRF en Fetch y jQuery AJAX
-        (function() {
-            // 1. Interceptar jQuery AJAX
-            $.ajaxSetup({
-                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
-            });
 
-            // 2. Interceptar Fetch API
+        // Interceptor Global de Fetch para CSRF
+        (function() {
             const originalFetch = window.fetch;
             window.fetch = async function(...args) {
                 let [resource, config] = args;

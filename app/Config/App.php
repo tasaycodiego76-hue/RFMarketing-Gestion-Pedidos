@@ -23,16 +23,10 @@ class App extends BaseConfig
     {
         parent::__construct();
 
-        // Solo local
-        if (
-            ENVIRONMENT === 'development' && isset($_SERVER['HTTP_HOST']) &&
-            str_contains($_SERVER['HTTP_HOST'], 'localhost')
-        ) {
-            $this->baseURL = 'http://localhost:8080/';
-            $this->forceGlobalSecureRequests = false;
-        } else {
-            $this->baseURL = env('app.baseURL') ?: 'https://rfmarketing-gestion-pedidos.onrender.com/';
-            $this->forceGlobalSecureRequests = true;
+        // Hacer la URL base dinámica para permitir navegación fluida desde celular o red local
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+            $this->baseURL = $protocol . '://' . $_SERVER['HTTP_HOST'] . '/';
         }
     }
 
@@ -151,7 +145,7 @@ class App extends BaseConfig
      * @see https://www.php.net/manual/en/timezones.php for list of timezones
      *      supported by PHP.
      */
-    public string $appTimezone = 'America/Lima';
+    public string $appTimezone = 'UTC';
 
     /**
      * --------------------------------------------------------------------------
@@ -175,7 +169,7 @@ class App extends BaseConfig
      * secure, the user will be redirected to a secure version of the page
      * and the HTTP Strict Transport Security (HSTS) header will be set.
      */
-    public bool $forceGlobalSecureRequests = true;
+    public bool $forceGlobalSecureRequests = false;
 
     /**
      * --------------------------------------------------------------------------

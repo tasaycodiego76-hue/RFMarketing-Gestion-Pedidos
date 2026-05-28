@@ -1,8 +1,6 @@
 /* public/recursos/styles/empleado/plantilla/empleado.css */
 
-/* ══════════════════════════════════════
-   VARIABLES & RESET
-══════════════════════════════════════ */
+/* VARIABLES & RESET */
 :root {
     --amarillo: #F5C400;
     --fondo: #0a0a0a;
@@ -804,3 +802,74 @@ html[data-theme="light"] .met-icon { opacity: 0.6 !important; }
 
 .task-client i, .task-meta-item i { color: #F5C400 !important; }
 .exp-icon-bg { background: #F5C400 !important; color: #000 !important; }
+
+/* ══════════════════════════════════════
+   MODAL BRIEF EMPLEADO - SCROLL PARA CONTENIDO LARGO
+══════════════════════════════════════ */
+#modal .modal-dialog {
+  margin: 20px auto;
+}
+
+#modal .modal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+#modal .modal-body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 200px);
+}
+
+#modal .modal-body::-webkit-scrollbar {
+  width: 10px;
+}
+
+#modal .modal-body::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: 10px;
+}
+
+#modal .modal-body::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 10px;
+}
+
+#modal .modal-body::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* Contenedor del expediente */
+.expediente-contenedor {
+  padding-bottom: 20px;
+}
+
+/* Cards del expediente - sin max-height para que se expandan naturalmente */
+.exp-card-info {
+  /* Sin max-height, el contenido fluye naturalmente */
+  overflow: visible;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Para párrafos dentro de las cards */
+.exp-card-info p {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  line-height: 1.6;
+}
+
+/* Responsive para móvil */
+@media (max-width: 768px) {
+  #modal .modal-dialog {
+    margin: 5px;
+    max-height: calc(100vh - 10px);
+  }
+
+  #modal .modal-body {
+    max-height: calc(100vh - 120px);
+    padding: 15px;
+  }
+}

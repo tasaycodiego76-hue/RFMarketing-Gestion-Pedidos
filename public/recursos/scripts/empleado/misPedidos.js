@@ -1,14 +1,3 @@
-// Helper seguro para parsear arrays provenientes de PostgreSQL
-function _parseList(data) {
-  if (!data) return [];
-  if (Array.isArray(data)) return data;
-  try {
-    return JSON.parse(data);
-  } catch (e) {
-    return [];
-  }
-}
-
 function verDetalleSolicitud(id) {
   // Registrar el ID activo para que Pusher pueda refrescarlo sin recargar
   window._modalIdActual = id;
@@ -19,7 +8,7 @@ function verDetalleSolicitud(id) {
   const pie = $("#modal-pie");
 
   // Limpiar ID al cerrar el modal
-  modal.off('hidden.bs.modal.emp').on('hidden.bs.modal.emp', function() {
+  modal.off('hidden.bs.modal.emp').on('hidden.bs.modal.emp', function () {
     window._modalIdActual = null;
   });
 
@@ -93,7 +82,7 @@ function verDetalleSolicitud(id) {
                                 CANALES
                             </h6>
                             <div id="canales-container" class="exp-card-info" style="background:var(--mini-card-bg); padding:20px; border-radius:12px; border:1px solid var(--borde); display:flex; flex-wrap:wrap; gap:8px;">
-                                ${_parseList(d.canales_difusion).length > 0 ? _parseList(d.canales_difusion).map(c => `<span style="background:var(--panel); color:var(--texto); border:1px solid var(--borde); padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${c}</span>`).join("") : '<span style="color:var(--texto-3); font-size:11px; font-style:italic;">No especificados</span>'}
+                                ${d.canales_difusion ? JSON.parse(d.canales_difusion).map(c => `<span style="background:var(--panel); color:var(--texto); border:1px solid var(--borde); padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${c}</span>`).join("") : '<span style="color:var(--texto-3); font-size:11px; font-style:italic;">No especificados</span>'}
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -102,7 +91,7 @@ function verDetalleSolicitud(id) {
                                 FORMATOS
                             </h6>
                             <div id="formatos-container" class="exp-card-info" style="background:var(--mini-card-bg); padding:20px; border-radius:12px; border:1px solid var(--borde); display:flex; flex-wrap:wrap; gap:8px;">
-                                ${_parseList(d.formatos_solicitados).length > 0 ? _parseList(d.formatos_solicitados).map(f => `<span style="background:var(--panel); color:var(--texto); border:1px solid var(--borde); padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${f}</span>`).join("") : '<span style="color:var(--texto-3); font-size:11px; font-style:italic;">No especificados</span>'}
+                                ${d.formatos_solicitados ? JSON.parse(d.formatos_solicitados).map(f => `<span style="background:var(--panel); color:var(--texto); border:1px solid var(--borde); padding:4px 12px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase;">${f}</span>`).join("") : '<span style="color:var(--texto-3); font-size:11px; font-style:italic;">No especificados</span>'}
                             </div>
                         </div>
                     </div>
@@ -163,13 +152,13 @@ function verDetalleSolicitud(id) {
       }
       $("#lista-enlaces-requerimiento").html(
         linkHtml ||
-          '<p style="font-size:11px; color:#444; font-style:italic;">No hay enlaces externos.</p>',
+        '<p style="font-size:11px; color:#444; font-style:italic;">No hay enlaces externos.</p>',
       );
 
       // ── TRACKING DEL PEDIDO en tiempo real ────────────────────────────────
       const _trackHtml = (res.tracking && res.tracking.length > 0)
-          ? _renderTrackingEmpleado(res.tracking)
-          : '<p style="font-size:11px;color:#555;font-style:italic;">Sin historial registrado.</p>';
+        ? _renderTrackingEmpleado(res.tracking)
+        : '<p style="font-size:11px;color:#555;font-style:italic;">Sin historial registrado.</p>';
       cuerpo.append(
         '<div class="mt-4" style="border-top:1px solid var(--borde);padding-top:15px;">'
         + '<h6 style="color:var(--texto);font-family:\'Bebas Neue\';letter-spacing:2px;font-size:18px;margin-bottom:12px;">'
@@ -285,7 +274,7 @@ function abrirModalAccion(id, tipo) {
   modal.modal("show");
 }
 
-function ejecutarAccion(id, tipo) {
+async function ejecutarAccion(id, tipo) {
   let url =
     tipo === "iniciar"
       ? `${BASE_URL}/empleado/pedido-iniciar/${id}`
@@ -325,153 +314,150 @@ function ejecutarAccion(id, tipo) {
     }
   }
 
-  Swal.fire({
+  const result = await Swal.fire({
     title: "¿Confirmar envío?",
     text: "Asegúrate de que todo esté correcto.",
     confirmButtonColor: "#F5C400",
     confirmButtonText: "SÍ, CONFIRMAR",
     cancelButtonText: "CANCELAR",
     showCancelButton: true,
-  }).then((result) => {
-    if (result.isConfirmed) {
-      Swal.fire({
-        title: "Procesando...",
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
+  });
 
-      $.ajax({
-        url: url,
-        type: "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        dataType: "json",
-        success: function (res) {
-          if (res.status === "success") {
-            Swal.fire({
-              icon: "success",
-              title: "¡Hecho!",
-              text: res.message
-            }).then(() => {
-              location.reload();
-            });
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: res.message
-            });
-          }
-        },
-        error: function () {
-          Swal.fire({
-            icon: "error",
-            title: "Error fatal",
-            text: "No se pudo procesar la solicitud."
-          });
-        },
+  if (result.isConfirmed) {
+    Swal.fire({
+      title: "Procesando...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+      const res = await response.json();
+
+      if (res.status === "success") {
+        Swal.fire({
+          icon: "success",
+          title: "¡Hecho!",
+          text: res.message
+        }).then(() => {
+          location.reload();
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: res.message
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error fatal",
+        text: "No se pudo procesar la solicitud."
       });
     }
-  });
+  }
 }
 
 // LÓGICA DE BÚSQUEDA Y FILTRADO
-$(document).ready(function() {
-    let timeoutBusqueda = null;
+$(document).ready(function () {
+  let timeoutBusqueda = null;
 
-    $('#busqueda').on('input', function() {
-        // Limpiar el timeout previo
-        if (timeoutBusqueda) clearTimeout(timeoutBusqueda);
+  $('#busqueda').on('input', function () {
+    // Limpiar el timeout previo
+    if (timeoutBusqueda) clearTimeout(timeoutBusqueda);
 
-        // Iniciar nuevo timeout
-        timeoutBusqueda = setTimeout(function() {
-            filtrarResultados();
-        }, 300); // Reducido a 300ms para mejor respuesta
+    // Iniciar nuevo timeout
+    timeoutBusqueda = setTimeout(function () {
+      filtrarResultados();
+    }, 300); // Reducido a 300ms para mejor respuesta
+  });
+
+  $('#filtro-estado').on('change', function () {
+    filtrarResultados();
+  });
+
+  function filtrarResultados() {
+    const query = $('#busqueda').val().toLowerCase().trim();
+    const estado = $('#filtro-estado').val();
+
+    $('.emp-task-card').each(function () {
+      const card = $(this);
+      const titulo = card.find('.task-title').text().toLowerCase();
+      const cliente = card.find('.task-client').text().toLowerCase();
+      const cardEstado = card.data('estado') || '';
+
+      const coincideQuery = query === '' || titulo.includes(query) || cliente.includes(query);
+      const coincideEstado = estado === '' || cardEstado === estado;
+
+      if (coincideQuery && coincideEstado) {
+        card.closest('.col-12').fadeIn(200);
+      } else {
+        card.closest('.col-12').fadeOut(200);
+      }
     });
+  }
 
-    $('#filtro-estado').on('change', function() {
-        filtrarResultados();
-    });
+  // ── PUSHER: TIEMPO REAL PARA EMPLEADO ──────────────────────────────────────
+  if (typeof RFPusher !== 'undefined') {
+    function _actualizarVista() {
+      const modalAbierto = $('#modal').hasClass('show');
 
-    function filtrarResultados() {
-        const query = $('#busqueda').val().toLowerCase().trim();
-        const estado = $('#filtro-estado').val();
-
-        $('.emp-task-card').each(function() {
-            const card = $(this);
-            const titulo = card.find('.task-title').text().toLowerCase();
-            const cliente = card.find('.task-client').text().toLowerCase();
-            const cardEstado = card.data('estado') || '';
-
-            const coincideQuery = query === '' || titulo.includes(query) || cliente.includes(query);
-            const coincideEstado = estado === '' || cardEstado === estado;
-
-            if (coincideQuery && coincideEstado) {
-                card.closest('.col-12').fadeIn(200);
-            } else {
-                card.closest('.col-12').fadeOut(200);
-            }
-        });
+      if (modalAbierto && window._modalIdActual) {
+        // Modal abierto → refrescar SOLO el contenido sin cerrar
+        _refrescarModalEmpleado(window._modalIdActual);
+      } else {
+        // Modal cerrado → recargar la lista de tarjetas
+        location.reload();
+      }
     }
 
-    // ── PUSHER: TIEMPO REAL PARA EMPLEADO ──────────────────────────────────────
-    if (typeof RFPusher !== 'undefined') {
-        function _actualizarVista() {
-            const modalAbierto = $('#modal').hasClass('show');
-
-            if (modalAbierto && window._modalIdActual) {
-                // Modal abierto → refrescar SOLO el contenido sin cerrar
-                _refrescarModalEmpleado(window._modalIdActual);
-            } else {
-                // Modal cerrado → recargar la lista de tarjetas
-                location.reload();
-            }
-        }
-
-        RFPusher.on('solicitud.actualizada', _actualizarVista);
-        RFPusher.on('solicitud.nueva',       _actualizarVista);
-    }
+    RFPusher.on('solicitud.actualizada', _actualizarVista);
+    RFPusher.on('solicitud.nueva', _actualizarVista);
+  }
 });
 
 // ── REFRESCAR MODAL DEL EMPLEADO (tracking + datos en tiempo real) ──────────
 function _refrescarModalEmpleado(id) {
-    $.get(`${BASE_URL}/empleado/pedido-detalle/${id}`, function(res) {
-        if (res.status !== 'success') return;
+  $.get(`${BASE_URL}/empleado/pedido-detalle/${id}`, function (res) {
+    if (res.status !== 'success') return;
 
-        const d = res.data;
+    const d = res.data;
 
-        // Actualizar estado en el header del modal
-        const pill = document.querySelector('.emp-estado-pill');
-        if (pill) {
-            const estadoLabel = { pendiente_asignado: 'PENDIENTE', en_proceso: 'EN PROCESO', en_revision: 'EN REVISIÓN', finalizado: 'FINALIZADO' };
-            pill.textContent = estadoLabel[d.estado] || d.estado.toUpperCase();
-        }
+    // Actualizar estado en el header del modal
+    const pill = document.querySelector('.emp-estado-pill');
+    if (pill) {
+      const estadoLabel = { pendiente_asignado: 'PENDIENTE', en_proceso: 'EN PROCESO', en_revision: 'EN REVISIÓN', finalizado: 'FINALIZADO' };
+      pill.textContent = estadoLabel[d.estado] || d.estado.toUpperCase();
+    }
 
-        // Actualizar sección de tracking si existe
-        const trackingContainer = document.getElementById('emp-tracking-container');
-        if (trackingContainer && res.tracking && res.tracking.length > 0) {
-            trackingContainer.innerHTML = _renderTrackingEmpleado(res.tracking);
-        }
-    });
+    // Actualizar sección de tracking si existe
+    const trackingContainer = document.getElementById('emp-tracking-container');
+    if (trackingContainer && res.tracking && res.tracking.length > 0) {
+      trackingContainer.innerHTML = _renderTrackingEmpleado(res.tracking);
+    }
+  });
 }
 
 function _renderTrackingEmpleado(tracking) {
-    const iconos = {
-        pendiente_asignado : { icon: 'bi-person-check-fill', color: '#f59e0b' },
-        en_proceso         : { icon: 'bi-play-circle-fill',   color: '#a855f7' },
-        en_revision        : { icon: 'bi-send-check-fill',    color: '#f97316' },
-        finalizado         : { icon: 'bi-check-circle-fill',  color: '#10b981' },
-    };
+  const iconos = {
+    pendiente_asignado: { icon: 'bi-person-check-fill', color: '#f59e0b' },
+    en_proceso: { icon: 'bi-play-circle-fill', color: '#a855f7' },
+    en_revision: { icon: 'bi-send-check-fill', color: '#f97316' },
+    finalizado: { icon: 'bi-check-circle-fill', color: '#10b981' },
+  };
 
-    return tracking.map(t => {
-        const cfg   = iconos[t.estado] || { icon: 'bi-circle', color: '#888' };
-        const fecha = t.fecha_registro
-            ? new Date(t.fecha_registro).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
-            : '---';
-        return `
+  return tracking.map(t => {
+    const cfg = iconos[t.estado] || { icon: 'bi-circle', color: '#888' };
+    const fecha = t.fecha_registro
+      ? new Date(t.fecha_registro).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+      : '---';
+    return `
             <div style="display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--borde);">
                 <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:${cfg.color}22; display:flex; align-items:center; justify-content:center;">
                     <i class="bi ${cfg.icon}" style="color:${cfg.color}; font-size:14px;"></i>
@@ -481,6 +467,6 @@ function _renderTrackingEmpleado(tracking) {
                     <small style="color:var(--texto-3); font-size:10px;">${fecha}</small>
                 </div>
             </div>`;
-    }).join('');
+  }).join('');
 }
 
