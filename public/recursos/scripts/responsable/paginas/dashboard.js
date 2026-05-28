@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let graficosInicializados = false;
   let graficoA, graficoB, graficoC, graficoD;
 
-  fetch("/responsable/dashboard/metricas")
+  fetch(BASE_URL + "responsable/dashboard/metricas")
     .then((res) => res.json())
     .then(function (resp) {
       //Validacion de Datos
