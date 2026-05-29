@@ -141,10 +141,10 @@ document.addEventListener("DOMContentLoaded", function () {
     Array.from(qsAll(`input[name="${name}"]:checked`)).map((c) => c.value);
   // Limpia un texto (quita tildes, mayúsculas y espacios) para comparar nombres de servicios.
   const normalizarTexto = (texto = "") => texto.toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
-  // Verifica si el servicio es "Creación de Contenido" o "Personalizado" para aplicar reglas más flexibles.
+  // Verifica si el servicio es "Creación de Contenido" para aplicar reglas más flexibles.
   const esServicioConsultivo = (nombre) => {
     const n = normalizarTexto(nombre);
-    return n === "creacion de contenido" || n === "personalizado";
+    return n === "creacion de contenido";
   };
   // Retorna el nombre de la clase del icono de Bootstrap según la extensión del archivo.
   const getIconoArchivo = (mimeType, fileName) => {
