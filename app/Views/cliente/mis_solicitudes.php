@@ -153,9 +153,8 @@
                         <div class="modo-flexible-aviso alert alert-info mb-3 alerta-flexible">
                             <i class="bi bi-info-circle-fill"></i>
                             <strong>Modo Flexible Activado</strong><br>
-                            Para <em>Creación de Contenido</em>, estos campos son <strong>opcionales</strong>.
-                            Puedes enviar solo tu idea básica y nuestro equipo creativo te ayudará a completar los
-                            detalles.
+                            Para este tipo de servicio, los campos marcados son <strong>opcionales</strong>.
+                            Puedes enviar solo tu idea básica y nuestro equipo te ayudará a completar los detalles.
                         </div>
                         <div class="autofill mb-4">
                             <div class="autofill-title"><span>&#10003;</span> DATOS DE TU CUENTA</div>
@@ -180,7 +179,7 @@
                         </div>
                         <div id="contenedor-nombre-personalizado" class="field mb-3 d-none">
                             <label>NOMBRE DEL SERVICIO REQUERIDO</label>
-                            <input type="text" name="titulo" id="titulo_personalizado" class="field-input"
+                            <input type="text" name="servicio_personalizado" id="titulo_personalizado" class="field-input"
                                 placeholder="Ej: Gestion de Redes Sociales (Social Media)">
                         </div>
                         <div class="field mb-3">
@@ -247,9 +246,8 @@
                         <div class="modo-flexible-aviso alert alert-info mb-3 alerta-flexible">
                             <i class="bi bi-info-circle-fill"></i>
                             <strong>Modo Flexible Activado</strong><br>
-                            Para <em>Creación de Contenido</em>, estos campos son <strong>opcionales</strong>.
-                            Puedes enviar solo tu idea básica y nuestro equipo creativo te ayudará a completar los
-                            detalles.
+                            Para este tipo de servicio, los campos de canales, formatos y público son <strong>opcionales</strong>.
+                            Puedes enviar solo tu idea básica y nuestro equipo te ayudará a completar los detalles.
                         </div>
 
                         <div class="field mb-3">

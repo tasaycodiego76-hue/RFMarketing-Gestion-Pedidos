@@ -120,7 +120,7 @@
                 <div>
                     <span class="t-label">SERVICIO</span>
                     <span class="t-value">
-                        <?= esc($requerimiento['nombre_servicio'] ?? $requerimiento['servicio_personalizado'] ?? 'N/A') ?>
+                        <?= !empty($requerimiento['servicio_personalizado']) ? 'Serv. Personalizado' : esc($requerimiento['nombre_servicio'] ?? 'N/A') ?>
                     </span>
                 </div>
             </div>

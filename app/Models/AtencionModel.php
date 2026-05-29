@@ -49,6 +49,8 @@ class AtencionModel extends Model
                 a.prioridad,
                 r.fechacreacion,
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
+                a.servicio_personalizado,
+                a.idservicio,
                 e.nombreempresa AS empresa
             FROM atencion a
             INNER JOIN requerimiento r ON r.id = a.idrequerimiento
@@ -223,19 +225,35 @@ class AtencionModel extends Model
      */
     public function contarPorAprobarPorAreaEmpresa(int $idEmpresa): array
     {
+        $areasAgenciaModel = new \App\Models\AreasAgenciaModel();
+        $areasActivas = $areasAgenciaModel->listarActivas();
+        $areasIds = array_column($areasActivas, 'id');
+
         $rows = $this->db->table('atencion a')
-            ->select('a.idarea_agencia, COUNT(*) as total')
+            ->select('a.idarea_agencia, a.servicio_personalizado')
             ->join('requerimiento r', 'r.id = a.idrequerimiento')
             ->join('usuarios u', 'u.id = r.idusuarioempresa')
             ->join('areas ar', 'ar.id = u.idarea')
             ->where('a.estado', 'pendiente_sin_asignar')
             ->where('ar.idempresa', $idEmpresa)
-            ->groupBy('a.idarea_agencia')
             ->get()->getResultArray();
 
         $stats = [];
+        foreach ($areasIds as $id) {
+            $stats[$id] = 0;
+        }
+
         foreach ($rows as $row) {
-            $stats[$row['idarea_agencia']] = (int) $row['total'];
+            $areaId = $row['idarea_agencia'];
+            if ($areaId !== null) {
+                if (isset($stats[$areaId])) {
+                    $stats[$areaId]++;
+                }
+            } else if (!empty($row['servicio_personalizado'])) {
+                foreach ($areasIds as $id) {
+                    $stats[$id]++;
+                }
+            }
         }
         return $stats;
     }
@@ -469,27 +487,35 @@ class AtencionModel extends Model
      */
     public function obtenerRetroalimentacionPorArea(int $idAreaAgencia): array
     {
-        return $this->db->table('atencion a')
-            ->select('a.*, r.id as id_requerimiento, r.fechacreacion as fecha_req, r.fecharequerida,
-                          e.nombreempresa as empresa_nombre, 
-                          u_emp.nombre as empleado_nombre,
-                          u_emp.apellidos as empleado_apellidos,
-                          u_cliente.nombre as cliente_nombre,
-                          ar_cliente.nombre as area_nombre,
-                          COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre,
-                          (SELECT MAX(fecha_registro) FROM tracking WHERE idatencion = a.id) as fecha_retro')
-            ->join('requerimiento r', 'r.id = a.idrequerimiento')
-            ->join('usuarios u_cliente', 'u_cliente.id = r.idusuarioempresa')
-            ->join('areas ar_cliente', 'ar_cliente.id = u_cliente.idarea')
-            ->join('empresas e', 'e.id = ar_cliente.idempresa')
-            ->join('usuarios u_emp', 'u_emp.id = a.idempleado', 'left')
-            ->join('servicios s', 's.id = a.idservicio', 'left')
-            ->where('a.idarea_agencia', $idAreaAgencia)
-            ->where('a.observacion_revision IS NOT NULL')
-            ->where("a.observacion_revision != ''")
-            ->whereIn('a.estado', ['en_proceso', 'pendiente_asignado', 'en_revision'])
-            ->orderBy('fecha_retro', 'DESC')
-            ->get()->getResultArray();
+        $sql = "
+            SELECT a.*, r.id as id_retro, r.contenido as observacion_revision, r.fecha as fecha_retro,
+                   re.id as id_requerimiento, re.fechacreacion as fecha_req, re.fecharequerida,
+                   e.nombreempresa as empresa_nombre,
+                   u_emp.nombre as empleado_nombre,
+                   u_emp.apellidos as empleado_apellidos,
+                   u_emp.id as empleado_id,
+                   u_cliente.nombre as cliente_nombre,
+                   ar_cliente.nombre as area_nombre,
+                   COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre
+            FROM atencion a
+            INNER JOIN (
+                SELECT idatencion, MAX(fecha) AS fecha
+                FROM retroalimentacion
+                GROUP BY idatencion
+            ) last_r ON last_r.idatencion = a.id
+            INNER JOIN retroalimentacion r ON r.idatencion = last_r.idatencion AND r.fecha = last_r.fecha
+            INNER JOIN requerimiento re ON re.id = a.idrequerimiento
+            INNER JOIN usuarios u_cliente ON u_cliente.id = re.idusuarioempresa
+            INNER JOIN areas ar_cliente ON ar_cliente.id = u_cliente.idarea
+            INNER JOIN empresas e ON e.id = ar_cliente.idempresa
+            LEFT JOIN usuarios u_emp ON u_emp.id = a.idempleado
+            LEFT JOIN servicios s ON s.id = a.idservicio
+            WHERE a.idarea_agencia = ?
+              AND a.estado IN ('en_proceso', 'pendiente_asignado')
+            ORDER BY r.fecha DESC
+        ";
+
+        return $this->db->query($sql, [$idAreaAgencia])->getResultArray();
     }
 
     /**

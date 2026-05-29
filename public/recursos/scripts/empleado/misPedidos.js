@@ -8,7 +8,7 @@ function verDetalleSolicitud(id) {
   const pie = $("#modal-pie");
 
   // Limpiar ID al cerrar el modal
-  modal.off('hidden.bs.modal.emp').on('hidden.bs.modal.emp', function() {
+  modal.off('hidden.bs.modal.emp').on('hidden.bs.modal.emp', function () {
     window._modalIdActual = null;
   });
 
@@ -152,13 +152,13 @@ function verDetalleSolicitud(id) {
       }
       $("#lista-enlaces-requerimiento").html(
         linkHtml ||
-          '<p style="font-size:11px; color:#444; font-style:italic;">No hay enlaces externos.</p>',
+        '<p style="font-size:11px; color:#444; font-style:italic;">No hay enlaces externos.</p>',
       );
 
       // ── TRACKING DEL PEDIDO en tiempo real ────────────────────────────────
       const _trackHtml = (res.tracking && res.tracking.length > 0)
-          ? _renderTrackingEmpleado(res.tracking)
-          : '<p style="font-size:11px;color:#555;font-style:italic;">Sin historial registrado.</p>';
+        ? _renderTrackingEmpleado(res.tracking)
+        : '<p style="font-size:11px;color:#555;font-style:italic;">Sin historial registrado.</p>';
       cuerpo.append(
         '<div class="mt-4" style="border-top:1px solid var(--borde);padding-top:15px;">'
         + '<h6 style="color:var(--texto);font-family:\'Bebas Neue\';letter-spacing:2px;font-size:18px;margin-bottom:12px;">'
@@ -281,39 +281,48 @@ async function ejecutarAccion(id, tipo) {
       : `${BASE_URL}/empleado/pedido-entregar/${id}`;
   let formData = new FormData();
 
-  if (tipo === "entregar") {
-    const link = $("#url_entrega").val();
-    const files = $("#archivos_entrega")[0].files;
-    const notas = $("#notas").val();
-
-    if (link) {
-      const urlPattern = /^(https?:\/\/)/i;
-      if (!urlPattern.test(link)) {
-        Swal.fire({
-          icon: "warning",
-          title: "URL Inválida",
-          text: "El enlace debe comenzar con http:// o https://"
-        });
-        return;
+  if (tipo === "iniciar") {
+    Swal.fire({ title: "Procesando...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    try {
+      formData.append('csrf_test_name', $('meta[name="csrf-token"]').attr('content'));
+      const response = await fetch(url, { method: "POST", body: formData });
+      const res = await response.json();
+      if (res.status === "success") {
+        Swal.fire({ icon: "success", title: "¡Hecho!", text: res.message }).then(() => location.reload());
+      } else {
+        Swal.fire({ icon: "error", title: "Error", text: res.message });
       }
+    } catch {
+      Swal.fire({ icon: "error", title: "Error fatal", text: "No se pudo procesar la solicitud." });
     }
+    return;
+  }
 
-    if (!link && files.length === 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "Falta información",
-        text: "Por favor, proporciona un enlace o adjunta los archivos de tu trabajo."
-      });
+  // Solo llega aquí si es "entregar"
+  const link = $("#url_entrega").val();
+  const files = $("#archivos_entrega")[0].files;
+  const notas = $("#notas").val();
+
+  if (link) {
+    const urlPattern = /^(https?:\/\/)/i;
+    if (!urlPattern.test(link)) {
+      Swal.fire({ icon: "warning", title: "URL Inválida", text: "El enlace debe comenzar con http:// o https://" });
       return;
-    }
-
-    formData.append("url_entrega", link);
-    formData.append("notas", notas);
-    for (let i = 0; i < files.length; i++) {
-      formData.append("archivos_entrega[]", files[i]);
     }
   }
 
+  if (!link && files.length === 0) {
+    Swal.fire({ icon: "warning", title: "Falta información", text: "Por favor, proporciona un enlace o adjunta los archivos de tu trabajo." });
+    return;
+  }
+
+  formData.append("url_entrega", link);
+  formData.append("notas", notas);
+  for (let i = 0; i < files.length; i++) {
+    formData.append("archivos_entrega[]", files[i]);
+  }
+
+  formData.append('csrf_test_name', $('meta[name="csrf-token"]').attr('content'));
   const result = await Swal.fire({
     title: "¿Confirmar envío?",
     text: "Asegúrate de que todo esté correcto.",
@@ -324,140 +333,115 @@ async function ejecutarAccion(id, tipo) {
   });
 
   if (result.isConfirmed) {
-    Swal.fire({
-      title: "Procesando...",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-
+    Swal.fire({ title: "Procesando...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     try {
-      const response = await fetch(url, {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(url, { method: "POST", body: formData });
       const res = await response.json();
-
       if (res.status === "success") {
-        Swal.fire({
-          icon: "success",
-          title: "¡Hecho!",
-          text: res.message
-        }).then(() => {
-          location.reload();
-        });
+        Swal.fire({ icon: "success", title: "¡Hecho!", text: res.message }).then(() => location.reload());
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: res.message
-        });
+        Swal.fire({ icon: "error", title: "Error", text: res.message });
       }
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error fatal",
-        text: "No se pudo procesar la solicitud."
-      });
+    } catch {
+      Swal.fire({ icon: "error", title: "Error fatal", text: "No se pudo procesar la solicitud." });
     }
   }
 }
 
 // LÓGICA DE BÚSQUEDA Y FILTRADO
-$(document).ready(function() {
-    let timeoutBusqueda = null;
+$(document).ready(function () {
+  let timeoutBusqueda = null;
 
-    $('#busqueda').on('input', function() {
-        // Limpiar el timeout previo
-        if (timeoutBusqueda) clearTimeout(timeoutBusqueda);
+  $('#busqueda').on('input', function () {
+    // Limpiar el timeout previo
+    if (timeoutBusqueda) clearTimeout(timeoutBusqueda);
 
-        // Iniciar nuevo timeout
-        timeoutBusqueda = setTimeout(function() {
-            filtrarResultados();
-        }, 300); // Reducido a 300ms para mejor respuesta
+    // Iniciar nuevo timeout
+    timeoutBusqueda = setTimeout(function () {
+      filtrarResultados();
+    }, 300); // Reducido a 300ms para mejor respuesta
+  });
+
+  $('#filtro-estado').on('change', function () {
+    filtrarResultados();
+  });
+
+  function filtrarResultados() {
+    const query = $('#busqueda').val().toLowerCase().trim();
+    const estado = $('#filtro-estado').val();
+
+    $('.emp-task-card').each(function () {
+      const card = $(this);
+      const titulo = card.find('.task-title').text().toLowerCase();
+      const cliente = card.find('.task-client').text().toLowerCase();
+      const cardEstado = card.data('estado') || '';
+
+      const coincideQuery = query === '' || titulo.includes(query) || cliente.includes(query);
+      const coincideEstado = estado === '' || cardEstado === estado;
+
+      if (coincideQuery && coincideEstado) {
+        card.closest('.col-12').fadeIn(200);
+      } else {
+        card.closest('.col-12').fadeOut(200);
+      }
     });
+  }
 
-    $('#filtro-estado').on('change', function() {
-        filtrarResultados();
-    });
+  // ── PUSHER: TIEMPO REAL PARA EMPLEADO ──────────────────────────────────────
+  if (typeof RFPusher !== 'undefined') {
+    function _actualizarVista() {
+      const modalAbierto = $('#modal').hasClass('show');
 
-    function filtrarResultados() {
-        const query = $('#busqueda').val().toLowerCase().trim();
-        const estado = $('#filtro-estado').val();
-
-        $('.emp-task-card').each(function() {
-            const card = $(this);
-            const titulo = card.find('.task-title').text().toLowerCase();
-            const cliente = card.find('.task-client').text().toLowerCase();
-            const cardEstado = card.data('estado') || '';
-
-            const coincideQuery = query === '' || titulo.includes(query) || cliente.includes(query);
-            const coincideEstado = estado === '' || cardEstado === estado;
-
-            if (coincideQuery && coincideEstado) {
-                card.closest('.col-12').fadeIn(200);
-            } else {
-                card.closest('.col-12').fadeOut(200);
-            }
-        });
+      if (modalAbierto && window._modalIdActual) {
+        // Modal abierto → refrescar SOLO el contenido sin cerrar
+        _refrescarModalEmpleado(window._modalIdActual);
+      } else {
+        // Modal cerrado → recargar la lista de tarjetas
+        location.reload();
+      }
     }
 
-    // ── PUSHER: TIEMPO REAL PARA EMPLEADO ──────────────────────────────────────
-    if (typeof RFPusher !== 'undefined') {
-        function _actualizarVista() {
-            const modalAbierto = $('#modal').hasClass('show');
-
-            if (modalAbierto && window._modalIdActual) {
-                // Modal abierto → refrescar SOLO el contenido sin cerrar
-                _refrescarModalEmpleado(window._modalIdActual);
-            } else {
-                // Modal cerrado → recargar la lista de tarjetas
-                location.reload();
-            }
-        }
-
-        RFPusher.on('solicitud.actualizada', _actualizarVista);
-        RFPusher.on('solicitud.nueva',       _actualizarVista);
-    }
+    RFPusher.on('solicitud.actualizada', _actualizarVista);
+    RFPusher.on('solicitud.nueva', _actualizarVista);
+  }
 });
 
 // ── REFRESCAR MODAL DEL EMPLEADO (tracking + datos en tiempo real) ──────────
 function _refrescarModalEmpleado(id) {
-    $.get(`${BASE_URL}/empleado/pedido-detalle/${id}`, function(res) {
-        if (res.status !== 'success') return;
+  $.get(`${BASE_URL}/empleado/pedido-detalle/${id}`, function (res) {
+    if (res.status !== 'success') return;
 
-        const d = res.data;
+    const d = res.data;
 
-        // Actualizar estado en el header del modal
-        const pill = document.querySelector('.emp-estado-pill');
-        if (pill) {
-            const estadoLabel = { pendiente_asignado: 'PENDIENTE', en_proceso: 'EN PROCESO', en_revision: 'EN REVISIÓN', finalizado: 'FINALIZADO' };
-            pill.textContent = estadoLabel[d.estado] || d.estado.toUpperCase();
-        }
+    // Actualizar estado en el header del modal
+    const pill = document.querySelector('.emp-estado-pill');
+    if (pill) {
+      const estadoLabel = { pendiente_asignado: 'PENDIENTE', en_proceso: 'EN PROCESO', en_revision: 'EN REVISIÓN', finalizado: 'FINALIZADO' };
+      pill.textContent = estadoLabel[d.estado] || d.estado.toUpperCase();
+    }
 
-        // Actualizar sección de tracking si existe
-        const trackingContainer = document.getElementById('emp-tracking-container');
-        if (trackingContainer && res.tracking && res.tracking.length > 0) {
-            trackingContainer.innerHTML = _renderTrackingEmpleado(res.tracking);
-        }
-    });
+    // Actualizar sección de tracking si existe
+    const trackingContainer = document.getElementById('emp-tracking-container');
+    if (trackingContainer && res.tracking && res.tracking.length > 0) {
+      trackingContainer.innerHTML = _renderTrackingEmpleado(res.tracking);
+    }
+  });
 }
 
 function _renderTrackingEmpleado(tracking) {
-    const iconos = {
-        pendiente_asignado : { icon: 'bi-person-check-fill', color: '#f59e0b' },
-        en_proceso         : { icon: 'bi-play-circle-fill',   color: '#a855f7' },
-        en_revision        : { icon: 'bi-send-check-fill',    color: '#f97316' },
-        finalizado         : { icon: 'bi-check-circle-fill',  color: '#10b981' },
-    };
+  const iconos = {
+    pendiente_asignado: { icon: 'bi-person-check-fill', color: '#f59e0b' },
+    en_proceso: { icon: 'bi-play-circle-fill', color: '#a855f7' },
+    en_revision: { icon: 'bi-send-check-fill', color: '#f97316' },
+    finalizado: { icon: 'bi-check-circle-fill', color: '#10b981' },
+  };
 
-    return tracking.map(t => {
-        const cfg   = iconos[t.estado] || { icon: 'bi-circle', color: '#888' };
-        const fecha = t.fecha_registro
-            ? new Date(t.fecha_registro).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
-            : '---';
-        return `
+  return tracking.map(t => {
+    const cfg = iconos[t.estado] || { icon: 'bi-circle', color: '#888' };
+    const fecha = t.fecha_registro
+      ? new Date(t.fecha_registro).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+      : '---';
+    return `
             <div style="display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--borde);">
                 <div style="flex-shrink:0; width:32px; height:32px; border-radius:50%; background:${cfg.color}22; display:flex; align-items:center; justify-content:center;">
                     <i class="bi ${cfg.icon}" style="color:${cfg.color}; font-size:14px;"></i>
@@ -467,6 +451,6 @@ function _renderTrackingEmpleado(tracking) {
                     <small style="color:var(--texto-3); font-size:10px;">${fecha}</small>
                 </div>
             </div>`;
-    }).join('');
+  }).join('');
 }
 

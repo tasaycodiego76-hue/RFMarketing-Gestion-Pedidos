@@ -13,7 +13,7 @@ use App\Libraries\EmailService;
 use App\Models\RequerimientoModel;
 use App\Services\PusherService;
 
-class kanban extends Controller
+class Kanban extends Controller
 {
      private PusherService $pusher;
        public function __construct()  // ← AGREGA TODO EL CONSTRUCTOR
@@ -321,9 +321,10 @@ class kanban extends Controller
 
         // Solo asigna el empleado. El estado queda como está (pendiente_asignado).
         // NO se toca fechainicio ni se cambia a en_proceso todavía.
+        // Limpiamos observacion_revision para evitar que vea mensajes del empleado anterior
         $db->query("
         UPDATE atencion
-        SET idempleado = ?
+        SET idempleado = ?, observacion_revision = NULL
         WHERE id = ?
     ", [$idEmpleado, $idAtencion]);
 
@@ -403,12 +404,18 @@ class kanban extends Controller
             $db->query("UPDATE atencion SET estado = ?, fechacompletado = NOW(), observacion_revision = NULL WHERE id = ?", [$nuevoEstado, $idAtencion]);
             $accion = 'Requerimiento finalizado y entregado con éxito.';
         } else {
-            // Si el Admin regresa el pedido, le ponemos un mensaje por defecto para que aparezca en Retroalimentación
-            $obs = null;
+            // Cambios de estado genéricos (sin sobrescribir observacion_revision)
+            $db->query("UPDATE atencion SET estado = ?, url_entrega = NULL WHERE id = ?", [$nuevoEstado, $idAtencion]);
+            
+            // Si el admin regresa el pedido, registrar en retroalimentacion
             if ($nuevoEstado === 'en_proceso') {
-                $obs = 'Corrección solicitada por Administración';
-                // Limpiar la entrega anterior
-                $db->query("UPDATE atencion SET estado = ?, observacion_revision = ?, url_entrega = NULL WHERE id = ?", [$nuevoEstado, $obs, $idAtencion]);
+                $retroModel = new RetroalimentacionModel();
+                $retroModel->insert([
+                    'idatencion' => $idAtencion,
+                    'idevaluador' => $idAdmin,
+                    'contenido' => 'Corrección solicitada por Administración',
+                    'fecha' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
+                ]);
 
                 $archivoModel = new ArchivoModel();
                 $archivosAnteriores = $archivoModel->where('idatencion', $idAtencion)->findAll();
@@ -419,8 +426,6 @@ class kanban extends Controller
                     }
                     $archivoModel->delete($archivo['id']);
                 }
-            } else {
-                $db->query("UPDATE atencion SET estado = ?, observacion_revision = ? WHERE id = ?", [$nuevoEstado, $obs, $idAtencion]);
             }
         }
 
@@ -547,7 +552,7 @@ class kanban extends Controller
         }
 
         // 1. Actualizar estado del pedido a 'en_proceso' e incrementar modificaciones
-        $db->query("UPDATE atencion SET estado = 'en_proceso', num_modificaciones = num_modificaciones + 1, url_entrega = NULL, observacion_revision = ? WHERE id = ?", [$mensaje, $idAtencion]);
+        $db->query("UPDATE atencion SET estado = 'en_proceso', num_modificaciones = num_modificaciones + 1, url_entrega = NULL WHERE id = ?", [$idAtencion]);
 
         // 1.5. Limpiar los archivos entregados anteriormente (para no mostrarlos de nuevo)
         $archivoModel = new ArchivoModel();
@@ -560,7 +565,7 @@ class kanban extends Controller
             $archivoModel->delete($archivo['id']);
         }
 
-        // 2. Registrar en la tabla de retroalimentación
+        // 2. Registrar en la tabla de retroalimentación (correcciones del admin)
         $retroModel->insert([
             'idatencion' => $idAtencion,
             'idevaluador' => $idAdmin,
