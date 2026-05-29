@@ -27,7 +27,7 @@ if (!empty($p['fecharequerida'])) {
 }
 ?>
 <div class="kb-card <?= ($estado === 'pendiente_sin_asignar') ? 'js-draggable' : '' ?>"
-    data-id="<?= $p['id'] ?>" data-sla="<?= $slaType ?>" data-prio="<?= $prioCls ?>" style="display: block;">
+    data-id="<?= $p['id'] ?>" data-area="<?= $p['idarea_agencia'] ?>" data-sla="<?= $slaType ?>" data-prio="<?= $prioCls ?>" style="display: block;">
     <div class="kb-card-top" style="display: flex; flex-direction: column; gap: 4px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
             <div class="kb-card-info" style="flex: 1; min-width: 0;">
@@ -59,7 +59,7 @@ if (!empty($p['fecharequerida'])) {
 
     <div class="kb-card-tags">
         <span class="kb-tag-servicio">
-            <i class="bi bi-tag-fill"></i> <?= esc($p['servicio'] ?? 'General') ?>
+            <i class="bi bi-tag-fill"></i> <?= ($p['es_servicio_personalizado'] ?? 0) ? 'Serv. Personalizado' : esc($p['servicio'] ?? 'General') ?>
         </span>
         <span class="kb-tag-pri kb-pri-<?= $prioCls ?>">
             <i class="bi bi-flag-fill"></i> <?= $prio ?>

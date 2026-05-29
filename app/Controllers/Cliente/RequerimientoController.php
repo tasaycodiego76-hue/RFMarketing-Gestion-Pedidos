@@ -77,9 +77,10 @@ class RequerimientoController extends BaseClienteController
         $idServicio = (!empty($idServicio) && $idServicio != '0') ? (int) $idServicio : null;
         $servicioPersonalizado = $this->request->getPost('servicio_personalizado');
 
-        // Verificar si el servicio es "Creación de Contenido" para aplicar lógica consultiva
+        // Verificar si el servicio es "Creación de Contenido" o personalizado para aplicar lógica consultiva
+        // (los servicios personalizados no tienen campos como canales, formatos, tipo, etc.)
         $servicioUiNombre = (string) ($this->request->getPost('servicio_ui_nombre') ?? '');
-        $esConsultivo = $this->esServicioConsultivo($servicioUiNombre);
+        $esConsultivo = $idServicio === null || $this->esServicioConsultivo($servicioUiNombre);
 
         // Validaciones (CAMPOS OBLIGATORIOS)
         if ($idServicio === null && (empty($servicioPersonalizado) || trim($servicioPersonalizado) === '')) {
@@ -221,7 +222,7 @@ class RequerimientoController extends BaseClienteController
             $servicioModel = new ServicioModel();
             if ($idServicio === null) {
                 // Áreas especiales para servicios no tipificados
-                $idAreaAgencia = 1; // Por defecto Diseño
+                $idAreaAgencia = null; // Establecer en null para llegar a todas las áreas
             } else {
                 $idAreaAgencia = $servicioModel->getAreaAgenciaByServicio((int) $idServicio);
             }
@@ -294,7 +295,8 @@ class RequerimientoController extends BaseClienteController
                 'empresa'        => $empresaNombre,
                 'servicio'       => $servicioNombre,
                 'fecharequerida' => $dataReq['fecharequerida'],
-                'prioridad'      => $dataReq['prioridad']
+                'prioridad'      => $dataReq['prioridad'],
+                'idarea_agencia' => $idAreaAgencia
             ]);
 
         } catch (\Exception $e) {

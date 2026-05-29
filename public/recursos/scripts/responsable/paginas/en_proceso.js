@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
   cargarTareasEnProceso();
-  setTimeout(verificarHighlight, 1500); // Dar tiempo a que las tareas se carguen por AJAX
 
   // Lógica para el input de archivos de entrega (Responsable)
   const area = document.getElementById("area-subida-entrega");
@@ -1326,52 +1325,6 @@ function guardarEdicionRequerimientoEnProceso() {
     });
 }
 
-/**
- * Busca un parámetro en la URL y resalta la tarea si existe (con reintentos para carga asíncrona)
- */
-function verificarHighlight() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const highlightId = urlParams.get('highlight');
-  if (!highlightId) return;
-
-  let intentos = 0;
-  const maxIntentos = 10; // Intentar durante 5 segundos (500ms * 10)
-
-  const interval = setInterval(() => {
-    intentos++;
-    const items = document.querySelectorAll('.tarea-item');
-    let target = null;
-
-    items.forEach(item => {
-      if (item.innerHTML.includes(`verDetalleTarea(${highlightId})`) ||
-        item.innerHTML.includes(`iniciarTrabajo(${highlightId})`)) {
-        target = item;
-      }
-    });
-
-    if (target) {
-      clearInterval(interval);
-      setTimeout(() => {
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        target.style.transition = 'all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)';
-        target.style.border = '3px solid #f5c400';
-        target.style.boxShadow = '0 0 30px rgba(245, 196, 0, 0.6)';
-        target.style.transform = 'scale(1.03)';
-        target.style.zIndex = '100';
-
-        setTimeout(() => {
-          target.style.border = 'none';
-          target.style.boxShadow = 'none';
-          target.style.transform = 'scale(1)';
-        }, 4000);
-      }, 300);
-    }
-
-    if (intentos >= maxIntentos) {
-      clearInterval(interval);
-    }
-  }, 500);
-}
 
 /* REASIGNACIÓN DE TAREAS*/
 

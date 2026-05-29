@@ -29,7 +29,7 @@
                 <div class="flex-grow-1">
                     <div class="badges-row mb-3">
                         <span class="badge-type">
-                            <?= mb_strtoupper(esc($requerimiento['servicio_personalizado'] ?? $requerimiento['nombre_servicio']), 'UTF-8') ?>
+                            <?= mb_strtoupper(!empty($requerimiento['servicio_personalizado']) ? 'Serv. Personalizado' : esc($requerimiento['nombre_servicio'] ?? 'N/A'), 'UTF-8') ?>
                         </span>
                         <span class="badge-priority prio-<?= strtolower($requerimiento['prioridad']) ?>">
                             <?= esc($requerimiento['prioridad']) ?>

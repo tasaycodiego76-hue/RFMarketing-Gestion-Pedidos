@@ -142,7 +142,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // Limpia un texto (quita tildes, mayúsculas y espacios) para comparar nombres de servicios.
   const normalizarTexto = (texto = "") => texto.toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
   // Verifica si el servicio es "Creación de Contenido" para aplicar reglas más flexibles.
-  const esServicioConsultivo = (nombre) => normalizarTexto(nombre) === "creacion de contenido";
+  const esServicioConsultivo = (nombre) => {
+    const n = normalizarTexto(nombre);
+    return n === "creacion de contenido";
+  };
   // Retorna el nombre de la clase del icono de Bootstrap según la extensión del archivo.
   const getIconoArchivo = (mimeType, fileName) => {
     if (mimeType?.startsWith("image/")) return "bi-file-earmark-image";
@@ -213,7 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
       html += `
         <div class="servicio-card servicio-personalizado" data-id="0" data-nombre="Personalizado">
           <div class="servicio-card-info">
-            <p class="servicio-card-nombre">Servicio Personalizado</p>
+            <p class="servicio-card-nombre">Serv. Personalizado</p>
             <p class="servicio-card-desc">¿No encuentras lo que buscas? Cuéntanos tu idea aquí.</p>
           </div>
           <i class="bi bi-arrow-right servicio-card-arrow"></i>
@@ -274,13 +277,14 @@ document.addEventListener("DOMContentLoaded", function () {
             clase: "",
             etiqueta: pedido.prioridad,
           };
-          const servicio = pedido.servicio_personalizado || pedido.servicio;
+          const esPersonalizado = !pedido.idservicio || pedido.idservicio === null;
+          const servicioHTML = esPersonalizado ? 'SERV. PERSONALIZADO' : pedido.servicio;
 
           return `
           <tr>
             <td class="fw-bold">#${num}</td>
             <td><span class="fw-semibold fs-6">${pedido.titulo || "Sin título"}</span></td>
-            <td>${servicio}</td>
+            <td>${servicioHTML}</td>
             <td><span class="badge-estado ${cfgEstado.clase}">${cfgEstado.texto.toUpperCase()}</span></td>
             <td class="small">${pedido.fechacreacion.substring(0, 10)}</td>
             <td>
@@ -362,7 +366,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("form-idservicio").value = id; // Guardamos el ID del servicio para Envio Final
     document.getElementById("wbadge-container").textContent =
-      nombreServicioSeleccionado; // Colocamos el Servicio en una Etiqueta para el Modal
+      nombreServicioSeleccionado === "Personalizado" ? "Serv. Personalizado" : nombreServicioSeleccionado; // Colocamos el Servicio en una Etiqueta para el Modal
     // Si eligió 'Personalizado', mostramos el campo para que escriba qué servicio es.
     document
       .getElementById("contenedor-nombre-personalizado")
@@ -757,17 +761,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const inputTitulo = document.getElementById("campo-titulo");
     const inputTituloPerso = document.getElementById("titulo_personalizado");
 
-    // Si el servicio es personalizado, usamos ese título, si no, el normal
+    // Si el servicio es personalizado, usamos ese nombre como título del servicio (no del pedido)
     let tituloFinal = inputTitulo?.value || "";
-
-    if (nombreServicioSeleccionado === "Personalizado") {
-      tituloFinal = inputTituloPerso?.value || tituloFinal;
-    }
 
     fd.set("titulo", tituloFinal);
     fd.set("objetivo_comunicacion", qs(".textarea-objetivo")?.value || "");
     fd.set("publico_objetivo", qs(".textarea-publico")?.value || "");
     fd.set("descripcion", qs(".textarea-descripcion")?.value || "");
+
+    // Si eligió Personalizado, enviamos el nombre del servicio personalizado
+    if (nombreServicioSeleccionado === "Personalizado") {
+      fd.set("servicio_personalizado", inputTituloPerso?.value || "");
+    }
 
     fd.set("servicio_ui_nombre", nombreServicioSeleccionado || "");
     fd.set(

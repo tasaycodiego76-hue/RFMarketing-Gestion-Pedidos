@@ -722,15 +722,55 @@ function _parseList(json) {
 }
 
 // ═══════════════════════════════════════
-// ═══ DRAG & DROP (SORTABLE.JS)        ══
+// ═══ DRAG & DROP (SORTABLE.JS) & COUNTS ══
 // ═══════════════════════════════════════
+function _actualizarBadgeArea(areaId, delta) {
+  const tab = document.querySelector(`.kb-area-tab[data-area-id="${areaId}"]`);
+  if (!tab) return;
+  let badge = tab.querySelector('.area-badge-notif');
+  if (delta > 0) {
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'area-badge-notif';
+      tab.appendChild(badge);
+    }
+    badge.textContent = parseInt(badge.textContent || '0', 10) + delta;
+  } else if (badge) {
+    const current = parseInt(badge.textContent || '0', 10) + delta;
+    if (current > 0) badge.textContent = current;
+    else badge.remove();
+  }
+}
+
+function _actualizarConteosColumnas() {
+  document.querySelectorAll('.kb-col').forEach(col => {
+    const estado = col.getAttribute('data-estado');
+    const body = col.querySelector(`.kb-col-body[data-estado="${estado}"]`);
+    const countSpan = col.querySelector('.kb-col-count');
+    if (body && countSpan) {
+      const cards = body.querySelectorAll('.kb-card');
+      countSpan.textContent = cards.length;
+
+      let emptyDiv = body.querySelector('.kb-empty');
+      if (cards.length > 0) {
+        if (emptyDiv) emptyDiv.style.display = 'none';
+      } else {
+        if (!emptyDiv) {
+          emptyDiv = document.createElement('div');
+          emptyDiv.className = 'kb-empty';
+          emptyDiv.innerHTML = '<i class="bi bi-inbox"></i><span>No hay requerimientos en esta etapa</span>';
+          body.appendChild(emptyDiv);
+        } else {
+          emptyDiv.style.display = 'flex';
+        }
+      }
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-  const colAprobar = document.querySelector(
-    '.kb-col-body[data-estado="pendiente_sin_asignar"]',
-  );
-  const colProceso = document.querySelector(
-    '.kb-col-body[data-estado="en_proceso"]',
-  );
+  const colAprobar = document.querySelector('.kb-col-body[data-estado="pendiente_sin_asignar"]');
+  const colProceso = document.querySelector('.kb-col-body[data-estado="en_proceso"]');
 
   if (colAprobar && colProceso) {
     const style = document.createElement("style");
@@ -746,7 +786,6 @@ document.addEventListener("DOMContentLoaded", () => {
       animation: 150,
     });
 
-    // SOLO SE PUEDE SOLTAR AQUÍ (NO REGRESAR)
     new Sortable(colProceso, {
       group: { name: "kanban", pull: false, put: true },
       draggable: ".js-draggable",
@@ -760,8 +799,14 @@ document.addEventListener("DOMContentLoaded", () => {
           accion: "Su solicitud ha sido aprobada por Administrador y enviada al área correspondiente para su gestión.",
           idareaagencia: AREA_ACTUAL,
         }).catch(() => { });
+        
+        // Disminuir en 1 la notificación del área actual visible arriba del kanban
+        _actualizarBadgeArea(AREA_ACTUAL, -1);
+        _actualizarConteosColumnas();
       },
     });
+
+    _actualizarConteosColumnas();
   }
 });
 
@@ -778,18 +823,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Nueva solicitud → columna Nuevas Solicitudes en tiempo real
   RFPusher.on('solicitud.nueva', async function (data) {
+    if (data.idarea_agencia) {
+      if (typeof AREA_ACTUAL !== 'undefined' && parseInt(data.idarea_agencia) !== parseInt(AREA_ACTUAL)) {
+        _actualizarBadgeArea(data.idarea_agencia, 1);
+        return;
+      }
+    } else {
+      // Servicio personalizado sin área asignada: incrementar en todas las pestañas excepto la actual
+      document.querySelectorAll('.kb-area-tab').forEach(tab => {
+        const tabAreaId = tab.getAttribute('data-area-id');
+        if (tabAreaId && typeof AREA_ACTUAL !== 'undefined' && parseInt(tabAreaId) !== parseInt(AREA_ACTUAL)) {
+          _actualizarBadgeArea(tabAreaId, 1);
+        }
+      });
+    }
+
     const columna = document.querySelector('.kb-col-body[data-estado="pendiente_sin_asignar"]');
     if (!columna) return;
 
     const html = await _getTarjetaHTML(data.id);
-    if (!html.trim()) return;
-
     const temp = document.createElement('div');
     temp.innerHTML = html.trim();
     const nuevaTarjeta = temp.firstElementChild;
+    if (!nuevaTarjeta) return;
+
+    // Validación extra sobre el atributo data-area de la tarjeta inyectada
+    const tarjetaAreaId = nuevaTarjeta.getAttribute('data-area');
+    // Permitir inyectar si tarjetaAreaId es null/vacío (es servicio personalizado) O si coincide con AREA_ACTUAL
+    if (tarjetaAreaId && tarjetaAreaId !== 'null' && tarjetaAreaId !== '' && typeof AREA_ACTUAL !== 'undefined' && parseInt(tarjetaAreaId) !== parseInt(AREA_ACTUAL)) {
+      return;
+    }
+
     nuevaTarjeta.style.animation = 'fadeIn 0.4s ease';
     columna.prepend(nuevaTarjeta);
     if (typeof _ordenarColumnaPorPrioridad === 'function') _ordenarColumnaPorPrioridad(columna);
+    _actualizarConteosColumnas();
 
     Swal.fire({
       icon: 'info',
@@ -807,36 +875,72 @@ document.addEventListener('DOMContentLoaded', () => {
   // Cambio de estado → mueve la tarjeta a la columna correcta en tiempo real
   RFPusher.on('solicitud.actualizada', async function (data) {
     const tarjeta = document.querySelector(`.kb-card[data-id="${data.id}"]`);
-
     let estadoDestino = data.estado_nuevo;
     if (estadoDestino === 'pendiente_asignado') estadoDestino = 'en_proceso';
 
-    if (estadoDestino === 'cancelado') {
-      if (tarjeta) tarjeta.remove();
+    // Si la tarjeta era un servicio personalizado (sin área asignada) y ahora se asignó o canceló
+    const eraPersonalizado = tarjeta && (!tarjeta.getAttribute('data-area') || tarjeta.getAttribute('data-area') === 'null' || tarjeta.getAttribute('data-area') === '');
+
+    if (eraPersonalizado) {
+      // Disminuir la notificación en todas las pestañas de área excepto en la que ahora es dueña
+      document.querySelectorAll('.kb-area-tab').forEach(tab => {
+        const tabAreaId = tab.getAttribute('data-area-id');
+        if (tabAreaId && parseInt(tabAreaId) !== parseInt(data.idarea_agencia)) {
+          _actualizarBadgeArea(tabAreaId, -1);
+        }
+      });
+      // Si la tarjeta estaba en la columna "pendiente_sin_asignar" (Nuevas Solicitudes) del tablero actual y ya no es de esta área,
+      // también restamos su notificación local
+      if (typeof AREA_ACTUAL !== 'undefined' && parseInt(data.idarea_agencia) !== parseInt(AREA_ACTUAL)) {
+        if (tarjeta && tarjeta.closest('.kb-col-body[data-estado="pendiente_sin_asignar"]')) {
+          _actualizarBadgeArea(AREA_ACTUAL, -1);
+        }
+      }
+    }
+
+    if (estadoDestino === 'cancelado' || (typeof AREA_ACTUAL !== 'undefined' && data.idarea_agencia && parseInt(data.idarea_agencia) !== parseInt(AREA_ACTUAL))) {
+      if (tarjeta) {
+        tarjeta.remove();
+        _actualizarConteosColumnas();
+      }
       return;
     }
 
     const columna = document.querySelector(`.kb-col-body[data-estado="${estadoDestino}"]`);
     if (!columna) {
-      if (tarjeta) tarjeta.remove();
+      if (tarjeta) {
+        tarjeta.remove();
+        _actualizarConteosColumnas();
+      }
       return;
     }
 
     const html = await _getTarjetaHTML(data.id);
-    if (!html.trim()) {
-      if (tarjeta) tarjeta.remove();
-      return;
-    }
-
     const temp = document.createElement('div');
     temp.innerHTML = html.trim();
     const nuevaTarjeta = temp.firstElementChild;
-    nuevaTarjeta.style.animation = 'fadeIn 0.4s ease';
+    if (!nuevaTarjeta) {
+      if (tarjeta) {
+        tarjeta.remove();
+        _actualizarConteosColumnas();
+      }
+      return;
+    }
 
-    // Quitar la vieja (en cualquier columna) e insertar en la correcta
+    const tarjetaAreaId = nuevaTarjeta.getAttribute('data-area');
+    if (tarjetaAreaId && tarjetaAreaId !== 'null' && tarjetaAreaId !== '' && typeof AREA_ACTUAL !== 'undefined' && parseInt(tarjetaAreaId) !== parseInt(AREA_ACTUAL)) {
+      if (tarjeta) {
+        tarjeta.remove();
+        _actualizarConteosColumnas();
+      }
+      return;
+    }
+
+    nuevaTarjeta.style.animation = 'fadeIn 0.4s ease';
     if (tarjeta) tarjeta.remove();
     columna.prepend(nuevaTarjeta);
     if (typeof _ordenarColumnaPorPrioridad === 'function') _ordenarColumnaPorPrioridad(columna);
+    _actualizarConteosColumnas();
   });
 
 });

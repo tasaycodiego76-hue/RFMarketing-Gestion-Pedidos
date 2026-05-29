@@ -281,39 +281,48 @@ async function ejecutarAccion(id, tipo) {
       : `${BASE_URL}/empleado/pedido-entregar/${id}`;
   let formData = new FormData();
 
-  if (tipo === "entregar") {
-    const link = $("#url_entrega").val();
-    const files = $("#archivos_entrega")[0].files;
-    const notas = $("#notas").val();
-
-    if (link) {
-      const urlPattern = /^(https?:\/\/)/i;
-      if (!urlPattern.test(link)) {
-        Swal.fire({
-          icon: "warning",
-          title: "URL Inválida",
-          text: "El enlace debe comenzar con http:// o https://"
-        });
-        return;
+  if (tipo === "iniciar") {
+    Swal.fire({ title: "Procesando...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    try {
+      formData.append('csrf_test_name', $('meta[name="csrf-token"]').attr('content'));
+      const response = await fetch(url, { method: "POST", body: formData });
+      const res = await response.json();
+      if (res.status === "success") {
+        Swal.fire({ icon: "success", title: "¡Hecho!", text: res.message }).then(() => location.reload());
+      } else {
+        Swal.fire({ icon: "error", title: "Error", text: res.message });
       }
+    } catch {
+      Swal.fire({ icon: "error", title: "Error fatal", text: "No se pudo procesar la solicitud." });
     }
+    return;
+  }
 
-    if (!link && files.length === 0) {
-      Swal.fire({
-        icon: "warning",
-        title: "Falta información",
-        text: "Por favor, proporciona un enlace o adjunta los archivos de tu trabajo."
-      });
+  // Solo llega aquí si es "entregar"
+  const link = $("#url_entrega").val();
+  const files = $("#archivos_entrega")[0].files;
+  const notas = $("#notas").val();
+
+  if (link) {
+    const urlPattern = /^(https?:\/\/)/i;
+    if (!urlPattern.test(link)) {
+      Swal.fire({ icon: "warning", title: "URL Inválida", text: "El enlace debe comenzar con http:// o https://" });
       return;
-    }
-
-    formData.append("url_entrega", link);
-    formData.append("notas", notas);
-    for (let i = 0; i < files.length; i++) {
-      formData.append("archivos_entrega[]", files[i]);
     }
   }
 
+  if (!link && files.length === 0) {
+    Swal.fire({ icon: "warning", title: "Falta información", text: "Por favor, proporciona un enlace o adjunta los archivos de tu trabajo." });
+    return;
+  }
+
+  formData.append("url_entrega", link);
+  formData.append("notas", notas);
+  for (let i = 0; i < files.length; i++) {
+    formData.append("archivos_entrega[]", files[i]);
+  }
+
+  formData.append('csrf_test_name', $('meta[name="csrf-token"]').attr('content'));
   const result = await Swal.fire({
     title: "¿Confirmar envío?",
     text: "Asegúrate de que todo esté correcto.",
@@ -324,42 +333,17 @@ async function ejecutarAccion(id, tipo) {
   });
 
   if (result.isConfirmed) {
-    Swal.fire({
-      title: "Procesando...",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-
+    Swal.fire({ title: "Procesando...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     try {
-      const response = await fetch(url, {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(url, { method: "POST", body: formData });
       const res = await response.json();
-
       if (res.status === "success") {
-        Swal.fire({
-          icon: "success",
-          title: "¡Hecho!",
-          text: res.message
-        }).then(() => {
-          location.reload();
-        });
+        Swal.fire({ icon: "success", title: "¡Hecho!", text: res.message }).then(() => location.reload());
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: res.message
-        });
+        Swal.fire({ icon: "error", title: "Error", text: res.message });
       }
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error fatal",
-        text: "No se pudo procesar la solicitud."
-      });
+    } catch {
+      Swal.fire({ icon: "error", title: "Error fatal", text: "No se pudo procesar la solicitud." });
     }
   }
 }

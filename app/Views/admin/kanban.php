@@ -103,6 +103,7 @@
             <?php $countNuevasArea = $stats_areas[$area['id']] ?? 0; ?>
             <a href="<?= site_url('admin/kanban/' . $idEmpresa . '/' . $area['id']) ?>"
                 class="kb-area-tab <?= $idAreaAgencia == $area['id'] ? 'activo' : '' ?>"
+                data-area-id="<?= $area['id'] ?>"
                 title="<?= esc($area['nombre']) ?>">
                 <span class="kb-area-tab-txt"><?= esc($area['nombre']) ?></span>
                 <?php if ($countNuevasArea > 0): ?>

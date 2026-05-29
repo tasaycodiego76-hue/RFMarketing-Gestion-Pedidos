@@ -378,6 +378,8 @@ class EquipoController extends BaseResponsableController
                 // Reiniciamos la fecha de inicio para que el nuevo empleado registre su propio comienzo
                 'fechainicio' => null,
                 'estado'     => 'pendiente_asignado',
+                // Limpiamos observación para evitar que vea mensajes del empleado anterior
+                'observacion_revision' => null,
             ]);
 
             // 2. Registrar en historial_asignaciones
