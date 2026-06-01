@@ -322,13 +322,17 @@ async function verDetalle(idAtencion) {
     clone.querySelector('.tpl-publico').textContent = d.publico_objetivo && d.publico_objetivo.trim() !== '' ? d.publico_objetivo : '---';
 
     // ── Tags ──
-    const renderTags = (json) => {
+    const renderTags = (json, otrosStr = '') => {
       const list = _parseList(json);
+      if (otrosStr && otrosStr.trim()) {
+        const otrosList = otrosStr.split(',').map(s => s.trim()).filter(s => s);
+        list.push(...otrosList);
+      }
       if (!list.length) return '<span class="tag-empty">SIN ESPECIFICAR</span>';
       return `<div class="tags-container">` + list.map(t => `<span class="tag-item">${String(t).toUpperCase()}</span>`).join("") + `</div>`;
     };
     clone.querySelector('.tpl-canales').innerHTML = renderTags(d.canales_difusion);
-    clone.querySelector('.tpl-formatos').innerHTML = renderTags(d.formatos_solicitados);
+    clone.querySelector('.tpl-formatos').innerHTML = renderTags(d.formatos_solicitados, d.formato_otros);
 
     // ── Archivos Cliente ──
     const renderArchivos = (lista, color = "#F5C400") => {
