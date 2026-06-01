@@ -26,7 +26,18 @@ class RetroalimentacionModel extends Model
      */
     public function getRetroalimentacionPorEmpleado($idEmpleado)
     {
-        return $this->select('retroalimentacion.*, atencion.id as id_atencion, requerimiento.titulo as pedido_titulo, 
+        $db = \Config\Database::connect();
+
+        // Subconsulta: obtener el ID más reciente de retroalimentación por cada atención
+        $subquery = $db->table('retroalimentacion r_sub')
+            ->select('MAX(r_sub.id) as max_id')
+            ->join('atencion a_sub', 'a_sub.id = r_sub.idatencion')
+            ->where('a_sub.idempleado', $idEmpleado)
+            ->where('a_sub.estado', 'en_proceso')
+            ->groupBy('r_sub.idatencion')
+            ->getCompiledSelect();
+
+        return $this->select('retroalimentacion.*, atencion.id as id_atencion, requerimiento.titulo as pedido_titulo,
                              usuarios.nombre as evaluador_nombre, usuarios.apellidos as evaluador_apellidos,
                              COALESCE(servicios.nombre, atencion.servicio_personalizado) as servicio_nombre,
                              empresas.nombreempresa as empresa_nombre')
@@ -37,8 +48,7 @@ class RetroalimentacionModel extends Model
             ->join('usuarios as u_sol', 'u_sol.id = requerimiento.idusuarioempresa', 'left')
             ->join('areas', 'areas.id = u_sol.idarea', 'left')
             ->join('empresas', 'empresas.id = areas.idempresa', 'left')
-            ->where('atencion.idempleado', $idEmpleado)
-            ->where('atencion.estado', 'en_proceso') 
+            ->where("retroalimentacion.id IN ($subquery)")
             ->orderBy('retroalimentacion.fecha', 'DESC')
             ->findAll();
     }
