@@ -27,7 +27,11 @@ document.addEventListener("DOMContentLoaded", function () {
     modalAsignar.addEventListener("hidden.bs.modal", function () {
       empleadoSeleccionado = null;
       requerimientoSeleccionado = null;
-      document.getElementById("btn-confirmar-asignacion").disabled = true;
+      const btn = document.getElementById("btn-confirmar-asignacion");
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-person-plus-fill me-2"></i> CONFIRMAR ASIGNACIÓN';
+      }
     });
   }
 });
@@ -44,10 +48,10 @@ function cargarBandeja() {
 
   // Solo mostrar animación si es la primera carga o está vacío, para evitar parpadeos con Pusher
   if (requerimientosData.length === 0 && tbody) {
-      tbody.innerHTML = generarSkeletonFilas();
+    tbody.innerHTML = generarSkeletonFilas();
   }
   if (revisionData.length === 0 && tbodyRev) {
-      tbodyRev.innerHTML = generarSkeletonFilas();
+    tbodyRev.innerHTML = generarSkeletonFilas();
   }
 
   fetch(`${base_url}responsable/pedidos/bandeja-json`)

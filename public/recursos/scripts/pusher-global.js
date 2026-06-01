@@ -163,4 +163,29 @@
         document.addEventListener('DOMContentLoaded', actualizarNotificacionesResponsable);
     }
 
+    // MÓDULO EMPLEADO
+    // Se activa solo cuando PUSHER_CANAL === 'kanban-empleados'
+    if (typeof PUSHER_CANAL !== 'undefined' && PUSHER_CANAL === 'kanban-empleados') {
+        console.log('[RFPusher/Empleado] Módulo inicializado en canal:', PUSHER_CANAL);
+        
+        function recargarVistaEmpleado() {
+            const path = window.location.pathname;
+            console.log('[RFPusher/Empleado] Ruta detectada:', path);
+            if (path.includes('empleado/retroalimentacion')) {
+                console.log('[RFPusher/Empleado] Recargando retroalimentación...');
+                window.location.reload();
+            }
+        }
+
+        window.RFPusher.on('solicitud.actualizada', function (data) {
+            console.log('[RFPusher/Empleado] Evento recibido: solicitud.actualizada', data);
+            recargarVistaEmpleado();
+        });
+        
+        window.RFPusher.on('solicitud.nueva', function (data) {
+            console.log('[RFPusher/Empleado] Evento recibido: solicitud.nueva', data);
+            recargarVistaEmpleado();
+        });
+    }
+
 })();

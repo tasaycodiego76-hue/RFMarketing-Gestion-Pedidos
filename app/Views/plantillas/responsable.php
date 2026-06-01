@@ -253,7 +253,7 @@
         }
     </script>
     <!-- Pusher Global: conexión + lógica de responsable en tiempo real -->
-    <script src="<?= base_url('recursos/scripts/pusher-global.js') ?>"></script>
+    <script src="<?= base_url('recursos/scripts/pusher-global.js?v=') . time() ?>"></script>
 
     <script src="<?= base_url('recursos/scripts/responsable/plantilla/responsable.js') ?>"></script>
 
