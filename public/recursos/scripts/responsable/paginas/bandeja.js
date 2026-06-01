@@ -335,6 +335,7 @@ function confirmarAsignacion() {
           timer: 2000,
           showConfirmButton: false,
         });
+        cargarEmpleados();
         setTimeout(() => cargarBandeja(), 500); // Recargar bandeja para ver los cambios.
       } else {
         const esClaro = document.documentElement.getAttribute("data-theme") === "light";
@@ -701,3 +702,4 @@ function formatearLista(v) {
 window.abrirModalAsignar = abrirModalAsignar;
 window.seleccionarEmpleado = seleccionarEmpleado;
 window.verDetalleRequerimiento = verDetalleRequerimiento;
+window.cargarEmpleados = cargarEmpleados;

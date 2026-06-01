@@ -128,6 +128,9 @@
             const path = window.location.pathname;
             if (path.includes('responsable/bandeja') && typeof window.cargarBandeja === 'function') {
                 window.cargarBandeja();
+                if (typeof window.cargarEmpleados === 'function') {
+                    window.cargarEmpleados();
+                }
             } else if (path.includes('responsable/en-proceso') && typeof window.cargarTareasEnProceso === 'function') {
                 window.cargarTareasEnProceso();
             } else if (path.includes('responsable/retroalimentacion') && typeof window.cargarRetroalimentacion === 'function') {
