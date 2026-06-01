@@ -109,6 +109,7 @@ $routes->group('responsable', ['filter' => 'auth:empleado'], function ($routes) 
     // SEGUIMIENTO Y RETROALIMENTACIÓN
     $routes->get('historial', 'Responsable\GestionController::historial');
     $routes->get('retroalimentacion', 'Responsable\GestionController::retroalimentacion');
+    $routes->get('retroalimentacion-json', 'Responsable\GestionController::retroalimentacionJson');
     $routes->get('notificaciones/contar', 'Responsable\PedidosAreaController::contarNotificaciones');
 
     // RECURSOS
@@ -125,6 +126,7 @@ $routes->group('empleado', ['filter' => 'auth:empleado'], function ($routes) {
     $routes->get('mis_pedidos', 'Empleado\MisPedidosController::index');
     $routes->get('historial', 'Empleado\MisPedidosController::historial');
     $routes->get('retroalimentacion', 'Empleado\MisPedidosController::retroalimentacion');
+    $routes->get('retroalimentacion-json', 'Empleado\MisPedidosController::retroalimentacionJson');
     $routes->post('pedido-iniciar/(:num)', 'Empleado\MisPedidosController::iniciarPedido/$1');
     $routes->post('pedido-entregar/(:num)', 'Empleado\MisPedidosController::entregarPedido/$1');
     $routes->get('pedido-detalle/(:num)', 'Empleado\MisPedidosController::detalle/$1');

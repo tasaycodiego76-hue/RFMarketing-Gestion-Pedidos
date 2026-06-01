@@ -1,7 +1,7 @@
-<?= $this->extend('plantillas/empleado') ?>
+﻿<?= $this->extend('plantillas/empleado') ?>
 <?= $this->section('styles') ?>
 <<style>
-    /* Estilos Premium de Retroalimentación (Sincronizado con Responsable) */
+    /* Estilos Premium de RetroalimentaciÃ³n (Sincronizado con Responsable) */
     .retro-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -158,7 +158,7 @@
         text-decoration: none;
     }
 
-    /* Adaptabilidad Móvil */
+    /* Adaptabilidad MÃ³vil */
     @media (max-width: 576px) {
         .retro-grid {
             grid-template-columns: 1fr;
@@ -183,7 +183,7 @@
             <div class="mb-4">
                 <i class="bi bi-chat-heart" style="font-size: 60px; color: var(--amarillo); opacity: 0.2;"></i>
             </div>
-            <h5 style="font-family: 'Bebas Neue'; letter-spacing: 2px; color: var(--texto);">¡Todo impecable!</h5>
+            <h5 style="font-family: 'Bebas Neue'; letter-spacing: 2px; color: var(--texto);">Â¡Todo impecable!</h5>
             <p style="font-size: 12px; color: var(--texto-3); text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">No tienes pedidos con correcciones pendientes.</p>
         </div>
     <?php else: ?>
@@ -191,7 +191,7 @@
             <?php foreach($retroalimentacion as $r): ?>
                 <div class="retro-card">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="retro-badge"><i class="bi bi-exclamation-triangle-fill me-1"></i> Corrección</span>
+                        <span class="retro-badge"><i class="bi bi-exclamation-triangle-fill me-1"></i> CorrecciÃ³n</span>
                         <span class="text-dim-small">
                             <i class="bi bi-clock-history"></i> <?= date('d/m/Y', strtotime($r['fecha'])) ?>
                         </span>
@@ -212,7 +212,7 @@
 
                     <div class="retro-msg-container">
                         <div class="retro-msg-label">
-                            Observación del Evaluador
+                            ObservaciÃ³n del Evaluador
                         </div>
                         <p class="retro-msg-text">
                             "<?= nl2br(esc($r['contenido'])) ?>"
@@ -243,4 +243,8 @@
 <div style="height: 50px;"></div>
 
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script src="<?= base_url('recursos/scripts/empleado/retroalimentacion.js') ?>"></script>
 <?= $this->endSection() ?>

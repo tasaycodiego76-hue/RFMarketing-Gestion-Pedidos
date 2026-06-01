@@ -167,25 +167,78 @@
     // Se activa solo cuando PUSHER_CANAL === 'kanban-empleados'
     if (typeof PUSHER_CANAL !== 'undefined' && PUSHER_CANAL === 'kanban-empleados') {
         console.log('[RFPusher/Empleado] Módulo inicializado en canal:', PUSHER_CANAL);
-        
+
+        /**
+         * Actualiza el badge de retroalimentación del sidebar del empleado en tiempo real.
+         */
+        async function actualizarBadgeRetroEmpleado() {
+            try {
+                const baseUrl = typeof BASE_URL !== 'undefined' ? BASE_URL : '/';
+                const cleanBase = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
+                const res = await fetch(cleanBase + 'empleado/retroalimentacion-json');
+                const json = await res.json();
+                if (!json.success) return;
+
+                let badge = document.querySelector('.nav-enlace[href*="retroalimentacion"] .nav-badge');
+                if (json.count > 0) {
+                    if (!badge) {
+                        const link = document.querySelector('.nav-enlace[href*="retroalimentacion"]');
+                        if (link) {
+                            badge = document.createElement('span');
+                            badge.className = 'nav-badge';
+                            badge.style.background = '#ef4444';
+                            link.appendChild(badge);
+                        }
+                    }
+                    if (badge) { badge.textContent = json.count; badge.style.display = 'inline-block'; }
+                } else if (badge) {
+                    badge.style.display = 'none';
+                }
+            } catch(e) {
+                console.error('[RFPusher/Empleado] Error actualizando badge retro:', e);
+            }
+        }
+
+        /**
+         * Recarga la vista activa del empleado sin recargar la página completa.
+         */
         function recargarVistaEmpleado() {
             const path = window.location.pathname;
             console.log('[RFPusher/Empleado] Ruta detectada:', path);
+
             if (path.includes('empleado/retroalimentacion')) {
-                console.log('[RFPusher/Empleado] Recargando retroalimentación...');
-                window.location.reload();
+                console.log('[RFPusher/Empleado] Recargando retroalimentación de forma asíncrona...');
+                if (typeof window.cargarRetroalimentacion === 'function') {
+                    window.cargarRetroalimentacion();
+                } else {
+                    // Fallback: esperar un momento para que el script de la página se cargue
+                    setTimeout(() => {
+                        if (typeof window.cargarRetroalimentacion === 'function') {
+                            window.cargarRetroalimentacion();
+                        } else {
+                            window.location.reload();
+                        }
+                    }, 300);
+                }
+            } else if (path.includes('empleado/mis_pedidos') && typeof window.cargarPedidos === 'function') {
+                window.cargarPedidos();
             }
         }
 
         window.RFPusher.on('solicitud.actualizada', function (data) {
             console.log('[RFPusher/Empleado] Evento recibido: solicitud.actualizada', data);
             recargarVistaEmpleado();
+            actualizarBadgeRetroEmpleado();
         });
-        
+
         window.RFPusher.on('solicitud.nueva', function (data) {
             console.log('[RFPusher/Empleado] Evento recibido: solicitud.nueva', data);
             recargarVistaEmpleado();
+            actualizarBadgeRetroEmpleado();
         });
+
+        // Actualizar badge al cargar la página
+        document.addEventListener('DOMContentLoaded', actualizarBadgeRetroEmpleado);
     }
 
-})();
+})();
