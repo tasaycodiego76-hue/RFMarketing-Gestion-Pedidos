@@ -88,4 +88,27 @@ class GestionController extends BaseResponsableController
             'data' => $items
         ], $metrics));
     }
+
+    /**
+     * Endpoint API JSON: Devuelve la retroalimentación del responsable para carga dinámica (Pusher).
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function retroalimentacionJson()
+    {
+        $userS = $this->ValidarSesion_DatosUser();
+        if (!$userS['ok']) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No autorizado'])->setStatusCode(401);
+        }
+
+        $idAreaAgencia = (int) $userS['user']['idarea_agencia'];
+        $atencionModel = new AtencionModel();
+        $items = $atencionModel->obtenerRetroalimentacionPorArea($idAreaAgencia);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $items,
+            'count' => count($items)
+        ]);
+    }
 }
+

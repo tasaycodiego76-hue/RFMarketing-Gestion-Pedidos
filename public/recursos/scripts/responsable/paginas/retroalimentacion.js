@@ -275,3 +275,90 @@ window.irAGestion = function(id) {
     console.log("Redirigiendo a:", targetUrl);
     window.location.href = targetUrl;
 };
+
+/**
+ * Recarga la lista de retroalimentación del responsable sin recargar la página completa.
+ * Llamado por Pusher cuando llega una actualización en tiempo real.
+ */
+window.cargarRetroalimentacion = async function() {
+    const contenedor = document.querySelector('.retro-grid') || document.querySelector('[data-retro-contenedor]');
+    const wrapper = document.querySelector('.page-content') || document.querySelector('main');
+
+    try {
+        const baseUrl = window.BASE_URL || '/';
+        const cleanBase = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
+        const res = await fetch(cleanBase + 'responsable/retroalimentacion-json');
+        const json = await res.json();
+
+        if (!json.success) return;
+
+        // Buscar el contenedor de cards o la sección que muestra el listado
+        const gridEl = document.querySelector('.retro-grid');
+        const emptyEl = document.querySelector('.card-rf.text-center');
+
+        if (json.count === 0) {
+            // Mostrar estado vacío
+            if (gridEl) {
+                gridEl.outerHTML = `
+                <div class="card-rf text-center py-5">
+                    <i class="bi bi-check2-circle icon-xl-success mb-3"></i>
+                    <h5>¡Todo en orden!</h5>
+                    <p class="text-muted">No tienes pedidos con retroalimentación pendiente por el momento.</p>
+                </div>`;
+            }
+            return;
+        }
+
+        // Construir HTML de las cards
+        const cardsHtml = json.data.map(item => {
+            const fecha = item.fecha_retro || item.fechacreacion || '';
+            let fechaFmt = '---';
+            if (fecha) {
+                try {
+                    const d = new Date(fecha.includes('T') ? fecha : fecha.replace(/-/g, '/'));
+                    fechaFmt = ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+                } catch(e) { fechaFmt = fecha; }
+            }
+            const empleadoNombre = item.empleado_nombre ? (item.empleado_nombre + ' ' + (item.empleado_apellidos || '')) : 'Sin asignar';
+            const inicial = empleadoNombre.trim().charAt(0).toUpperCase();
+            return `
+            <div class="retro-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="retro-badge"><i class="bi bi-exclamation-circle me-1"></i> Corrección Solicitada</span>
+                    <span class="text-dim-small"><i class="bi bi-clock-history"></i> ${fechaFmt}</span>
+                </div>
+                <h4 class="mb-1 title-bebas-retro">${escaparHtml(item.titulo || '')}</h4>
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="badge-servicio-retro">${escaparHtml(item.servicio_nombre || '')}</div>
+                    <div class="text-muted-extra-small"><i class="bi bi-building"></i> ${escaparHtml(item.empresa_nombre || '')}</div>
+                </div>
+                <div class="retro-msg retro-msg-container">
+                    <div class="retro-msg-label">FEEDBACK DEL RESPONSABLE</div>
+                    <p class="retro-msg-text">"${escaparHtml(item.observacion_revision || '')}"</p>
+                </div>
+                <div class="retro-footer">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-circle-retro">${inicial}</div>
+                        <div class="d-flex flex-column">
+                            <span class="specialist-label">Especialista</span>
+                            <span class="specialist-name">${escaparHtml(empleadoNombre)}</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-retro-action" onclick="verDetalle(${item.id})">
+                        VER DETALLE <i class="bi bi-arrow-right-short ms-1"></i>
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+
+        // Si hay un grid ya renderizado, reemplazarlo; sino si hay estado vacío, reemplazar eso
+        if (gridEl) {
+            gridEl.innerHTML = cardsHtml;
+        } else if (emptyEl) {
+            emptyEl.outerHTML = `<div class="retro-grid">${cardsHtml}</div>`;
+        }
+
+    } catch(e) {
+        console.error('[Responsable/Retro] Error al cargar retroalimentación:', e);
+    }
+};

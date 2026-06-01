@@ -48,10 +48,10 @@ function cargarBandeja() {
 
   // Solo mostrar animación si es la primera carga o está vacío, para evitar parpadeos con Pusher
   if (requerimientosData.length === 0 && tbody) {
-      tbody.innerHTML = generarSkeletonFilas();
+    tbody.innerHTML = generarSkeletonFilas();
   }
   if (revisionData.length === 0 && tbodyRev) {
-      tbodyRev.innerHTML = generarSkeletonFilas();
+    tbodyRev.innerHTML = generarSkeletonFilas();
   }
 
   fetch(`${base_url}responsable/pedidos/bandeja-json`)

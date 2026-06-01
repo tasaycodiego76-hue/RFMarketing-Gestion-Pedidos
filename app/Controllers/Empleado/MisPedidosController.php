@@ -373,4 +373,25 @@ class MisPedidosController extends BaseController
             'retroalimentacion' => $retroalimentacion
         ]);
     }
+
+    /**
+     * Endpoint API JSON: Devuelve la retroalimentación del empleado para carga dinámica (Pusher).
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function retroalimentacionJson()
+    {
+        $user = $this->getActiveUser();
+        if (!$user || $user['rol'] !== 'empleado') {
+            return $this->response->setJSON(['success' => false, 'message' => 'No autorizado'])->setStatusCode(401);
+        }
+
+        $retroModel = new RetroalimentacionModel();
+        $retroalimentacion = $retroModel->getRetroalimentacionPorEmpleado($user['id']);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $retroalimentacion,
+            'count' => count($retroalimentacion)
+        ]);
+    }
 }
