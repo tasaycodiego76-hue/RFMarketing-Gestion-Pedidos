@@ -115,11 +115,12 @@ function verDetalleSolicitud(id) {
         '<button class="btn-yellow" data-dismiss="modal" style="width:100%;">ENTENDIDO, VOLVER</button>',
       );
 
-      // Archivos
-      if (res.archivos && res.archivos.length > 0) {
+      // Archivos del cliente
+      const archivosCliente = res.archivos_cliente || [];
+      if (archivosCliente.length > 0) {
         let arcHtml =
           '<div style="display:flex; flex-direction:column; gap:8px;">';
-        res.archivos.forEach((a) => {
+        archivosCliente.forEach((a) => {
           arcHtml += `
                         <a href="${BASE_URL}/${a.ruta}" target="_blank" class="exp-archivo-item" style="display:flex; align-items:center; gap:10px; padding:12px; background:var(--panel); border:1px solid var(--borde); border-radius:10px; color:var(--texto-2); text-decoration:none; font-size:12px; transition:all .2s;">
                             <i class="bi bi-cloud-arrow-down" style="color:var(--amarillo); font-size:16px;"></i>
@@ -134,7 +135,7 @@ function verDetalleSolicitud(id) {
         );
       }
 
-      // Enlaces
+      // Enlaces del cliente
       let linkHtml = "";
       if (d.url_subida) {
         linkHtml += `
@@ -143,17 +144,63 @@ function verDetalleSolicitud(id) {
                         <a href="${d.url_subida}" target="_blank" style="color:var(--amarillo); font-size:12px; text-decoration:underline; word-break:break-all;">${d.url_subida}</a>
                     </div>`;
       }
-      if (d.url_entrega) {
-        linkHtml += `
-                    <div style="margin-top:10px;">
-                        <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:9px; display:block; margin-bottom:5px;">Link de entrega:</small>
-                        <a href="${d.url_entrega}" target="_blank" style="color:#10b981; font-size:12px; text-decoration:underline; word-break:break-all;">${d.url_entrega}</a>
-                    </div>`;
-      }
       $("#lista-enlaces-requerimiento").html(
         linkHtml ||
         '<p style="font-size:11px; color:#444; font-style:italic;">No hay enlaces externos.</p>',
       );
+
+      // Entregas del Empleado (Muestra lo que envió el empleado en pedidos finalizados o en revisión)
+      if (d.url_entrega || (res.archivos_empleado && res.archivos_empleado.length > 0) || d.observacion_revision) {
+        let filesHtml = "";
+        const archivosEmp = res.archivos_empleado || [];
+        if (archivosEmp.length > 0) {
+          filesHtml = '<div style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">';
+          archivosEmp.forEach((a) => {
+            filesHtml += `
+              <a href="${BASE_URL}/${a.ruta}" target="_blank" class="exp-archivo-item" style="display:flex; align-items:center; gap:10px; padding:12px; background:var(--panel); border:1px solid var(--borde); border-radius:10px; color:var(--texto-2); text-decoration:none; font-size:12px; transition:all .2s;">
+                  <i class="bi bi-file-earmark-arrow-down" style="color:#10b981; font-size:16px;"></i>
+                  <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${a.nombre}</span>
+              </a>`;
+          });
+          filesHtml += "</div>";
+        }
+
+        let linkEntregaHtml = "";
+        if (d.url_entrega) {
+          linkEntregaHtml = `
+            <div style="margin-bottom:10px;">
+                <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:9px; display:block; margin-bottom:5px;">Enlace del Entregable:</small>
+                <a href="${d.url_entrega}" target="_blank" style="color:#10b981; font-size:13px; font-weight:600; text-decoration:underline; word-break:break-all;">
+                    <i class="bi bi-link-45deg"></i> ${d.url_entrega}
+                </a>
+            </div>`;
+        }
+
+        let notasHtml = "";
+        if (d.observacion_revision) {
+          notasHtml = `
+            <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--borde);">
+                <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; font-size:9px; display:block; margin-bottom:5px;">Notas de Entrega:</small>
+                <p style="color:var(--texto-2); font-size:12px; margin:0; font-style:italic;">"${d.observacion_revision}"</p>
+            </div>`;
+        }
+
+        const entregaHtml = `
+          <!-- 5. ENTREGABLES DEL EMPLEADO -->
+          <div class="mb-4 mt-3">
+              <h6 class="exp-subseccion-titulo" style="color:var(--texto); font-family:'Bebas Neue'; letter-spacing:2px; font-size:18px; margin-bottom:15px; display:flex; align-items:center; gap:10px;">
+                  <span class="exp-icon-bg" style="background:#10b981; color:#fff; width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:16px;"><i class="bi bi-patch-check"></i></span>
+                  TRABAJO ENTREGADO
+              </h6>
+              <div class="exp-card-info" style="background:var(--mini-card-bg); padding:20px; border-radius:12px; border:1px solid rgba(16, 185, 129, 0.2);">
+                  ${linkEntregaHtml}
+                  ${filesHtml}
+                  ${notasHtml}
+              </div>
+          </div>
+        `;
+        cuerpo.append(entregaHtml);
+      }
 
       // ── TRACKING DEL PEDIDO en tiempo real ────────────────────────────────
       const _trackHtml = (res.tracking && res.tracking.length > 0)
@@ -356,10 +403,13 @@ $(document).ready(function () {
     // Limpiar el timeout previo
     if (timeoutBusqueda) clearTimeout(timeoutBusqueda);
 
+    // Si estamos en la vista de historial, esperar 1.5 segundos; si no, 300ms
+    const delay = $('#contenedor-historial').length ? 1500 : 300;
+
     // Iniciar nuevo timeout
     timeoutBusqueda = setTimeout(function () {
       filtrarResultados();
-    }, 300); // Reducido a 300ms para mejor respuesta
+    }, delay);
   });
 
   $('#filtro-estado').on('change', function () {
@@ -368,7 +418,8 @@ $(document).ready(function () {
 
   function filtrarResultados() {
     const query = $('#busqueda').val().toLowerCase().trim();
-    const estado = $('#filtro-estado').val();
+    const filterEl = $('#filtro-estado');
+    const estado = filterEl.length ? filterEl.val() : '';
 
     $('.emp-task-card').each(function () {
       const card = $(this);
