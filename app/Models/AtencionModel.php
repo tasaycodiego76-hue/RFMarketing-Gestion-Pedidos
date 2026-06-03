@@ -59,7 +59,7 @@ class AtencionModel extends Model
             LEFT JOIN areas ar ON ar.id = u.idarea
             LEFT JOIN empresas e ON e.id = ar.idempresa
             WHERE r.idusuarioempresa = ?
-              AND a.estado != 'finalizado'
+              AND a.estado NOT IN ('finalizado', 'cancelado')
             ORDER BY a.idrequerimiento DESC
         ";
 
@@ -80,7 +80,7 @@ class AtencionModel extends Model
             INNER JOIN requerimiento r ON r.id = a.idrequerimiento
             LEFT JOIN servicios s ON s.id = a.idservicio
             WHERE r.idusuarioempresa = ?
-              AND a.estado = 'finalizado'
+              AND a.estado IN ('finalizado', 'cancelado')
         ";
         $params = [$usuarioId];
 
@@ -124,6 +124,7 @@ class AtencionModel extends Model
                 a.estado,
                 a.prioridad,
                 a.fechacompletado,
+                a.fechacancelacion,
                 r.fechacreacion,
                 COALESCE(s.nombre, a.servicio_personalizado) AS servicio,
                 e.nombreempresa AS empresa
@@ -134,7 +135,7 @@ class AtencionModel extends Model
             LEFT JOIN areas ar ON ar.id = u.idarea
             LEFT JOIN empresas e ON e.id = ar.idempresa
             WHERE r.idusuarioempresa = ?
-              AND a.estado = 'finalizado'
+              AND a.estado IN ('finalizado', 'cancelado')
         ";
         $params = [$usuarioId];
 
@@ -597,21 +598,37 @@ class AtencionModel extends Model
     public function getMetricasTiempoPromedio(int $idAreaAgencia): array
     {
         $sql = "
+            WITH tiempo_proceso AS (
+                SELECT 
+                    t.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (COALESCE(t.end_time, CURRENT_TIMESTAMP) - t.start_time))) / 3600 as horas_trabajadas
+                FROM (
+                    SELECT 
+                        tr.idatencion,
+                        tr.estado,
+                        tr.fecha_registro as start_time,
+                        LEAD(tr.fecha_registro) OVER (PARTITION BY tr.idatencion ORDER BY tr.fecha_registro ASC) as end_time
+                    FROM tracking tr
+                    INNER JOIN atencion a ON a.id = tr.idatencion
+                    WHERE a.idarea_agencia = ?
+                ) t
+                WHERE t.estado = 'en_proceso'
+                GROUP BY t.idatencion
+            )
             SELECT 
                 u.nombre,
-                COALESCE(ROUND(AVG(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600)::numeric, 2), 0) as promedio_horas
+                COALESCE(ROUND(AVG(tp.horas_trabajadas)::numeric, 2), 0) as promedio_horas
             FROM usuarios u
             LEFT JOIN atencion a ON a.idempleado = u.id 
                 AND a.estado = 'finalizado'
-                AND a.fechainicio IS NOT NULL 
-                AND a.fechacompletado IS NOT NULL
+            LEFT JOIN tiempo_proceso tp ON tp.idatencion = a.id
             WHERE u.idarea_agencia = ?
               AND u.rol = 'empleado'
               AND (u.estado = true OR u.estado = 't' OR u.estado = '1')
             GROUP BY u.id, u.nombre
             ORDER BY promedio_horas ASC";
 
-        return $this->db->query($sql, [$idAreaAgencia])->getResultArray();
+        return $this->db->query($sql, [$idAreaAgencia, $idAreaAgencia])->getResultArray();
     }
 
     /**
@@ -662,7 +679,27 @@ class AtencionModel extends Model
             $where .= " AND a.estado != 'cancelado' ";
         }
 
+        // Agregar parametro inicial para el CTE de tiempo
+        array_unshift($params, $idAreaAgencia);
+
         $sql = "
+            WITH tiempo_proceso AS (
+                SELECT 
+                    t.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (COALESCE(t.end_time, CURRENT_TIMESTAMP) - t.start_time))) / 3600 as horas_trabajadas
+                FROM (
+                    SELECT 
+                        tr.idatencion,
+                        tr.estado,
+                        tr.fecha_registro as start_time,
+                        LEAD(tr.fecha_registro) OVER (PARTITION BY tr.idatencion ORDER BY tr.fecha_registro ASC) as end_time
+                    FROM tracking tr
+                    INNER JOIN atencion a ON a.id = tr.idatencion
+                    WHERE a.idarea_agencia = ?
+                ) t
+                WHERE t.estado = 'en_proceso'
+                GROUP BY t.idatencion
+            )
             SELECT 
                 a.id, a.titulo, a.estado, a.prioridad, a.fechacreacion, a.fechainicio, a.fechacompletado, 
                 a.observacion_revision, a.idempleado,
@@ -670,11 +707,7 @@ class AtencionModel extends Model
                 e.nombreempresa as empresa_nombre,
                 u_emp.nombre as empleado_nombre,
                 u_emp.apellidos as empleado_apellidos,
-                CASE 
-                    WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL 
-                    THEN ROUND(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600, 2)
-                    ELSE 0 
-                END as horas_usadas
+                COALESCE(ROUND(tp.horas_trabajadas::numeric, 2), 0) as horas_usadas
             FROM atencion a
             JOIN requerimiento r ON r.id = a.idrequerimiento
             JOIN usuarios u_cli ON r.idusuarioempresa = u_cli.id
@@ -682,6 +715,7 @@ class AtencionModel extends Model
             JOIN empresas e ON ar_cli.idempresa = e.id
             LEFT JOIN servicios s ON s.id = a.idservicio
             LEFT JOIN usuarios u_emp ON u_emp.id = a.idempleado
+            LEFT JOIN tiempo_proceso tp ON tp.idatencion = a.id
             $where
             ORDER BY e.nombreempresa ASC, a.fechacreacion DESC
         ";
@@ -702,15 +736,36 @@ class AtencionModel extends Model
         $whereFecha = "";
         $params = [];
 
+        // Parámetro para el CTE
+        $params[] = $idAreaAgencia;
+
         if (!empty($desde) && !empty($hasta)) {
             $whereFecha = " AND a.fechacreacion >= ? AND a.fechacreacion <= ? ";
             $params[] = $desde . ' 00:00:00';
             $params[] = $hasta . ' 23:59:59';
         }
 
+        // Parámetro para el WHERE final
         $params[] = $idAreaAgencia;
 
         $sql = "
+            WITH tiempo_proceso AS (
+                SELECT 
+                    t.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (COALESCE(t.end_time, CURRENT_TIMESTAMP) - t.start_time))) / 3600 as horas_trabajadas
+                FROM (
+                    SELECT 
+                        tr.idatencion,
+                        tr.estado,
+                        tr.fecha_registro as start_time,
+                        LEAD(tr.fecha_registro) OVER (PARTITION BY tr.idatencion ORDER BY tr.fecha_registro ASC) as end_time
+                    FROM tracking tr
+                    INNER JOIN atencion a ON a.id = tr.idatencion
+                    WHERE a.idarea_agencia = ?
+                ) t
+                WHERE t.estado = 'en_proceso'
+                GROUP BY t.idatencion
+            )
             SELECT 
                 u.nombre, u.apellidos,
                 COUNT(a.id) as asignados,
@@ -720,13 +775,10 @@ class AtencionModel extends Model
                     WHEN COUNT(a.id) > 0 THEN ROUND((COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END)::numeric / COUNT(a.id)) * 100, 1)
                     ELSE 0 
                 END as eficiencia,
-                COALESCE(SUM(CASE 
-                    WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL 
-                    THEN EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600
-                    ELSE 0 
-                END), 0) as horas_totales
+                COALESCE(ROUND(SUM(tp.horas_trabajadas)::numeric, 2), 0) as horas_totales
             FROM usuarios u
             LEFT JOIN atencion a ON a.idempleado = u.id $whereFecha
+            LEFT JOIN tiempo_proceso tp ON tp.idatencion = a.id
             WHERE u.idarea_agencia = ? 
               AND u.rol = 'empleado'
               AND (u.estado = true OR u.estado = 't' OR u.estado = '1')
@@ -924,39 +976,68 @@ class AtencionModel extends Model
      */
     public function obtenerReporteDetalladoAdmin(?string $desde = null, ?string $hasta = null, array $filtros = []): array
     {
-        $params = [];
-        $where = " WHERE 1=1 ";
+        $cteWhere = "";
+        $cteParams = [];
+
+        // Si hay filtro de área, limitar el CTE para mejor rendimiento
+        if (!empty($filtros['idarea_int'])) {
+            $cteWhere = " AND a.idarea_agencia = ?";
+            $cteParams[] = (int)$filtros['idarea_int'];
+        }
+
+        $mainWhere = " WHERE 1=1 ";
+        $mainParams = [];
 
         if (!empty($filtros['idarea_int'])) {
-            $where .= " AND a.idarea_agencia = ? ";
-            $params[] = (int)$filtros['idarea_int'];
+            $mainWhere .= " AND a.idarea_agencia = ? ";
+            $mainParams[] = (int)$filtros['idarea_int'];
         }
         if (!empty($filtros['idempresa'])) {
-            $where .= " AND e.id = ? ";
-            $params[] = (int)$filtros['idempresa'];
+            $mainWhere .= " AND e.id = ? ";
+            $mainParams[] = (int)$filtros['idempresa'];
         }
         if (!empty($filtros['idempleado'])) {
-            $where .= " AND a.idempleado = ? ";
-            $params[] = (int)$filtros['idempleado'];
+            $mainWhere .= " AND a.idempleado = ? ";
+            $mainParams[] = (int)$filtros['idempleado'];
         }
         if (!empty($desde)) {
-            $where .= " AND a.fechacreacion >= ? ";
-            $params[] = $desde . ' 00:00:00';
+            $mainWhere .= " AND a.fechacreacion >= ? ";
+            $mainParams[] = $desde . ' 00:00:00';
         }
         if (!empty($hasta)) {
-            $where .= " AND a.fechacreacion <= ? ";
-            $params[] = $hasta . ' 23:59:59';
+            $mainWhere .= " AND a.fechacreacion <= ? ";
+            $mainParams[] = $hasta . ' 23:59:59';
         }
         if (!empty($filtros['solo_completados'])) {
-            $where .= " AND a.estado = 'finalizado' ";
+            $mainWhere .= " AND a.estado = 'finalizado' ";
         }
 
-        $sql = "SELECT a.id, a.titulo, a.estado, a.fechacreacion, e.nombreempresa as empresa_nombre,
+        // El CTE va primero, luego los parámetros del WHERE principal
+        $params = array_merge($cteParams, $mainParams);
+
+        $sql = "
+            WITH tiempo_proceso AS (
+                SELECT 
+                    t.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (COALESCE(t.end_time, CURRENT_TIMESTAMP) - t.start_time))) / 3600 as horas_trabajadas
+                FROM (
+                    SELECT 
+                        tr.idatencion,
+                        tr.estado,
+                        tr.fecha_registro as start_time,
+                        LEAD(tr.fecha_registro) OVER (PARTITION BY tr.idatencion ORDER BY tr.fecha_registro ASC) as end_time
+                    FROM tracking tr
+                    INNER JOIN atencion a ON a.id = tr.idatencion
+                    WHERE 1=1 $cteWhere
+                ) t
+                WHERE t.estado = 'en_proceso'
+                GROUP BY t.idatencion
+            )
+            SELECT a.id, a.titulo, a.estado, a.fechacreacion, e.nombreempresa as empresa_nombre,
                        aa.nombre as area_agencia_nombre,
                        u_emp.nombre as empleado_nombre, u_emp.apellidos as empleado_apellidos,
                        COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre,
-                       CASE WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL 
-                       THEN ROUND(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600, 2) ELSE 0 END as horas_usadas
+                       COALESCE(ROUND(tp.horas_trabajadas::numeric, 2), 0) as horas_usadas
                 FROM atencion a
                 JOIN requerimiento r ON r.id = a.idrequerimiento
                 JOIN usuarios u_cli ON r.idusuarioempresa = u_cli.id
@@ -965,7 +1046,8 @@ class AtencionModel extends Model
                 JOIN areas_agencia aa ON a.idarea_agencia = aa.id
                 LEFT JOIN servicios s ON s.id = a.idservicio
                 LEFT JOIN usuarios u_emp ON u_emp.id = a.idempleado
-                $where 
+                LEFT JOIN tiempo_proceso tp ON tp.idatencion = a.id
+                $mainWhere 
                 ORDER BY aa.nombre ASC, e.nombreempresa ASC, a.fechacreacion DESC";
 
         return $this->db->query($sql, $params)->getResultArray();
@@ -978,15 +1060,43 @@ class AtencionModel extends Model
      */
     public function obtenerMetricasTecnicosAdmin(?int $idAreaInt = null): array
     {
-        $whereMet = $idAreaInt ? " AND u.idarea_agencia = ? " : "";
-        $params = $idAreaInt ? [$idAreaInt] : [];
+        $cteWhere = "";
+        $cteParams = [];
+        if ($idAreaInt) {
+            $cteWhere = " AND a.idarea_agencia = ?";
+            $cteParams[] = $idAreaInt;
+        }
 
-        $sql = "SELECT u.nombre, u.apellidos, COUNT(a.id) as asignados,
+        $whereMet = $idAreaInt ? " AND u.idarea_agencia = ? " : "";
+        $mainParams = $idAreaInt ? [$idAreaInt] : [];
+
+        $params = array_merge($cteParams, $mainParams);
+
+        $sql = "
+            WITH tiempo_proceso AS (
+                SELECT 
+                    t.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (COALESCE(t.end_time, CURRENT_TIMESTAMP) - t.start_time))) / 3600 as horas_trabajadas
+                FROM (
+                    SELECT 
+                        tr.idatencion,
+                        tr.estado,
+                        tr.fecha_registro as start_time,
+                        LEAD(tr.fecha_registro) OVER (PARTITION BY tr.idatencion ORDER BY tr.fecha_registro ASC) as end_time
+                    FROM tracking tr
+                    INNER JOIN atencion a ON a.id = tr.idatencion
+                    WHERE 1=1 $cteWhere
+                ) t
+                WHERE t.estado = 'en_proceso'
+                GROUP BY t.idatencion
+            )
+            SELECT u.nombre, u.apellidos, COUNT(a.id) as asignados,
                        COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) as completados,
                        CASE WHEN COUNT(a.id) > 0 THEN ROUND((COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END)::numeric / COUNT(a.id)) * 100, 1) ELSE 0 END as eficiencia,
-                       COALESCE(SUM(CASE WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL THEN EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600 ELSE 0 END), 0) as horas_totales
+                       COALESCE(ROUND(SUM(tp.horas_trabajadas)::numeric, 2), 0) as horas_totales
                 FROM usuarios u 
                 LEFT JOIN atencion a ON a.idempleado = u.id
+                LEFT JOIN tiempo_proceso tp ON tp.idatencion = a.id
                 WHERE u.rol = 'empleado' $whereMet 
                 GROUP BY u.id, u.nombre, u.apellidos 
                 ORDER BY eficiencia DESC";
@@ -1003,35 +1113,62 @@ class AtencionModel extends Model
      */
     public function obtenerVistaPreviaAdmin(?string $desde = null, ?string $hasta = null, array $filtros = []): array
     {
-        $params = [];
-        $where = " WHERE 1=1 ";
+        $cteWhere = "";
+        $cteParams = [];
+        if (!empty($filtros['idarea_int']) && $filtros['idarea_int'] > 0) {
+            $cteWhere = " AND a.idarea_agencia = ?";
+            $cteParams[] = (int)$filtros['idarea_int'];
+        }
+
+        $mainWhere = " WHERE 1=1 ";
+        $mainParams = [];
 
         if (!empty($filtros['idarea_int']) && $filtros['idarea_int'] > 0) {
-            $where .= " AND a.idarea_agencia = ? ";
-            $params[] = (int)$filtros['idarea_int'];
+            $mainWhere .= " AND a.idarea_agencia = ? ";
+            $mainParams[] = (int)$filtros['idarea_int'];
         }
         if (!empty($filtros['idempresa'])) {
-            $where .= " AND e.id = ? ";
-            $params[] = (int)$filtros['idempresa'];
+            $mainWhere .= " AND e.id = ? ";
+            $mainParams[] = (int)$filtros['idempresa'];
         }
         if (!empty($desde)) {
-            $where .= " AND a.fechacreacion >= ? ";
-            $params[] = $desde . ' 00:00:00';
+            $mainWhere .= " AND a.fechacreacion >= ? ";
+            $mainParams[] = $desde . ' 00:00:00';
         }
         if (!empty($hasta)) {
-            $where .= " AND a.fechacreacion <= ? ";
-            $params[] = $hasta . ' 23:59:59';
+            $mainWhere .= " AND a.fechacreacion <= ? ";
+            $mainParams[] = $hasta . ' 23:59:59';
         }
 
-        $sql = "SELECT a.id, a.estado, 
-                       CASE WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL 
-                       THEN ROUND(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600, 2) ELSE 0 END as horas
+        $params = array_merge($cteParams, $mainParams);
+
+        $sql = "
+            WITH tiempo_proceso AS (
+                SELECT 
+                    t.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (COALESCE(t.end_time, CURRENT_TIMESTAMP) - t.start_time))) / 3600 as horas_trabajadas
+                FROM (
+                    SELECT 
+                        tr.idatencion,
+                        tr.estado,
+                        tr.fecha_registro as start_time,
+                        LEAD(tr.fecha_registro) OVER (PARTITION BY tr.idatencion ORDER BY tr.fecha_registro ASC) as end_time
+                    FROM tracking tr
+                    INNER JOIN atencion a ON a.id = tr.idatencion
+                    WHERE 1=1 $cteWhere
+                ) t
+                WHERE t.estado = 'en_proceso'
+                GROUP BY t.idatencion
+            )
+            SELECT a.id, a.estado,
+                       COALESCE(ROUND(tp.horas_trabajadas::numeric, 2), 0) as horas
                 FROM atencion a
                 JOIN requerimiento r ON r.id = a.idrequerimiento
                 JOIN usuarios u_cli ON r.idusuarioempresa = u_cli.id
                 JOIN areas ar_cli ON u_cli.idarea = ar_cli.id
                 JOIN empresas e ON ar_cli.idempresa = e.id
-                $where";
+                LEFT JOIN tiempo_proceso tp ON tp.idatencion = a.id
+                $mainWhere";
 
         return $this->db->query($sql, $params)->getResultArray();
     }

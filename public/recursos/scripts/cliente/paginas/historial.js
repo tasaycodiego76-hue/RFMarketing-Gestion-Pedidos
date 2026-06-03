@@ -16,27 +16,26 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentPage = 1;
     let currentSearch = "";
 
-    // Mapas de prioridad
-    const PRIO = {
-        Alta: { chip: "alta", icon: "bi-arrow-up-circle-fill" },
-        Media: { chip: "media", icon: "bi-dash-circle-fill" },
-        Baja: { chip: "baja", icon: "bi-arrow-down-circle-fill" },
-    };
-
     // Genera el HTML de una card
     const buildCard = (p, num) => {
-        const prio = PRIO[p.prioridad] || { chip: "media", icon: "bi-dash-circle-fill" };
         const servicio = p.servicio || "—";
+        const esCancelado = p.estado === 'cancelado';
+        const colorIcono = esCancelado ? 'var(--danger-color, #dc3545)' : 'var(--success-color, #28a745)';
+        const textoEstado = esCancelado ? 'CANCELADO' : 'FINALIZADO';
+        const iconoClase = esCancelado ? 'bi-x-circle-fill' : 'bi-check-circle-fill';
+        const fechaTerminoLabel = esCancelado ? 'Cancelado' : 'Completado';
+        const fechaTerminoValue = esCancelado ? p.fechacancelacion : p.fechacompletado;
+        const cardClass = `pedido-card-historial${esCancelado ? ' pedido-card-cancelado' : ''}`;
 
         return `
-        <div class="pedido-card-historial">
+        <div class="${cardClass}">
             <div class="historial-header">
                 <div>
                     <div class="historial-req-label">#REQ-${p.idrequerimiento} &nbsp;·&nbsp; Pedido #${num}</div>
                     <h3 class="historial-titulo">${p.titulo || "Sin título"}</h3>
                 </div>
-                <span class="historial-status">
-                    <i class="bi bi-check-circle-fill"></i> FINALIZADO
+                <span class="historial-status${esCancelado ? ' historial-status-cancelado' : ''}" style="color: ${colorIcono}; border-color: ${colorIcono};">
+                    <i class="bi ${iconoClase}"></i> ${textoEstado}
                 </span>
             </div>
 
@@ -48,17 +47,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     </span>
                 </div>
                 <div class="historial-info-item">
-                    <span class="historial-info-label">Completado</span>
+                    <span class="historial-info-label">${fechaTerminoLabel}</span>
                     <span class="historial-info-value">
-                        <i class="bi bi-calendar-check-fill"></i> ${formatearFecha(p.fechacompletado)}
-                    </span>
-                </div>
-                <div class="historial-info-item">
-                    <span class="historial-info-label">Prioridad</span>
-                    <span class="historial-info-value">
-                        <span class="prio-chip ${prio.chip}">
-                            <i class="bi ${prio.icon}"></i> ${p.prioridad || "Media"}
-                        </span>
+                        <i class="bi bi-calendar-check-fill"></i> ${formatearFecha(fechaTerminoValue)}
                     </span>
                 </div>
                 <div class="historial-info-item">
@@ -94,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let html = `
             <div class="card-footer bg-transparent border-dark d-flex flex-wrap justify-content-between align-items-center py-3 gap-2">
                 <small class="text-muted" style="color: var(--text-muted, #888) !important;">
-                    Mostrando página ${page} de ${totalPages} (Total: ${totalItems} completados)
+                    Mostrando página ${page} de ${totalPages} (Total: ${totalItems} registros)
                 </small>
                 <nav aria-label="Paginación de historial">
                     <ul class="pagination pagination-rf mb-0">
@@ -171,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .map((p, i) => buildCard(p, totalItems - (currentPage - 1) * 10 - i))
             .join("");
 
-        counter.textContent = `${totalItems} proyecto${totalItems !== 1 ? "s" : ""} completado${totalItems !== 1 ? "s" : ""}`;
+        counter.textContent = `${totalItems} proyecto${totalItems !== 1 ? "s" : ""} en el historial`;
     };
 
     // Carga desde la API
