@@ -46,8 +46,11 @@
         <!-- Logo RF Marketing -->
         <div class="sidebar-brand">
             <div class="brand-logo">
-                <span class="brand-rf">RF</span>
-                <span class="brand-marketing">MARKETING</span>
+                <img src="<?= base_url('img/LogoPlantillas.png') ?>" alt="RF Marketing" class="brand-logo-img">
+                <div class="brand-logo-text">
+                    <span class="brand-rf">RF</span>
+                    <span class="brand-marketing">Marketing</span>
+                </div>
             </div>
             <button class="sidebar-close-btn d-lg-none" id="sidebarCloseBtn">
                 <i class="bi bi-x-lg"></i>

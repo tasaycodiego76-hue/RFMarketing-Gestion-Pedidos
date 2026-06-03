@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?= csrf_hash() ?>">
     <title>RF Marketing — <?= esc($titulo ?? 'Admin') ?></title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -30,17 +31,14 @@
     <aside class="sidebar" id="sidebar">
 
         <div class="sidebar-logo">
-            <div class="marca">RF</div>
-            <div class="subtitulo">Marketing S.A.C.</div>
+            <img src="<?= base_url('img/LogoPlantillas.png') ?>" alt="RF Marketing" class="brand-logo-img">
+            <div class="brand-logo-text">
+                <span class="brand-rf">RF</span>
+                <span class="brand-name">Marketing</span>
+            </div>
         </div>
 
         <nav>
-            <p class="nav-seccion">PRINCIPAL</p>
-            <a href="<?= site_url('admin/dashboard') ?>"
-                class="nav-enlace <?= ($paginaActual == 'dashboard') ? 'activo' : '' ?>">
-                <i class="bi bi-grid-1x2"></i> Dashboard
-            </a>
-
             <p class="nav-seccion">EMPRESAS</p>
 
             <div class="nav-item-dropdown">
@@ -50,8 +48,7 @@
                     <i class="bi bi-chevron-down ms-auto arrow-icon"></i>
                 </div>
 
-                <div class="nav-sub-menu <?= ($paginaActual == 'kanban') ? 'show' : '' ?>"
-                    id="menu-empresas">
+                <div class="nav-sub-menu <?= ($paginaActual == 'kanban') ? 'show' : '' ?>" id="menu-empresas">
                     <?php foreach ($empresas ?? [] as $emp): ?>
                         <?php
                         $estaActiva = ($emp['estado'] === true || $emp['estado'] === 't');
@@ -90,6 +87,12 @@
                 class="nav-enlace <?= ($paginaActual == 'reportes') ? 'activo' : '' ?>">
                 <i class="bi bi-graph-up"></i> Reportes
             </a>
+
+            <p class="nav-seccion">ESTADÍSTICAS</p>
+            <a href="<?= site_url('admin/dashboard') ?>"
+                class="nav-enlace <?= ($paginaActual == 'dashboard') ? 'activo' : '' ?>">
+                <i class="bi bi-grid-1x2"></i> Dashboard
+            </a>
         </nav>
 
         <div class="sidebar-usuario">
@@ -98,13 +101,12 @@
                 <div class="usuario-nombre">Administrador</div>
                 <div class="usuario-rol">Admin</div>
             </div>
-
             <a href="<?= site_url('logout') ?>" class="ms-auto logout-link"
                 style="color:#999; font-size: 18px; transition: color .2s;" title="Salir">
-
                 <i class="bi bi-box-arrow-right"></i>
             </a>
         </div>
+
 
     </aside>
 
@@ -126,7 +128,7 @@
                         <i class="bi bi-bell"></i>
                         <span class="notifications-badge" id="notifications-badge" style="display: none;">0</span>
                     </button>
-                    
+
                     <div class="notifications-dropdown" id="notifications-dropdown">
                         <div class="notifications-header">
                             <h6>REVISIONES PENDIENTES</h6>
@@ -191,23 +193,29 @@
     <!-- ═══ MODAL RETROALIMENTACIÓN (Admin -> Empleado) ═══ -->
     <div class="modal fade" id="modalRetro" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content kb-modal" style="background:#0a0a0a; border:1px solid #222; border-radius:16px; overflow:hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+            <div class="modal-content kb-modal"
+                style="background:#0a0a0a; border:1px solid #222; border-radius:16px; overflow:hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
                 <div class="modal-header" style="background:#050505; border-bottom:1px solid #111; padding:20px 25px;">
-                    <h6 class="modal-title" style="color: #F5C400; font-family:'Bebas Neue'; font-size:24px; letter-spacing:1px; display:flex; align-items:center; gap:12px;">
+                    <h6 class="modal-title"
+                        style="color: #F5C400; font-family:'Bebas Neue'; font-size:24px; letter-spacing:1px; display:flex; align-items:center; gap:12px;">
                         <i class="bi bi-arrow-counterclockwise" style="font-size:20px;"></i> SOLICITAR CORRECCIÓN
                     </h6>
-                    <button type="button" class="close text-white" data-dismiss="modal" style="opacity:0.5; outline:none;">
+                    <button type="button" class="close text-white" data-dismiss="modal"
+                        style="opacity:0.5; outline:none;">
                         <span>&times;</span>
                     </button>
                 </div>
                 <div class="modal-body" style="padding:25px;">
                     <input type="hidden" id="retro-idatencion">
-                    <label style="font-size:10px; color:#666; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px; display:block;">Instrucciones para el responsable</label>
+                    <label
+                        style="font-size:10px; color:#666; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px; display:block;">Instrucciones
+                        para el responsable</label>
                     <textarea id="retro-mensaje" class="form-control" rows="6"
                         style="background:#000; border:1px solid #151515; color:#fff; border-radius:12px; padding:15px; font-size:14px; line-height:1.6; resize:none;"
                         placeholder="Describe detalladamente los cambios o mejoras solicitadas..."></textarea>
                 </div>
-                <div class="modal-footer" style="border-top:1px solid #111; background:#050505; padding:20px 25px; display:flex; gap:15px;">
+                <div class="modal-footer"
+                    style="border-top:1px solid #111; background:#050505; padding:20px 25px; display:flex; gap:15px;">
                     <button type="button" class="btn" data-dismiss="modal"
                         style="flex:1; background: #111; color: #666; font-family:'Bebas Neue'; font-size:18px; letter-spacing:1px; padding:10px; border-radius:10px; border:1px solid #222; transition:all 0.3s;">
                         CANCELAR
@@ -234,8 +242,8 @@
 
         // Fix de compatibilidad local: Desregistrar cualquier ServiceWorker de proyectos antiguos en localhost:8080
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                for (let registration of registrations) {
                     registration.unregister();
                 }
             });
@@ -245,9 +253,9 @@
 
     <!-- Interceptor Global de Fetch para CSRF -->
     <script>
-        (function() {
+        (function () {
             const originalFetch = window.fetch;
-            window.fetch = async function(...args) {
+            window.fetch = async function (...args) {
                 let [resource, config] = args;
                 if (config && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(config.method?.toUpperCase())) {
                     const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');

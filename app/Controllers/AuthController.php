@@ -85,7 +85,7 @@ class AuthController extends Controller
 
         // Lógica de redirección por jerarquía
         if ($rol === 'administrador') {
-            return redirect()->to('/admin/dashboard');
+            return redirect()->to('/admin/kanban/1/1');
         }
 
         if ($rol === 'cliente') {
