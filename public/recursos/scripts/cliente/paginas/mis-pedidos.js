@@ -597,14 +597,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }),
       );
 
-    // Colocamos el color de la prioridad en el resumen.
-    const prio = qs('input[name="prioridad"]:checked')?.value || "Media";
-    const resPrio = document.getElementById("res-prioridad");
-    if (resPrio) {
-      resPrio.textContent = prio;
-      resPrio.className = `resumen-badge prio-${prio.toLowerCase()}`;
-    }
-
     // Resumen visual de materiales adjuntos.
     const tieneMat = selectMateriales.value === "1";
     document.getElementById("res-materiales").innerHTML = tieneMat
@@ -784,10 +776,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fd.set("canales_difusion", JSON.stringify(checkedVals("canales[]")));
     fd.set("formatos_solicitados", JSON.stringify(checkedVals("formatos[]")));
     fd.append("fecharequerida", getVal('[name="fecha_entrega"]'));
-    fd.append(
-      "prioridad",
-      qs('input[name="prioridad"]:checked')?.value || "Media",
-    );
+    fd.append("prioridad", qs('[name="prioridad"]')?.value || "Media");
     fd.append("tiene_materiales", selectMateriales.value || "0");
 
     if (getVal('[name="formato_otros"]'))

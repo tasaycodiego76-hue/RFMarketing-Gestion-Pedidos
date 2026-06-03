@@ -13,7 +13,7 @@
         <h2 class="mb-0 cliente-nombre">
             <?= esc($user['nombre'] . ' ' . $user['apellidos']) ?>
         </h2>
-        <p class="small mb-0 cliente-subtitulo">Proyectos completados y entregados</p>
+        <p class="small mb-0 cliente-subtitulo">Proyectos completados o cancelados</p>
     </div>
     <a href="<?= base_url('cliente/mis_solicitudes') ?>" class="btn-rf">
         <i class="bi bi-briefcase"></i> Pedidos Activos

@@ -63,7 +63,7 @@ class BaseClienteController extends BaseController
             ->where('r.idusuarioempresa', $idUsuario);
 
         return [
-            'total'        => (clone $baseQuery)->countAllResults(),
+            'total'        => (clone $baseQuery)->where('a.estado !=', 'cancelado')->countAllResults(),
             'pendientes'   => (clone $baseQuery)->whereIn('a.estado', ['pendiente_sin_asignar', 'pendiente_asignado'])->countAllResults(),
             'en_proceso'   => (clone $baseQuery)->where('a.estado', 'en_proceso')->countAllResults(),
             'en_revision'  => (clone $baseQuery)->where('a.estado', 'en_revision')->countAllResults(),

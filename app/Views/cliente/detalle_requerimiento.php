@@ -31,9 +31,6 @@
                         <span class="badge-type">
                             <?= mb_strtoupper(!empty($requerimiento['servicio_personalizado']) ? 'Serv. Personalizado' : esc($requerimiento['nombre_servicio'] ?? 'N/A'), 'UTF-8') ?>
                         </span>
-                        <span class="badge-priority prio-<?= strtolower($requerimiento['prioridad']) ?>">
-                            <?= esc($requerimiento['prioridad']) ?>
-                        </span>
                     </div>
                     <h1 class="main-project-title mb-2"><?= esc($requerimiento['titulo']) ?></h1>
                     <p class="university-subtext mb-0">

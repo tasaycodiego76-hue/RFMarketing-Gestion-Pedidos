@@ -190,13 +190,7 @@
                             </div>
                         </div>
                         <div class="field mb-3">
-                            <label class="mb-3">PRIORIDAD DEL REQUERIMIENTO</label>
                             <input type="hidden" name="prioridad" value="Media">
-                            <div class="prio-consejo-box">
-                                <i class="bi bi-info-circle-fill text-warning"></i>
-                                <p class="m-0">La prioridad se aplica por defecto como <strong>Media</strong>. Si deseas
-                                    un cambio especial en la prioridad, comunícate con el administrador.</p>
-                            </div>
                         </div>
                         <div class="field mb-3">
                             <label>TÍTULO DEL REQUERIMIENTO</label>
@@ -343,11 +337,6 @@
                                 <div class="resumen-fila">
                                     <span class="resumen-label">Fecha Requerida</span>
                                     <span class="resumen-valor" id="res-fecha">—</span>
-                                </div>
-                                <div class="resumen-fila">
-                                    <span class="resumen-label">Prioridad</span>
-                                    <span class="resumen-valor"><span class="resumen-badge"
-                                            id="res-prioridad">—</span></span>
                                 </div>
                             </div>
                         </div>
