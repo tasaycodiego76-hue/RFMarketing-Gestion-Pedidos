@@ -21,7 +21,7 @@ body {
 
 body {
     background: var(--fondo);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 14px;
     display: flex;
     -webkit-font-smoothing: antialiased;
@@ -104,7 +104,7 @@ body {
 }
 
 .sidebar-logo .marca {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 34px;
     color: #F5C400;
     letter-spacing: 8px;
@@ -243,7 +243,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 14px;
     color: #000;
     flex-shrink: 0;
@@ -303,15 +303,11 @@ html[data-theme="light"] .topbar {
 }
 
 .topbar-titulo {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 20px;
     letter-spacing: 5px;
     color: var(--texto);
     font-weight: 400;
-}
-
-html[data-theme="light"] .topbar-titulo {
-    color: #111;
 }
 
 /* ══════════════════════════════════════

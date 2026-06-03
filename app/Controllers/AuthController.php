@@ -95,7 +95,7 @@ class AuthController extends Controller
         if ($rol === 'empleado') {
             // Si es empleado, verificamos si además es responsable de área
             if ($esResponsable === true || $esResponsable === 't' || $esResponsable == 1) {
-                return redirect()->to('/responsable/dashboard');
+                return redirect()->to('/responsable/bandeja');
             }
 
             // Si es empleado normal

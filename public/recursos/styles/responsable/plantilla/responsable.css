@@ -47,7 +47,7 @@
 }
 
 body {
-  font-family: "DM Sans", sans-serif;
+  font-family: "Montserrat", sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
@@ -85,14 +85,14 @@ body {
 }
 
 .brand-rf {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 36px;
   color: var(--accent-primary);
   letter-spacing: 6px;
 }
 
 .brand-marketing {
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 12px;
   font-weight: 500;
   color: #888;
@@ -370,7 +370,7 @@ body {
 }
 
 .page-title {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 22px;
   color: var(--text-primary);
   margin: 0;
@@ -378,8 +378,8 @@ body {
 }
 
 .page-subtitle {
-  font-size: 10px;
-  color: #555;
+  font-size: 15px;
+  color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -427,7 +427,7 @@ body {
 }
 
 .user-role-text {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   color: #fff;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -702,7 +702,7 @@ body {
 }
 
 .metrica-valor {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 36px;
   color: var(--text-primary);
   margin: 8px 0;
@@ -832,7 +832,7 @@ body {
 }
 
 .kd-sec-title {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 16px;
   letter-spacing: 1px;
   color: #666;
@@ -2141,7 +2141,7 @@ body {
 .modal-detalle-header .modal-title,
 .modal-rf-header .modal-title,
 .modal-rf-header h5 {
-  font-family: 'Bebas Neue', 'Inter', sans-serif !important;
+  font-family: 'Poppins', 'Montserrat', sans-serif !important;
   font-size: 20px !important;
   font-weight: 700 !important;
   letter-spacing: 1px !important;
@@ -2170,7 +2170,7 @@ body {
 .btn-close-historial,
 .modal-detalle-footer .btn-outline-light,
 .modal-footer .btn-outline-light {
-  font-family: 'Bebas Neue', sans-serif !important;
+  font-family: 'Poppins', sans-serif !important;
   letter-spacing: 1px !important;
   font-size: 13px !important;
   border-color: #444 !important;
@@ -2196,7 +2196,7 @@ body {
 }
 
 .kd-sec-title {
-  font-family: 'Bebas Neue', sans-serif !important;
+  font-family: 'Poppins', sans-serif !important;
   font-size: 15px !important;
   color: #f5c400 !important;
   letter-spacing: 1.5px !important;
@@ -2305,7 +2305,7 @@ body {
   background: #e8e5df !important;
   border-color: #c9c5bc !important;
   color: #374151 !important;
-  font-family: 'Bebas Neue', sans-serif !important;
+  font-family: 'Poppins', sans-serif !important;
   letter-spacing: 1px !important;
 }
 

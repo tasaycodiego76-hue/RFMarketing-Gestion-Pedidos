@@ -113,7 +113,7 @@
 }
 
 .modal-detalle-header .modal-title {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 18px;
     font-weight: 700;
     letter-spacing: 0.5px;
@@ -524,7 +524,7 @@
 /* MODO EDICIÓN */
 .ep-edit-header-text {
     color: #F5C400;
-    font-family: 'Bebas Neue';
+    font-family: 'Poppins';
     letter-spacing: 2px;
 }
 
@@ -710,7 +710,7 @@
 }
 
 #modal-reasignar .modal-title {
-    font-family: 'Bebas Neue', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
     font-size: 20px !important;
     letter-spacing: 2px !important;
     color: #ffffff !important;
@@ -832,7 +832,7 @@
     border: none !important;
     border-radius: 8px !important;
     padding: 8px 22px !important;
-    font-family: 'Bebas Neue', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
     font-size: 15px !important;
     letter-spacing: 1.5px !important;
     transition: all 0.3s ease !important;
@@ -908,7 +908,7 @@
 }
 
 .hist-asig-header-label {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 13px;
     letter-spacing: 3px;
     color: #3a3a3a;
@@ -1182,7 +1182,7 @@
 }
 
 .modal-entrega-header .modal-title {
-    font-family: 'Bebas Neue', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
     font-size: 24px !important;
     letter-spacing: 1.5px !important;
     color: #f5c400 !important;
@@ -1265,7 +1265,7 @@
     background: #222 !important;
     border: 1px solid #333 !important;
     color: #fff !important;
-    font-family: 'Bebas Neue', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
     font-size: 16px !important;
     letter-spacing: 1.5px !important;
     padding: 8px 24px !important;
@@ -1282,7 +1282,7 @@
 .modal-entrega-footer .btn-entregar {
     background: #fff !important;
     color: #000 !important;
-    font-family: 'Bebas Neue', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
     font-size: 16px !important;
     letter-spacing: 1.5px !important;
     padding: 8px 24px !important;

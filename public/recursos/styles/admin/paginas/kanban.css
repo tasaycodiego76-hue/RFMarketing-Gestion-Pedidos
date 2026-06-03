@@ -48,7 +48,7 @@ html[data-theme="light"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 22px;
     color: #000;
     font-weight: 900;
@@ -59,7 +59,7 @@ html[data-theme="light"] {
     font-size: 18px;
     font-weight: 700;
     color: #fff;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     letter-spacing: -0.2px;
 }
 
@@ -345,7 +345,7 @@ html[data-theme="light"] {
 .kb-areas-stat-num {
     font-size: 24px;
     font-weight: 700;
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Poppins', sans-serif;
     line-height: 1;
 }
 
@@ -630,7 +630,7 @@ html[data-theme="light"] .kb-filter-btn.active {
 }
 
 .kb-card-id {
-    font-family: 'Bebas Neue';
+    font-family: 'Poppins';
     color: #555;
     font-size: 14px;
     margin-left: 10px;
@@ -1218,7 +1218,7 @@ html[data-theme="light"] .kb-filter-btn.active {
 .exp-container {
     background: #080808;
     color: #fff;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     padding-bottom: 40px;
 }
 
@@ -1324,7 +1324,7 @@ html[data-theme="light"] .kb-filter-btn.active {
 }
 
 .exp-card-header span {
-    font-family: 'Bebas Neue';
+    font-family: 'Poppins';
     font-size: 20px;
     letter-spacing: 1px;
     color: #fff;
@@ -1380,7 +1380,7 @@ html[data-theme="light"] .kb-filter-btn.active {
 
 .data-label-large {
     color: #fff;
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 20px;
     letter-spacing: 1px;
     margin-bottom: 8px;
@@ -1711,7 +1711,7 @@ html[data-theme="light"] .kb-filter-btn.active {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     letter-spacing: 1px;
     font-size: 10px;
     padding: 4px 12px;
@@ -1745,7 +1745,7 @@ html[data-theme="light"] .kb-filter-btn.active {
 }
 
 .kb-saturation-val {
-    font-family: 'Bebas Neue';
+    font-family: 'Poppins';
     font-size: 20px;
     line-height: 1;
 }
@@ -1820,7 +1820,7 @@ html[data-theme="light"] .kb-filter-btn.active {
     font-weight: 800;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     letter-spacing: 1px;
-    font-family: 'Bebas Neue', cursive;
+    font-family: 'Poppins', cursive;
 }
 
 .kb-filter-btn:hover {

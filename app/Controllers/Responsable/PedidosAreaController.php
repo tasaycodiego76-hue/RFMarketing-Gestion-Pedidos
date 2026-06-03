@@ -22,7 +22,7 @@ class PedidosAreaController extends BaseResponsableController
     /**
      * Muestra el Dashboard del Responsable con resúmenes estadísticos, 
      * gráficos de carga de trabajo por empleado y métricas de prioridad.
-     * @return string|\CodeIgniter\HTTP\RedirectResponse
+    * @return string|\CodeIgniter\HTTP\RedirectResponse
      */
     public function index()
     {
@@ -101,7 +101,7 @@ class PedidosAreaController extends BaseResponsableController
         ], $metrics);
 
         return view('responsable/dashboard', $data);
-    }
+    } 
 
     /**
      * Endpoint: Recopila las 4 métricas de análisis del equipo,

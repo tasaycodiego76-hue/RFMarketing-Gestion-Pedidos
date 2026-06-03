@@ -1372,7 +1372,7 @@ textarea.form-control:focus {
   z-index: 1;
 }
 
-/* Para que se pueda escribir bien (quitar flechas internas en algunos navegadores) */
+/* Para que se pueda escribir bien (quitar flechas INTERNAS en algunos navegadores) */
 .custom-date-field::-webkit-inner-spin-button,
 .custom-date-field::-webkit-clear-button {
   display: none;
