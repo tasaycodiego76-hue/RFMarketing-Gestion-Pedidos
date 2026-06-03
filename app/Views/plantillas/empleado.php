@@ -28,8 +28,11 @@
     <aside class="sidebar" id="sidebar">
 
         <div class="sidebar-logo">
-            <div class="marca">RF</div>
-            <div class="subtitulo">Marketing S.A.C.</div>
+            <img src="<?= base_url('img/LogoPlantillas.png') ?>" alt="RF Marketing" class="brand-logo-img">
+            <div class="brand-logo-text">
+                <span class="brand-rf">RF</span>
+                <span class="brand-name">Marketing</span>
+            </div>
         </div>
 
         <nav>

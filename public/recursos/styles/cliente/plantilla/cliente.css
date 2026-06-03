@@ -202,12 +202,39 @@ ul {
   color: var(--amarillo);
 }
 
-/* "MARKETING" pequeño y espaciado */
+/* Imagen de logo dentro del sidebar */
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-logo-img {
+  max-height: 54px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.brand-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-rf {
+  font-family: var(--f-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--amarillo);
+}
+
 .brand-name {
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 3px;
+  letter-spacing: 1.5px;
   color: var(--sb-text-2);
+  text-transform: uppercase;
 }
 
 /* Botón X — oculto en escritorio, visible en móvil (ver responsive) */

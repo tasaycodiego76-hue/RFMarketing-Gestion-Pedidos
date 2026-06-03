@@ -43,10 +43,13 @@
     <aside class="sidebar" id="sidebar">
 
         <!-- Logo -->
-        <div class="sidebar-brand">
+        <div class="sidebar-brand mt-3">
             <div class="brand-logo">
-                <span class="brand-rf">RF</span>
-                <span class="brand-name">MARKETING</span>
+                <img src="<?= base_url('img/LogoPlantillas.png') ?>" alt="RF Marketing" class="brand-logo-img">
+                <div class="brand-logo-text">
+                    <span class="brand-rf">RF</span>
+                    <span class="brand-name">Marketing</span>
+                </div>
             </div>
             <button class="sidebar-close-btn" id="sidebarCloseBtn">
                 <i class="bi bi-x-lg"></i>
@@ -108,14 +111,15 @@
                         class="nav-link-item <?= (uri_string() == 'cliente/notificaciones') ? 'active' : '' ?>">
                         <span class="nav-icon"><i class="bi bi-bell"></i></span>
                         <span class="nav-text">Notificaciones</span>
-                        <span class="nav-badge notif" style="<?= (isset($notif_no_leidas) && $notif_no_leidas > 0) ? 'display: inline-block;' : 'display: none;' ?>">
+                        <span class="nav-badge notif"
+                            style="<?= (isset($notif_no_leidas) && $notif_no_leidas > 0) ? 'display: inline-block;' : 'display: none;' ?>">
                             <?= $notif_no_leidas ?? 0 ?>
                         </span>
                     </a>
             </ul>
 
         </nav>
-        
+
         <!-- Footer del sidebar -->
         <div class="sidebar-footer">
             <a href="<?= base_url('auth/logout') ?>" class="logout-link">
@@ -154,7 +158,8 @@
                 <!-- Notificaciones -->
                 <a href="<?= base_url('cliente/notificaciones') ?>" class="topbar-icon-btn notif-btn">
                     <i class="bi bi-bell"></i>
-                    <span class="notif-dot" style="<?= (isset($notif_no_leidas) && $notif_no_leidas > 0) ? 'display: inline-block;' : 'display: none;' ?>"></span>
+                    <span class="notif-dot"
+                        style="<?= (isset($notif_no_leidas) && $notif_no_leidas > 0) ? 'display: inline-block;' : 'display: none;' ?>"></span>
                 </a>
 
                 <!-- Usuario -->
@@ -194,15 +199,15 @@
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <!-- Variables de configuración para pusher-global.js -->
     <script>
-        const PUSHER_KEY     = '<?= env('PUSHER_KEY') ?>';
+        const PUSHER_KEY = '<?= env('PUSHER_KEY') ?>';
         const PUSHER_CLUSTER = '<?= env('PUSHER_CLUSTER') ?>';
-        const CLIENTE_ID     = '<?= session()->get('usuario_id') ?>';
-        const BASE_URL       = '<?= base_url() ?>';
+        const CLIENTE_ID = '<?= session()->get('usuario_id') ?>';
+        const BASE_URL = '<?= base_url() ?>';
 
         // Interceptor Global de Fetch para CSRF
-        (function() {
+        (function () {
             const originalFetch = window.fetch;
-            window.fetch = async function(...args) {
+            window.fetch = async function (...args) {
                 let [resource, config] = args;
                 if (config && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(config.method?.toUpperCase())) {
                     const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -220,8 +225,8 @@
         })();
 
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) { registration.unregister(); }
+            navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                for (let registration of registrations) { registration.unregister(); }
             });
         }
     </script>

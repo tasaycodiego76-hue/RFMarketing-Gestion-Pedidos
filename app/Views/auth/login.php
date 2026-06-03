@@ -7,7 +7,9 @@
     <title>RF Marketing — Sistema de Gestión</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('recursos/styles/login.css') ?>">
 </head>
 
@@ -29,10 +31,11 @@
                 <div class="col-md-5 d-none d-md-flex side-branding">
                     <div class="branding-content">
                         <div class="mini-badge">SISTEMA OFICIAL</div>
-                        <h1 class="display-1 logo-text">RF</h1>
-                        <div class="branding-footer">
-                            <p class="mb-0 fw-bold">RF Agencia de Marketing</p>
-                            <small class="opacity-50">Gestión de Requerimientos</small>
+                        <div class="branding-logo mb-4">
+                            <img src="<?= base_url('img/LogoLogin.png') ?>" alt="RF Marketing" class="login-brand-image">
+                        </div>
+                        <div class="brand-description">
+                            Control de Requerimientos
                         </div>
                     </div>
                 </div>
