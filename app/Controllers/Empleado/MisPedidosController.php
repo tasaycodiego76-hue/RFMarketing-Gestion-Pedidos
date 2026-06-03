@@ -191,10 +191,15 @@ class MisPedidosController extends BaseController
             return $this->response->setJSON(['status' => 'error', 'message' => 'Pedido no encontrado o no asignado']);
         }
 
+        $now = (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s');
         $data = [
             'estado' => 'en_proceso',
-            'fechainicio' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
+            'fechareanudacion' => $now
         ];
+
+        if (empty($pedido['fechainicio'])) {
+            $data['fechainicio'] = $now;
+        }
 
         if ($atencionModel->update($id, $data)) {
             $trackingModel = new TrackingModel();
@@ -231,10 +236,22 @@ class MisPedidosController extends BaseController
         $link = $this->request->getPost('url_entrega');
         $notas = $this->request->getPost('notas');
 
+        $tiempoAcumulado = (int)($pedido['tiempo_trabajado_segundos'] ?? 0);
+        $startField = !empty($pedido['fechareanudacion']) ? $pedido['fechareanudacion'] : ($pedido['fechainicio'] ?? null);
+        if (!empty($startField)) {
+            $fechaInicio = new \DateTime($startField);
+            $ahora = new \DateTime('now', new \DateTimeZone('America/Lima'));
+            $diferencia = $ahora->getTimestamp() - $fechaInicio->getTimestamp();
+            if ($diferencia > 0) {
+                $tiempoAcumulado += $diferencia;
+            }
+        }
+
         $data = [
-            'estado' => 'en_revision',
-            'url_entrega' => $link,
-            'observacion_revision' => $notas
+            'estado'                    => 'en_revision',
+            'url_entrega'               => $link,
+            'observacion_revision'      => $notas,
+            'tiempo_trabajado_segundos' => $tiempoAcumulado
         ];
 
         if ($atencionModel->update($id, $data)) {

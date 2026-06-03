@@ -28,7 +28,9 @@ class AtencionModel extends Model
         'cancelacionmotivo',
         'fechacancelacion',
         'url_entrega',
-        'idarea_agencia'
+        'idarea_agencia',
+        'tiempo_trabajado_segundos',
+        'fechareanudacion'
     ];
 
     /* CLIENTE */
@@ -599,12 +601,16 @@ class AtencionModel extends Model
         $sql = "
             SELECT 
                 u.nombre,
-                COALESCE(ROUND(AVG(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600)::numeric, 2), 0) as promedio_horas
+                COALESCE(ROUND(AVG(
+                    CASE 
+                        WHEN COALESCE(a.tiempo_trabajado_segundos, 0) > 0 THEN a.tiempo_trabajado_segundos::numeric
+                        WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL THEN EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio))::numeric
+                        ELSE 0 
+                    END
+                ) / 3600)::numeric, 2), 0) as promedio_horas
             FROM usuarios u
             LEFT JOIN atencion a ON a.idempleado = u.id 
                 AND a.estado = 'finalizado'
-                AND a.fechainicio IS NOT NULL 
-                AND a.fechacompletado IS NOT NULL
             WHERE u.idarea_agencia = ?
               AND u.rol = 'empleado'
               AND (u.estado = true OR u.estado = 't' OR u.estado = '1')
@@ -671,8 +677,8 @@ class AtencionModel extends Model
                 u_emp.nombre as empleado_nombre,
                 u_emp.apellidos as empleado_apellidos,
                 CASE 
-                    WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL 
-                    THEN ROUND(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600, 2)
+                    WHEN COALESCE(a.tiempo_trabajado_segundos, 0) > 0 THEN ROUND(a.tiempo_trabajado_segundos::numeric / 3600, 2)
+                    WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL THEN ROUND(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600, 2)
                     ELSE 0 
                 END as horas_usadas
             FROM atencion a
@@ -721,8 +727,8 @@ class AtencionModel extends Model
                     ELSE 0 
                 END as eficiencia,
                 COALESCE(SUM(CASE 
-                    WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL 
-                    THEN EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600
+                    WHEN COALESCE(a.tiempo_trabajado_segundos, 0) > 0 THEN a.tiempo_trabajado_segundos::numeric / 3600
+                    WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL THEN EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600
                     ELSE 0 
                 END), 0) as horas_totales
             FROM usuarios u
@@ -955,8 +961,11 @@ class AtencionModel extends Model
                        aa.nombre as area_agencia_nombre,
                        u_emp.nombre as empleado_nombre, u_emp.apellidos as empleado_apellidos,
                        COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre,
-                       CASE WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL 
-                       THEN ROUND(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600, 2) ELSE 0 END as horas_usadas
+                       CASE 
+                           WHEN COALESCE(a.tiempo_trabajado_segundos, 0) > 0 THEN ROUND(a.tiempo_trabajado_segundos::numeric / 3600, 2)
+                           WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL THEN ROUND(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600, 2)
+                           ELSE 0 
+                       END as horas_usadas
                 FROM atencion a
                 JOIN requerimiento r ON r.id = a.idrequerimiento
                 JOIN usuarios u_cli ON r.idusuarioempresa = u_cli.id
@@ -984,7 +993,11 @@ class AtencionModel extends Model
         $sql = "SELECT u.nombre, u.apellidos, COUNT(a.id) as asignados,
                        COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) as completados,
                        CASE WHEN COUNT(a.id) > 0 THEN ROUND((COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END)::numeric / COUNT(a.id)) * 100, 1) ELSE 0 END as eficiencia,
-                       COALESCE(SUM(CASE WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL THEN EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600 ELSE 0 END), 0) as horas_totales
+                       COALESCE(SUM(CASE 
+                           WHEN COALESCE(a.tiempo_trabajado_segundos, 0) > 0 THEN a.tiempo_trabajado_segundos::numeric / 3600
+                           WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL THEN EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600
+                           ELSE 0 
+                       END), 0) as horas_totales
                 FROM usuarios u 
                 LEFT JOIN atencion a ON a.idempleado = u.id
                 WHERE u.rol = 'empleado' $whereMet 
@@ -1024,8 +1037,11 @@ class AtencionModel extends Model
         }
 
         $sql = "SELECT a.id, a.estado, 
-                       CASE WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL 
-                       THEN ROUND(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600, 2) ELSE 0 END as horas
+                       CASE 
+                           WHEN COALESCE(a.tiempo_trabajado_segundos, 0) > 0 THEN ROUND(a.tiempo_trabajado_segundos::numeric / 3600, 2)
+                           WHEN a.fechacompletado IS NOT NULL AND a.fechainicio IS NOT NULL THEN ROUND(EXTRACT(EPOCH FROM (a.fechacompletado - a.fechainicio)) / 3600, 2)
+                           ELSE 0 
+                       END as horas
                 FROM atencion a
                 JOIN requerimiento r ON r.id = a.idrequerimiento
                 JOIN usuarios u_cli ON r.idusuarioempresa = u_cli.id

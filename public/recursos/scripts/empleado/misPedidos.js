@@ -36,6 +36,12 @@ function verDetalleSolicitud(id) {
                                 <small style="color:var(--texto-3); text-transform:uppercase; font-weight:800; letter-spacing:1px; font-size:10px;">PROYECTO ASIGNADO</small>
                                 <h4 class="exp-titulo" style="color:var(--texto); font-weight:700; margin:5px 0 0; font-size:22px;">${d.titulo}</h4>
                                 <p style="color:var(--amarillo); font-weight:600; margin:5px 0 0; font-size:13px; text-transform:uppercase;">${d.nombreempresa} — ${d.servicio}</p>
+                                ${d.fechainicio ? `
+                                    <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px; color: var(--texto-2); font-size: 11px;">
+                                        <i class="bi bi-calendar-play" style="color: var(--amarillo);"></i>
+                                        <span>INICIO TRABAJO: ${d.fechainicio.split(' ')[0].split('-').reverse().join('/')} ${d.fechainicio.split(' ')[1] ? d.fechainicio.split(' ')[1].substring(0, 5) : ''}</span>
+                                    </div>
+                                ` : ''}
                             </div>
                             <div class="col-md-4 text-md-right mt-3 mt-md-0">
                                 <span class="task-status-pill ${d.estado === 'pendiente_asignado' ? 'pill-new' : (d.estado === 'en_proceso' ? 'pill-process' : 'pill-revision')}" style="padding:8px 16px; font-size:12px;">${d.estado.replace("_", " ").toUpperCase()}</span>

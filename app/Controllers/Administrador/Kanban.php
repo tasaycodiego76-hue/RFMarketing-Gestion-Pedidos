@@ -409,6 +409,7 @@ class Kanban extends Controller
             
             // Si el admin regresa el pedido, registrar en retroalimentacion
             if ($nuevoEstado === 'en_proceso') {
+                $db->query("UPDATE atencion SET fechareanudacion = NOW() WHERE id = ?", [$idAtencion]);
                 $retroModel = new RetroalimentacionModel();
                 $retroModel->insert([
                     'idatencion' => $idAtencion,
@@ -551,8 +552,8 @@ class Kanban extends Controller
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Pedido no encontrado']);
         }
 
-        // 1. Actualizar estado del pedido a 'en_proceso' e incrementar modificaciones
-        $db->query("UPDATE atencion SET estado = 'en_proceso', num_modificaciones = num_modificaciones + 1, url_entrega = NULL WHERE id = ?", [$idAtencion]);
+        // 1. Actualizar estado del pedido a 'en_proceso', registrar fechareanudacion a NOW() e incrementar modificaciones
+        $db->query("UPDATE atencion SET estado = 'en_proceso', fechareanudacion = NOW(), num_modificaciones = num_modificaciones + 1, url_entrega = NULL WHERE id = ?", [$idAtencion]);
 
         // 1.5. Limpiar los archivos entregados anteriormente (para no mostrarlos de nuevo)
         $archivoModel = new ArchivoModel();
