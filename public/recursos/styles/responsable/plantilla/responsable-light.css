@@ -889,7 +889,7 @@
     color: #000000 !important;
 }
 
-/* Elementos Internos del Detalle de Historial */
+/* Elementos internos del Detalle de Historial */
 [data-theme="light"] .entrega-container {
     background: #f0fdf4 !important;
     border: 1px solid #bbf7d0 !important;
@@ -959,7 +959,7 @@
 [data-theme="light"] .modal-detalle-header .modal-title {
     color: #000000 !important;
     font-weight: 1000 !important;
-    font-family: 'Bebas Neue', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
 }
 
 [data-theme="light"] .ep-detail-title {
@@ -1010,7 +1010,7 @@
 
 [data-theme="light"] .kd-sec-title {
     color: #0f172a !important;
-    font-family: 'Bebas Neue', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
     font-size: 1.4rem !important;
     letter-spacing: 1px;
     border-bottom: 3px solid #f1f5f9;
@@ -1200,7 +1200,7 @@
 }
 
 [data-theme="light"] .modal-title {
-    font-family: 'Bebas Neue', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
 }
 
 /* MI EQUIPO - TEMA CLARO */
@@ -1444,7 +1444,7 @@
     background: #1e293b !important;
     color: #ffffff !important;
     border: none !important;
-    font-family: 'Bebas Neue', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
     letter-spacing: 1px !important;
     transition: all 0.3s ease !important;
 }
@@ -2719,7 +2719,7 @@
 .modal-detalle-header .modal-title,
 .modal-rf-header .modal-title,
 .modal-rf-header h5 {
-  font-family: 'Bebas Neue', 'Inter', sans-serif !important;
+  font-family: 'Poppins', 'Montserrat', sans-serif !important;
   font-size: 20px !important;
   font-weight: 700 !important;
   letter-spacing: 1px !important;
@@ -2748,7 +2748,7 @@
 .btn-close-historial,
 .modal-detalle-footer .btn-outline-light,
 .modal-footer .btn-outline-light {
-  font-family: 'Bebas Neue', sans-serif !important;
+  font-family: 'Poppins', sans-serif !important;
   letter-spacing: 1px !important;
   font-size: 13px !important;
   border-color: #444 !important;
@@ -2774,7 +2774,7 @@
 }
 
 .kd-sec-title {
-  font-family: 'Bebas Neue', sans-serif !important;
+  font-family: 'Poppins', sans-serif !important;
   font-size: 15px !important;
   color: #f5c400 !important;
   letter-spacing: 1.5px !important;
@@ -2883,7 +2883,7 @@
   background: #e8e5df !important;
   border-color: #c9c5bc !important;
   color: #374151 !important;
-  font-family: 'Bebas Neue', sans-serif !important;
+  font-family: 'Poppins', sans-serif !important;
   letter-spacing: 1px !important;
 }
 

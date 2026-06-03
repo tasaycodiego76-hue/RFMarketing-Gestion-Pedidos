@@ -186,7 +186,7 @@ html[data-theme="light"] .mini-card:hover {
 
 /* Número grande (2, 11, 4…) */
 .mini-card-num {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 38px;
     line-height: 1;
     font-weight: 700;
@@ -405,7 +405,7 @@ html[data-theme="light"] .met-label {
 
 /* Número grande */
 .met-num {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 60px;
     line-height: 1;
     letter-spacing: 2px;
@@ -513,7 +513,7 @@ html[data-theme="light"] .emp-card:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 20px;
     flex-shrink: 0;
     font-weight: 700;
@@ -521,7 +521,7 @@ html[data-theme="light"] .emp-card:hover {
 
 /* Nombre de empresa */
 .emp-nombre {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 22px;
     letter-spacing: 2px;
     line-height: 1;
@@ -613,7 +613,7 @@ html[data-theme="light"] .emp-stat:hover {
 
 /* Número en estadística de empresa */
 .emp-stat-num {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 46px;
     line-height: 1;
     font-weight: 700;
@@ -656,7 +656,7 @@ html[data-theme="light"] .emp-areas {
     padding: 10px 4px;
     font-size: 10px;
     font-weight: 800;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     letter-spacing: 0.8px;
     text-transform: uppercase;
     border-radius: 8px;

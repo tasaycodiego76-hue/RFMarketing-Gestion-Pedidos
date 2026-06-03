@@ -41,7 +41,7 @@
   border: none;
   background: transparent;
   color: var(--texto-dim);
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 15px;
   letter-spacing: 1px;
   padding: 10px;
@@ -99,7 +99,7 @@
   margin-bottom: 4px;
 }
 .historial-titulo {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 20px;
   color: #fff;
   letter-spacing: 0.5px;
@@ -155,7 +155,7 @@
   background: transparent;
   border: 1px solid #333;
   color: #eee;
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 14px;
   letter-spacing: 1px;
   padding: 8px 18px;
@@ -188,7 +188,7 @@
   opacity: 0.5;
 }
 .historial-empty p {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 18px;
   color: var(--texto-dim);
   letter-spacing: 1px;
@@ -209,7 +209,7 @@
   padding: 20px 25px;
 }
 .modal-title-historial {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   color: #fff;
   letter-spacing: 1px;
   font-size: 22px;
@@ -222,7 +222,7 @@
   padding: 15px 25px;
 }
 .btn-close-historial {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   letter-spacing: 1px;
   font-weight: 500;
   border: 1px solid #333;
@@ -244,7 +244,7 @@
   margin-bottom: 20px;
 }
 .entrega-title {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 17px;
   letter-spacing: 1.5px;
   color: #22c55e;
@@ -318,7 +318,7 @@
   flex-direction: column;
 }
 .timeline-title {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 17px;
   letter-spacing: 1.5px;
   color: var(--amarillo);
@@ -366,7 +366,7 @@
   margin-bottom: 25px;
 }
 .kd-sec-title {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 18px;
   color: var(--amarillo);
   letter-spacing: 1.5px;
@@ -568,7 +568,7 @@
 }
 
 .hist-asig-header-label {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 13px;
     letter-spacing: 3px;
     color: #3a3a3a;

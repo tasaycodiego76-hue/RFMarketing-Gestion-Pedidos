@@ -61,7 +61,7 @@
 }
 
 .metrica-valor {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
   line-height: 1;
@@ -92,7 +92,7 @@
 }
 
 .seccion-titulo {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 18px;
   letter-spacing: 2px;
   color: var(--text-secondary);

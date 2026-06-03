@@ -198,7 +198,7 @@
   font-weight: 700;
 }
 .modal-rf-header .modal-title {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 22px;
   letter-spacing: 1px;
   color: #ffffff;
@@ -745,7 +745,7 @@
   display: flex;
   flex-direction: column;
   gap: 25px;
-  font-family: "Inter", sans-serif;
+  font-family: "Montserrat", sans-serif;
   padding: 5px 10px; /* Margen de seguridad lateral */
 }
 
@@ -761,7 +761,7 @@
 }
 
 .case-section-title {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 17px;
   letter-spacing: 1.5px;
   color: var(--accent-primary);
@@ -1074,7 +1074,7 @@
 
 /* TÃ­tulo principal grande */
 .bandeja-titulo-principal {
-  font-family: "Bebas Neue", "Inter", sans-serif;
+  font-family: "Poppins", "Montserrat", sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
   color: #ffffff;
@@ -1104,7 +1104,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   color: #fff;
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 16px;
   letter-spacing: 1px;
   white-space: nowrap;
@@ -1215,7 +1215,7 @@
 
 /* TÃ­tulo del sidebar */
 .sidebar-title {
-  font-family: "Bebas Neue", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 18px;
   letter-spacing: 2px;
   color: var(--accent-primary);
