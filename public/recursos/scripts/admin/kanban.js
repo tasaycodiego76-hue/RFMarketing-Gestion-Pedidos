@@ -361,6 +361,20 @@ async function verDetalle(idAtencion) {
     }
     clone.querySelector('.tpl-archivos-cliente').innerHTML = arcHtml;
 
+    // ── Motivo de Pausa ──
+    if (d.ultimo_motivo_pausa) {
+      clone.querySelector('.tpl-pausa-container').innerHTML = `
+        <div class="exp-card" style="border-color:#f97316; background:rgba(249,115,22,0.02); margin-top:25px;">
+            <div class="exp-card-header" style="background:rgba(249,115,22,0.05); border-bottom-color:rgba(249,115,22,0.1);">
+                <i class="bi bi-pause-circle-fill" style="color:#f97316;"></i> <span style="color:#f97316;">ÚLTIMO MOTIVO DE PAUSA</span>
+            </div>
+            <div class="exp-card-body">
+                <div class="data-value" style="font-size:13px; color:#aaa; font-style:italic;">"${d.ultimo_motivo_pausa}"</div>
+            </div>
+        </div>
+      `;
+    }
+
     // ── Entrega Empleado ──
     if (d.estado === "en_revision" || d.estado === "finalizado") {
       clone.querySelector('.tpl-entrega-container').innerHTML = `
@@ -945,6 +959,38 @@ document.addEventListener('DOMContentLoaded', () => {
     columna.prepend(nuevaTarjeta);
     if (typeof _ordenarColumnaPorPrioridad === 'function') _ordenarColumnaPorPrioridad(columna);
     _actualizarConteosColumnas();
+  });
+
+  RFPusher.on('sesion.pausada', function (data) {
+    Swal.fire({
+      icon: 'warning',
+      title: `Tarea Pausada: ${data.titulo}`,
+      text: `Motivo: ${data.motivo_pausa}`,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 6000,
+      timerProgressBar: true,
+      background: '#0a0a0a',
+      color: '#fff'
+    });
+    // Si el modal de la tarjeta está abierto y es de la misma tarea, actualizamos
+    const tplId = document.querySelector('#modalDetalle .tpl-idatencion');
+    if (tplId && parseInt(tplId.textContent, 10) === parseInt(data.id, 10)) {
+      const container = document.querySelector('#modalDetalle .tpl-pausa-container');
+      if (container) {
+        container.innerHTML = `
+          <div class="exp-card" style="border-color:#f97316; background:rgba(249,115,22,0.02); margin-top:25px;">
+              <div class="exp-card-header" style="background:rgba(249,115,22,0.05); border-bottom-color:rgba(249,115,22,0.1);">
+                  <i class="bi bi-pause-circle-fill" style="color:#f97316;"></i> <span style="color:#f97316;">ÚLTIMO MOTIVO DE PAUSA</span>
+              </div>
+              <div class="exp-card-body">
+                  <div class="data-value" style="font-size:13px; color:#aaa; font-style:italic;">"${data.motivo_pausa}"</div>
+              </div>
+          </div>
+        `;
+      }
+    }
   });
 
 });

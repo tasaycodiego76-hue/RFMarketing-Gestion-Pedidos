@@ -325,6 +325,9 @@
                     <div class="exp-card-body tpl-archivos-cliente"></div>
                 </div>
 
+                <!-- Pausa Info -->
+                <div class="tpl-pausa-container"></div>
+
                 <!-- Recursos Empleado (Entrega) -->
                 <div class="tpl-entrega-container"></div>
             </div>

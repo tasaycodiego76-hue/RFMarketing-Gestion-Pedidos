@@ -21,6 +21,5 @@ class DatabaseSeeder extends Seeder
         $this->call('TrackingSeeder');
         $this->call('HistorialAsignacionesSeeder');
         $this->call('RetroalimentacionSeeder');
-
     }
 }

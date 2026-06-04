@@ -11,6 +11,7 @@ use App\Models\RetroalimentacionModel;
 use App\Models\TrackingModel;
 use App\Libraries\EmailService;
 use App\Models\RequerimientoModel;
+use App\Models\SesionesTrabajosModel;
 use App\Services\PusherService;
 
 class Kanban extends Controller
@@ -112,6 +113,7 @@ class Kanban extends Controller
                 e.nombreempresa,
                 u.nombre AS empleado_nombre,
                 u.apellidos AS empleado_apellidos,
+                (SELECT st.motivo_pausa FROM sesiones_trabajo st WHERE st.idatencion = a.id ORDER BY st.id DESC LIMIT 1) AS ultimo_motivo_pausa,
                 CASE 
                     WHEN a.servicio_personalizado IS NOT NULL THEN 1 
                     ELSE 0 
@@ -228,6 +230,10 @@ class Kanban extends Controller
         }
 
         $data['empleado_fullname'] = trim(($data['empleado_nombre'] ?? '') . ' ' . ($data['empleado_apellidos'] ?? '')) ?: 'Sin asignar';
+
+        $sesionesModel = new SesionesTrabajosModel();
+        $ultimaPausa = $sesionesModel->getUltimaSessionPausada($idAtencion);
+        $data['ultimo_motivo_pausa'] = $ultimaPausa ? ($ultimaPausa['motivo_pausa'] ?? null) : null;
 
         // 4. Retorno de respuesta (archivos ya vienen con url_completa arriba)
         return $this->response->setJSON([
@@ -405,11 +411,10 @@ class Kanban extends Controller
             $accion = 'Requerimiento finalizado y entregado con éxito.';
         } else {
             // Cambios de estado genéricos (sin sobrescribir observacion_revision)
-            $db->query("UPDATE atencion SET estado = ?, url_entrega = NULL WHERE id = ?", [$nuevoEstado, $idAtencion]);
+            $db->query("UPDATE atencion SET estado = 'en_proceso', num_modificaciones = num_modificaciones + 1, url_entrega = NULL WHERE id = ?", [$nuevoEstado, $idAtencion]);
             
             // Si el admin regresa el pedido, registrar en retroalimentacion
             if ($nuevoEstado === 'en_proceso') {
-                $db->query("UPDATE atencion SET fechareanudacion = NOW() WHERE id = ?", [$idAtencion]);
                 $retroModel = new RetroalimentacionModel();
                 $retroModel->insert([
                     'idatencion' => $idAtencion,
@@ -552,8 +557,8 @@ class Kanban extends Controller
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Pedido no encontrado']);
         }
 
-        // 1. Actualizar estado del pedido a 'en_proceso', registrar fechareanudacion a NOW() e incrementar modificaciones
-        $db->query("UPDATE atencion SET estado = 'en_proceso', fechareanudacion = NOW(), num_modificaciones = num_modificaciones + 1, url_entrega = NULL WHERE id = ?", [$idAtencion]);
+        // 1. Actualizar estado del pedido a 'en_proceso' e incrementar modificaciones
+        $db->query("UPDATE atencion SET estado = 'en_proceso', num_modificaciones = num_modificaciones + 1, url_entrega = NULL WHERE id = ?", [$idAtencion]);
 
         // 1.5. Limpiar los archivos entregados anteriormente (para no mostrarlos de nuevo)
         $archivoModel = new ArchivoModel();

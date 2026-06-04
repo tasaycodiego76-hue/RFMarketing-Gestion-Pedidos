@@ -34,12 +34,11 @@
         .page-footer { text-align: center; font-size: 13px; color: #777; border-top: 0.5pt solid #bbb; padding-top: 5px; padding-bottom: 25px; }
 
         /* ANCHOS COLUMNAS */
-        .col-id    { width: 6%;  text-align: center; }
-        .col-fecha { width: 11%; text-align: center; }
-        .col-req   { width: 38%; }
+        .col-fecha { width: 13%; text-align: center; }
+        .col-req   { width: 42%; }
         .col-emp   { width: 25%; }
-        .col-est   { width: 13%; text-align: center; }
-        .col-hrs   { width: 7%;  text-align: center; }
+        .col-est   { width: 12%; text-align: center; }
+        .col-hrs   { width: 8%;  text-align: center; }
     </style>
 
     <page_footer>
@@ -129,6 +128,7 @@
     <div class="section-title">II. Relación Detallada de Atenciones</div>
     <?php
     $empresaActual = '';
+    $areaActual = '';
     foreach ($pedidos as $p):
         if ($empresaActual != $p['empresa_nombre']):
             if ($empresaActual != '')
@@ -138,16 +138,14 @@
             <div class="empresa-label">CLIENTE: <?= mb_strtoupper($empresaActual) ?></div>
             <table class="tabla-detalle">
                 <colgroup>
-                    <col style="width: 6%;">
-                    <col style="width: 11%;">
-                    <col style="width: 38%;">
-                    <col style="width: 25%;">
                     <col style="width: 13%;">
-                    <col style="width: 7%;">
+                    <col style="width: 42%;">
+                    <col style="width: 25%;">
+                    <col style="width: 12%;">
+                    <col style="width: 8%;">
                 </colgroup>
                 <thead>
                     <tr>
-                        <th class="col-id">ID</th>
                         <th class="col-fecha">FECHA</th>
                         <th class="col-req">REQUERIMIENTO</th>
                         <th class="col-emp">EMPLEADO</th>
@@ -156,9 +154,20 @@
                     </tr>
                 </thead>
                 <tbody>
+                <?php
+                $areaActual = '';
+                endif;
+                $areaNombre = $p['area_nombre'] ?? 'Sin área';
+                if ($areaActual !== $areaNombre):
+                    $areaActual = $areaNombre;
+                ?>
+                    <tr>
+                        <td colspan="5" style="background:#eef2f6; font-weight:bold; color:#1a1a1a; padding: 8px 10px; text-transform: uppercase;">
+                            ÁREA: <?= mb_strtoupper($areaActual) ?>
+                        </td>
+                    </tr>
                 <?php endif; ?>
                 <tr>
-                    <td class="col-id" style="color: #555;">#<?= $p['id'] ?></td>
                     <td class="col-fecha">
                         <?= date('d/m/y', strtotime($p['fechacreacion'])) ?><br>
                         <span

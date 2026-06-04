@@ -511,3 +511,187 @@ function _renderTrackingEmpleado(tracking) {
   }).join('');
 }
 
+// =============================================================================
+// CRONÓMETRO DE SESIONES (Play / Pausa)
+// =============================================================================
+
+// Registro global de intervals activos: { idAtencion: intervalId }
+const _cronoIntervals = {};
+
+// Segundos acumulados en memoria (base desde servidor + tick local)
+const _cronoBase = {};
+
+// Timestamp local en que empezó el tick actual (para no depender del reloj del servidor)
+const _cronoTick = {};
+
+/**
+ * Consulta el servidor y arranca o muestra el cronómetro según el estado.
+ * Llamado al cargar la página para cada tarjeta en_proceso.
+ */
+function cronoInicializarDesdeServidor(id) {
+  fetch(`${BASE_URL}/empleado/sesion/estado/${id}`)
+    .then(r => r.json())
+    .then(res => {
+      if (res.status !== 'success') return;
+
+      _cronoBase[id] = res.segundos_totales || 0;
+
+      if (res.activa && res.hora_inicio_sesion) {
+        // Calcular cuántos segundos han pasado desde que el servidor abrió la sesión
+        const servidorInicio = new Date(res.hora_inicio_sesion.replace(' ', 'T')).getTime();
+        const ahora = Date.now();
+        const extraSeg = Math.max(0, Math.floor((ahora - servidorInicio) / 1000));
+
+        // Restar esos segundos extra del total (porque getTotalSegundos ya incluye la sesión activa)
+        // Usamos la base tal como viene y dejamos que el tick sume desde ahora.
+        _cronoTick[id] = Date.now() - (extraSeg * 1000);
+        _cronoActivar(id);
+      } else {
+        _cronoPausar(id, false);
+      }
+
+      _cronoActualizar(id);
+    })
+    .catch(err => console.error("Error al inicializar timer:", err));
+}
+
+/** Activa el ticker y cambia la UI a "ACTIVO" */
+function _cronoActivar(id) {
+  // Guardar el timestamp de inicio del tick
+  if (!_cronoTick[id]) _cronoTick[id] = Date.now();
+
+  // Limpiar interval anterior si existía
+  if (_cronoIntervals[id]) clearInterval(_cronoIntervals[id]);
+
+  // Tick cada segundo
+  _cronoIntervals[id] = setInterval(function () {
+    _cronoActualizar(id);
+  }, 1000);
+
+  // UI: mostrar "ACTIVO"
+  const dot = document.getElementById(`crono-dot-${id}`);
+  const label = document.getElementById(`crono-label-${id}`);
+  const btnP = document.getElementById(`btn-play-${id}`);
+  const btnPa = document.getElementById(`btn-pausa-${id}`);
+  const btnE = document.getElementById(`btn-entregar-${id}`);
+
+  if (dot) { dot.style.display = 'inline-block'; }
+  if (label) { label.textContent = 'TIEMPO ACTIVO'; label.className = 'crono-activo'; }
+  if (btnP) { btnP.style.display = 'none'; }
+  if (btnPa) { btnPa.style.display = 'flex'; }
+  if (btnE) { btnE.disabled = false; btnE.classList.remove('opacity-50'); btnE.style.cursor = 'pointer'; }
+}
+
+/** Detiene el ticker y cambia la UI a "PAUSADO" */
+function _cronoPausar(id, stopInterval = true) {
+  if (stopInterval && _cronoIntervals[id]) {
+    clearInterval(_cronoIntervals[id]);
+    delete _cronoIntervals[id];
+  }
+  delete _cronoTick[id];
+
+  const dot = document.getElementById(`crono-dot-${id}`);
+  const label = document.getElementById(`crono-label-${id}`);
+  const btnP = document.getElementById(`btn-play-${id}`);
+  const btnPa = document.getElementById(`btn-pausa-${id}`);
+  const btnE = document.getElementById(`btn-entregar-${id}`);
+
+  if (dot) { dot.style.display = 'none'; }
+  if (label) { label.textContent = 'PAUSADO'; label.className = 'crono-pausado'; }
+  if (btnP) { btnP.style.display = 'flex'; }
+  if (btnPa) { btnPa.style.display = 'none'; }
+  if (btnE) { btnE.disabled = true; btnE.classList.add('opacity-50'); btnE.style.cursor = 'not-allowed'; }
+}
+
+/** Calcula el tiempo actual y actualiza el display */
+function _cronoActualizar(id) {
+  let total = _cronoBase[id] || 0;
+
+  // Si hay tick activo, sumar segundos transcurridos
+  if (_cronoTick[id]) {
+    const transcurrido = Math.floor((Date.now() - _cronoTick[id]) / 1000);
+    total += transcurrido;
+  }
+
+  // Ya no actualizamos cronometro-display porque lo eliminamos
+  // Sólo el label de estado
+}
+
+/**
+ * Botón REANUDAR → llama al endpoint y activa el timer local.
+ */
+function cronPlay(id) {
+  const btn = document.getElementById(`btn-play-${id}`);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> INICIANDO...'; }
+
+  const fd = new FormData();
+  fd.append('csrf_test_name', $('meta[name="csrf-token"]').attr('content'));
+
+  fetch(`${BASE_URL}/empleado/sesion/iniciar/${id}`, { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === 'success') {
+        _cronoTick[id] = Date.now();
+        _cronoActivar(id);
+      } else {
+        Swal.fire({ icon: 'warning', title: 'Atención', text: res.message, confirmButtonColor: '#f5c400' });
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-play-fill"></i> REANUDAR'; }
+      }
+    })
+    .catch(function () {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo conectar con el servidor.' });
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-play-fill"></i> REANUDAR'; }
+    });
+}
+
+/**
+ * Botón PAUSAR → pide motivo con SweetAlert y llama al endpoint.
+ */
+function cronPausa(id) {
+  Swal.fire({
+    title: '¿Pausar sesión de trabajo?',
+    html: `
+      <p style="font-size:13px; color:#aaa; margin-bottom:12px;">Cuéntanos brevemente por qué pausas (el responsable lo verá).</p>
+      <textarea id="swal-motivo" class="swal2-textarea" placeholder="Ej: Reunión de equipo, almuerzo, esperando brief..." style="min-height:80px; font-size:13px; background:#222; color:#fff; border:1px solid #444; border-radius:8px; width:90%; padding:10px; box-sizing:border-box;"></textarea>
+    `,
+    background: '#1e1e1e',
+    color: '#ffffff',
+    confirmButtonText: 'PAUSAR AHORA',
+    confirmButtonColor: '#f5c400',
+    cancelButtonText: 'CANCELAR',
+    cancelButtonColor: '#555',
+    showCancelButton: true,
+    focusConfirm: false,
+    preConfirm: () => {
+      const motivo = document.getElementById('swal-motivo').value.trim();
+      return motivo;
+    }
+  }).then(result => {
+    if (!result.isConfirmed) return;
+
+    const motivo = result.value || '';
+    const fd = new FormData();
+    fd.append('motivo_pausa', motivo);
+    fd.append('csrf_test_name', $('meta[name="csrf-token"]').attr('content'));
+
+    Swal.fire({ title: 'Pausando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+    fetch(`${BASE_URL}/empleado/sesion/pausar/${id}`, { method: 'POST', body: fd })
+      .then(r => r.json())
+      .then(res => {
+        Swal.close();
+        if (res.status === 'success') {
+          // Actualizar la base con los segundos reales que devuelve el servidor
+          _cronoBase[id] = res.segundos_totales || _cronoBase[id];
+          _cronoPausar(id, true);
+          _cronoActualizar(id);
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error', text: res.message });
+        }
+      })
+      .catch(function () {
+        Swal.close();
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo pausar la sesión.' });
+      });
+  });
+}

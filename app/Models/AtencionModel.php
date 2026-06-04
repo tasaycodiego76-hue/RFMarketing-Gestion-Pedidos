@@ -313,6 +313,7 @@ class AtencionModel extends Model
                 e.nombreempresa,
                 u.nombre AS empleado_nombre,
                 u.apellidos AS empleado_apellidos,
+                (SELECT st.motivo_pausa FROM sesiones_trabajo st WHERE st.idatencion = a.id ORDER BY st.id DESC LIMIT 1) AS ultimo_motivo_pausa,
                 CASE 
                     WHEN a.servicio_personalizado IS NOT NULL THEN 1 
                     ELSE 0 
@@ -597,23 +598,19 @@ class AtencionModel extends Model
      */
     public function getMetricasTiempoPromedio(int $idAreaAgencia): array
     {
+        // CTE: suma los segundos de cada sesión de trabajo real (pausa incluida correctamente).
+        // Si sesiones_trabajo está vacía (tickets viejos), el LEFT JOIN devuelve 0 horas sin romper nada.
         $sql = "
             WITH tiempo_proceso AS (
                 SELECT 
-                    t.idatencion,
-                    SUM(EXTRACT(EPOCH FROM (COALESCE(t.end_time, CURRENT_TIMESTAMP) - t.start_time))) / 3600 as horas_trabajadas
-                FROM (
-                    SELECT 
-                        tr.idatencion,
-                        tr.estado,
-                        tr.fecha_registro as start_time,
-                        LEAD(tr.fecha_registro) OVER (PARTITION BY tr.idatencion ORDER BY tr.fecha_registro ASC) as end_time
-                    FROM tracking tr
-                    INNER JOIN atencion a ON a.id = tr.idatencion
-                    WHERE a.idarea_agencia = ?
-                ) t
-                WHERE t.estado = 'en_proceso'
-                GROUP BY t.idatencion
+                    st.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (
+                        COALESCE(st.hora_fin, CURRENT_TIMESTAMP) - st.hora_inicio
+                    ))) / 3600 AS horas_trabajadas
+                FROM sesiones_trabajo st
+                INNER JOIN atencion a ON a.id = st.idatencion
+                WHERE a.idarea_agencia = ?
+                GROUP BY st.idatencion
             )
             SELECT 
                 u.nombre,
@@ -682,29 +679,26 @@ class AtencionModel extends Model
         // Agregar parametro inicial para el CTE de tiempo
         array_unshift($params, $idAreaAgencia);
 
+        // CTE: suma los segundos de cada sesión de trabajo real.
+        // Si sesiones_trabajo está vacía (tickets viejos), el LEFT JOIN devuelve 0 horas sin romper nada.
         $sql = "
             WITH tiempo_proceso AS (
                 SELECT 
-                    t.idatencion,
-                    SUM(EXTRACT(EPOCH FROM (COALESCE(t.end_time, CURRENT_TIMESTAMP) - t.start_time))) / 3600 as horas_trabajadas
-                FROM (
-                    SELECT 
-                        tr.idatencion,
-                        tr.estado,
-                        tr.fecha_registro as start_time,
-                        LEAD(tr.fecha_registro) OVER (PARTITION BY tr.idatencion ORDER BY tr.fecha_registro ASC) as end_time
-                    FROM tracking tr
-                    INNER JOIN atencion a ON a.id = tr.idatencion
-                    WHERE a.idarea_agencia = ?
-                ) t
-                WHERE t.estado = 'en_proceso'
-                GROUP BY t.idatencion
+                    st.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (
+                        COALESCE(st.hora_fin, CURRENT_TIMESTAMP) - st.hora_inicio
+                    ))) / 3600 AS horas_trabajadas
+                FROM sesiones_trabajo st
+                INNER JOIN atencion a ON a.id = st.idatencion
+                WHERE a.idarea_agencia = ?
+                GROUP BY st.idatencion
             )
             SELECT 
                 a.id, a.titulo, a.estado, a.prioridad, a.fechacreacion, a.fechainicio, a.fechacompletado, 
                 a.observacion_revision, a.idempleado,
                 COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre,
                 e.nombreempresa as empresa_nombre,
+                ar_cli.nombre as area_nombre,
                 u_emp.nombre as empleado_nombre,
                 u_emp.apellidos as empleado_apellidos,
                 COALESCE(ROUND(tp.horas_trabajadas::numeric, 2), 0) as horas_usadas
@@ -717,7 +711,7 @@ class AtencionModel extends Model
             LEFT JOIN usuarios u_emp ON u_emp.id = a.idempleado
             LEFT JOIN tiempo_proceso tp ON tp.idatencion = a.id
             $where
-            ORDER BY e.nombreempresa ASC, a.fechacreacion DESC
+            ORDER BY e.nombreempresa ASC, ar_cli.nombre ASC, a.fechacreacion DESC
         ";
 
         return $this->db->query($sql, $params)->getResultArray();
@@ -748,23 +742,19 @@ class AtencionModel extends Model
         // Parámetro para el WHERE final
         $params[] = $idAreaAgencia;
 
+        // CTE: suma los segundos de cada sesión de trabajo real.
+        // Si sesiones_trabajo está vacía (tickets viejos), el LEFT JOIN devuelve 0 horas sin romper nada.
         $sql = "
             WITH tiempo_proceso AS (
                 SELECT 
-                    t.idatencion,
-                    SUM(EXTRACT(EPOCH FROM (COALESCE(t.end_time, CURRENT_TIMESTAMP) - t.start_time))) / 3600 as horas_trabajadas
-                FROM (
-                    SELECT 
-                        tr.idatencion,
-                        tr.estado,
-                        tr.fecha_registro as start_time,
-                        LEAD(tr.fecha_registro) OVER (PARTITION BY tr.idatencion ORDER BY tr.fecha_registro ASC) as end_time
-                    FROM tracking tr
-                    INNER JOIN atencion a ON a.id = tr.idatencion
-                    WHERE a.idarea_agencia = ?
-                ) t
-                WHERE t.estado = 'en_proceso'
-                GROUP BY t.idatencion
+                    st.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (
+                        COALESCE(st.hora_fin, CURRENT_TIMESTAMP) - st.hora_inicio
+                    ))) / 3600 AS horas_trabajadas
+                FROM sesiones_trabajo st
+                INNER JOIN atencion a ON a.id = st.idatencion
+                WHERE a.idarea_agencia = ?
+                GROUP BY st.idatencion
             )
             SELECT 
                 u.nombre, u.apellidos,
@@ -781,7 +771,7 @@ class AtencionModel extends Model
             LEFT JOIN tiempo_proceso tp ON tp.idatencion = a.id
             WHERE u.idarea_agencia = ? 
               AND u.rol = 'empleado'
-              AND (u.estado = true OR u.estado = 't' OR u.estado = '1')
+              AND (u.estado = true OR u.estado = '1')
             GROUP BY u.id, u.nombre, u.apellidos
             ORDER BY asignados DESC, eficiencia DESC
         ";
@@ -1012,26 +1002,20 @@ class AtencionModel extends Model
             $mainWhere .= " AND a.estado = 'finalizado' ";
         }
 
-        // El CTE va primero, luego los parámetros del WHERE principal
-        $params = array_merge($cteParams, $mainParams);
+        // El CTE no necesita parámetros propios: filtra por area vía JOIN con atencion en el SELECT principal.
+        $params = $mainParams;
 
+        // CTE: suma segundos de sesiones reales de trabajo por atención.
+        // Tickets viejos sin sesiones devuelven 0 horas (LEFT JOIN seguro).
         $sql = "
             WITH tiempo_proceso AS (
                 SELECT 
-                    t.idatencion,
-                    SUM(EXTRACT(EPOCH FROM (COALESCE(t.end_time, CURRENT_TIMESTAMP) - t.start_time))) / 3600 as horas_trabajadas
-                FROM (
-                    SELECT 
-                        tr.idatencion,
-                        tr.estado,
-                        tr.fecha_registro as start_time,
-                        LEAD(tr.fecha_registro) OVER (PARTITION BY tr.idatencion ORDER BY tr.fecha_registro ASC) as end_time
-                    FROM tracking tr
-                    INNER JOIN atencion a ON a.id = tr.idatencion
-                    WHERE 1=1 $cteWhere
-                ) t
-                WHERE t.estado = 'en_proceso'
-                GROUP BY t.idatencion
+                    st.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (
+                        COALESCE(st.hora_fin, CURRENT_TIMESTAMP) - st.hora_inicio
+                    ))) / 3600 AS horas_trabajadas
+                FROM sesiones_trabajo st
+                GROUP BY st.idatencion
             )
             SELECT a.id, a.titulo, a.estado, a.fechacreacion, e.nombreempresa as empresa_nombre,
                        aa.nombre as area_agencia_nombre,
@@ -1070,25 +1054,18 @@ class AtencionModel extends Model
         $whereMet = $idAreaInt ? " AND u.idarea_agencia = ? " : "";
         $mainParams = $idAreaInt ? [$idAreaInt] : [];
 
-        $params = array_merge($cteParams, $mainParams);
+        $params = $mainParams;
 
+        // CTE: suma segundos de sesiones reales. Tickets viejos devuelven 0 (LEFT JOIN).
         $sql = "
             WITH tiempo_proceso AS (
                 SELECT 
-                    t.idatencion,
-                    SUM(EXTRACT(EPOCH FROM (COALESCE(t.end_time, CURRENT_TIMESTAMP) - t.start_time))) / 3600 as horas_trabajadas
-                FROM (
-                    SELECT 
-                        tr.idatencion,
-                        tr.estado,
-                        tr.fecha_registro as start_time,
-                        LEAD(tr.fecha_registro) OVER (PARTITION BY tr.idatencion ORDER BY tr.fecha_registro ASC) as end_time
-                    FROM tracking tr
-                    INNER JOIN atencion a ON a.id = tr.idatencion
-                    WHERE 1=1 $cteWhere
-                ) t
-                WHERE t.estado = 'en_proceso'
-                GROUP BY t.idatencion
+                    st.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (
+                        COALESCE(st.hora_fin, CURRENT_TIMESTAMP) - st.hora_inicio
+                    ))) / 3600 AS horas_trabajadas
+                FROM sesiones_trabajo st
+                GROUP BY st.idatencion
             )
             SELECT u.nombre, u.apellidos, COUNT(a.id) as asignados,
                        COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) as completados,
@@ -1140,25 +1117,18 @@ class AtencionModel extends Model
             $mainParams[] = $hasta . ' 23:59:59';
         }
 
-        $params = array_merge($cteParams, $mainParams);
+        $params = $mainParams;
 
+        // CTE: suma segundos de sesiones reales. Tickets viejos devuelven 0 (LEFT JOIN).
         $sql = "
             WITH tiempo_proceso AS (
                 SELECT 
-                    t.idatencion,
-                    SUM(EXTRACT(EPOCH FROM (COALESCE(t.end_time, CURRENT_TIMESTAMP) - t.start_time))) / 3600 as horas_trabajadas
-                FROM (
-                    SELECT 
-                        tr.idatencion,
-                        tr.estado,
-                        tr.fecha_registro as start_time,
-                        LEAD(tr.fecha_registro) OVER (PARTITION BY tr.idatencion ORDER BY tr.fecha_registro ASC) as end_time
-                    FROM tracking tr
-                    INNER JOIN atencion a ON a.id = tr.idatencion
-                    WHERE 1=1 $cteWhere
-                ) t
-                WHERE t.estado = 'en_proceso'
-                GROUP BY t.idatencion
+                    st.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (
+                        COALESCE(st.hora_fin, CURRENT_TIMESTAMP) - st.hora_inicio
+                    ))) / 3600 AS horas_trabajadas
+                FROM sesiones_trabajo st
+                GROUP BY st.idatencion
             )
             SELECT a.id, a.estado,
                        COALESCE(ROUND(tp.horas_trabajadas::numeric, 2), 0) as horas

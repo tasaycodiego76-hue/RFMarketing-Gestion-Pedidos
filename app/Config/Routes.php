@@ -105,6 +105,12 @@ $routes->group('responsable', ['filter' => 'auth:empleado'], function ($routes) 
     $routes->post('pedidos/actualizar', 'Responsable\PedidosAreaController::actualizarRequerimiento');
     $routes->post('pedido-iniciar/(:num)', 'Responsable\PedidosAreaController::iniciarPedido/$1');
     $routes->post('pedido-entregar/(:num)', 'Responsable\PedidosAreaController::entregarPedido/$1');
+    
+    // Cronómetro de sesiones (Responsable)
+    $routes->post('sesion/iniciar/(:num)', 'Responsable\PedidosAreaController::iniciarSesion/$1');
+    $routes->post('sesion/pausar/(:num)', 'Responsable\PedidosAreaController::pausarSesion/$1');
+    $routes->get('sesion/estado/(:num)', 'Responsable\PedidosAreaController::estadoSesion/$1');
+
 
     // SEGUIMIENTO Y RETROALIMENTACIÓN
     $routes->get('historial', 'Responsable\GestionController::historial');
@@ -130,6 +136,10 @@ $routes->group('empleado', ['filter' => 'auth:empleado'], function ($routes) {
     $routes->post('pedido-iniciar/(:num)', 'Empleado\MisPedidosController::iniciarPedido/$1');
     $routes->post('pedido-entregar/(:num)', 'Empleado\MisPedidosController::entregarPedido/$1');
     $routes->get('pedido-detalle/(:num)', 'Empleado\MisPedidosController::detalle/$1');
+    // Cronómetro de sesiones
+    $routes->post('sesion/iniciar/(:num)', 'Empleado\MisPedidosController::iniciarSesion/$1');
+    $routes->post('sesion/pausar/(:num)', 'Empleado\MisPedidosController::pausarSesion/$1');
+    $routes->get('sesion/estado/(:num)', 'Empleado\MisPedidosController::estadoSesion/$1');
 });
 
 // Rutas para el Cliente

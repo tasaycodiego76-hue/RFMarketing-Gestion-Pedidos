@@ -216,7 +216,19 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
           : `
                         ${canDeliver
             ? `
-                            <button class="btn btn-sm btn-success ep-btn-entregar" onclick="abrirModalEntregar(${tarea.id})" title="Entregar mi trabajo">
+                            <div class="d-flex align-items-center cronometro-bloque" id="crono-bloque-${tarea.id}" data-id="${tarea.id}" style="background:transparent; border:none; padding:0; margin:0 40px 0 0 !important; gap:20px;">
+                                <div class="cronometro-estado" id="crono-estado-${tarea.id}" style="font-size:10px; margin:0; line-height:1;">
+                                    <span class="crono-dot" style="display:none;" id="crono-dot-${tarea.id}"></span>
+                                    <span id="crono-label-${tarea.id}">...</span>
+                                </div>
+                                <button class="btn btn-sm" id="btn-play-${tarea.id}" onclick="cronPlay(${tarea.id})" style="display:none; background:#10b981; color:#fff; padding:3px 8px; font-size:11px; border:none; border-radius:6px;" title="Reanudar">
+                                    <i class="bi bi-play-fill"></i> REANUDAR
+                                </button>
+                                <button class="btn btn-sm" id="btn-pausa-${tarea.id}" onclick="cronPausa(${tarea.id})" style="display:none; background:#333; color:#fff; padding:3px 8px; font-size:11px; border:none; border-radius:6px;" title="Pausar">
+                                    <i class="bi bi-pause-fill"></i> PAUSAR
+                                </button>
+                            </div>
+                            <button class="btn btn-sm btn-success ep-btn-entregar" id="btn-entregar-${tarea.id}" onclick="abrirModalEntregar(${tarea.id})" title="Entregar mi trabajo">
                                 <i class="bi bi-send-fill me-1"></i> ENTREGAR
                             </button>
                         `
@@ -249,9 +261,32 @@ function renderizarTareasEmpleado(container, tareas, idEmpleado) {
         }
                 </div>
             </div>
+            
+            
         </div>`;
     })
     .join("");
+
+  // Initialize timers after rendering
+  setTimeout(() => {
+    document.querySelectorAll('.cronometro-bloque').forEach(function (bloque) {
+      const id = bloque.dataset.id;
+      if (id) {
+        if (!window._timersInicializados) window._timersInicializados = {};
+        if (!window._timersInicializados[id]) {
+          window._timersInicializados[id] = true;
+          cronoInicializarDesdeServidor(parseInt(id));
+        } else {
+          // Restore UI state if it was already initialized and DOM was replaced
+          if (_cronoTick[id]) {
+            _cronoActivar(id);
+          } else {
+            _cronoPausar(id, false);
+          }
+        }
+      }
+    });
+  }, 100);
 }
 
 /**
@@ -573,6 +608,16 @@ function mostrarModalDetalle(req, archivos, tracking, historialAsignaciones = []
       : ""
     }
 
+                ${req.ultimo_motivo_pausa
+      ? `
+                    <div class="feedback-box" style="border-left-color: #f97316; background: rgba(249, 115, 22, 0.05);">
+                        <div class="feedback-title" style="color: #f97316;"><i class="bi bi-pause-circle-fill"></i> ÚLTIMO MOTIVO DE PAUSA</div>
+                        <div class="feedback-content">"${escaparHtml(req.ultimo_motivo_pausa)}"</div>
+                    </div>
+                `
+      : ""
+    }
+
                 ${entregaHtml}
 
                 ${_seccion("", "Tipo de Requerimiento", "#3b82f6", `<div class="kd-val text-white fw-bold">${escaparHtml(req.tipo_requerimiento || "Sin especificar")}</div>`)}
@@ -799,6 +844,180 @@ function escaparHtml(texto) {
   const div = document.createElement("div");
   div.textContent = texto;
   return div.innerHTML;
+}
+
+// =============================================================================
+// CRONÓMETRO DE SESIONES (Play / Pausa) para Responsable
+// =============================================================================
+
+// Registro global de intervals activos: { idAtencion: intervalId }
+const _cronoIntervals = {};
+
+// Segundos acumulados en memoria (base desde servidor + tick local)
+const _cronoBase = {};
+
+// Timestamp local en que empezó el tick actual (para no depender del reloj del servidor)
+const _cronoTick = {};
+
+/**
+ * Consulta el servidor y arranca o muestra el cronómetro según el estado.
+ */
+function cronoInicializarDesdeServidor(id) {
+  fetch(`${window.base_url}responsable/sesion/estado/${id}`)
+    .then(r => r.json())
+    .then(res => {
+      if (res.status !== 'success') return;
+
+      _cronoBase[id] = res.segundos_totales || 0;
+
+      if (res.activa && res.hora_inicio_sesion) {
+        const servidorInicio = new Date(res.hora_inicio_sesion.replace(' ', 'T')).getTime();
+        const ahora = Date.now();
+        const extraSeg = Math.max(0, Math.floor((ahora - servidorInicio) / 1000));
+
+        _cronoTick[id] = Date.now() - (extraSeg * 1000);
+        _cronoActivar(id);
+      } else {
+        _cronoPausar(id, false);
+      }
+
+      _cronoActualizar(id);
+    })
+    .catch(err => console.error("Error al inicializar timer:", err));
+}
+
+/** Activa el ticker y cambia la UI a "ACTIVO" */
+function _cronoActivar(id) {
+  if (!_cronoTick[id]) _cronoTick[id] = Date.now();
+  if (_cronoIntervals[id]) clearInterval(_cronoIntervals[id]);
+
+  _cronoIntervals[id] = setInterval(function () {
+    _cronoActualizar(id);
+  }, 1000);
+
+  const dot = document.getElementById(`crono-dot-${id}`);
+  const label = document.getElementById(`crono-label-${id}`);
+  const btnP = document.getElementById(`btn-play-${id}`);
+  const btnPa = document.getElementById(`btn-pausa-${id}`);
+  const btnE = document.getElementById(`btn-entregar-${id}`);
+
+  if (dot) { dot.style.display = 'inline-block'; }
+  if (label) { label.textContent = 'TIEMPO ACTIVO'; label.className = 'text-success'; }
+  if (btnP) { btnP.style.display = 'none'; }
+  if (btnPa) { btnPa.style.display = 'flex'; }
+  if (btnE) { btnE.disabled = false; btnE.classList.remove('opacity-50'); btnE.style.cursor = 'pointer'; }
+}
+
+/** Detiene el ticker y cambia la UI a "PAUSADO" */
+function _cronoPausar(id, stopInterval = true) {
+  if (stopInterval && _cronoIntervals[id]) {
+    clearInterval(_cronoIntervals[id]);
+    delete _cronoIntervals[id];
+  }
+  delete _cronoTick[id];
+
+  const dot = document.getElementById(`crono-dot-${id}`);
+  const label = document.getElementById(`crono-label-${id}`);
+  const btnP = document.getElementById(`btn-play-${id}`);
+  const btnPa = document.getElementById(`btn-pausa-${id}`);
+  const btnE = document.getElementById(`btn-entregar-${id}`);
+
+  if (dot) { dot.style.display = 'none'; }
+  if (label) { label.textContent = 'PAUSADO'; label.className = 'text-muted'; }
+  if (btnP) { btnP.style.display = 'flex'; }
+  if (btnPa) { btnPa.style.display = 'none'; }
+  if (btnE) { btnE.disabled = true; btnE.classList.add('opacity-50'); btnE.style.cursor = 'not-allowed'; }
+}
+
+function _cronoActualizar(id) {
+  let total = _cronoBase[id] || 0;
+  if (_cronoTick[id]) {
+    const transcurrido = Math.floor((Date.now() - _cronoTick[id]) / 1000);
+    total += transcurrido;
+  }
+  const display = document.getElementById(`crono-display-${id}`);
+  if (display) display.textContent = _cronoFormatear(total);
+}
+
+function _cronoFormatear(seg) {
+  seg = Math.max(0, Math.floor(seg));
+  const h = Math.floor(seg / 3600);
+  const m = Math.floor((seg % 3600) / 60);
+  const s = seg % 60;
+  return String(h).padStart(2, '0') + ':' +
+    String(m).padStart(2, '0') + ':' +
+    String(s).padStart(2, '0');
+}
+
+function cronPlay(id) {
+  const btn = document.getElementById(`btn-play-${id}`);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i> INICIANDO...'; }
+
+  const fd = new FormData();
+  fd.append('csrf_test_name', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+  fetch(`${window.base_url}responsable/sesion/iniciar/${id}`, { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === 'success') {
+        _cronoTick[id] = Date.now();
+        _cronoActivar(id);
+      } else {
+        Swal.fire({ icon: 'warning', title: 'Atención', text: res.message, confirmButtonColor: '#f5c400' });
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-play-fill"></i> REANUDAR'; }
+      }
+    })
+    .catch(function () {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo conectar con el servidor.' });
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-play-fill"></i> REANUDAR'; }
+    });
+}
+
+function cronPausa(id) {
+  Swal.fire({
+    title: '¿Pausar sesión de trabajo?',
+    html: `
+      <p style="font-size:13px; color:#aaa; margin-bottom:12px;">Cuéntanos brevemente por qué pausas.</p>
+      <textarea id="swal-motivo" class="swal2-textarea" placeholder="Ej: Reunión de equipo, almuerzo, esperando brief..." style="min-height:80px; font-size:13px; background:#222; color:#fff; border:1px solid #444; border-radius:8px; width:90%; padding:10px; box-sizing:border-box;"></textarea>
+    `,
+    background: '#1e1e1e',
+    color: '#ffffff',
+    confirmButtonText: 'PAUSAR AHORA',
+    confirmButtonColor: '#f5c400',
+    cancelButtonText: 'CANCELAR',
+    cancelButtonColor: '#555',
+    showCancelButton: true,
+    focusConfirm: false,
+    preConfirm: () => {
+      return document.getElementById('swal-motivo').value.trim();
+    }
+  }).then(result => {
+    if (!result.isConfirmed) return;
+
+    const motivo = result.value || '';
+    const fd = new FormData();
+    fd.append('motivo_pausa', motivo);
+    fd.append('csrf_test_name', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+    Swal.fire({ title: 'Pausando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+    fetch(`${window.base_url}responsable/sesion/pausar/${id}`, { method: 'POST', body: fd })
+      .then(r => r.json())
+      .then(res => {
+        Swal.close();
+        if (res.status === 'success') {
+          _cronoBase[id] = res.segundos_totales || _cronoBase[id];
+          _cronoPausar(id, true);
+          _cronoActualizar(id);
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error', text: res.message });
+        }
+      })
+      .catch(function () {
+        Swal.close();
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo pausar la sesión.' });
+      });
+  });
 }
 
 /**
