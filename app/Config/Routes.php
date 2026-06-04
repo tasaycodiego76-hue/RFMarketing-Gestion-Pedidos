@@ -70,6 +70,7 @@ $routes->group('admin', ['filter' => 'auth:administrador'], function ($routes) {
     $routes->get('historial', 'Administrador\HistorialController::index');
     $routes->get('reportes', 'Administrador\ReportesController::index');
     $routes->get('reporte-gestion', 'Administrador\ReportesController::generarReporte');
+    $routes->get('reporte-csv', 'Administrador\ReportesController::generarCSV');
     $routes->get('reportes/vista-previa', 'Administrador\ReportesController::obtenerVistaPrevia');
 });
 
@@ -124,6 +125,8 @@ $routes->group('responsable', ['filter' => 'auth:empleado'], function ($routes) 
 
     // REPORTES PDF
     $routes->get('reporte-gestion', 'Responsable\ReporteController::generarReporte');
+    // REPORTES CSV
+    $routes->get('reporte-csv', 'Responsable\ReporteController::generarCSV');
 });
 
 // Rutas para el Empleado

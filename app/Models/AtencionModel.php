@@ -1082,6 +1082,236 @@ class AtencionModel extends Model
     }
 
     /**
+     * Obtiene los datos completos para exportación CSV (sin ID).
+     * Incluye todos los campos del requerimiento, archivos y links de entrega.
+     * @param int $idAreaAgencia
+     * @param string|null $desde
+     * @param string|null $hasta
+     * @param array $filtros
+     * @return array
+     */
+    public function obtenerReporteCSV(int $idAreaAgencia, ?string $desde = null, ?string $hasta = null, array $filtros = []): array
+    {
+        $params = [$idAreaAgencia];
+        $where = " WHERE a.idarea_agencia = ? ";
+
+        if (!empty($desde)) {
+            $where .= " AND a.fechacreacion >= ? ";
+            $params[] = $desde . ' 00:00:00';
+        }
+        if (!empty($hasta)) {
+            $where .= " AND a.fechacreacion <= ? ";
+            $params[] = $hasta . ' 23:59:59';
+        }
+
+        if (!empty($filtros['idempresa'])) {
+            $where .= " AND e.id = ? ";
+            $params[] = $filtros['idempresa'];
+        }
+        if (!empty($filtros['idempleado'])) {
+            $where .= " AND a.idempleado = ? ";
+            $params[] = $filtros['idempleado'];
+        }
+        if (!empty($filtros['idservicio'])) {
+            $where .= " AND a.idservicio = ? ";
+            $params[] = $filtros['idservicio'];
+        }
+        if (!empty($filtros['solo_completados'])) {
+            $where .= " AND a.estado = 'finalizado' ";
+        }
+        if (!empty($filtros['solo_retrasos'])) {
+            $where .= " AND (
+                (a.estado = 'pendiente_asignado' AND a.fechacreacion < CURRENT_DATE - INTERVAL '3 days') OR
+                (a.estado = 'en_proceso' AND r.fecharequerida < CURRENT_DATE)
+            ) ";
+        }
+        if (empty($filtros['incluir_cancelados'])) {
+            $where .= " AND a.estado != 'cancelado' ";
+        }
+
+        // Agregar parametro inicial para el CTE de tiempo
+        array_unshift($params, $idAreaAgencia);
+
+        // CTE para archivos del cliente
+        $sql = "
+            WITH tiempo_proceso AS (
+                SELECT 
+                    st.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (
+                        COALESCE(st.hora_fin, CURRENT_TIMESTAMP) - st.hora_inicio
+                    ))) / 3600 AS horas_trabajadas
+                FROM sesiones_trabajo st
+                INNER JOIN atencion a ON a.id = st.idatencion
+                WHERE a.idarea_agencia = ?
+                GROUP BY st.idatencion
+            ),
+            archivos_cliente AS (
+                SELECT 
+                    ar.idatencion,
+                    STRING_AGG(ar.nombre, ' | ') AS archivos_cliente
+                FROM archivos ar
+                WHERE ar.tipo = 'materiales-referencia'
+                GROUP BY ar.idatencion
+            ),
+            archivos_entrega AS (
+                SELECT 
+                    ar.idatencion,
+                    STRING_AGG(ar.nombre, ' | ') AS archivos_entrega
+                FROM archivos ar
+                WHERE ar.tipo = 'entrega'
+                GROUP BY ar.idatencion
+            )
+            SELECT 
+                a.titulo,
+                a.estado,
+                a.prioridad,
+                a.fechacreacion,
+                a.fechainicio,
+                a.fechafin,
+                a.fechacompletado,
+                a.observacion_revision,
+                a.url_entrega,
+                COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre,
+                e.nombreempresa as empresa_nombre,
+                ar_cli.nombre as area_nombre,
+                u_emp.nombre as empleado_nombre,
+                u_emp.apellidos as empleado_apellidos,
+                aa.nombre as area_agencia_nombre,
+                COALESCE(ROUND(tp.horas_trabajadas::numeric, 2), 0) as horas_usadas,
+                r.objetivo_comunicacion,
+                r.descripcion,
+                r.publico_objetivo,
+                r.canales_difusion,
+                r.formatos_solicitados,
+                r.formato_otros,
+                r.url_subida,
+                r.tipo_requerimiento,
+                r.fecharequerida,
+                COALESCE(ac.archivos_cliente, '') as archivos_cliente,
+                COALESCE(ae.archivos_entrega, '') as archivos_entrega
+            FROM atencion a
+            JOIN requerimiento r ON r.id = a.idrequerimiento
+            JOIN usuarios u_cli ON r.idusuarioempresa = u_cli.id
+            JOIN areas ar_cli ON u_cli.idarea = ar_cli.id
+            JOIN empresas e ON ar_cli.idempresa = e.id
+            LEFT JOIN servicios s ON s.id = a.idservicio
+            LEFT JOIN usuarios u_emp ON u_emp.id = a.idempleado
+            LEFT JOIN areas_agencia aa ON a.idarea_agencia = aa.id
+            LEFT JOIN tiempo_proceso tp ON tp.idatencion = a.id
+            LEFT JOIN archivos_cliente ac ON ac.idatencion = a.id
+            LEFT JOIN archivos_entrega ae ON ae.idatencion = a.id
+            $where
+            ORDER BY e.nombreempresa ASC, ar_cli.nombre ASC, a.fechacreacion DESC
+        ";
+
+        return $this->db->query($sql, $params)->getResultArray();
+    }
+
+    /**
+     * Obtiene los datos completos para exportación CSV del Administrador (sin ID).
+     * Incluye todos los campos del requerimiento, archivos y links de entrega.
+     * @param string|null $desde
+     * @param string|null $hasta
+     * @param array $filtros
+     * @return array
+     */
+    public function obtenerReporteCSVAdmin(?string $desde = null, ?string $hasta = null, array $filtros = []): array
+    {
+        $mainWhere = " WHERE 1=1 ";
+        $mainParams = [];
+
+        if (!empty($filtros['idarea_int'])) {
+            $mainWhere .= " AND a.idarea_agencia = ? ";
+            $mainParams[] = (int)$filtros['idarea_int'];
+        }
+        if (!empty($filtros['idempresa'])) {
+            $mainWhere .= " AND e.id = ? ";
+            $mainParams[] = (int)$filtros['idempresa'];
+        }
+        if (!empty($filtros['idempleado'])) {
+            $mainWhere .= " AND a.idempleado = ? ";
+            $mainParams[] = (int)$filtros['idempleado'];
+        }
+        if (!empty($desde)) {
+            $mainWhere .= " AND a.fechacreacion >= ? ";
+            $mainParams[] = $desde . ' 00:00:00';
+        }
+        if (!empty($hasta)) {
+            $mainWhere .= " AND a.fechacreacion <= ? ";
+            $mainParams[] = $hasta . ' 23:59:59';
+        }
+        if (!empty($filtros['solo_completados'])) {
+            $mainWhere .= " AND a.estado = 'finalizado' ";
+        }
+
+        // CTE para archivos del cliente
+        $sql = "
+            WITH tiempo_proceso AS (
+                SELECT 
+                    st.idatencion,
+                    SUM(EXTRACT(EPOCH FROM (
+                        COALESCE(st.hora_fin, CURRENT_TIMESTAMP) - st.hora_inicio
+                    ))) / 3600 AS horas_trabajadas
+                FROM sesiones_trabajo st
+                GROUP BY st.idatencion
+            ),
+            archivos_cliente AS (
+                SELECT 
+                    ar.idatencion,
+                    STRING_AGG(ar.nombre, ' | ') AS archivos_cliente
+                FROM archivos ar
+                WHERE ar.tipo = 'materiales-referencia'
+                GROUP BY ar.idatencion
+            ),
+            archivos_entrega AS (
+                SELECT 
+                    ar.idatencion,
+                    STRING_AGG(ar.nombre, ' | ') AS archivos_entrega
+                FROM archivos ar
+                WHERE ar.tipo = 'entrega'
+                GROUP BY ar.idatencion
+            )
+            SELECT 
+                COALESCE(s.nombre, a.servicio_personalizado) as servicio_nombre,
+                e.nombreempresa as empresa_nombre,
+                ar_cli.nombre as area_nombre,
+                u_cli.nombre as usuario_cliente_nombre,
+                u_cli.apellidos as usuario_cliente_apellidos,
+                a.titulo,
+                r.objetivo_comunicacion,
+                r.publico_objetivo,
+                r.descripcion,
+                COALESCE(ac.archivos_cliente, '') as archivos_cliente,
+                r.url_subida,
+                r.tipo_requerimiento,
+                u_emp.nombre as empleado_nombre,
+                u_emp.apellidos as empleado_apellidos,
+                COALESCE(ROUND(tp.horas_trabajadas::numeric, 2), 0) as horas_usadas,
+                a.fechainicio,
+                r.fecharequerida,
+                a.fechacompletado,
+                a.estado,
+                a.prioridad,
+                COALESCE(ae.archivos_entrega, '') as archivos_entrega
+            FROM atencion a
+            JOIN requerimiento r ON r.id = a.idrequerimiento
+            JOIN usuarios u_cli ON r.idusuarioempresa = u_cli.id
+            JOIN areas ar_cli ON u_cli.idarea = ar_cli.id
+            JOIN empresas e ON ar_cli.idempresa = e.id
+            LEFT JOIN servicios s ON s.id = a.idservicio
+            LEFT JOIN usuarios u_emp ON u_emp.id = a.idempleado
+            LEFT JOIN areas_agencia aa ON a.idarea_agencia = aa.id
+            LEFT JOIN tiempo_proceso tp ON tp.idatencion = a.id
+            LEFT JOIN archivos_cliente ac ON ac.idatencion = a.id
+            LEFT JOIN archivos_entrega ae ON ae.idatencion = a.id
+            $mainWhere 
+            ORDER BY aa.nombre ASC, e.nombreempresa ASC, a.fechacreacion DESC
+        ";
+
+        return $this->db->query($sql, $mainParams)->getResultArray();
+    }
+
+    /**
      * Obtiene los datos necesarios para la vista previa ajax del Administrador.
      * @param string|null $desde
      * @param string|null $hasta

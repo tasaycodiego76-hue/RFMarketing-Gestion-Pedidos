@@ -115,9 +115,14 @@
         </div>
 
         <div class="col-md-12 mt-3 text-end">
-            <button onclick="descargarReporte()" class="btn-rf btn-naranja" style="padding: 10px 25px;">
-                <i class="fas fa-file-pdf"></i> GENERAR REPORTE PDF
-            </button>
+            <div class="d-flex gap-2 justify-content-end">
+                <button onclick="descargarCSV()" class="btn-rf btn-verde" style="padding: 10px 25px;">
+                    <i class="fas fa-file-csv"></i> EXPORTAR CSV
+                </button>
+                <button onclick="descargarReporte()" class="btn-rf btn-naranja" style="padding: 10px 25px;">
+                    <i class="fas fa-file-pdf"></i> GENERAR REPORTE PDF
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -142,6 +147,24 @@
         });
 
         window.open("<?= base_url('responsable/reporte-gestion') ?>?" + params.toString(), '_blank');
+    }
+
+    function descargarCSV() {
+        const params = new URLSearchParams();
+        const filtros = {
+            desde: document.getElementById('rep_desde').value,
+            hasta: document.getElementById('rep_hasta').value,
+            idempresa: document.getElementById('rep_idempresa').value,
+            idempleado: document.getElementById('rep_idempleado').value,
+            solo_completados: document.getElementById('rep_solo_completados').checked ? 1 : 0,
+            solo_retrasos: document.getElementById('rep_solo_retrasos').checked ? 1 : 0
+        };
+
+        Object.keys(filtros).forEach(key => {
+            if (filtros[key]) params.append(key, filtros[key]);
+        });
+
+        window.open("<?= base_url('responsable/reporte-csv') ?>?" + params.toString(), '_blank');
     }
 </script>
 

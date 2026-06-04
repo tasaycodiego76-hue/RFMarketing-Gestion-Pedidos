@@ -113,4 +113,133 @@ class ReportesController extends BaseController
 
         return $this->response->setJSON($resumen);
     }
+
+    public function generarCSV()
+    {
+        $atencionModel = new AtencionModel();
+
+        $desde = $this->request->getGet('desde') ?: null;
+        $hasta = $this->request->getGet('hasta') ?: null;
+        $idAreaInt = $this->request->getGet('idarea_int') ?: null;
+        $idEmpresa = $this->request->getGet('idempresa') ?: null;
+        $idEmpleado = $this->request->getGet('idempleado') ?: null;
+        $soloCompletados = $this->request->getGet('solo_completados') == '1';
+
+        $filtros = [
+            'idarea_int'       => $idAreaInt,
+            'idempresa'        => $idEmpresa,
+            'idempleado'       => $idEmpleado,
+            'solo_completados' => $soloCompletados,
+        ];
+
+        // Obtener los Datos del Modelo con función específica para CSV
+        $pedidos = $atencionModel->obtenerReporteCSVAdmin($desde, $hasta, $filtros);
+
+        // Definir encabezados del CSV en el orden exacto solicitado.
+        $headers = [
+            'Empresa',
+            'Área Cliente',
+            'Usuario Solicitante',
+            'Título',
+            'Objetivo de Comunicación',
+            'Público Objetivo',
+            'Descripción Detallada',
+            'Materiales Cliente',
+            'URL Referencia',
+            'Servicio',
+            'Tipo Requerimiento',
+            'Empleado Asignado',
+            'Horas Usadas',
+            'Fecha Inicio',
+            'Fecha Límite',
+            'Fecha Completado',
+            'Estado',
+            'Prioridad',
+            'Archivos Entrega'
+        ];
+
+        // Crear archivo CSV en memoria
+        $filename = 'Reporte_Admin_' . date('Ymd_His') . '.csv';
+        
+        $this->response->setHeader('Content-Type', 'text/csv; charset=utf-8');
+        $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        
+        // Abrir buffer de salida
+        ob_start();
+        
+        $output = fopen('php://output', 'w');
+        
+        // Agregar BOM para que Excel reconozca caracteres especiales (UTF-8)
+        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+        
+        // Escribir encabezados con tabuladores para mejor espaciado
+        fputcsv($output, $headers, "\t");
+        
+        // Escribir datos en el orden solicitado (sin exponer IDs ni campos internos)
+        foreach ($pedidos as $pedido) {
+            $row = [
+                // Empresa, Área Cliente, Usuario Solicitante
+                $this->limpiarCSV($pedido['empresa_nombre'] ?? ''),
+                $this->limpiarCSV($pedido['area_nombre'] ?? ''),
+                $this->limpiarCSV(($pedido['usuario_cliente_nombre'] ?? '') . ' ' . ($pedido['usuario_cliente_apellidos'] ?? '')),
+
+                // Requerimiento: título, objetivo, público, descripción, materiales, URL
+                $this->limpiarCSV($pedido['titulo'] ?? ''),
+                $this->limpiarCSV($pedido['objetivo_comunicacion'] ?? ''),
+                $this->limpiarCSV($pedido['publico_objetivo'] ?? ''),
+                $this->limpiarCSV($pedido['descripcion'] ?? ''),
+                $this->limpiarCSV($pedido['archivos_cliente'] ?? ''),
+                $this->limpiarCSV($pedido['url_subida'] ?? ''),
+
+                // Servicio y tipo
+                $this->limpiarCSV($pedido['servicio_nombre'] ?? ''),
+                $this->limpiarCSV($pedido['tipo_requerimiento'] ?? ''),
+
+                // Cómo trabajó el empleado asignado
+                $this->limpiarCSV(($pedido['empleado_nombre'] ?? '') . ' ' . ($pedido['empleado_apellidos'] ?? '')),
+                $this->formatearHoras($pedido['horas_usadas'] ?? 0),
+                $this->formatearFecha($pedido['fechainicio'] ?? ''),
+                $this->formatearFecha($pedido['fecharequerida'] ?? ''),
+                $this->formatearFecha($pedido['fechacompletado'] ?? ''),
+                $pedido['estado'] ?? '',
+                $pedido['prioridad'] ?? '',
+                $this->limpiarCSV($pedido['archivos_entrega'] ?? '')
+            ];
+
+            fputcsv($output, $row, "\t");
+        }
+        
+        fclose($output);
+        
+        $csvContent = ob_get_clean();
+        
+        return $this->response->setBody($csvContent);
+    }
+
+    private function limpiarCSV($valor)
+    {
+        // Eliminar saltos de línea y caracteres problemáticos para CSV
+        return preg_replace('/[\r\n\t]/', ' ', $valor);
+    }
+
+    private function formatearFecha($fecha)
+    {
+        if (empty($fecha) || $fecha === '0000-00-00 00:00:00') {
+            return '';
+        }
+        try {
+            $date = new \DateTime($fecha);
+            return $date->format('d/m/Y H:i');
+        } catch (\Exception $e) {
+            return $fecha;
+        }
+    }
+
+    private function formatearHoras($horas)
+    {
+        if (empty($horas) || $horas == 0) {
+            return '0.00';
+        }
+        return number_format((float)$horas, 2, '.', '');
+    }
 }
