@@ -651,8 +651,11 @@ function cronPausa(id) {
   Swal.fire({
     title: '¿Pausar sesión de trabajo?',
     html: `
-      <p style="font-size:13px; color:#aaa; margin-bottom:12px;">Cuéntanos brevemente por qué pausas (el responsable lo verá).</p>
-      <textarea id="swal-motivo" class="swal2-textarea" placeholder="Ej: Reunión de equipo, almuerzo, esperando brief..." style="min-height:80px; font-size:13px; background:#222; color:#fff; border:1px solid #444; border-radius:8px; width:90%; padding:10px; box-sizing:border-box;"></textarea>
+      <p style="font-size:13px; color:#aaa; margin-bottom:6px;">El motivo es <strong style="color:#f5c400;">obligatorio</strong>. Describe brevemente por qué pausas (el responsable lo verá).</p>
+      <textarea id="swal-motivo" class="swal2-textarea" placeholder="Ej: Reunión de equipo, almuerzo, esperando brief..." style="min-height:80px; font-size:13px; background:#222; color:#fff; border:1px solid #444; border-radius:8px; width:90%; padding:10px; box-sizing:border-box; resize:vertical;"></textarea>
+      <div id="swal-motivo-error" style="color:#ef4444; font-size:11px; font-weight:700; margin-top:6px; display:none; text-align:left; padding-left:5%;">
+        <i class="bi bi-exclamation-triangle-fill" style="margin-right:4px;"></i>Debes ingresar el motivo de la pausa para continuar.
+      </div>
     `,
     background: '#1e1e1e',
     color: '#ffffff',
@@ -662,14 +665,24 @@ function cronPausa(id) {
     cancelButtonColor: '#555',
     showCancelButton: true,
     focusConfirm: false,
+    allowOutsideClick: false,
     preConfirm: () => {
       const motivo = document.getElementById('swal-motivo').value.trim();
+      const errorDiv = document.getElementById('swal-motivo-error');
+      if (!motivo) {
+        errorDiv.style.display = 'block';
+        document.getElementById('swal-motivo').style.borderColor = '#ef4444';
+        document.getElementById('swal-motivo').focus();
+        Swal.showValidationMessage('El motivo de la pausa es obligatorio. Por favor, indícalo.');
+        return false;
+      }
+      errorDiv.style.display = 'none';
       return motivo;
     }
   }).then(result => {
     if (!result.isConfirmed) return;
 
-    const motivo = result.value || '';
+    const motivo = result.value;
     const fd = new FormData();
     fd.append('motivo_pausa', motivo);
     fd.append('csrf_test_name', $('meta[name="csrf-token"]').attr('content'));

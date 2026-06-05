@@ -328,6 +328,9 @@
                 <!-- Pausa Info -->
                 <div class="tpl-pausa-container"></div>
 
+                <!-- HISTORIAL DE PAUSAS (visible solo si hay pausas) -->
+                <div class="tpl-pausas-historial-container"></div>
+
                 <!-- Recursos Empleado (Entrega) -->
                 <div class="tpl-entrega-container"></div>
             </div>
@@ -390,14 +393,19 @@
                     </div>
                 </div>
 
+                <!-- LÍNEA DE TIEMPO / TRACKING -->
+                <div class="tpl-timeline-container"></div>
+
             </div>
         </div>
 
-        <!-- FOOTER ACCIONES -->
-        <div style="margin-top:30px; padding:30px; border-top:1px solid #151515; display:flex; justify-content:center;">
+        <!-- FOOTER -->
+        <div style="padding:20px 30px; border-top:1px solid #151515; text-align:center;">
             <button class="btn" data-dismiss="modal"
-                style="background:#111; border:1px solid #222; font-family:'Bebas Neue'; font-size:20px; letter-spacing:2px; padding:12px 60px; border-radius:12px; color:#F5C400; transition:all 0.3s;">
-                CERRAR EXPEDIENTE DIGITAL
+                style="background:transparent; border:1px solid #222; font-size:12px; letter-spacing:1px; padding:8px 40px; border-radius:8px; color:#555; font-weight:700; transition:all 0.2s;"
+                onmouseover="this.style.borderColor='#F5C400'; this.style.color='#F5C400';"
+                onmouseout="this.style.borderColor='#222'; this.style.color='#555';">
+                CERRAR
             </button>
         </div>
     </div>

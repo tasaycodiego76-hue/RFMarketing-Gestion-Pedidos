@@ -26,7 +26,7 @@ if (!empty($p['fecharequerida'])) {
     }
 }
 ?>
-<div class="kb-card <?= ($estado === 'pendiente_sin_asignar') ? 'js-draggable' : '' ?>"
+<div class="kb-card <?= ($estado === 'pendiente_sin_asignar' || $estado === 'en_proceso') ? 'js-draggable' : '' ?>"
     data-id="<?= $p['id'] ?>" data-area="<?= $p['idarea_agencia'] ?>" data-sla="<?= $slaType ?>" data-prio="<?= $prioCls ?>" style="display: block;">
     <div class="kb-card-top" style="display: flex; flex-direction: column; gap: 4px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">

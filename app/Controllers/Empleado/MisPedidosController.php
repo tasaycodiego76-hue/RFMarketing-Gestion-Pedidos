@@ -256,7 +256,8 @@ class MisPedidosController extends BaseController
             'estado'                    => 'en_revision',
             'url_entrega'               => $link,
             'observacion_revision'      => $notas,
-            'tiempo_trabajado_segundos' => $tiempoAcumulado
+            'tiempo_trabajado_segundos' => $tiempoAcumulado,
+            'fechacompletado'           => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
         ];
 
         if ($atencionModel->update($id, $data)) {
@@ -401,6 +402,8 @@ class MisPedidosController extends BaseController
 
         $sesionId = $sesionesModel->iniciarSesion((int)$id, (int)$user['id']);
 
+        $this->pusher->notificarCambioEstado((int)$id, 'en_proceso');
+
         return $this->response->setJSON([
             'status'    => 'success',
             'sesion_id' => $sesionId,
@@ -446,6 +449,8 @@ class MisPedidosController extends BaseController
             } catch (\Exception $e) {
                 log_message('error', 'Pusher sesion.pausada: ' . $e->getMessage());
             }
+
+            $this->pusher->notificarCambioEstado((int)$id, 'en_proceso');
 
             return $this->response->setJSON([
                 'status'  => 'success',

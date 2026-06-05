@@ -617,7 +617,7 @@ class AtencionModel extends Model
                 COALESCE(ROUND(AVG(tp.horas_trabajadas)::numeric, 2), 0) as promedio_horas
             FROM usuarios u
             LEFT JOIN atencion a ON a.idempleado = u.id 
-                AND a.estado = 'finalizado'
+                AND a.estado IN ('en_revision', 'finalizado')
             LEFT JOIN tiempo_proceso tp ON tp.idatencion = a.id
             WHERE u.idarea_agencia = ?
               AND u.rol = 'empleado'
@@ -664,7 +664,7 @@ class AtencionModel extends Model
             $params[] = $filtros['idservicio'];
         }
         if (!empty($filtros['solo_completados'])) {
-            $where .= " AND a.estado = 'finalizado' ";
+            $where .= " AND a.estado IN ('en_revision', 'finalizado') ";
         }
         if (!empty($filtros['solo_retrasos'])) {
             $where .= " AND (
@@ -759,10 +759,10 @@ class AtencionModel extends Model
             SELECT 
                 u.nombre, u.apellidos,
                 COUNT(a.id) as asignados,
-                COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) as completados,
+                COUNT(CASE WHEN a.estado IN ('en_revision', 'finalizado') THEN 1 END) as completados,
                 COUNT(CASE WHEN a.estado = 'en_proceso' THEN 1 END) as en_proceso,
                 CASE 
-                    WHEN COUNT(a.id) > 0 THEN ROUND((COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END)::numeric / COUNT(a.id)) * 100, 1)
+                    WHEN COUNT(a.id) > 0 THEN ROUND((COUNT(CASE WHEN a.estado IN ('en_revision', 'finalizado') THEN 1 END)::numeric / COUNT(a.id)) * 100, 1)
                     ELSE 0 
                 END as eficiencia,
                 COALESCE(ROUND(SUM(tp.horas_trabajadas)::numeric, 2), 0) as horas_totales
@@ -1068,8 +1068,8 @@ class AtencionModel extends Model
                 GROUP BY st.idatencion
             )
             SELECT u.nombre, u.apellidos, COUNT(a.id) as asignados,
-                       COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END) as completados,
-                       CASE WHEN COUNT(a.id) > 0 THEN ROUND((COUNT(CASE WHEN a.estado = 'finalizado' THEN 1 END)::numeric / COUNT(a.id)) * 100, 1) ELSE 0 END as eficiencia,
+                       COUNT(CASE WHEN a.estado IN ('en_revision', 'finalizado') THEN 1 END) as completados,
+                       CASE WHEN COUNT(a.id) > 0 THEN ROUND((COUNT(CASE WHEN a.estado IN ('en_revision', 'finalizado') THEN 1 END)::numeric / COUNT(a.id)) * 100, 1) ELSE 0 END as eficiencia,
                        COALESCE(ROUND(SUM(tp.horas_trabajadas)::numeric, 2), 0) as horas_totales
                 FROM usuarios u 
                 LEFT JOIN atencion a ON a.idempleado = u.id

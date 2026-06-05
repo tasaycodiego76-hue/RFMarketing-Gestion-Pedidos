@@ -175,6 +175,9 @@
                     <div class="exp-card-body tpl-archivos-cliente"></div>
                 </div>
 
+                <!-- HISTORIAL DE PAUSAS (visible solo si hay pausas) -->
+                <div class="tpl-pausas-historial-container"></div>
+
                 <!-- Recursos Empleado (Entrega) -->
                 <div class="tpl-entrega-container"></div>
             </div>
@@ -255,6 +258,9 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- LÍNEA DE TIEMPO / TRACKING -->
+                <div class="tpl-timeline-container"></div>
 
             </div>
         </div>

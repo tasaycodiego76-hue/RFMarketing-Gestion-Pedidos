@@ -415,6 +415,7 @@ class PedidosAreaController extends BaseResponsableController
 
             $sesionesModel = new SesionesTrabajosModel();
             $ultimaPausa = $sesionesModel->getUltimaSessionPausada($idAtencion);
+            $todasPausas = $sesionesModel->getAllPausas($idAtencion);
 
             // Formatear respuesta amigable para el Frontend
             // Aseguramos que el 'id' final sea el de la atención, no el del requerimiento
@@ -429,10 +430,11 @@ class PedidosAreaController extends BaseResponsableController
             ]);
 
             return $this->response->setJSON([
-                'success' => true,
-                'data' => $dataCompleta,
+                'success'  => true,
+                'data'     => $dataCompleta,
                 'archivos' => $archivos,
-                'tracking' => $tracking
+                'tracking' => $tracking,
+                'pausas'   => $todasPausas,
             ]);
         } catch (\Throwable $th) {
             log_message('error', '[obtenerDetalleRequerimiento] ' . $th->getMessage());
@@ -538,7 +540,8 @@ class PedidosAreaController extends BaseResponsableController
             $dataUpdate = [
                 'estado' => 'en_revision',
                 'url_entrega' => $url_entrega ?: null,
-                'observacion_revision' => $notas ?: null
+                'observacion_revision' => $notas ?: null,
+                'fechacompletado' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ];
             $atencionModel->update($id, $dataUpdate);
 
@@ -625,6 +628,8 @@ class PedidosAreaController extends BaseResponsableController
 
         $sesionId = $sesionesModel->iniciarSesion((int)$id, $idUsuarioSesion);
 
+        $this->pusher->notificarCambioEstado((int)$id, 'en_proceso');
+
         return $this->response->setJSON([
             'status'    => 'success',
             'sesion_id' => $sesionId,
@@ -654,6 +659,11 @@ class PedidosAreaController extends BaseResponsableController
 
         $motivo = trim($this->request->getPost('motivo_pausa') ?? '');
 
+        // Validación obligatoria del motivo: no se permite pausar sin justificación
+        if (empty($motivo)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'El motivo de la pausa es obligatorio. Por favor, indica la razón antes de pausar.']);
+        }
+
         $sesionesModel = new SesionesTrabajosModel();
         $ok = $sesionesModel->pausarSesion((int)$id, $idUsuarioSesion, $motivo);
 
@@ -673,6 +683,8 @@ class PedidosAreaController extends BaseResponsableController
             } catch (\Exception $e) {
                 log_message('error', 'Pusher sesion.pausada: ' . $e->getMessage());
             }
+
+            $this->pusher->notificarCambioEstado((int)$id, 'en_proceso');
 
             return $this->response->setJSON([
                 'status'           => 'success',

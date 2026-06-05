@@ -154,4 +154,21 @@ class SesionesTrabajosModel extends Model
         }
         return null;
     }
+
+    /**
+     * Devuelve todas las sesiones pausadas (con motivo_pausa registrado) para una atención.
+     * Ordenadas cronológicamente (ASC) para mostrar el historial completo de pausas.
+     *
+     * @param int $idAtencion
+     * @return array
+     */
+    public function getAllPausas(int $idAtencion): array
+    {
+        return $this->where('idatencion', $idAtencion)
+                    ->where('hora_fin IS NOT NULL', null, false)
+                    ->where('motivo_pausa IS NOT NULL', null, false)
+                    ->where("motivo_pausa != ''")
+                    ->orderBy('hora_inicio', 'ASC')
+                    ->findAll();
+    }
 }

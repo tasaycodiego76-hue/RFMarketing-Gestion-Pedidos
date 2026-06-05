@@ -184,6 +184,9 @@ async function verDetalle(idAtencion) {
     const d = res.data;
     const archivosCliente = res.archivos_cliente || [];
     const archivosEmpleado = res.archivos_empleado || [];
+    const trackingData = res.tracking || [];
+    const pausasData = res.pausas || [];
+    const historialAsigData = res.historial_asig || [];
 
     // Título del Modal
     document.getElementById("detalle-titulo").innerText = (d.nombreempresa || "DETALLE DE PEDIDO").toUpperCase();
@@ -465,6 +468,18 @@ async function verDetalle(idAtencion) {
     // Finalmente inyectar en el DOM
     cuerpo.innerHTML = "";
     cuerpo.appendChild(clone);
+
+    // ── Historial de Pausas ──
+    const pausasContainer = cuerpo.querySelector('.tpl-pausas-historial-container');
+    if (pausasContainer) {
+      pausasContainer.innerHTML = _renderAdminPausas(pausasData, d.estado);
+    }
+
+    // ── Timeline de Tracking ──
+    const timelineContainer = cuerpo.querySelector('.tpl-timeline-container');
+    if (timelineContainer) {
+      timelineContainer.innerHTML = _renderAdminTimeline(trackingData, historialAsigData);
+    }
   } catch (e) {
     console.error("ERROR EN DETALLE:", e);
     cuerpo.innerHTML = _errorHtml(
@@ -799,13 +814,23 @@ document.addEventListener("DOMContentLoaded", () => {
     document.head.appendChild(style);
 
     new Sortable(colAprobar, {
-      group: { name: "kanban", pull: true, put: false },
+      group: { name: "kanban", pull: true, put: true },
       draggable: ".js-draggable",
       animation: 150,
+      onAdd(evt) {
+        const idAtencion = evt.item.getAttribute("data-id");
+        _post("admin/kanban/regresarAPendiente", {
+          idatencion: idAtencion
+        }).catch(() => { });
+
+        // Aumentar en 1 la notificación del área actual visible arriba del kanban
+        _actualizarBadgeArea(AREA_ACTUAL, 1);
+        _actualizarConteosColumnas();
+      }
     });
 
     new Sortable(colProceso, {
-      group: { name: "kanban", pull: false, put: true },
+      group: { name: "kanban", pull: true, put: true },
       draggable: ".js-draggable",
       sort: false,
       animation: 150,
@@ -817,7 +842,7 @@ document.addEventListener("DOMContentLoaded", () => {
           accion: "Su solicitud ha sido aprobada por Administrador y enviada al área correspondiente para su gestión.",
           idareaagencia: AREA_ACTUAL,
         }).catch(() => { });
-        
+
         // Disminuir en 1 la notificación del área actual visible arriba del kanban
         _actualizarBadgeArea(AREA_ACTUAL, -1);
         _actualizarConteosColumnas();
@@ -994,3 +1019,184 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// ═══ HELPER — HISTORIAL DE PAUSAS (Admin Kanban)                 ══
+// ═══════════════════════════════════════════════════════════════════
+
+/**
+ * Renderiza el historial completo de pausas de un requerimiento.
+ * Se muestra solo si hay pausas registradas.
+ * Si el requerimiento está finalizado, incluye el resumen total.
+ *
+ * @param {Array} pausas  - Array de sesiones pausadas con motivo_pausa
+ * @param {string} estado - Estado actual del requerimiento
+ * @returns {string} HTML
+ */
+function _renderAdminPausas(pausas, estado) {
+  if (!pausas || pausas.length === 0) return '';
+
+  const fmtFecha = (s) => {
+    if (!s) return '---';
+    s = String(s).trim();
+    if (s.length >= 16 && s.includes(' ')) {
+      const [fecha, hora] = s.split(' ');
+      return fecha.split('-').reverse().join('/') + ' ' + hora.substring(0, 5);
+    }
+    if (s.length >= 10) return s.substring(0, 10).split('-').reverse().join('/');
+    return s;
+  };
+
+  const items = pausas.map((p, i) => {
+    const motivo = p.motivo_pausa || 'Sin motivo registrado';
+    const fechaInicio = fmtFecha(p.hora_inicio);
+    const fechaFin = fmtFecha(p.hora_fin);
+
+    let duracionHtml = '';
+    if (p.hora_inicio && p.hora_fin) {
+      const diffSeg = Math.max(0, Math.floor((new Date(p.hora_fin.replace(' ', 'T')) - new Date(p.hora_inicio.replace(' ', 'T'))) / 1000));
+      const hh = Math.floor(diffSeg / 3600);
+      const mm = Math.floor((diffSeg % 3600) / 60);
+      const durStr = hh > 0 ? `${hh}h ${mm}m` : `${mm}m`;
+      duracionHtml = `<span style="color:#888; font-size:11px; font-weight:600; font-variant-numeric:tabular-nums;">${durStr}</span>`;
+    }
+
+    return `
+      <div style="display:flex; align-items:flex-start; gap:12px; padding:10px 0; ${i < pausas.length - 1 ? 'border-bottom:1px solid #151515;' : ''}">
+        <span style="color:#555; font-size:11px; font-weight:700; min-width:18px; font-variant-numeric:tabular-nums;">${i + 1}.</span>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:12px; color:#aaa; line-height:1.5; margin-bottom:4px;">${_escHtml(motivo)}</div>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span style="font-size:10px; color:#444;">${fechaInicio} → ${fechaFin}</span>
+            ${duracionHtml}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div style="margin-top:20px; padding:16px 18px; background:#0a0a0a; border:1px solid #1a1a1a; border-radius:10px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #151515;">
+        <span style="font-size:11px; font-weight:700; color:#666; letter-spacing:1px; text-transform:uppercase;">Historial de Pausas</span>
+        <span style="font-size:11px; font-weight:700; color:#888; font-variant-numeric:tabular-nums;">${pausas.length}</span>
+      </div>
+      <div style="max-height:200px; overflow-y:auto;">${items}</div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ═══ HELPER — TIMELINE DE TRACKING (Admin Kanban)                ══
+// ═══════════════════════════════════════════════════════════════════
+
+/**
+ * Renderiza la línea de tiempo del tracking de un requerimiento.
+ * Incluye el historial de reasignaciones integrado cronológicamente.
+ * Cada evento muestra icono, badge de acción, texto y fecha.
+ *
+ * @param {Array} tracking        - Array de eventos del tracking
+ * @param {Array} historialAsig   - Array de reasignaciones
+ * @returns {string} HTML
+ */
+function _renderAdminTimeline(tracking, historialAsig) {
+  if (!tracking || tracking.length === 0) return '';
+
+  const fmtFecha = (s) => {
+    if (!s) return '---';
+    s = String(s).trim();
+    if (s.length >= 16 && s.includes(' ')) {
+      const [fecha, hora] = s.split(' ');
+      return fecha.split('-').reverse().join('/') + ' ' + hora.substring(0, 5);
+    }
+    if (s.length >= 10) return s.substring(0, 10).split('-').reverse().join('/');
+    return s;
+  };
+
+  const estadoLabel = {
+    pendiente_sin_asignar: 'Solicitud',
+    pendiente_asignado: 'Asignado',
+    en_proceso: 'En Proceso',
+    en_revision: 'Revisión',
+    finalizado: 'Finalizado',
+    cancelado: 'Cancelado',
+  };
+
+  const items = tracking.map((t, i) => {
+    const accion = t.accion || '';
+    const estado = t.estado || 'pendiente_sin_asignar';
+    const fecha = fmtFecha(t.fecha_registro);
+    const label = estadoLabel[estado] || estado;
+    const isLast = i === tracking.length - 1;
+
+    return `
+      <div style="display:flex; gap:12px; position:relative;">
+        <div style="display:flex; flex-direction:column; align-items:center; flex-shrink:0;">
+          <div style="width:8px; height:8px; border-radius:50%; background:${i === 0 ? '#F5C400' : '#333'}; flex-shrink:0; margin-top:5px;"></div>
+          ${!isLast ? `<div style="width:1px; flex:1; min-height:20px; background:#1a1a1a; margin-top:4px;"></div>` : ''}
+        </div>
+        <div style="flex:1; min-width:0; padding-bottom:${isLast ? '0' : '14px'};">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+            <span style="font-size:11px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.5px;">${label}</span>
+            <span style="font-size:10px; color:#333;">·</span>
+            <span style="font-size:10px; color:#444; font-variant-numeric:tabular-nums;">${fecha}</span>
+          </div>
+          <div style="font-size:12px; color:#666; line-height:1.5;">${_escHtml(accion)}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Historial de reasignaciones
+  let reasigHtml = '';
+  if (historialAsig && historialAsig.length > 0) {
+    const reasigItems = historialAsig.map((h, i) => {
+      const desde = h.nombre_anterior ? `${_escHtml(h.nombre_anterior)} ${_escHtml(h.apellidos_anterior || '')}` : 'Sin asignar';
+      const hacia = `${_escHtml(h.nombre_nuevo || '')} ${_escHtml(h.apellidos_nuevo || '')}`.trim() || '---';
+      const quien = `${_escHtml(h.nombre_responsable || '')} ${_escHtml(h.apellidos_responsable || '')}`.trim() || '---';
+      const fecha = fmtFecha(h.fecha_asignacion);
+      const motivo = h.motivo_cambio || 'Sin motivo registrado';
+
+      return `
+        <div style="padding:10px 0; ${i < historialAsig.length - 1 ? 'border-bottom:1px solid #151515;' : ''}">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; flex-wrap:wrap;">
+            <span style="color:#666; font-size:12px;">${desde}</span>
+            <span style="color:#444; font-size:10px;">→</span>
+            <span style="color:#ccc; font-size:12px; font-weight:600;">${hacia}</span>
+          </div>
+          <div style="font-size:11px; color:#555; margin-bottom:3px;">${_escHtml(motivo)}</div>
+          <div style="font-size:10px; color:#333;">Por: ${quien} · ${fecha}</div>
+        </div>`;
+    }).join('');
+
+    reasigHtml = `
+      <div style="margin-top:14px; padding-top:14px; border-top:1px solid #151515;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <span style="font-size:10px; font-weight:700; color:#555; letter-spacing:1px; text-transform:uppercase;">Reasignaciones</span>
+          <span style="font-size:10px; font-weight:700; color:#888; font-variant-numeric:tabular-nums;">${historialAsig.length}</span>
+        </div>
+        ${reasigItems}
+      </div>`;
+  }
+
+  return `
+    <div style="margin-top:20px; padding:16px 18px; background:#0a0a0a; border:1px solid #1a1a1a; border-radius:10px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #151515;">
+        <span style="font-size:11px; font-weight:700; color:#666; letter-spacing:1px; text-transform:uppercase;">Línea de Tiempo</span>
+        <span style="font-size:10px; font-weight:600; color:#444; font-variant-numeric:tabular-nums;">${tracking.length} eventos</span>
+      </div>
+      <div style="max-height:280px; overflow-y:auto;">
+        ${items}
+        ${reasigHtml}
+      </div>
+    </div>`;
+}
+
+/**
+ * Sanitiza texto para prevenir XSS en el template del admin.
+ * @param {string} texto
+ * @returns {string}
+ */
+function _escHtml(texto) {
+  if (!texto) return '';
+  const d = document.createElement('div');
+  d.textContent = String(texto);
+  return d.innerHTML;
+}
