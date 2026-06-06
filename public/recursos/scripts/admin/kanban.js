@@ -979,11 +979,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    nuevaTarjeta.style.animation = 'fadeIn 0.4s ease';
-    if (tarjeta) tarjeta.remove();
-    columna.prepend(nuevaTarjeta);
-    if (typeof _ordenarColumnaPorPrioridad === 'function') _ordenarColumnaPorPrioridad(columna);
-    _actualizarConteosColumnas();
+   nuevaTarjeta.style.animation = 'fadeIn 0.4s ease';
+if (tarjeta) tarjeta.remove();
+columna.prepend(nuevaTarjeta);
+
+// Si el admin regresó el pedido a proceso, queda en pausa visual
+if (data.pausado === true) {
+    _inyectarBadgePausa(nuevaTarjeta);
+}
+
+if (typeof _ordenarColumnaPorPrioridad === 'function') _ordenarColumnaPorPrioridad(columna);
+_actualizarConteosColumnas();
   });
 
   RFPusher.on('sesion.pausada', function (data) {
@@ -1199,4 +1205,18 @@ function _escHtml(texto) {
   const d = document.createElement('div');
   d.textContent = String(texto);
   return d.innerHTML;
+}
+// ── BADGE VISUAL DE PAUSA EN LA TARJETA KANBAN ──
+// ── BADGE VISUAL DE PAUSA EN LA TARJETA KANBAN ──
+function _inyectarBadgePausa(tarjeta) {
+    if (!tarjeta) return;
+
+    // Buscar el badge de "TRABAJANDO" y reemplazarlo por "PAUSADO" con el mismo estilo del PHP
+    const badgeTrabajando = tarjeta.querySelector('.kb-badge-developing');
+    if (badgeTrabajando) {
+        badgeTrabajando.style.background = 'rgba(249, 115, 22, 0.1)';
+        badgeTrabajando.style.color = '#f97316';
+        badgeTrabajando.style.border = '1px solid rgba(249, 115, 22, 0.2)';
+        badgeTrabajando.innerHTML = '<i class="bi bi-pause-fill"></i> PAUSADO';
+    }
 }

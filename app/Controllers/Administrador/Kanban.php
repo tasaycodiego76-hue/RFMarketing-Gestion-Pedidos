@@ -628,7 +628,7 @@ class Kanban extends Controller
             'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
         ]);
         
-        $this->pusher->notificarCambioEstado($idAtencion, 'en_proceso');
+       $this->pusher->notificarCambioEstado($idAtencion, 'en_proceso', ['pausado' => true]);
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Pedido regresado correctamente con retroalimentación']);
     }

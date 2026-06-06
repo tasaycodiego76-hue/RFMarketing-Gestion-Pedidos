@@ -31,8 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function obtenerUsuarios(search = '', keepPage = false) {
         try {
             const baseUrl = BASE_URL.endsWith('/') ? BASE_URL : BASE_URL + '/';
-            const query = search ? '?search=' + encodeURIComponent(search) : '';
-            const response = await fetch(baseUrl + 'admin/usuarios/listar' + query);
+           const response = await fetch(baseUrl + 'admin/usuarios/listar');
 
             if (!response.ok) {
                 console.error('Error al obtener usuarios:', response.statusText);
@@ -40,6 +39,23 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             todosLosUsuarios = await response.json();
+
+// ── Filtro local por DNI si el backend no lo cubre ──
+if (search) {
+    const q = search.toLowerCase();
+    todosLosUsuarios = todosLosUsuarios.filter(u =>
+        (u.nombre     ?? '').toLowerCase().includes(q) ||
+        (u.apellidos  ?? '').toLowerCase().includes(q) ||
+        (u.usuario    ?? '').toLowerCase().includes(q) ||
+        (u.correo     ?? '').toLowerCase().includes(q) ||
+        (u.numerodoc  ?? '').toLowerCase().includes(q)
+    );
+}
+
+if (!keepPage) {
+    paginaActual = 1;
+}
+mostrarUsuariosPaginados();
             
             if (!keepPage) {
                 paginaActual = 1;
@@ -78,7 +94,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (u.rol && u.rol.toLowerCase().includes('administrador')) {
                 tabla.innerHTML += `
                 <tr>
-                    <td class="td-nombre" data-label="Nombre">${u.nombre} ${u.apellidos}</td>
+                    <td class="td-nombre" data-label="Nombre">
+    ${u.nombre} ${u.apellidos}
+    ${u.numerodoc ? `<div style="font-size:10px;color:#666;margin-top:2px;"><i class="bi bi-card-text"></i> ${u.tipodoc ?? ''} ${u.numerodoc}</div>` : ''}
+</td>
                     <td class="td-usuario" data-label="Usuario">${u.usuario ?? '-'}</td>
                     <td class="td-correo" data-label="Correo">${u.correo}</td>
                     <td data-label="Rol">-</td>
@@ -148,7 +167,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             tabla.innerHTML += `
             <tr>
-                <td class="td-nombre" data-label="Nombre">${u.nombre} ${u.apellidos}</td>
+                <td class="td-nombre" data-label="Nombre">
+    ${u.nombre} ${u.apellidos}
+    ${u.numerodoc ? `<div style="font-size:10px;color:#666;margin-top:2px;"><i class="bi bi-card-text"></i> ${u.tipodoc ?? ''} ${u.numerodoc}</div>` : ''}
+</td>
                 <td class="td-usuario" data-label="Usuario">${u.usuario ?? '-'}</td>
                 <td class="td-correo" data-label="Correo/Telf.">
                     <div class="user-email">${u.correo}</div>
