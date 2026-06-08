@@ -9,7 +9,24 @@ class UsuariosSeeder extends Seeder
     public function run()
     {
         $data = [
+
             // ID 1: ADMIN
+            [
+                'nombre' => 'NOEMI',
+                'apellidos' => 'TORRES TINEDO',
+                'correo' => '16noemitorres@gmail.com',
+                'telefono' => '963604801',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '76331600',
+                'usuario' => '76331600',
+                'clave' => password_hash('76331600', PASSWORD_DEFAULT),
+                'rol' => 'administrador',
+                'idarea_agencia' => null,
+                'idarea' => null,
+                'esresponsable' => false,
+                'estado' => true,
+            ],
+            // ID 2: ADMIN
             [
                 'nombre' => 'ADMIN',
                 'apellidos' => 'SUPER ADMIN',
@@ -25,6 +42,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
+
             // ID 2: RODRIGO (Fotografía, responsable)
             [
                 'nombre' => 'RODRIGO ALEXANDER',
@@ -41,7 +59,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => true,
                 'estado' => true,
             ],
-            // ID 3: NOEMI (Creación de Contenido, responsable)
+            // ID 3: NOEMI (Creación de Contenido)
             [
                 'nombre' => 'NOEMI',
                 'apellidos' => 'TORRES TINEDO',
@@ -54,7 +72,7 @@ class UsuariosSeeder extends Seeder
                 'rol' => 'empleado',
                 'idarea_agencia' => 3,
                 'idarea' => null,
-                'esresponsable' => true,
+                'esresponsable' => false,
                 'estado' => true,
             ],
             // ID 4: MARIA (Creación de Contenido)
@@ -89,7 +107,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
-            // ID 6: NICOL (Creación de Contenido)
+            // ID 6: NICOL (Creación de Contenido, responsable)
             [
                 'nombre' => 'NICOL MICHELLE',
                 'apellidos' => 'GUERRERO TORREALBA',
@@ -102,7 +120,7 @@ class UsuariosSeeder extends Seeder
                 'rol' => 'empleado',
                 'idarea_agencia' => 3,
                 'idarea' => null,
-                'esresponsable' => false,
+                'esresponsable' => true,
                 'estado' => true,
             ],
             // ID 7: SONIA (Edición y Postproducción)

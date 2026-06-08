@@ -338,9 +338,9 @@ $formatDuracion = function ($segundos) {
 };
 
 // ---------- Verificar si hay datos de pausas ----------
-$hayPausas = !empty($pausasPorPedido) && count($pausasPorPedido) > 0;
+$hayPausas = !empty($pausasPorPedido) && count($pausasPorPedido) > 0 && ($incluirPausasReasignaciones ?? true);
 // ---------- Verificar si hay datos de reasignaciones ----------
-$hayReasignaciones = !empty($reasignacionesPorPedido) && count($reasignacionesPorPedido) > 0;
+$hayReasignaciones = !empty($reasignacionesPorPedido) && count($reasignacionesPorPedido) > 0 && ($incluirPausasReasignaciones ?? true);
 ?>
 
 <?php if ($hayPausas): ?>
@@ -373,10 +373,10 @@ $hayReasignaciones = !empty($reasignacionesPorPedido) && count($reasignacionesPo
         <thead>
             <tr>
                 <th style="width: 5%;">#</th>
-                <th style="width: 35%;">MOTIVO DE PAUSA</th>
-                <th style="width: 20%;">INICIO</th>
-                <th style="width: 20%;">FIN</th>
-                <th style="width: 20%;">DURACIÓN</th>
+                <th style="width: 20%;">INICIO PAUSA</th>
+                <th style="width: 35%;">MOTIVO</th>
+                <th style="width: 20%;">FIN PAUSA</th>
+                <th style="width: 20%;">DURACIÓN DE LA PAUSA</th>
             </tr>
         </thead>
         <tbody>
@@ -384,21 +384,21 @@ $hayReasignaciones = !empty($reasignacionesPorPedido) && count($reasignacionesPo
             $totalSegPedido = 0;
             foreach ($pausas as $idx => $pausa):
                 $motivo = $pausa['motivo_pausa'] ?: 'Sin motivo registrado';
-                $inicio = !empty($pausa['hora_inicio']) ? date('d/m/Y H:i', strtotime($pausa['hora_inicio'])) : '---';
-                $fin    = !empty($pausa['hora_fin'])    ? date('d/m/Y H:i', strtotime($pausa['hora_fin']))    : '---';
+                // INICIO PAUSA = hora_fin de la sesión pausada (cuando termina de trabajar)
+                $inicioPausa = !empty($pausa['hora_fin']) ? date('d/m/Y H:i', strtotime($pausa['hora_fin'])) : '---';
+                // FIN PAUSA = hora_reinicio (cuando vuelve a trabajar)
+                $finPausa = !empty($pausa['hora_reinicio']) ? date('d/m/Y H:i', strtotime($pausa['hora_reinicio'])) : '---';
 
-                $durSeg = 0;
-                if (!empty($pausa['hora_inicio']) && !empty($pausa['hora_fin'])) {
-                    $durSeg = max(0, strtotime($pausa['hora_fin']) - strtotime($pausa['hora_inicio']));
-                }
+                // Usar la duración calculada en el modelo (hora_fin de sesión pausada hasta hora_inicio de siguiente sesión)
+                $durSeg = $pausa['duracion_segundos'] ?? 0;
                 $totalSegPedido     += $durSeg;
                 $totalSegundosGlobal += $durSeg;
             ?>
                 <tr>
                     <td style="text-align: center; color: #555;"><?= $idx + 1 ?></td>
+                    <td style="text-align: center; font-size: 10px;"><?= $inicioPausa ?></td>
                     <td style="font-size: 10px;"><?= htmlspecialchars($motivo) ?></td>
-                    <td style="text-align: center; font-size: 10px;"><?= $inicio ?></td>
-                    <td style="text-align: center; font-size: 10px;"><?= $fin ?></td>
+                    <td style="text-align: center; font-size: 10px;"><?= $finPausa ?></td>
                     <td style="text-align: center; font-size: 10px; font-weight: bold;"><?= $formatDuracion($durSeg) ?></td>
                 </tr>
             <?php endforeach; ?>

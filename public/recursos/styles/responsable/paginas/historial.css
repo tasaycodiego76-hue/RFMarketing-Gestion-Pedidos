@@ -818,3 +818,235 @@
 .hist-asig-meta-date {
     color: #888 !important;
 }
+
+/* HISTORIAL DE SESIONES (PAUSAS Y REANUDACIONES) — ULTRA PREMIUM DARK */
+
+.hist-ses-section {
+    margin-top: 36px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Cabecera */
+.hist-ses-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.hist-ses-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, #2a2a2a, transparent);
+}
+
+.hist-ses-count {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05));
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    border-radius: 20px;
+    font-size: 10px;
+    padding: 2px 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+/* TIMELINE */
+.hist-ses-timeline {
+    position: relative;
+    padding-left: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.hist-ses-timeline::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 12px;
+    bottom: 12px;
+    width: 2px;
+    background: linear-gradient(to bottom, #22c55e, rgba(34, 197, 94, 0.15), transparent);
+    border-radius: 2px;
+}
+
+/* ITEM */
+.hist-ses-item {
+    position: relative;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.hist-ses-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: transparent;
+    border-radius: 12px 0 0 12px;
+    transition: background 0.25s ease;
+}
+
+.hist-ses-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    transform: translateX(3px);
+}
+
+.hist-ses-item:hover::before {
+    background: rgba(34, 197, 94, 0.4);
+}
+
+/* ITEM MÁS RECIENTE */
+.hist-ses-item--latest {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.07), rgba(34, 197, 94, 0.02), transparent) !important;
+    border-color: rgba(34, 197, 94, 0.2) !important;
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.04);
+}
+
+.hist-ses-item--latest::before {
+    background: #22c55e !important;
+}
+
+/* Punto de la línea de tiempo */
+.hist-ses-dot {
+    position: absolute;
+    left: -22px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    border: 2px solid #333;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.hist-ses-dot.text-warning {
+    background: #f5c400;
+    border-color: #f5c400;
+}
+
+.hist-ses-dot.text-success {
+    background: #22c55e;
+    border-color: #22c55e;
+}
+
+.hist-ses-item--latest .hist-ses-dot {
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15), 0 0 14px rgba(34, 197, 94, 0.5);
+    animation: pulse-ses-dot 2.2s ease-in-out infinite;
+}
+
+@keyframes pulse-ses-dot {
+    0%, 100% {
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15), 0 0 14px rgba(34, 197, 94, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.07), 0 0 22px rgba(34, 197, 94, 0.35);
+    }
+}
+
+/* HEADER DEL ITEM */
+.hist-ses-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.hist-ses-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+}
+
+.hist-ses-tipo {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hist-ses-tipo.text-warning {
+    background: rgba(245, 196, 0, 0.1);
+    border-color: rgba(245, 196, 0, 0.2);
+    color: #f5c400;
+}
+
+.hist-ses-tipo.text-success {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.hist-ses-empleado {
+    font-size: 13px;
+    color: #e0e0e0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hist-ses-empleado i {
+    color: #666;
+}
+
+/* TIEMPOS */
+.hist-ses-tiempos {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: #b0b0b0;
+    font-weight: 500;
+}
+
+.hist-ses-tiempo {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.hist-ses-tiempo i {
+    color: #666;
+}
+
+.hist-ses-sep {
+    color: #444;
+}
+
+/* MOTIVO */
+.hist-ses-motivo {
+    font-size: 13px;
+    color: #e0e0e0;
+    line-height: 1.7;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid #666;
+    border-radius: 0 8px 8px 0;
+    font-weight: 500;
+    font-style: italic;
+}
+
+.hist-ses-item--latest .hist-ses-motivo {
+    border-left-color: #22c55e;
+    color: #ffffff;
+    background: rgba(34, 197, 94, 0.08);
+}

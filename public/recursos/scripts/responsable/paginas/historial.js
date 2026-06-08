@@ -16,10 +16,11 @@ async function verDetalleHistorial(idAtencion) {
     const baseUrl = window.BASE_URL || '/';
 
     try {
-        // Cargamos detalle e historial de asignaciones en paralelo
-        const [response, responseHist] = await Promise.all([
+        // Cargamos detalle, historial de asignaciones y historial de sesiones en paralelo
+        const [response, responseHist, responseSesiones] = await Promise.all([
             fetch(`${baseUrl}responsable/pedidos/detalle?id=${idAtencion}`),
-            fetch(`${baseUrl}responsable/empleados/historial-asignaciones?idatencion=${idAtencion}`).catch(() => null)
+            fetch(`${baseUrl}responsable/empleados/historial-asignaciones?idatencion=${idAtencion}`).catch(() => null),
+            fetch(`${baseUrl}responsable/empleados/historial-sesiones?idatencion=${idAtencion}`).catch(() => null)
         ]);
 
         const res = await response.json();
@@ -32,10 +33,19 @@ async function verDetalleHistorial(idAtencion) {
             }
         }
 
+        let sesionesData = { success: false, data: [] };
+        if (responseSesiones) {
+            try {
+                sesionesData = await responseSesiones.json();
+            } catch (e) {
+                console.error('Error parseando historial de sesiones:', e);
+            }
+        }
+
         Swal.close();
 
         if (res.success) {
-            renderizarDetalleHistorial(res.data, res.archivos, res.tracking, histData.data || []);
+            renderizarDetalleHistorial(res.data, res.archivos, res.tracking, histData.data || [], sesionesData.data || []);
         } else {
             Swal.fire({ icon: 'error', title: 'Error', text: res.message, background: document.documentElement.getAttribute("data-theme") === "light" ? "#fff" : "#0d0d0d", color: document.documentElement.getAttribute("data-theme") === "light" ? "#000" : "#fff" });
         }
@@ -52,9 +62,10 @@ async function verDetalleHistorial(idAtencion) {
  * @param {*} archivos 
  * @param {*} tracking 
  * @param {*} historialAsignaciones 
+ * @param {*} historialSesiones 
  * @returns 
  */
-function renderizarDetalleHistorial(req, archivos, tracking, historialAsignaciones = []) {
+function renderizarDetalleHistorial(req, archivos, tracking, historialAsignaciones = [], historialSesiones = []) {
     const modalElement = document.getElementById('modalHistorial');
     if (!modalElement) { return };
 
@@ -221,6 +232,9 @@ function renderizarDetalleHistorial(req, archivos, tracking, historialAsignacion
 
         <!-- HISTORIAL DE ASIGNACIONES (Solo si se ha reasignado) -->
         ${_renderHistorialAsignaciones(historialAsignaciones)}
+
+        <!-- HISTORIAL DE SESIONES (Pausas y Reanudaciones) -->
+        ${_renderHistorialSesiones(historialSesiones)}
     `;
 
     modal.show();
@@ -332,6 +346,71 @@ function _renderHistorialAsignaciones(historial) {
                 <span class="hist-asig-count">${historial.length}</span>
             </div>
             <div class="hist-asig-timeline">
+                ${items}
+            </div>
+        </div>`;
+}
+
+/**
+ * Renderiza la sección de historial de sesiones (pausas y reanudaciones) como una línea de tiempo.
+ * Solo se muestra si el historial no está vacío.
+ * Solo muestra pausas que tengan motivo anexado.
+ * @param {Array} sesiones
+ * @returns {string} HTML
+ */
+function _renderHistorialSesiones(sesiones) {
+    if (!sesiones || sesiones.length === 0) return '';
+
+    // Filtrar solo las pausas que tengan motivo
+    const pausasConMotivo = sesiones.filter(s => s.hora_fin !== null && s.motivo_pausa && s.motivo_pausa.trim() !== '');
+    
+    if (pausasConMotivo.length === 0) return '';
+
+    const items = pausasConMotivo.map((s, i) => {
+        const empleado = `${escaparHtml(s.empleado_nombre || '')} ${escaparHtml(s.empleado_apellidos || '')}`;
+        const inicio = s.hora_inicio ? formatearFechaLimpia(s.hora_inicio) : '---';
+        const fin = s.hora_fin ? formatearFechaLimpia(s.hora_fin) : 'En curso';
+        const motivo = s.motivo_pausa ? escaparHtml(s.motivo_pausa) : '';
+        
+        // Determinar el tipo de sesión (pausa o reanudación)
+        const esPausa = s.hora_fin !== null;
+        const tipoLabel = esPausa ? 'PAUSA' : 'REANUDACIÓN';
+        const tipoIcon = esPausa ? 'bi-pause-circle' : 'bi-play-circle';
+        const tipoClass = esPausa ? 'text-warning' : 'text-success';
+
+        return `
+            <div class="hist-ses-item ${i === 0 ? 'hist-ses-item--latest' : ''}">
+                <div class="hist-ses-dot ${tipoClass}"></div>
+                <div class="hist-ses-body">
+                    <div class="hist-ses-header">
+                        <span class="hist-ses-tipo ${tipoClass}">
+                            <i class="bi ${tipoIcon} me-1"></i>${tipoLabel}
+                        </span>
+                        <span class="hist-ses-empleado">
+                            <i class="bi bi-person me-1"></i>${empleado}
+                        </span>
+                    </div>
+                    <div class="hist-ses-tiempos">
+                        <span class="hist-ses-tiempo">
+                            <i class="bi bi-clock-history me-1"></i>Inicio: ${inicio}
+                        </span>
+                        <span class="hist-ses-sep">·</span>
+                        <span class="hist-ses-tiempo">
+                            <i class="bi bi-clock me-1"></i>Fin: ${fin}
+                        </span>
+                    </div>
+                    ${motivo ? `<div class="hist-ses-motivo"><i class="bi bi-chat-quote me-1"></i>"${motivo}"</div>` : ''}
+                </div>
+            </div>`;
+    }).join('');
+
+    return `
+        <div class="hist-ses-section">
+            <div class="hist-ses-header">
+                <i class="bi bi-clock-history me-2"></i>HISTORIAL DE PAUSAS
+                <span class="hist-ses-count">${pausasConMotivo.length}</span>
+            </div>
+            <div class="hist-ses-timeline">
                 ${items}
             </div>
         </div>`;

@@ -58,6 +58,22 @@
         // Retornamos el formato concatenado asegurando 2 dígitos para los minutos (ej. :05)
         return $horas . ':' . str_pad($minutos, 2, '0', STR_PAD_LEFT);
     };
+
+    // Helper: duración legible desde segundos
+    $formatDuracion = function ($segundos) {
+        $segundos = max(0, (int) $segundos);
+        $h = (int) floor($segundos / 3600);
+        $m = (int) floor(($segundos % 3600) / 60);
+        $s = $segundos % 60;
+        if ($h > 0) return $h . 'h ' . str_pad($m, 2, '0', STR_PAD_LEFT) . 'm';
+        if ($m > 0) return $m . 'm ' . str_pad($s, 2, '0', STR_PAD_LEFT) . 's';
+        return $s . 's';
+    };
+
+    // Verificar si hay datos de pausas
+    $hayPausas = !empty($pausasPorPedido) && count($pausasPorPedido) > 0 && ($incluirPausasReasignaciones ?? true);
+    // Verificar si hay datos de reasignaciones
+    $hayReasignaciones = !empty($reasignacionesPorPedido) && count($reasignacionesPorPedido) > 0 && ($incluirPausasReasignaciones ?? true);
     ?>
 
     <!-- ENCABEZADO -->
@@ -276,5 +292,148 @@
                 <?php endforeach; ?>
             </tbody>
         </table>
-    <?php endif; ?>  
+    <?php endif; ?>
 </page>
+
+<?php if ($hayPausas): ?>
+<page backtop="20mm" backbottom="20mm" backleft="15mm" backright="15mm">
+    <page_footer>
+        <div class="page-footer">
+            RF Marketing &nbsp;|&nbsp; Reporte de Gestión Operativa &nbsp;|&nbsp; Confidencial &mdash; Hoja
+            [[page_cu]]/[[page_nb]]
+        </div>
+    </page_footer>
+
+    <div class="section-title"><?= $hayReasignaciones ? 'V' : 'IV' ?>. Registro de Pausas por Pedido</div>
+
+    <?php
+    $totalPausasGlobal  = 0;
+    $totalSegundosGlobal = 0;
+    ?>
+
+    <?php foreach ($pausasPorPedido as $idPedido => $pausas):
+        // Buscar título del pedido
+        $tituloPedido = '';
+        foreach ($pedidos as $px) {
+            if ((int)$px['id'] === (int)$idPedido) {
+                $tituloPedido = $px['titulo'];
+                break;
+            }
+        }
+        $totalPausasGlobal += count($pausas);
+    ?>
+
+    <div class="empresa-label">PEDIDO #<?= $idPedido ?> — <?= mb_strtoupper($tituloPedido) ?></div>
+    <table style="width: 100%;">
+        <thead>
+            <tr>
+                <th style="width: 5%;">#</th>
+                <th style="width: 20%;">INICIO PAUSA</th>
+                <th style="width: 35%;">MOTIVO</th>
+                <th style="width: 20%;">FIN PAUSA</th>
+                <th style="width: 20%;">DURACIÓN DE LA PAUSA</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            $totalSegPedido = 0;
+            foreach ($pausas as $idx => $pausa):
+                $motivo = $pausa['motivo_pausa'] ?: 'Sin motivo registrado';
+                // INICIO PAUSA = hora_fin de la sesión pausada (cuando termina de trabajar)
+                $inicioPausa = !empty($pausa['hora_fin']) ? date('d/m/Y H:i', strtotime($pausa['hora_fin'])) : '---';
+                // FIN PAUSA = hora_reinicio (cuando vuelve a trabajar)
+                $finPausa = !empty($pausa['hora_reinicio']) ? date('d/m/Y H:i', strtotime($pausa['hora_reinicio'])) : '---';
+
+                // Usar la duración calculada en el modelo
+                $durSeg = $pausa['duracion_segundos'] ?? 0;
+                $totalSegPedido     += $durSeg;
+                $totalSegundosGlobal += $durSeg;
+            ?>
+                <tr>
+                    <td style="text-align: center; color: #555;"><?= $idx + 1 ?></td>
+                    <td style="text-align: center; font-size: 10px;"><?= $inicioPausa ?></td>
+                    <td style="font-size: 10px;"><?= htmlspecialchars($motivo) ?></td>
+                    <td style="text-align: center; font-size: 10px;"><?= $finPausa ?></td>
+                    <td style="text-align: center; font-size: 10px; font-weight: bold;"><?= $formatDuracion($durSeg) ?></td>
+                </tr>
+            <?php endforeach; ?>
+            <tr>
+                <td colspan="3" style="text-align: right; font-weight: bold; font-size: 10px; border: none;">
+                    Subtotal (<?= count($pausas) ?> pausa<?= count($pausas) !== 1 ? 's' : '' ?>):
+                </td>
+                <td colspan="2" style="text-align: center; font-weight: bold; font-size: 11px; background: #ecf0f1; border: 1pt solid #bdc3c7;">
+                    <?= $formatDuracion($totalSegPedido) ?>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <?php endforeach; ?>
+
+    <!-- RESUMEN TOTAL DE PAUSAS -->
+    <div style="margin-top: 15px; padding: 10px; background-color: #2c3e50; color: #fff; font-size: 11px;">
+        <table style="width: 100%; margin: 0;">
+            <tr>
+                <td style="border: none; color: #fff; font-weight: bold; width: 50%;">
+                    TOTAL GENERAL DE PAUSAS: <?= $totalPausasGlobal ?>
+                </td>
+                <td style="border: none; color: #fff; font-weight: bold; width: 50%; text-align: right;">
+                    TIEMPO TOTAL EN PAUSA: <?= $formatDuracion($totalSegundosGlobal) ?>
+                </td>
+            </tr>
+        </table>
+    </div>
+</page>
+<?php endif; ?>
+
+<?php if ($hayReasignaciones): ?>
+<page backtop="20mm" backbottom="20mm" backleft="15mm" backright="15mm">
+    <page_footer>
+        <div class="page-footer">
+            RF Marketing &nbsp;|&nbsp; Reporte de Gestión Operativa &nbsp;|&nbsp; Confidencial &mdash; Hoja
+            [[page_cu]]/[[page_nb]]
+        </div>
+    </page_footer>
+
+    <div class="section-title"><?= $hayPausas ? 'VI' : 'V' ?>. Historial de Reasignaciones</div>
+
+    <?php foreach ($reasignacionesPorPedido as $idPedido => $reasigs):
+        $tituloPedido = '';
+        foreach ($pedidos as $px) {
+            if ((int)$px['id'] === (int)$idPedido) {
+                $tituloPedido = $px['titulo'];
+                break;
+            }
+        }
+    ?>
+
+    <div class="empresa-label">PEDIDO #<?= $idPedido ?> — <?= mb_strtoupper($tituloPedido) ?></div>
+    <table style="width: 100%;">
+        <thead>
+            <tr>
+                <th style="width: 5%;">#</th>
+                <th style="width: 25%;">EMPLEADO ANTERIOR</th>
+                <th style="width: 25%;">NUEVO EMPLEADO</th>
+                <th style="width: 20%;">FECHA</th>
+                <th style="width: 25%;">MOTIVO</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($reasigs as $idx => $r):
+                $anterior = trim(($r['nombre_anterior'] ?? '') . ' ' . ($r['apellidos_anterior'] ?? '')) ?: '---';
+                $nuevo    = trim(($r['nombre_nuevo'] ?? '') . ' ' . ($r['apellidos_nuevo'] ?? '')) ?: '---';
+                $fecha    = !empty($r['fecha_asignacion']) ? date('d/m/Y H:i', strtotime($r['fecha_asignacion'])) : '---';
+                $motivo   = $r['motivo_cambio'] ?: '---';
+            ?>
+                <tr>
+                    <td style="text-align: center; color: #555;"><?= $idx + 1 ?></td>
+                    <td style="font-size: 10px;"><?= mb_strtoupper(htmlspecialchars($anterior)) ?></td>
+                    <td style="font-size: 10px; font-weight: bold;"><?= mb_strtoupper(htmlspecialchars($nuevo)) ?></td>
+                    <td style="text-align: center; font-size: 10px;"><?= $fecha ?></td>
+                    <td style="font-size: 10px;"><?= htmlspecialchars($motivo) ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php endforeach; ?>
+</page>
+<?php endif; ?>

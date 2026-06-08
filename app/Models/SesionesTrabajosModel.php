@@ -158,17 +158,53 @@ class SesionesTrabajosModel extends Model
     /**
      * Devuelve todas las sesiones pausadas (con motivo_pausa registrado) para una atención.
      * Ordenadas cronológicamente (ASC) para mostrar el historial completo de pausas.
+     * Incluye el cálculo de duración real de pausa (hora_fin de sesión pausada hasta hora_inicio de siguiente sesión).
      *
      * @param int $idAtencion
      * @return array
      */
     public function getAllPausas(int $idAtencion): array
     {
-        return $this->where('idatencion', $idAtencion)
-                    ->where('hora_fin IS NOT NULL', null, false)
-                    ->where('motivo_pausa IS NOT NULL', null, false)
-                    ->where("motivo_pausa != ''")
-                    ->orderBy('hora_inicio', 'ASC')
-                    ->findAll();
+        $pausas = $this->where('idatencion', $idAtencion)
+                        ->where('hora_fin IS NOT NULL', null, false)
+                        ->where('motivo_pausa IS NOT NULL', null, false)
+                        ->where("motivo_pausa != ''")
+                        ->orderBy('hora_inicio', 'ASC')
+                        ->findAll();
+
+        // Obtener todas las sesiones del requerimiento ordenadas para calcular duraciones de pausa
+        $todasSesiones = $this->where('idatencion', $idAtencion)
+                              ->orderBy('hora_inicio', 'ASC')
+                              ->findAll();
+
+        // Crear un mapa de sesiones por ID para fácil acceso
+        $sesionesPorId = [];
+        foreach ($todasSesiones as $sesion) {
+            $sesionesPorId[$sesion['id']] = $sesion;
+        }
+
+        // Calcular duración de cada pausa: desde hora_fin de sesión pausada hasta hora_inicio de siguiente sesión
+        foreach ($pausas as &$pausa) {
+            $pausa['duracion_segundos'] = 0;
+            $pausa['hora_reinicio'] = null;
+
+            // Buscar la siguiente sesión después de esta sesión pausada
+            $encontradaSiguiente = false;
+            foreach ($todasSesiones as $sesion) {
+                if ($encontradaSiguiente) {
+                    // Esta es la sesión siguiente
+                    $pausa['hora_reinicio'] = $sesion['hora_inicio'];
+                    if (!empty($pausa['hora_fin']) && !empty($sesion['hora_inicio'])) {
+                        $pausa['duracion_segundos'] = max(0, strtotime($sesion['hora_inicio']) - strtotime($pausa['hora_fin']));
+                    }
+                    break;
+                }
+                if ($sesion['id'] == $pausa['id']) {
+                    $encontradaSiguiente = true;
+                }
+            }
+        }
+
+        return $pausas;
     }
 }

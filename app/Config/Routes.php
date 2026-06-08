@@ -69,6 +69,7 @@ $routes->group('admin', ['filter' => 'auth:administrador'], function ($routes) {
     $routes->post('empresas/registrarArea', 'Administrador\EmpresasController::registrarArea');
 
     $routes->get('historial', 'Administrador\HistorialController::index');
+    $routes->get('historial-json', 'Administrador\HistorialController::historialJson');
     $routes->get('reportes', 'Administrador\ReportesController::index');
     $routes->get('reporte-gestion', 'Administrador\ReportesController::generarReporte');
     $routes->get('reporte-csv', 'Administrador\ReportesController::generarCSV');
@@ -101,6 +102,7 @@ $routes->group('responsable', ['filter' => 'auth:empleado'], function ($routes) 
     $routes->post('pedidos/reasignar', 'Responsable\EquipoController::reasignarTarea');
     $routes->get('empleados/para-reasignar', 'Responsable\EquipoController::empleadosParaReasignar');
     $routes->get('empleados/historial-asignaciones', 'Responsable\EquipoController::historialAsignaciones');
+    $routes->get('empleados/historial-sesiones', 'Responsable\EquipoController::historialSesiones');
 
     // GESTIÓN OPERATIVA (TAREAS)
     $routes->post('pedidos/asignar', 'Responsable\PedidosAreaController::asignarPedido');

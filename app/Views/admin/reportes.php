@@ -131,10 +131,16 @@
 
                     <!-- Fila Inferior: Opciones y Botón -->
                     <div class="col-12 mt-4 d-flex justify-content-between align-items-center">
-                        <label class="checkbox-container">
-                            <input type="checkbox" id="rep_solo_completados">
-                            Generar reporte solo con pedidos finalizados
-                        </label>
+                        <div class="d-flex flex-wrap gap-3">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="rep_solo_completados">
+                                Generar reporte solo con pedidos finalizados
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="rep_incluir_pausas_reasignaciones" checked>
+                                Incluir registro de pausas y reasignaciones
+                            </label>
+                        </div>
                         
                         <div class="d-flex gap-15">
                             <button onclick="descargarCSV()" class="btn-generate" style="background: #22c55e;">
@@ -163,11 +169,12 @@
             hasta: document.getElementById('rep_hasta').value,
             idempresa: document.getElementById('rep_idempresa').value,
             idarea_int: document.getElementById('rep_idarea_int').value,
-            solo_completados: document.getElementById('rep_solo_completados').checked ? 1 : 0
+            solo_completados: document.getElementById('rep_solo_completados').checked ? 1 : 0,
+            incluir_pausas_reasignaciones: document.getElementById('rep_incluir_pausas_reasignaciones').checked ? 1 : 0
         };
 
         Object.keys(filtros).forEach(key => {
-            if (filtros[key]) params.append(key, filtros[key]);
+            params.append(key, filtros[key]);
         });
 
         window.open("<?= base_url('admin/reporte-gestion') ?>?" + params.toString(), '_blank');
@@ -180,11 +187,12 @@
             hasta: document.getElementById('rep_hasta').value,
             idempresa: document.getElementById('rep_idempresa').value,
             idarea_int: document.getElementById('rep_idarea_int').value,
-            solo_completados: document.getElementById('rep_solo_completados').checked ? 1 : 0
+            solo_completados: document.getElementById('rep_solo_completados').checked ? 1 : 0,
+            incluir_pausas_reasignaciones: document.getElementById('rep_incluir_pausas_reasignaciones').checked ? 1 : 0
         };
 
         Object.keys(filtros).forEach(key => {
-            if (filtros[key]) params.append(key, filtros[key]);
+            params.append(key, filtros[key]);
         });
 
         window.open("<?= base_url('admin/reporte-csv') ?>?" + params.toString(), '_blank');

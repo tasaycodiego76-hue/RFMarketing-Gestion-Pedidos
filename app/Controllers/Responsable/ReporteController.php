@@ -4,6 +4,8 @@ namespace App\Controllers\Responsable;
 
 use App\Controllers\Responsable\BaseResponsableController;
 use App\Models\AtencionModel;
+use App\Models\SesionesTrabajosModel;
+use App\Models\HistorialAsignacionesModel;
 use Spipu\Html2Pdf\Html2Pdf;
 use Spipu\Html2Pdf\Exception\Html2PdfException;
 
@@ -32,6 +34,7 @@ class ReporteController extends BaseResponsableController
         // Capturar Filtros del Request (GET o POST)
         $desde = $this->request->getGet('desde') ?: null;
         $hasta = $this->request->getGet('hasta') ?: null;
+        $incluirPausasReasignaciones = $this->request->getGet('incluir_pausas_reasignaciones') == '1';
         
         $filtros = [
             'idempresa'          => $this->request->getGet('idempresa') ?: null,
@@ -46,6 +49,26 @@ class ReporteController extends BaseResponsableController
         $dataDetallada = $atencionModel->obtenerReporteDetallado($idAreaAgencia, $desde, $hasta, $filtros);
         $dataMetricas  = $atencionModel->obtenerMetricasTecnicosReporte($idAreaAgencia, $desde, $hasta);
         $dataAlertas   = $atencionModel->obtenerAlertasReporte($idAreaAgencia, $desde, $hasta);
+
+        // Obtener pausas y reasignaciones por pedido (solo si se solicita)
+        $sesionesModel = new SesionesTrabajosModel();
+        $historialModel = new HistorialAsignacionesModel();
+
+        $pausasPorPedido = [];
+        $reasignacionesPorPedido = [];
+        if ($incluirPausasReasignaciones) {
+            foreach ($dataDetallada as $p) {
+                $idAt = (int) $p['id'];
+                $pausas = $sesionesModel->getAllPausas($idAt);
+                if (!empty($pausas)) {
+                    $pausasPorPedido[$idAt] = $pausas;
+                }
+                $reasig = $historialModel->obtenerHistorialPorAtencion($idAt);
+                if (!empty($reasig)) {
+                    $reasignacionesPorPedido[$idAt] = $reasig;
+                }
+            }
+        }
 
         // Calcular Resumen
         $resumen = [
@@ -67,7 +90,10 @@ class ReporteController extends BaseResponsableController
             'resumen'   => $resumen,
             'pedidos'   => $dataDetallada,
             'metricas'  => $dataMetricas,
-            'alertas'   => $dataAlertas
+            'alertas'   => $dataAlertas,
+            'pausasPorPedido' => $pausasPorPedido,
+            'reasignacionesPorPedido' => $reasignacionesPorPedido,
+            'incluirPausasReasignaciones' => $incluirPausasReasignaciones
         ]);
 
         // Generar el PDF con Html2Pdf

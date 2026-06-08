@@ -40,6 +40,7 @@ class ReportesController extends BaseController
         $idEmpresa = $this->request->getGet('idempresa') ?: null;
         $idEmpleado = $this->request->getGet('idempleado') ?: null;
         $soloCompletados = $this->request->getGet('solo_completados') == '1';
+        $incluirPausasReasignaciones = $this->request->getGet('incluir_pausas_reasignaciones') == '1';
 
         $filtros = [
             'idarea_int' => $idAreaInt,
@@ -54,21 +55,23 @@ class ReportesController extends BaseController
         // Metricas de Técnicos
         $metricas = $atencionModel->obtenerMetricasTecnicosAdmin($idAreaInt ? (int) $idAreaInt : null);
 
-        // 2. Obtener pausas y reasignaciones por pedido
+        // 2. Obtener pausas y reasignaciones por pedido (solo si se solicita)
         $sesionesModel = new SesionesTrabajosModel();
         $historialModel = new HistorialAsignacionesModel();
 
         $pausasPorPedido = [];
         $reasignacionesPorPedido = [];
-        foreach ($pedidos as $p) {
-            $idAt = (int) $p['id'];
-            $pausas = $sesionesModel->getAllPausas($idAt);
-            if (!empty($pausas)) {
-                $pausasPorPedido[$idAt] = $pausas;
-            }
-            $reasig = $historialModel->obtenerHistorialPorAtencion($idAt);
-            if (!empty($reasig)) {
-                $reasignacionesPorPedido[$idAt] = $reasig;
+        if ($incluirPausasReasignaciones) {
+            foreach ($pedidos as $p) {
+                $idAt = (int) $p['id'];
+                $pausas = $sesionesModel->getAllPausas($idAt);
+                if (!empty($pausas)) {
+                    $pausasPorPedido[$idAt] = $pausas;
+                }
+                $reasig = $historialModel->obtenerHistorialPorAtencion($idAt);
+                if (!empty($reasig)) {
+                    $reasignacionesPorPedido[$idAt] = $reasig;
+                }
             }
         }
 
@@ -97,6 +100,7 @@ class ReportesController extends BaseController
             'metricas' => $metricas,
             'pausasPorPedido' => $pausasPorPedido,
             'reasignacionesPorPedido' => $reasignacionesPorPedido,
+            'incluirPausasReasignaciones' => $incluirPausasReasignaciones,
         ]);
 
         try {

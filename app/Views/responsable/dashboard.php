@@ -111,6 +111,9 @@
                 <label class="checkbox-container">
                     <input type="checkbox" id="rep_solo_retrasos"> Solo pedidos con retraso
                 </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="rep_incluir_pausas_reasignaciones" checked> Incluir pausas y reasignaciones
+                </label>
             </div>
         </div>
 
@@ -139,11 +142,12 @@
             idempresa: document.getElementById('rep_idempresa').value,
             idempleado: document.getElementById('rep_idempleado').value,
             solo_completados: document.getElementById('rep_solo_completados').checked ? 1 : 0,
-            solo_retrasos: document.getElementById('rep_solo_retrasos').checked ? 1 : 0
+            solo_retrasos: document.getElementById('rep_solo_retrasos').checked ? 1 : 0,
+            incluir_pausas_reasignaciones: document.getElementById('rep_incluir_pausas_reasignaciones').checked ? 1 : 0
         };
 
         Object.keys(filtros).forEach(key => {
-            if (filtros[key]) params.append(key, filtros[key]);
+            params.append(key, filtros[key]);
         });
 
         window.open("<?= base_url('responsable/reporte-gestion') ?>?" + params.toString(), '_blank');
@@ -157,11 +161,12 @@
             idempresa: document.getElementById('rep_idempresa').value,
             idempleado: document.getElementById('rep_idempleado').value,
             solo_completados: document.getElementById('rep_solo_completados').checked ? 1 : 0,
-            solo_retrasos: document.getElementById('rep_solo_retrasos').checked ? 1 : 0
+            solo_retrasos: document.getElementById('rep_solo_retrasos').checked ? 1 : 0,
+            incluir_pausas_reasignaciones: document.getElementById('rep_incluir_pausas_reasignaciones').checked ? 1 : 0
         };
 
         Object.keys(filtros).forEach(key => {
-            if (filtros[key]) params.append(key, filtros[key]);
+            params.append(key, filtros[key]);
         });
 
         window.open("<?= base_url('responsable/reporte-csv') ?>?" + params.toString(), '_blank');

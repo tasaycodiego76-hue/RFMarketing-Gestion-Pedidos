@@ -48,7 +48,10 @@ if (search) {
         (u.apellidos  ?? '').toLowerCase().includes(q) ||
         (u.usuario    ?? '').toLowerCase().includes(q) ||
         (u.correo     ?? '').toLowerCase().includes(q) ||
-        (u.numerodoc  ?? '').toLowerCase().includes(q)
+        (u.numerodoc  ?? '').toLowerCase().includes(q) ||
+        (u.area_nombre ?? '').toLowerCase().includes(q) ||
+        (u.area_completa ?? '').toLowerCase().includes(q) ||
+        (u.empresa_nombre ?? '').toLowerCase().includes(q)
     );
 }
 
