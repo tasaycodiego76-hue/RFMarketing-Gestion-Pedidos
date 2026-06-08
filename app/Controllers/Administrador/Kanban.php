@@ -235,6 +235,7 @@ class Kanban extends Controller
         $sesionesModel = new SesionesTrabajosModel();
         $ultimaPausa   = $sesionesModel->getUltimaSessionPausada($idAtencion);
         $todasPausas   = $sesionesModel->getAllPausas($idAtencion);
+        $primerInicio  = $sesionesModel->getPrimerInicioTrabajo($idAtencion);
         $data['ultimo_motivo_pausa'] = $ultimaPausa ? ($ultimaPausa['motivo_pausa'] ?? null) : null;
 
         // 4. Tracking completo ordenado cronológicamente
@@ -249,6 +250,9 @@ class Kanban extends Controller
         $historialAsig     = $historialModel->obtenerHistorialPorAtencion($idAtencion);
 
         // 6. Retorno de respuesta
+        // Usar el primer inicio de trabajo si existe, si no usar fechainicio de atencion
+        $data['fechainicio_real'] = $primerInicio ? date('Y-m-d H:i', strtotime($primerInicio)) : $data['fechainicio'];
+
         return $this->response->setJSON([
             'status'           => 'success',
             'data'             => $data,

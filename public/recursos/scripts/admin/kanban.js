@@ -201,7 +201,7 @@ async function verDetalle(idAtencion) {
     // ── Fechas y Tiempos ─────
     const fReq = d.fecharequerida || "---";
     const fSol = d.r_fechacreacion || "---";
-    const fIni = d.fechainicio || "---";
+    const fIni = d.fechainicio_real || d.fechainicio || "---";
     const fFin = d.fechacompletado || "---";
 
     // Formato de fecha con hora: YYYY-MM-DD HH:MM → DD/MM/YYYY HH:MM
@@ -1057,6 +1057,8 @@ function _renderAdminPausas(pausas, estado) {
     const motivo = p.motivo_pausa || 'Sin motivo registrado';
     const fechaInicio = fmtFecha(p.hora_inicio);
     const fechaFin = fmtFecha(p.hora_fin);
+    const usuarioNombre = (p.usuario_nombre || '') + ' ' + (p.usuario_apellidos || '');
+    const usuarioDisplay = usuarioNombre.trim() || 'Sin asignar';
 
     let duracionHtml = '';
     if (p.hora_inicio && p.hora_fin) {
@@ -1076,6 +1078,7 @@ function _renderAdminPausas(pausas, estado) {
             <span style="font-size:10px; color:#444;">${fechaInicio} → ${fechaFin}</span>
             ${duracionHtml}
           </div>
+          <div style="font-size:10px; color:#666; margin-top:2px;">Realizado por: <span style="color:#F5C400; font-weight:600;">${_escHtml(usuarioDisplay)}</span></div>
         </div>
       </div>`;
   }).join('');

@@ -148,32 +148,62 @@ class SesionesTrabajosModel extends Model
     }
 
     /**
+     * Devuelve la hora de inicio de la primera sesión de trabajo para una atención.
+     * Esto representa el verdadero "INICIO DE TRABAJO" (primer inicio, no último reanudar).
+     *
+     * @param int $idAtencion
+     * @return string|null  Formato Y-m-d H:i:s o null si no hay sesiones
+     */
+    public function getPrimerInicioTrabajo(int $idAtencion): ?string
+    {
+        $sql = "
+            SELECT hora_inicio
+            FROM sesiones_trabajo
+            WHERE idatencion = ?
+            ORDER BY hora_inicio ASC
+            LIMIT 1
+        ";
+
+        $row = $this->db->query($sql, [$idAtencion])->getRowArray();
+        return $row['hora_inicio'] ?? null;
+    }
+
+    /**
      * Devuelve todas las sesiones pausadas (con motivo_pausa registrado) para una atención.
      * Ordenadas cronológicamente (ASC) para mostrar el historial completo de pausas.
      * Incluye el cálculo de duración real de pausa (hora_fin de sesión pausada hasta hora_inicio de siguiente sesión).
+     * Incluye información del usuario que realizó la pausa.
      *
      * @param int $idAtencion
      * @return array
      */
     public function getAllPausas(int $idAtencion): array
     {
-        $pausas = $this->where('idatencion', $idAtencion)
-                        ->where('hora_fin IS NOT NULL', null, false)
-                        ->where('motivo_pausa IS NOT NULL', null, false)
-                        ->where("motivo_pausa != ''")
-                        ->orderBy('hora_inicio', 'ASC')
-                        ->findAll();
+        $sql = "
+            SELECT
+                st.id,
+                st.idatencion,
+                st.idusuario,
+                st.hora_inicio,
+                st.hora_fin,
+                st.motivo_pausa,
+                u.nombre AS usuario_nombre,
+                u.apellidos AS usuario_apellidos
+            FROM sesiones_trabajo st
+            LEFT JOIN usuarios u ON u.id = st.idusuario
+            WHERE st.idatencion = ?
+              AND st.hora_fin IS NOT NULL
+              AND st.motivo_pausa IS NOT NULL
+              AND st.motivo_pausa != ''
+            ORDER BY st.hora_inicio ASC
+        ";
+
+        $pausas = $this->db->query($sql, [$idAtencion])->getResultArray();
 
         // Obtener todas las sesiones del requerimiento ordenadas para calcular duraciones de pausa
         $todasSesiones = $this->where('idatencion', $idAtencion)
                               ->orderBy('hora_inicio', 'ASC')
                               ->findAll();
-
-        // Crear un mapa de sesiones por ID para fácil acceso
-        $sesionesPorId = [];
-        foreach ($todasSesiones as $sesion) {
-            $sesionesPorId[$sesion['id']] = $sesion;
-        }
 
         // Calcular duración de cada pausa: desde hora_fin de sesión pausada hasta hora_inicio de siguiente sesión
         foreach ($pausas as &$pausa) {

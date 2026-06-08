@@ -294,7 +294,6 @@
         </table>
     <?php endif; ?>
 </page>
-
 <?php if ($hayPausas): ?>
 <page backtop="20mm" backbottom="20mm" backleft="15mm" backright="15mm">
     <page_footer>
@@ -307,59 +306,57 @@
     <div class="section-title"><?= $hayReasignaciones ? 'V' : 'IV' ?>. Registro de Pausas por Pedido</div>
 
     <?php
-    $totalPausasGlobal  = 0;
+    $totalPausasGlobal   = 0;
     $totalSegundosGlobal = 0;
     ?>
 
     <?php foreach ($pausasPorPedido as $idPedido => $pausas):
-        // Buscar título y área del pedido
         $tituloPedido = '';
-        $areaAgencia = '';
+        $areaAgencia  = '';
         foreach ($pedidos as $px) {
             if ((int)$px['id'] === (int)$idPedido) {
                 $tituloPedido = $px['titulo'];
-                $areaAgencia = $px['area_agencia_nombre'] ?? '';
+                $areaAgencia  = $px['area_agencia_nombre'] ?? '';
                 break;
             }
         }
         $totalPausasGlobal += count($pausas);
     ?>
 
-    <div class="empresa-label">PEDIDO #<?= $idPedido ?> — <?= mb_strtoupper($tituloPedido) ?></div>
-    <div class="empresa-label">ÁREA: <?= mb_strtoupper($areaAgencia) ?></div>
+    <div class="empresa-label">PEDIDO #<?= $idPedido ?> &#8212; <?= mb_strtoupper($tituloPedido) ?></div>
+    <div class="empresa-label">AREA: <?= mb_strtoupper($areaAgencia) ?></div>
     <table style="width: 100%; table-layout: fixed;">
         <thead>
             <tr>
                 <th style="width: 5%;">#</th>
-                <th style="width: 17%;">INICIO PAUSA</th>
-                <th style="width: 25%;">MOTIVO</th>
-                <th style="width: 17%;">FIN PAUSA</th>
-                <th style="width: 16%;">DURACIÓN</th>
-                <th style="width: 20%;">REALIZADO POR</th>
+                <th style="width: 18%;">INICIO PAUSA</th>
+                <th style="width: 22%;">MOTIVO</th>
+                <th style="width: 18%;">FIN PAUSA</th>
+                <th style="width: 13%;">DURACION</th>
+                <th style="width: 24%;">REALIZADO POR</th>
             </tr>
         </thead>
         <tbody>
             <?php
             $totalSegPedido = 0;
             foreach ($pausas as $idx => $pausa):
-                $motivo = $pausa['motivo_pausa'] ?: 'Sin motivo registrado';
-                // INICIO PAUSA = hora_fin de la sesión pausada (cuando termina de trabajar)
-                $inicioPausa = !empty($pausa['hora_fin']) ? date('d/m/Y H:i', strtotime($pausa['hora_fin'])) : '---';
-                // FIN PAUSA = hora_reinicio (cuando vuelve a trabajar)
-                $finPausa = !empty($pausa['hora_reinicio']) ? date('d/m/Y H:i', strtotime($pausa['hora_reinicio'])) : '---';
-
-                // Usar la duración calculada en el modelo
-                $durSeg = $pausa['duracion_segundos'] ?? 0;
-                $totalSegPedido     += $durSeg;
+                $motivo      = !empty($pausa['motivo_pausa']) ? $pausa['motivo_pausa'] : 'Sin motivo registrado';
+                $inicioPausa = !empty($pausa['hora_fin'])      ? date('d/m/Y H:i', strtotime($pausa['hora_fin']))      : '---';
+                $finPausa    = !empty($pausa['hora_reinicio']) ? date('d/m/Y H:i', strtotime($pausa['hora_reinicio'])) : '---';
+                $durSeg      = (int)($pausa['duracion_segundos'] ?? 0);
+                $totalSegPedido      += $durSeg;
                 $totalSegundosGlobal += $durSeg;
+                $realizadoPor = mb_strtoupper(trim(
+                    ($pausa['usuario_nombre'] ?? '') . ' ' . ($pausa['usuario_apellidos'] ?? '')
+                )) ?: 'Sin registrar';
             ?>
                 <tr>
-                    <td style="text-align: center; color: #555;"><?= $idx + 1 ?></td>
+                    <td style="text-align: center; color: #555; font-size: 9px;"><?= $idx + 1 ?></td>
                     <td style="text-align: center; font-size: 9px;"><?= $inicioPausa ?></td>
-                    <td style="font-size: 9px;"><?= htmlspecialchars($motivo) ?></td>
+                    <td style="font-size: 9px; word-wrap: break-word; word-break: break-word; white-space: normal;"><?= htmlspecialchars($motivo) ?></td>
                     <td style="text-align: center; font-size: 9px;"><?= $finPausa ?></td>
                     <td style="text-align: center; font-size: 9px; font-weight: bold;"><?= $formatDuracion($durSeg) ?></td>
-                    <td style="font-size: 9px;"><?= mb_strtoupper(htmlspecialchars($pausa['usuario_pausa'] ?? '---')) ?></td>
+                    <td style="font-size: 9px; word-wrap: break-word; word-break: break-word; white-space: normal;"><?= htmlspecialchars($realizadoPor) ?></td>
                 </tr>
             <?php endforeach; ?>
             <tr>
@@ -374,7 +371,6 @@
     </table>
     <?php endforeach; ?>
 
-    <!-- RESUMEN TOTAL DE PAUSAS -->
     <div style="margin-top: 15px; padding: 10px; background-color: #2c3e50; color: #fff; font-size: 11px;">
         <table style="width: 100%; margin: 0;">
             <tr>
@@ -411,32 +407,38 @@
         }
     ?>
 
-    <div class="empresa-label">PEDIDO #<?= $idPedido ?> — <?= mb_strtoupper($tituloPedido) ?></div>
-    <table style="width: 100%; table-layout: fixed; max-width: 100%; overflow: hidden;">
+    <div class="empresa-label">PEDIDO #<?= $idPedido ?> &#8212; <?= mb_strtoupper($tituloPedido) ?></div>
+    <table style="width: 100%; table-layout: fixed; border-collapse: collapse;">
         <thead>
             <tr>
-                <th style="width: 5%;">#</th>
-                <th style="width: 15%;">EMPLEADO ANTERIOR</th>
-                <th style="width: 15%;">NUEVO EMPLEADO</th>
-                <th style="width: 14%;">FECHA</th>
-                <th style="width: 18%;">MOTIVO</th>
-                <th style="width: 23%;">REALIZADO POR</th>
+                <th style="width: 4%;">#</th>
+                <th style="width: 26%;">DE</th>
+                <th style="width: 26%;">A</th>
+                <th style="width: 16%;">FECHA</th>
+                <th style="width: 28%;">MOTIVO / POR</th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($reasigs as $idx => $r):
-                $anterior = trim(($r['nombre_anterior'] ?? '') . ' ' . ($r['apellidos_anterior'] ?? '')) ?: '---';
-                $nuevo    = trim(($r['nombre_nuevo'] ?? '') . ' ' . ($r['apellidos_nuevo'] ?? '')) ?: '---';
-                $fecha    = !empty($r['fecha_asignacion']) ? date('d/m/Y H:i', strtotime($r['fecha_asignacion'])) : '---';
-                $motivo   = $r['motivo_cambio'] ?: '---';
+                $anterior    = mb_strtoupper(trim(($r['nombre_anterior']    ?? '') . ' ' . ($r['apellidos_anterior']    ?? ''))) ?: '---';
+                $nuevo       = mb_strtoupper(trim(($r['nombre_nuevo']       ?? '') . ' ' . ($r['apellidos_nuevo']       ?? ''))) ?: '---';
+                $responsable = mb_strtoupper(trim(($r['nombre_responsable'] ?? '') . ' ' . ($r['apellidos_responsable'] ?? ''))) ?: '---';
+                $fecha       = !empty($r['fecha_asignacion']) ? date('d/m/Y H:i', strtotime($r['fecha_asignacion'])) : '---';
+                $motivo      = !empty($r['motivo_cambio']) ? $r['motivo_cambio'] : '---';
             ?>
                 <tr>
-                    <td style="text-align: center; color: #555; overflow: hidden;"><?= $idx + 1 ?></td>
-                    <td style="font-size: 8px; word-wrap: break-word; overflow-wrap: break-word; word-break: break-all; white-space: normal; overflow: hidden; max-width: 0;"><?= mb_strtoupper(htmlspecialchars($anterior)) ?></td>
-                    <td style="font-size: 8px; font-weight: bold; word-wrap: break-word; overflow-wrap: break-word; word-break: break-all; white-space: normal; overflow: hidden; max-width: 0;"><?= mb_strtoupper(htmlspecialchars($nuevo)) ?></td>
-                    <td style="text-align: center; font-size: 8px; overflow: hidden;"><?= $fecha ?></td>
-                    <td style="font-size: 8px; word-wrap: break-word; overflow-wrap: break-word; word-break: break-all; white-space: normal; overflow: hidden; max-width: 0;"><?= htmlspecialchars($motivo) ?></td>
-                    <td style="font-size: 8px; word-wrap: break-word; overflow-wrap: break-word; word-break: break-all; white-space: normal; overflow: hidden; max-width: 0;"><?= mb_strtoupper(htmlspecialchars($r['usuario_asignacion'] ?? '---')) ?></td>
+                    <td style="text-align: center; color: #555; font-size: 8px;"><?= $idx + 1 ?></td>
+                    <td style="font-size: 8px; color: #666; word-wrap: break-word; word-break: break-word; white-space: normal;">
+                        <?= htmlspecialchars($anterior) ?>
+                    </td>
+                    <td style="font-size: 8px; font-weight: bold; color: #1a1a1a; word-wrap: break-word; word-break: break-word; white-space: normal;">
+                        <?= htmlspecialchars($nuevo) ?>
+                    </td>
+                    <td style="text-align: center; font-size: 8px;"><?= $fecha ?></td>
+                    <td style="font-size: 8px; word-wrap: break-word; word-break: break-word; white-space: normal;">
+                        <span style="color: #444;"><?= htmlspecialchars($motivo) ?></span><br>
+                        <span style="color: #2c3e50; font-weight: 600;"><?= htmlspecialchars($responsable) ?></span>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
