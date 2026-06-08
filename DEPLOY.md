@@ -92,6 +92,14 @@ Render es una plataforma en la nube excelente y fácil de usar. Al ser un entorn
    - `PUSHER_SECRET` = `5210e876a0d7b2a35620`
    - `PUSHER_CLUSTER` = `us2`
 
+### Paso 2.5: Migraciones y Seeds Automáticos
+**IMPORTANTE**: El `Dockerfile` de este proyecto está configurado para ejecutar automáticamente las migraciones y seeds cada vez que se inicia el contenedor. Esto significa que:
+- Al crear una nueva base de datos en Render, las tablas se crearán automáticamente al desplegar
+- Si recreas la base de datos, solo necesitas hacer un nuevo deploy para que se vuelvan a ejecutar las migraciones y seeds
+- No necesitas ejecutar comandos manuales como en el VPS
+
+Si necesitas forzar la ejecución de migraciones/seeds manualmente (por ejemplo, después de recrear la BD), simplemente haz un nuevo deploy vacío (commit sin cambios) o modifica cualquier archivo para forzar el rebuild.
+
 ### Paso 3: Persistencia de Imágenes en Render (Muy Importante)
 Por defecto, los servicios web de Render tienen sistemas de archivos efímeros. Para que las imágenes que subas a la carpeta `public/uploads` **no se borren** al reiniciar o desplegar código nuevo:
 1. En la configuración de tu Web Service en Render, ve a la sección **Disks**.

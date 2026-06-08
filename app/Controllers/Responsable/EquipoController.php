@@ -7,6 +7,7 @@ use App\Models\AtencionModel;
 use App\Models\RequerimientoModel;
 use App\Models\HistorialAsignacionesModel;
 use App\Models\TrackingModel;
+use App\Models\SesionesTrabajosModel;
 
 class EquipoController extends BaseResponsableController
 {
@@ -483,5 +484,53 @@ class EquipoController extends BaseResponsableController
         $historial = $historialModel->obtenerHistorialPorAtencion($idAtencion);
 
         return $this->response->setJSON(['success' => true, 'data' => $historial]);
+    }
+
+    /**
+     * Devuelve el historial de sesiones de trabajo (pausas y reanudaciones) de una tarea específica.
+     * Solo accesible si la tarea pertenece al área del responsable.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function historialSesiones()
+    {
+        $userS = $this->ValidarSesion_DatosUser();
+        if (!$userS['ok']) {
+            return $this->response->setJSON(['success' => false, 'message' => $userS['message']]);
+        }
+
+        $idAtencion   = (int) $this->request->getGet('idatencion');
+        $idAreaAgencia = (int) $userS['user']['idarea_agencia'];
+
+        if ($idAtencion <= 0) {
+            return $this->response->setJSON(['success' => false, 'data' => []]);
+        }
+
+        // Verificar que la tarea pertenece al área del responsable
+        $atencionModel = new AtencionModel();
+        $tarea = $atencionModel->find($idAtencion);
+        if (!$tarea || (int) $tarea['idarea_agencia'] !== $idAreaAgencia) {
+            return $this->response->setJSON(['success' => false, 'data' => [], 'message' => 'Acceso no autorizado.']);
+        }
+
+        $sesionesModel = new SesionesTrabajosModel();
+        $sesiones = $sesionesModel->getHistorialPorAtencion($idAtencion);
+
+        // Enriquecer los datos con información del empleado
+        $usuarioModel = new UsuarioModel();
+        $sesionesEnriquecidas = [];
+        
+        foreach ($sesiones as $sesion) {
+            $empleado = $usuarioModel->find($sesion['idusuario']);
+            $sesionesEnriquecidas[] = [
+                'id' => $sesion['id'],
+                'hora_inicio' => $sesion['hora_inicio'],
+                'hora_fin' => $sesion['hora_fin'],
+                'motivo_pausa' => $sesion['motivo_pausa'],
+                'empleado_nombre' => $empleado ? $empleado['nombre'] : '',
+                'empleado_apellidos' => $empleado ? $empleado['apellidos'] : '',
+            ];
+        }
+
+        return $this->response->setJSON(['success' => true, 'data' => $sesionesEnriquecidas]);
     }
 }

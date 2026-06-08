@@ -64,6 +64,34 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
 # Quita el EXPOSE 80 fijo y el CMD anterior, pon esto:
 EXPOSE 10000
 
-CMD bash -c "sed -i \"s/Listen 80/Listen \${PORT:-10000}/g\" /etc/apache2/ports.conf && \
-    sed -i \"s/<VirtualHost \*:80>/<VirtualHost \*:\${PORT:-10000}>/g\" /etc/apache2/sites-available/*.conf && \
-    apache2-foreground"
+# Script de inicio que ejecuta migraciones y seeds antes de iniciar Apache
+RUN echo '#!/bin/bash\n\
+set -e\n\
+# Esperar a que la base de datos esté disponible (con timeout)\n\
+echo "Esperando a la base de datos..."\n\
+timeout=60\n\
+while ! php -r "$pdo = new PDO(\"pgsql:host=\".getenv(\"database.default.hostname\").\";dbname=\".getenv(\"database.default.database\").\";user=\".getenv(\"database.default.username\").\";password=\".getenv(\"database.default.password\")); exit(0);" 2>/dev/null; do\n\
+    timeout=$((timeout - 1))\n\
+    if [ $timeout -le 0 ]; then\n\
+        echo "Timeout esperando la base de datos, iniciando Apache de todas formas..."\n\
+        break\n\
+    fi\n\
+    sleep 1\n\
+done\n\
+\n\
+# Ejecutar migraciones\n\
+echo "Ejecutando migraciones..."\n\
+php spark migrate --force || echo "Migraciones fallaron o ya existen"\n\
+\n\
+# Ejecutar seeds (especificar el seeder principal)\n\
+echo "Ejecutando seeds..."\n\
+php spark db:seed DatabaseSeeder || echo "Seeds fallaron o ya existen"\n\
+\n\
+# Configurar puerto dinámico e iniciar Apache\n\
+sed -i "s/Listen 80/Listen \${PORT:-10000}/g" /etc/apache2/ports.conf\n\
+sed -i "s/<VirtualHost \*:80>/<VirtualHost \*:\${PORT:-10000}>/g" /etc/apache2/sites-available/*.conf\n\
+echo "Iniciando Apache..."\n\
+exec apache2-foreground\n\
+' > /start.sh && chmod +x /start.sh
+
+CMD ["/start.sh"]

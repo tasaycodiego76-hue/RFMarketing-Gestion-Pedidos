@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\ArchivoModel;
 use App\Models\AtencionModel;
 use App\Models\RetroalimentacionModel;
+use App\Models\SesionesTrabajosModel;
 use App\Models\TrackingModel;
 use App\Models\UsuarioModel;
 
@@ -213,6 +214,10 @@ class MisPedidosController extends BaseController
 
             $this->pusher->notificarCambioEstado($id, 'en_proceso');
 
+            // Iniciar la sesión de trabajo para que el cronómetro arranque automáticamente
+            $sesionesModel = new SesionesTrabajosModel();
+            $sesionesModel->iniciarSesion((int)$id, (int)$user['id']);
+
             return $this->response->setJSON(['status' => 'success', 'message' => '¡Trabajo iniciado correctamente!']);
         }
 
@@ -251,7 +256,8 @@ class MisPedidosController extends BaseController
             'estado'                    => 'en_revision',
             'url_entrega'               => $link,
             'observacion_revision'      => $notas,
-            'tiempo_trabajado_segundos' => $tiempoAcumulado
+            'tiempo_trabajado_segundos' => $tiempoAcumulado,
+            'fechacompletado'           => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
         ];
 
         if ($atencionModel->update($id, $data)) {
@@ -261,7 +267,7 @@ class MisPedidosController extends BaseController
             // Guardar archivos nuevos si existen
             $this->guardarArchivosEntrega((int) $id, (int) $pedido['idrequerimiento']);
 
-            $trackingModel = new TrackingModel();
+            $trackingModel = new \App\Models\TrackingModel();
             $trackingModel->insert([
                 'idatencion' => $id,
                 'idusuario' => $user['id'],
@@ -269,6 +275,10 @@ class MisPedidosController extends BaseController
                 'estado' => 'en_revision',
                 'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ]);
+
+            // Detener el cronómetro automáticamente al entregar
+            $sesionesModel = new SesionesTrabajosModel();
+            $sesionesModel->pausarSesion((int)$id, (int)$user['id'], '');
 
             $this->pusher->notificarCambioEstado($id, 'en_revision');
             return $this->response->setJSON(['status' => 'success', 'message' => '¡Entrega realizada con éxito!']);
@@ -358,6 +368,122 @@ class MisPedidosController extends BaseController
             // Eliminar registro de la base de datos
             $archivoModel->delete($archivo['id']);
         }
+    }
+
+    /**
+     * Inicia o reanuda el cronómetro de trabajo para una atención.
+     * Si es el primer play, también setea atencion.fechainicio.
+     */
+    public function iniciarSesion(int $id)
+    {
+        $user = $this->getActiveUser();
+        if (!$user || $user['rol'] !== 'empleado') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'No autorizado']);
+        }
+
+        $atencionModel   = new AtencionModel();
+        $sesionesModel   = new SesionesTrabajosModel();
+
+        $pedido = $atencionModel->find($id);
+        if (!$pedido || $pedido['idempleado'] != $user['id']) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Pedido no encontrado']);
+        }
+
+        // No permitir si ya hay sesión activa (evitar doble-play)
+        if ($sesionesModel->getSesionActiva((int)$id, (int)$user['id'])) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Ya tienes una sesión activa para este pedido']);
+        }
+
+        // Si es el primer Play ever, setear fechainicio en atencion
+        if (empty($pedido['fechainicio'])) {
+            $now = (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s');
+            $atencionModel->update($id, ['fechainicio' => $now]);
+        }
+
+        $sesionId = $sesionesModel->iniciarSesion((int)$id, (int)$user['id']);
+
+        $this->pusher->notificarCambioEstado((int)$id, 'en_proceso');
+
+        return $this->response->setJSON([
+            'status'    => 'success',
+            'sesion_id' => $sesionId,
+            'message'   => 'Sesión iniciada'
+        ]);
+    }
+
+    /**
+     * Pausa el cronómetro activo para una atención.
+     * Recibe: motivo_pausa (opcional).
+     */
+    public function pausarSesion($id)
+    {
+        $user = $this->getActiveUser();
+        if (!$user || $user['rol'] !== 'empleado') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'No autorizado']);
+        }
+
+        $atencionModel = new AtencionModel();
+        $pedido = $atencionModel->find($id);
+        if (!$pedido || $pedido['idempleado'] != $user['id']) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Pedido no encontrado']);
+        }
+
+        $motivo = trim($this->request->getPost('motivo_pausa') ?? '');
+
+        $sesionesModel = new SesionesTrabajosModel();
+        $ok = $sesionesModel->pausarSesion((int)$id, (int)$user['id'], $motivo);
+
+        if ($ok) {
+            // Notificar al admin/responsables que la tarea fue pausada
+            try {
+                $this->pusher->emitir(
+                    'kanban-admin',
+                    'sesion.pausada',
+                    [
+                        'idatencion'   => (int)$id,
+                        'motivo_pausa' => $motivo,
+                        'empleado'     => $pedido['idempleado'],
+                        'titulo'       => $pedido['titulo'] ?? 'Tarea #'.$id,
+                    ]
+                );
+            } catch (\Exception $e) {
+                log_message('error', 'Pusher sesion.pausada: ' . $e->getMessage());
+            }
+
+            $this->pusher->notificarCambioEstado((int)$id, 'en_proceso');
+
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => 'Sesión pausada',
+                'segundos_totales' => $sesionesModel->getTotalSegundos((int)$id)
+            ]);
+        }
+
+        return $this->response->setJSON(['status' => 'error', 'message' => 'No se encontró sesión activa']);
+    }
+
+    /**
+     * Retorna el estado del cronómetro para que el JS lo sincronice al cargar la página.
+     */
+    public function estadoSesion($id)
+    {
+        $user = $this->getActiveUser();
+        if (!$user || $user['rol'] !== 'empleado') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'No autorizado']);
+        }
+
+        $sesionesModel = new SesionesTrabajosModel();
+        $sesionActiva  = $sesionesModel->getSesionActiva((int)$id, (int)$user['id']);
+        $totalSegundos = $sesionesModel->getTotalSegundos((int)$id);
+        $ultimaPausa   = $sesionesModel->getUltimaSessionPausada((int)$id);
+
+        return $this->response->setJSON([
+            'status'             => 'success',
+            'activa'             => $sesionActiva !== null,
+            'hora_inicio_sesion' => $sesionActiva ? $sesionActiva['hora_inicio'] : null,
+            'segundos_totales'   => $totalSegundos,
+            'motivo_pausa'       => $ultimaPausa ? ($ultimaPausa['motivo_pausa'] ?? null) : null,
+        ]);
     }
 
     public function retroalimentacion()

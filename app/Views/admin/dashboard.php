@@ -252,6 +252,21 @@ if (!function_exists('simplificarNombreArea')) {
         RFPusher.on('solicitud.actualizada', function(data) {
             recargarDashboard();
         });
+
+        RFPusher.on('sesion.pausada', function(data) {
+            Swal.fire({
+                icon: 'warning',
+                title: `Tarea Pausada: ${data.titulo}`,
+                text: `Motivo: ${data.motivo_pausa}`,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 6000,
+                timerProgressBar: true,
+                background: '#0a0a0a',
+                color: '#fff'
+            });
+        });
     }
 </script>
 <script src="<?= base_url('recursos/scripts/admin/dashboard.js') ?>"></script>

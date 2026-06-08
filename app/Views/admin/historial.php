@@ -45,7 +45,7 @@
                 <th style="text-align: center; width: 180px;">Acciones</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="tablaHistorialBody">
             <?php if (empty($pedidos)): ?>
                 <tr>
                     <td colspan="6" style="text-align: center; padding: 80px; color: #444;">No hay registros</td>
@@ -90,6 +90,12 @@
         </tbody>
     </table>
 </div>
+
+<!-- Contador de registros -->
+<p class="small mb-3" id="historial-counter" style="color: #888; font-weight: 600;"><?= count($pedidos) ?> proyecto<?= count($pedidos) !== 1 ? 's' : '' ?> en el historial</p>
+
+<!-- Contenedor de paginación -->
+<div id="paginacion-historial" class="mt-4"></div>
 
 <div style="height: 50px;"></div>
 
@@ -175,6 +181,9 @@
                     <div class="exp-card-body tpl-archivos-cliente"></div>
                 </div>
 
+                <!-- HISTORIAL DE PAUSAS (visible solo si hay pausas) -->
+                <div class="tpl-pausas-historial-container"></div>
+
                 <!-- Recursos Empleado (Entrega) -->
                 <div class="tpl-entrega-container"></div>
             </div>
@@ -255,6 +264,9 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- LÍNEA DE TIEMPO / TRACKING -->
+                <div class="tpl-timeline-container"></div>
 
             </div>
         </div>

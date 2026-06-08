@@ -177,10 +177,10 @@ class Database extends Config
 
         $this->default = [
             'DSN' => '',
-            'hostname' => env('database.default.hostname') ?: 'dpg-d8bhr5mq1p3s73ci051g-a',
-            'username' => env('database.default.username') ?: 'postgresql_s25n_user',
-            'password' => env('database.default.password') ?: 'YaWpT2gN9BEbuaPN9dXCgJJrzqNoZJAf',
-            'database' => env('database.default.database') ?: 'postgresql_s25n',
+            'hostname' => env('database.default.hostname') ?: 'dpg-d8jful6k1jcs73fadt9g-a',
+            'username' => env('database.default.username') ?: 'postgresql_2yer_user',
+            'password' => env('database.default.password') ?: '2ZePObm6vQwpm1n3f77JyBE2Z4yHvUwt',
+            'database' => env('database.default.database') ?: 'postgresql_2yer',
             'DBDriver' => 'Postgre',
             'DBPrefix' => '',
             'pConnect' => false,

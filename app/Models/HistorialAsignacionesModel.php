@@ -21,6 +21,7 @@ class HistorialAsignacionesModel extends Model
 
     /**
      * Obtiene el historial completo de reasignaciones de una tarea
+     * Solo incluye registros donde haya un empleado anterior (reasignaciones reales)
      * @param int $idAtencion
      * @return array
      */
@@ -42,6 +43,7 @@ class HistorialAsignacionesModel extends Model
             LEFT JOIN usuarios u_new  ON u_new.id  = ha.idempleado
             LEFT JOIN usuarios u_resp ON u_resp.id = ha.idadmin
             WHERE ha.idatencion = ?
+            AND ha.idempleado_anterior IS NOT NULL
             ORDER BY ha.fecha_asignacion DESC
         ";
 

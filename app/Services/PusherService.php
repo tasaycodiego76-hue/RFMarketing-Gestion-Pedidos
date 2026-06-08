@@ -26,7 +26,7 @@ class PusherService
     /**
      * Notifica a TODOS los roles cuando un pedido cambia de estado.
      */
-    public function notificarCambioEstado(int $idAtencion, string $estadoNuevo): void
+    public function notificarCambioEstado(int $idAtencion, string $estadoNuevo, array $extra = []): void
     {
         try {
             $db = \Config\Database::connect();
@@ -37,11 +37,11 @@ class PusherService
                 WHERE a.id = ?
             ", [$idAtencion])->getRowArray();
 
-            $data = [
-                'id'             => $idAtencion,
-                'estado_nuevo'   => $estadoNuevo,
-                'idarea_agencia' => $atencion['idarea_agencia'] ?? null,
-            ];
+$data = array_merge([
+    'id'             => $idAtencion,
+    'estado_nuevo'   => $estadoNuevo,
+    'idarea_agencia' => $atencion['idarea_agencia'] ?? null,
+], $extra);
 
             // Broadcast a los 3 canales de roles internos
             $this->pusher->trigger(

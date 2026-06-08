@@ -9,6 +9,7 @@ use App\Models\RequerimientoModel;
 use App\Models\ArchivoModel;
 use App\Models\ServicioModel;
 use App\Models\EmpresaModel;
+use App\Models\SesionesTrabajosModel;
 
 class PedidosAreaController extends BaseResponsableController
 {
@@ -412,6 +413,10 @@ class PedidosAreaController extends BaseResponsableController
             $trackingModel = new TrackingModel();
             $tracking = $trackingModel->where('idatencion', $idAtencion)->orderBy('fecha_registro', 'DESC')->findAll();
 
+            $sesionesModel = new SesionesTrabajosModel();
+            $ultimaPausa = $sesionesModel->getUltimaSessionPausada($idAtencion);
+            $todasPausas = $sesionesModel->getAllPausas($idAtencion);
+
             // Formatear respuesta amigable para el Frontend
             // Aseguramos que el 'id' final sea el de la atención, no el del requerimiento
             $dataCompleta = array_merge((array) $detalle, (array) $atencion, [
@@ -421,13 +426,15 @@ class PedidosAreaController extends BaseResponsableController
                 'empleado_nombre' => $empleadoAsignado ? trim($empleadoAsignado['nombre'] . ' ' . $empleadoAsignado['apellidos']) : '---',
                 'servicio' => $detalle['nombre_servicio'] ?? $detalle['servicio_personalizado'] ?? 'N/A',
                 'nombre_cliente' => trim(($detalle['nombre_cliente'] ?? '') . ' ' . ($detalle['apellidos_cliente'] ?? '')),
+                'ultimo_motivo_pausa' => $ultimaPausa ? ($ultimaPausa['motivo_pausa'] ?? null) : null,
             ]);
 
             return $this->response->setJSON([
-                'success' => true,
-                'data' => $dataCompleta,
+                'success'  => true,
+                'data'     => $dataCompleta,
                 'archivos' => $archivos,
-                'tracking' => $tracking
+                'tracking' => $tracking,
+                'pausas'   => $todasPausas,
             ]);
         } catch (\Throwable $th) {
             log_message('error', '[obtenerDetalleRequerimiento] ' . $th->getMessage());
@@ -484,6 +491,11 @@ class PedidosAreaController extends BaseResponsableController
             ]);
 
             $this->pusher->notificarCambioEstado($id, 'en_proceso');
+
+            // Iniciar la sesión de trabajo para que el cronómetro arranque automáticamente
+            $sesionesModel = new SesionesTrabajosModel();
+            $sesionesModel->iniciarSesion((int)$id, (int)$userS['user']['id']);
+
             return $this->response->setJSON(['status' => 'success', 'message' => 'Cronómetro iniciado. ¡A trabajar!']);
             
         }
@@ -528,7 +540,8 @@ class PedidosAreaController extends BaseResponsableController
             $dataUpdate = [
                 'estado' => 'en_revision',
                 'url_entrega' => $url_entrega ?: null,
-                'observacion_revision' => $notas ?: null
+                'observacion_revision' => $notas ?: null,
+                'fechacompletado' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
             ];
             $atencionModel->update($id, $dataUpdate);
 
@@ -565,12 +578,142 @@ class PedidosAreaController extends BaseResponsableController
             ]);
 
             $db->transCommit();
+
+            // Cerramos la sesión actual sin motivo para indicar que se terminó (Entrega)
+            $sesionesModel = new SesionesTrabajosModel();
+            $sesionesModel->pausarSesion((int)$id, (int)$userS['user']['id'], '');
+
             $this->pusher->notificarCambioEstado($id, 'en_revision');
             return $this->response->setJSON(['status' => 'success', 'message' => '¡Excelente! El pedido ha sido enviado a revisión final por administración.']);
         } catch (\Throwable $e) {
             $db->transRollback();
             return $this->response->setJSON(['status' => 'error', 'message' => 'Error crítico al procesar la entrega: ' . $e->getMessage()]);
         }
+    }
+
+    // =========================================================================
+    // CRONÓMETRO DE SESIONES (Play / Pausa) para el Responsable
+    // =========================================================================
+
+    public function iniciarSesion($id)
+    {
+        $userS = $this->ValidarSesion_DatosUser();
+        if (!$userS['ok']) return $this->response->setJSON(['status' => 'error', 'message' => 'No autorizado']);
+
+        $atencionModel   = new AtencionModel();
+        $sesionesModel   = new SesionesTrabajosModel();
+
+        $pedido = $atencionModel->find($id);
+        
+        $idUsuarioSesion = (int) $userS['user']['id'];
+        $idAreaSesion = (int) $userS['user']['idarea_agencia'];
+        $idAreaPedido = (int) $pedido['idarea_agencia'];
+        $idEmpleadoPedido = (int) $pedido['idempleado'];
+
+        $esAsignado = ($idEmpleadoPedido === $idUsuarioSesion);
+        $esJefeDelArea = ($idAreaPedido === $idAreaSesion);
+
+        if (!$pedido || (!$esAsignado && !$esJefeDelArea)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'No tienes permisos para este pedido']);
+        }
+
+        if ($sesionesModel->getSesionActiva((int)$id, $idUsuarioSesion)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Ya tienes una sesión activa para este pedido']);
+        }
+
+        if (empty($pedido['fechainicio'])) {
+            $now = (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s');
+            $atencionModel->update($id, ['fechainicio' => $now]);
+        }
+
+        $sesionId = $sesionesModel->iniciarSesion((int)$id, $idUsuarioSesion);
+
+        $this->pusher->notificarCambioEstado((int)$id, 'en_proceso');
+
+        return $this->response->setJSON([
+            'status'    => 'success',
+            'sesion_id' => $sesionId,
+            'message'   => 'Sesión iniciada'
+        ]);
+    }
+
+    public function pausarSesion($id)
+    {
+        $userS = $this->ValidarSesion_DatosUser();
+        if (!$userS['ok']) return $this->response->setJSON(['status' => 'error', 'message' => 'No autorizado']);
+
+        $atencionModel = new AtencionModel();
+        $pedido = $atencionModel->find($id);
+        
+        $idUsuarioSesion = (int) $userS['user']['id'];
+        $idAreaSesion = (int) $userS['user']['idarea_agencia'];
+        $idAreaPedido = (int) $pedido['idarea_agencia'];
+        $idEmpleadoPedido = (int) $pedido['idempleado'];
+
+        $esAsignado = ($idEmpleadoPedido === $idUsuarioSesion);
+        $esJefeDelArea = ($idAreaPedido === $idAreaSesion);
+
+        if (!$pedido || (!$esAsignado && !$esJefeDelArea)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'No tienes permisos']);
+        }
+
+        $motivo = trim($this->request->getPost('motivo_pausa') ?? '');
+
+        // Validación obligatoria del motivo: no se permite pausar sin justificación
+        if (empty($motivo)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'El motivo de la pausa es obligatorio. Por favor, indica la razón antes de pausar.']);
+        }
+
+        $sesionesModel = new SesionesTrabajosModel();
+        $ok = $sesionesModel->pausarSesion((int)$id, $idUsuarioSesion, $motivo);
+
+        if ($ok) {
+            // Notificar al admin/responsables que la tarea fue pausada
+            try {
+                $this->pusher->emitir(
+                    'kanban-admin',
+                    'sesion.pausada',
+                    [
+                        'idatencion'   => (int)$id,
+                        'motivo_pausa' => $motivo,
+                        'empleado'     => $pedido['idempleado'],
+                        'titulo'       => $pedido['titulo'] ?? 'Tarea #'.$id,
+                    ]
+                );
+            } catch (\Exception $e) {
+                log_message('error', 'Pusher sesion.pausada: ' . $e->getMessage());
+            }
+
+            $this->pusher->notificarCambioEstado((int)$id, 'en_proceso');
+
+            return $this->response->setJSON([
+                'status'           => 'success',
+                'message'          => 'Sesión pausada',
+                'segundos_totales' => $sesionesModel->getTotalSegundos((int)$id)
+            ]);
+        }
+
+        return $this->response->setJSON(['status' => 'error', 'message' => 'No se encontró sesión activa']);
+    }
+
+    public function estadoSesion($id)
+    {
+        $userS = $this->ValidarSesion_DatosUser();
+        if (!$userS['ok']) return $this->response->setJSON(['status' => 'error', 'message' => 'No autorizado']);
+
+        $idUsuarioSesion = (int) $userS['user']['id'];
+        $sesionesModel = new SesionesTrabajosModel();
+        $sesionActiva  = $sesionesModel->getSesionActiva((int)$id, $idUsuarioSesion);
+        $totalSegundos = $sesionesModel->getTotalSegundos((int)$id);
+        $ultimaPausa   = $sesionesModel->getUltimaSessionPausada((int)$id);
+
+        return $this->response->setJSON([
+            'status'             => 'success',
+            'activa'             => $sesionActiva !== null,
+            'hora_inicio_sesion' => $sesionActiva ? $sesionActiva['hora_inicio'] : null,
+            'segundos_totales'   => $totalSegundos,
+            'motivo_pausa'       => $ultimaPausa ? ($ultimaPausa['motivo_pausa'] ?? null) : null,
+        ]);
     }
 
     /**

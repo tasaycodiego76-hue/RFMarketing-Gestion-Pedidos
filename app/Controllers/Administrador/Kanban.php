@@ -11,6 +11,8 @@ use App\Models\RetroalimentacionModel;
 use App\Models\TrackingModel;
 use App\Libraries\EmailService;
 use App\Models\RequerimientoModel;
+use App\Models\SesionesTrabajosModel;
+use App\Models\HistorialAsignacionesModel;
 use App\Services\PusherService;
 
 class Kanban extends Controller
@@ -112,6 +114,7 @@ class Kanban extends Controller
                 e.nombreempresa,
                 u.nombre AS empleado_nombre,
                 u.apellidos AS empleado_apellidos,
+                (SELECT st.motivo_pausa FROM sesiones_trabajo st WHERE st.idatencion = a.id ORDER BY st.id DESC LIMIT 1) AS ultimo_motivo_pausa,
                 CASE 
                     WHEN a.servicio_personalizado IS NOT NULL THEN 1 
                     ELSE 0 
@@ -229,12 +232,31 @@ class Kanban extends Controller
 
         $data['empleado_fullname'] = trim(($data['empleado_nombre'] ?? '') . ' ' . ($data['empleado_apellidos'] ?? '')) ?: 'Sin asignar';
 
-        // 4. Retorno de respuesta (archivos ya vienen con url_completa arriba)
+        $sesionesModel = new SesionesTrabajosModel();
+        $ultimaPausa   = $sesionesModel->getUltimaSessionPausada($idAtencion);
+        $todasPausas   = $sesionesModel->getAllPausas($idAtencion);
+        $data['ultimo_motivo_pausa'] = $ultimaPausa ? ($ultimaPausa['motivo_pausa'] ?? null) : null;
+
+        // 4. Tracking completo ordenado cronológicamente
+        $trackingModel = new TrackingModel();
+        $tracking = $trackingModel
+            ->where('idatencion', $idAtencion)
+            ->orderBy('fecha_registro', 'ASC')
+            ->findAll();
+
+        // 5. Historial de reasignaciones
+        $historialModel    = new HistorialAsignacionesModel();
+        $historialAsig     = $historialModel->obtenerHistorialPorAtencion($idAtencion);
+
+        // 6. Retorno de respuesta
         return $this->response->setJSON([
-            'status' => 'success',
-            'data' => $data,
+            'status'           => 'success',
+            'data'             => $data,
             'archivos_cliente' => $archivosCliente,
-            'archivos_empleado' => $archivosEmpleado,
+            'archivos_empleado'=> $archivosEmpleado,
+            'tracking'         => $tracking,
+            'pausas'           => $todasPausas,
+            'historial_asig'   => $historialAsig,
         ]);
     }
 
@@ -403,16 +425,33 @@ class Kanban extends Controller
                 WHERE id = ?
             ", [$nuevoEstado, $idAreaAgencia, $idAtencion]);
         } elseif ($nuevoEstado === 'finalizado') {
-            $limaTimeFin = (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s');
-            $db->query("UPDATE atencion SET estado = ?, fechacompletado = ?, observacion_revision = NULL WHERE id = ?", [$nuevoEstado, $limaTimeFin, $idAtencion]);
+            $db->query("
+                UPDATE atencion 
+                SET estado = ?, 
+                    fechacompletado = COALESCE(fechacompletado, NOW()), 
+                    observacion_revision = NULL 
+                WHERE id = ?
+            ", [$nuevoEstado, $idAtencion]);
             $accion = 'Requerimiento finalizado y entregado con éxito.';
         } else {
-            // Cambios de estado genéricos (sin sobrescribir observacion_revision)
-            $db->query("UPDATE atencion SET estado = ?, url_entrega = NULL WHERE id = ?", [$nuevoEstado, $idAtencion]);
+            // Cambios de estado genéricos
+            $db->query("
+                UPDATE atencion 
+                SET estado = ?, 
+                    num_modificaciones = num_modificaciones + 1, 
+                    url_entrega = NULL,
+                    fechacompletado = NULL
+                WHERE id = ?
+            ", [$nuevoEstado, $idAtencion]);
             
-            // Si el admin regresa el pedido, registrar en retroalimentacion
+            // Si el admin regresa el pedido, registrar en retroalimentacion y pausar sesión
             if ($nuevoEstado === 'en_proceso') {
-                $db->query("UPDATE atencion SET fechareanudacion = NOW() WHERE id = ?", [$idAtencion]);
+                $sesionesModel = new \App\Models\SesionesTrabajosModel();
+                $pedido = $db->query("SELECT idempleado FROM atencion WHERE id = ?", [$idAtencion])->getRowArray();
+                if ($pedido && $pedido['idempleado']) {
+                    $sesionesModel->pausarSesion((int)$idAtencion, (int)$pedido['idempleado'], 'Regresado a proceso por el Administrador');
+                }
+
                 $retroModel = new RetroalimentacionModel();
                 $retroModel->insert([
                     'idatencion' => $idAtencion,
@@ -557,8 +596,14 @@ class Kanban extends Controller
             return $this->response->setJSON(['status' => 'error', 'msg' => 'Pedido no encontrado']);
         }
 
-        // 1. Actualizar estado del pedido a 'en_proceso', registrar fechareanudacion a NOW() e incrementar modificaciones
-        $db->query("UPDATE atencion SET estado = 'en_proceso', fechareanudacion = NOW(), num_modificaciones = num_modificaciones + 1, url_entrega = NULL WHERE id = ?", [$idAtencion]);
+        // 1. Actualizar estado del pedido a 'en_proceso', limpiar finalización e incrementar modificaciones
+        $db->query("UPDATE atencion SET estado = 'en_proceso', num_modificaciones = num_modificaciones + 1, url_entrega = NULL, fechacompletado = NULL WHERE id = ?", [$idAtencion]);
+
+        // 1.2. Pausar sesión activa del empleado de forma automática
+        $sesionesModel = new \App\Models\SesionesTrabajosModel();
+        if (!empty($atencion['idempleado'])) {
+            $sesionesModel->pausarSesion((int)$idAtencion, (int)$atencion['idempleado'], $mensaje ?: 'Regresado a proceso para correcciones');
+        }
 
         // 1.5. Limpiar los archivos entregados anteriormente (para no mostrarlos de nuevo)
         $archivoModel = new ArchivoModel();
@@ -587,8 +632,75 @@ class Kanban extends Controller
             'fecha_registro' => (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')
         ]);
         
-        $this->pusher->notificarCambioEstado($idAtencion, 'en_proceso');
+       $this->pusher->notificarCambioEstado($idAtencion, 'en_proceso', ['pausado' => true]);
 
         return $this->response->setJSON(['status' => 'success', 'msg' => 'Pedido regresado correctamente con retroalimentación']);
+    }
+
+    public function regresarAPendiente()
+    {
+        $json = $this->request->getJSON(true);
+        $idAtencion = $json['idatencion'];
+        $idAdmin = session()->get('id') ?? 1;
+
+        $db = \Config\Database::connect();
+        $atencionModel = new AtencionModel();
+
+        $atencion = $atencionModel->find($idAtencion);
+        if (!$atencion) {
+            return $this->response->setJSON(['status' => 'error', 'msg' => 'Pedido no encontrado']);
+        }
+
+        $esPersonalizado = (!empty($atencion['servicio_personalizado']));
+
+        $db->transStart();
+
+        if ($esPersonalizado) {
+            $db->query("
+                UPDATE atencion
+                SET estado = 'pendiente_sin_asignar',
+                    idarea_agencia = NULL,
+                    idempleado = NULL,
+                    fechainicio = NULL,
+                    observacion_revision = NULL,
+                    url_entrega = NULL,
+                    fechacompletado = NULL
+                WHERE id = ?
+            ", [$idAtencion]);
+        } else {
+            $db->query("
+                UPDATE atencion
+                SET estado = 'pendiente_sin_asignar',
+                    idempleado = NULL,
+                    fechainicio = NULL,
+                    observacion_revision = NULL,
+                    url_entrega = NULL,
+                    fechacompletado = NULL
+                WHERE id = ?
+            ", [$idAtencion]);
+        }
+
+        // Eliminar sesiones de trabajo activas o inactivas
+        $db->query("DELETE FROM sesiones_trabajo WHERE idatencion = ?", [$idAtencion]);
+
+        // Eliminar historial de asignaciones
+        $db->query("DELETE FROM historial_asignaciones WHERE idatencion = ?", [$idAtencion]);
+
+        // Insertar tracking
+        $db->query("
+            INSERT INTO tracking (idatencion, idusuario, accion, estado, fecha_registro)
+            VALUES (?, ?, 'El pedido ha sido regresado a nuevas solicitudes por la Administración.', 'pendiente_sin_asignar', ?)
+        ", [$idAtencion, $idAdmin, (new \DateTime('now', new \DateTimeZone('America/Lima')))->format('Y-m-d H:i:s')]);
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return $this->response->setJSON(['status' => 'error', 'msg' => 'Error al revertir el pedido']);
+        }
+
+        // Notificar Pusher
+        $this->pusher->notificarCambioEstado($idAtencion, 'pendiente_sin_asignar');
+
+        return $this->response->setJSON(['status' => 'success', 'msg' => 'Pedido regresado a nuevas solicitudes']);
     }
 }

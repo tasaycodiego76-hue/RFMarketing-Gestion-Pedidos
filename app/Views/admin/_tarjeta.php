@@ -26,7 +26,7 @@ if (!empty($p['fecharequerida'])) {
     }
 }
 ?>
-<div class="kb-card <?= ($estado === 'pendiente_sin_asignar') ? 'js-draggable' : '' ?>"
+<div class="kb-card <?= ($estado === 'pendiente_sin_asignar' || $estado === 'en_proceso') ? 'js-draggable' : '' ?>"
     data-id="<?= $p['id'] ?>" data-area="<?= $p['idarea_agencia'] ?>" data-sla="<?= $slaType ?>" data-prio="<?= $prioCls ?>" style="display: block;">
     <div class="kb-card-top" style="display: flex; flex-direction: column; gap: 4px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -72,7 +72,8 @@ if (!empty($p['fecharequerida'])) {
                 <?php
                 $nombreComp = $p['empleado_nombre'] . ' ' . ($p['empleado_apellidos'] ?? '');
                 $empIni = mb_strtoupper(mb_substr($p['empleado_nombre'], 0, 1) . (mb_substr($p['empleado_apellidos'] ?? '', 0, 1)));
-                $enDesarrolloReal = (!empty($p['fechainicio']) && $estado === 'en_proceso');
+                $enDesarrolloReal = (!empty($p['fechainicio']) && $estado === 'en_proceso' && empty($p['ultimo_motivo_pausa']));
+                $estaPausado = (!empty($p['fechainicio']) && $estado === 'en_proceso' && !empty($p['ultimo_motivo_pausa']));
                 ?>
                 <div class="kb-card-user <?= $enDesarrolloReal ? 'en-desarrollo' : '' ?>">
                     <div class="kb-user-avatar-wrapper">
@@ -82,6 +83,10 @@ if (!empty($p['fecharequerida'])) {
                         <?php if ($enDesarrolloReal): ?>
                             <span class="kb-badge-developing">
                                 <span class="kb-dot-pulse"></span> TRABAJANDO
+                            </span>
+                        <?php elseif ($estaPausado): ?>
+                            <span class="kb-badge-developing" style="background: rgba(249, 115, 22, 0.1); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.2);">
+                                <i class="bi bi-pause-fill"></i> PAUSADO
                             </span>
                         <?php endif ?>
                         <span class="kb-user-name">

@@ -31,11 +31,7 @@
     <aside class="sidebar" id="sidebar">
 
         <div class="sidebar-logo">
-            <img src="<?= base_url('img/LogoPlantillas.png') ?>" alt="RF Marketing" class="brand-logo-img">
-            <div class="brand-logo-text">
-                <span class="brand-rf">RF</span>
-                <span class="brand-name">Marketing</span>
-            </div>
+            <img src="<?= base_url('img/Recurso.png') ?>" alt="RF Marketing" class="brand-logo-img">
         </div>
 
         <nav>
@@ -172,18 +168,20 @@
 
     <!-- ═══ MODAL VER DETALLE (Bootstrap 4) — GLOBAL ═══ -->
     <div class="modal fade" id="modalDetalle" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-            <div class="modal-content kb-modal" style="background:#111; border:1px solid #222;">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document" style="max-height: 92vh;">
+            <div class="modal-content kb-modal" style="background:#0a0a0a; border:1px solid #1a1a1a; border-radius:16px; overflow:hidden; max-height:92vh; display:flex; flex-direction:column;">
                 <div class="modal-header kb-modal-header"
-                    style="background:#0a0a0a; border-bottom:1px solid #1a1a1a; padding: 15px 25px;">
+                    style="background:#0a0a0a; border-bottom:1px solid #151515; padding:14px 24px; flex-shrink:0; position:sticky; top:0; z-index:10;">
                     <h6 class="modal-title" id="detalle-titulo"
-                        style="font-family:'Bebas Neue'; letter-spacing:1px; color:#F5C400; font-size:22px;">DETALLE
+                        style="font-family:'Bebas Neue'; letter-spacing:1px; color:#F5C400; font-size:20px; margin:0;">DETALLE
                     </h6>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                        style="color:#555; font-size:28px; font-weight:300; opacity:1; line-height:1; padding:0; background:none; border:none; cursor:pointer; transition:color 0.2s;"
+                        onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#555'">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" id="detalle-cuerpo" style="padding:0;">
+                <div class="modal-body" id="detalle-cuerpo" style="padding:0; overflow-y:auto; flex:1;">
                     Cargando...
                 </div>
             </div>

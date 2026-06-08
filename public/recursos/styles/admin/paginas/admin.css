@@ -116,7 +116,7 @@ body {
   text-transform: uppercase;
 }
 .brand-logo-img {
-  max-height: 54px;
+  max-height: 45px;
   width: auto;
   display: block;
   object-fit: contain;

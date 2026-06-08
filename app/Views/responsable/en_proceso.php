@@ -4,6 +4,72 @@
 
 <?= $this->section('estilos') ?>
 <link rel="stylesheet" href="<?= base_url('recursos/styles/responsable/paginas/en_proceso.css') ?>">
+<style>
+    /* ── CRONÓMETRO ── */
+    .cronometro-bloque {
+        margin-top: 10px;
+        background: rgba(0,0,0,0.18);
+        border: 1px solid var(--borde, #333);
+        border-radius: 10px;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+    .cronometro-display {
+        font-family: 'Bebas Neue', monospace;
+        font-size: 22px;
+        letter-spacing: 2px;
+        color: var(--texto, #fff);
+        line-height: 1;
+    }
+    .cronometro-estado {
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-top: 3px;
+    }
+    .crono-activo  { color: #10b981; }
+    .crono-pausado { color: var(--texto-3, #888); }
+    .btn-crono {
+        border: none;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: opacity .2s, transform .15s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .btn-crono:active { transform: scale(0.96); }
+    .btn-crono-play  { background: #10b981; color: #fff; }
+    .btn-crono-play:hover { background: #0e9f6e; }
+    .btn-crono-pausa { background: #333; color: #fff; }
+    .btn-crono-pausa:hover { background: #444; }
+    
+    .crono-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #10b981;
+        display: inline-block;
+        margin-right: 4px;
+        margin-bottom: 1px;
+        box-shadow: 0 0 6px #10b981;
+        animation: pulse-dot 1.5s infinite;
+    }
+    @keyframes pulse-dot {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.8); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('contenido') ?>

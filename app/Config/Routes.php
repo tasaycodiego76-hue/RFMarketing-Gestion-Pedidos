@@ -57,6 +57,7 @@ $routes->group('admin', ['filter' => 'auth:administrador'], function ($routes) {
     $routes->post('kanban/asignarEmpleado', 'Administrador\Kanban::asignarEmpleado');
     $routes->post('kanban/iniciarTrabajo', 'Administrador\Kanban::iniciarTrabajo');
     $routes->post('kanban/regresarAProceso', 'Administrador\Kanban::regresarAProceso');
+    $routes->post('kanban/regresarAPendiente', 'Administrador\Kanban::regresarAPendiente');
     $routes->get('kanban/tarjetaHTML/(:num)', 'Administrador\Kanban::tarjetaHTML/$1');
 
     //EMPRESAS 
@@ -69,8 +70,10 @@ $routes->group('admin', ['filter' => 'auth:administrador'], function ($routes) {
     $routes->post('empresas/registrarArea', 'Administrador\EmpresasController::registrarArea');
 
     $routes->get('historial', 'Administrador\HistorialController::index');
+    $routes->get('historial-json', 'Administrador\HistorialController::historialJson');
     $routes->get('reportes', 'Administrador\ReportesController::index');
     $routes->get('reporte-gestion', 'Administrador\ReportesController::generarReporte');
+    $routes->get('reporte-csv', 'Administrador\ReportesController::generarCSV');
     $routes->get('reportes/vista-previa', 'Administrador\ReportesController::obtenerVistaPrevia');
 });
 
@@ -100,12 +103,19 @@ $routes->group('responsable', ['filter' => 'auth:empleado'], function ($routes) 
     $routes->post('pedidos/reasignar', 'Responsable\EquipoController::reasignarTarea');
     $routes->get('empleados/para-reasignar', 'Responsable\EquipoController::empleadosParaReasignar');
     $routes->get('empleados/historial-asignaciones', 'Responsable\EquipoController::historialAsignaciones');
+    $routes->get('empleados/historial-sesiones', 'Responsable\EquipoController::historialSesiones');
 
     // GESTIÓN OPERATIVA (TAREAS)
     $routes->post('pedidos/asignar', 'Responsable\PedidosAreaController::asignarPedido');
     $routes->post('pedidos/actualizar', 'Responsable\PedidosAreaController::actualizarRequerimiento');
     $routes->post('pedido-iniciar/(:num)', 'Responsable\PedidosAreaController::iniciarPedido/$1');
     $routes->post('pedido-entregar/(:num)', 'Responsable\PedidosAreaController::entregarPedido/$1');
+    
+    // Cronómetro de sesiones (Responsable)
+    $routes->post('sesion/iniciar/(:num)', 'Responsable\PedidosAreaController::iniciarSesion/$1');
+    $routes->post('sesion/pausar/(:num)', 'Responsable\PedidosAreaController::pausarSesion/$1');
+    $routes->get('sesion/estado/(:num)', 'Responsable\PedidosAreaController::estadoSesion/$1');
+
 
     // SEGUIMIENTO Y RETROALIMENTACIÓN
     $routes->get('historial', 'Responsable\GestionController::historial');
@@ -119,6 +129,8 @@ $routes->group('responsable', ['filter' => 'auth:empleado'], function ($routes) 
 
     // REPORTES PDF
     $routes->get('reporte-gestion', 'Responsable\ReporteController::generarReporte');
+    // REPORTES CSV
+    $routes->get('reporte-csv', 'Responsable\ReporteController::generarCSV');
 });
 
 // Rutas para el Empleado
@@ -131,6 +143,10 @@ $routes->group('empleado', ['filter' => 'auth:empleado'], function ($routes) {
     $routes->post('pedido-iniciar/(:num)', 'Empleado\MisPedidosController::iniciarPedido/$1');
     $routes->post('pedido-entregar/(:num)', 'Empleado\MisPedidosController::entregarPedido/$1');
     $routes->get('pedido-detalle/(:num)', 'Empleado\MisPedidosController::detalle/$1');
+    // Cronómetro de sesiones
+    $routes->post('sesion/iniciar/(:num)', 'Empleado\MisPedidosController::iniciarSesion/$1');
+    $routes->post('sesion/pausar/(:num)', 'Empleado\MisPedidosController::pausarSesion/$1');
+    $routes->get('sesion/estado/(:num)', 'Empleado\MisPedidosController::estadoSesion/$1');
 });
 
 // Rutas para el Cliente
