@@ -16,8 +16,7 @@ class App extends BaseConfig
      *
      * E.g., http://example.com/
      */
-    public string $baseURL = 'https://rfmarketing-gestion-pedidos.onrender.com';
-
+    public string $baseURL = 'http://localhost:8080/';
 
     public function __construct()
     {
@@ -25,11 +24,7 @@ class App extends BaseConfig
 
         // Hacer la URL base dinámica para permitir navegación fluida desde celular o red local
         if (isset($_SERVER['HTTP_HOST'])) {
-            $protocol = 'http';
-            if ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || 
-                (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')) {
-                $protocol = 'https';
-            }
+            $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
             $this->baseURL = $protocol . '://' . $_SERVER['HTTP_HOST'] . '/';
         }
     }
@@ -196,10 +191,7 @@ class App extends BaseConfig
      *
      * @var array<string, string>
      */
-    public array $proxyIPs = [
-        '0.0.0.0/0' => 'X-Forwarded-For',
-        '::/0'      => 'X-Forwarded-For',
-    ];
+    public array $proxyIPs = [];
 
     /**
      * --------------------------------------------------------------------------
