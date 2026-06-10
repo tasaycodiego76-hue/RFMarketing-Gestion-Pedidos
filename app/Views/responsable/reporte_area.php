@@ -23,7 +23,7 @@
 
         /* SECCIÓN */
         .section-title { font-size: 12.5px; font-weight: bold; color: #2c3e50; margin-top: 20px; margin-bottom: 10px; text-transform: uppercase; border-bottom: 1pt solid #2c3e50; padding-bottom: 3px; }
-        .empresa-label { font-weight: bold; font-size: 11.5px; margin-top: 12px; margin-bottom: 4px; color: #fff; background-color: #2980b9; padding: 5px 10px; text-transform: uppercase; }
+        .empresa-label { font-weight: bold; font-size: 11.5px; margin-top: 12px; margin-bottom: 4px; color: #fff; background-color: #6b9ab8; padding: 5px 10px; text-transform: uppercase; }
 
         .estado-fin   { font-size: 9.5px; font-weight: bold; color: #1a7a3c; }
         .estado-proc  { font-size: 9.5px; font-weight: bold; color: #856404; }
@@ -178,7 +178,7 @@
                     $areaActual = $areaNombre;
                 ?>
                     <tr>
-                        <td colspan="5" style="background:#2980b9; font-weight:bold; color:#fff; padding: 5px 10px; text-transform: uppercase;">
+                        <td colspan="5" style="background:#f0ece4; font-weight:bold; color:#5a5a5a; padding: 5px 10px; text-transform: uppercase;">
                             ÁREA: <?= mb_strtoupper($areaActual) ?>
                         </td>
                     </tr>

@@ -131,7 +131,6 @@
 </div>
 
 <script>
-    const BASE_URL = "<?= base_url() ?>";
     const RESPONSABLE_ID = "<?= esc($user['id']) ?>";
 
     function descargarReporte() {

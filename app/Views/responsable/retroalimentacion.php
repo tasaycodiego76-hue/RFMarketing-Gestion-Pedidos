@@ -86,8 +86,5 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-<script>
-    const BASE_URL = "<?= base_url() ?>";
-</script>
 <script src="<?= base_url('recursos/scripts/responsable/paginas/retroalimentacion.js') ?>"></script>
 <?= $this->endSection() ?>
