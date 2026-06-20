@@ -1066,30 +1066,30 @@ function _renderAdminPausas(pausas, estado) {
       const hh = Math.floor(diffSeg / 3600);
       const mm = Math.floor((diffSeg % 3600) / 60);
       const durStr = hh > 0 ? `${hh}h ${mm}m` : `${mm}m`;
-      duracionHtml = `<span style="color:#888; font-size:11px; font-weight:600; font-variant-numeric:tabular-nums;">${durStr}</span>`;
+      duracionHtml = `<span style="color:#d1d5db; font-size:13px; font-weight:600; font-variant-numeric:tabular-nums;">${durStr}</span>`;
     }
 
     return `
-      <div style="display:flex; align-items:flex-start; gap:12px; padding:10px 0; ${i < pausas.length - 1 ? 'border-bottom:1px solid #151515;' : ''}">
-        <span style="color:#555; font-size:11px; font-weight:700; min-width:18px; font-variant-numeric:tabular-nums;">${i + 1}.</span>
+      <div style="display:flex; align-items:flex-start; gap:12px; padding:12px 0; ${i < pausas.length - 1 ? 'border-bottom:1px solid #2a2a2a;' : ''}">
+        <span style="color:#e2e8f0; font-size:13px; font-weight:700; min-width:20px; font-variant-numeric:tabular-nums;">${i + 1}.</span>
         <div style="flex:1; min-width:0;">
-          <div style="font-size:12px; color:#aaa; line-height:1.5; margin-bottom:4px;">${_escHtml(motivo)}</div>
+          <div style="font-size:14px; color:#f1f5f9; line-height:1.6; margin-bottom:6px;">${_escHtml(motivo)}</div>
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-            <span style="font-size:10px; color:#444;">${fechaInicio} → ${fechaFin}</span>
+            <span style="font-size:12px; color:#cbd5e1;">${fechaInicio} → ${fechaFin}</span>
             ${duracionHtml}
           </div>
-          <div style="font-size:10px; color:#666; margin-top:2px;">Realizado por: <span style="color:#F5C400; font-weight:600;">${_escHtml(usuarioDisplay)}</span></div>
+          <div style="font-size:12px; color:#94a3b8; margin-top:4px;">Realizado por: <span style="color:#F5C400; font-weight:700;">${_escHtml(usuarioDisplay)}</span></div>
         </div>
       </div>`;
   }).join('');
 
   return `
-    <div style="margin-top:20px; padding:16px 18px; background:#0a0a0a; border:1px solid #1a1a1a; border-radius:10px;">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #151515;">
-        <span style="font-size:11px; font-weight:700; color:#666; letter-spacing:1px; text-transform:uppercase;">Historial de Pausas</span>
-        <span style="font-size:11px; font-weight:700; color:#888; font-variant-numeric:tabular-nums;">${pausas.length}</span>
+    <div style="margin-top:20px; padding:16px 18px; background:#0d0d0d; border:1px solid #2a2a2a; border-radius:10px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #2a2a2a;">
+        <span style="font-size:13px; font-weight:700; color:#e2e8f0; letter-spacing:1px; text-transform:uppercase;">Historial de Pausas</span>
+        <span style="font-size:13px; font-weight:700; color:#cbd5e1; font-variant-numeric:tabular-nums;">${pausas.length}</span>
       </div>
-      <div style="max-height:200px; overflow-y:auto;">${items}</div>
+      <div style="max-height:240px; overflow-y:auto;">${items}</div>
     </div>`;
 }
 
@@ -1139,16 +1139,16 @@ function _renderAdminTimeline(tracking, historialAsig) {
     return `
       <div style="display:flex; gap:12px; position:relative;">
         <div style="display:flex; flex-direction:column; align-items:center; flex-shrink:0;">
-          <div style="width:8px; height:8px; border-radius:50%; background:${i === 0 ? '#F5C400' : '#333'}; flex-shrink:0; margin-top:5px;"></div>
-          ${!isLast ? `<div style="width:1px; flex:1; min-height:20px; background:#1a1a1a; margin-top:4px;"></div>` : ''}
+          <div style="width:9px; height:9px; border-radius:50%; background:${i === 0 ? '#F5C400' : '#4a5568'}; flex-shrink:0; margin-top:5px;"></div>
+          ${!isLast ? `<div style="width:1px; flex:1; min-height:20px; background:#2d3748; margin-top:4px;"></div>` : ''}
         </div>
-        <div style="flex:1; min-width:0; padding-bottom:${isLast ? '0' : '14px'};">
-          <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
-            <span style="font-size:11px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:0.5px;">${label}</span>
-            <span style="font-size:10px; color:#333;">·</span>
-            <span style="font-size:10px; color:#444; font-variant-numeric:tabular-nums;">${fecha}</span>
+        <div style="flex:1; min-width:0; padding-bottom:${isLast ? '0' : '16px'};">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
+            <span style="font-size:13px; font-weight:700; color:#e2e8f0; text-transform:uppercase; letter-spacing:0.5px;">${label}</span>
+            <span style="font-size:12px; color:#64748b;">·</span>
+            <span style="font-size:12px; color:#cbd5e1; font-variant-numeric:tabular-nums;">${fecha}</span>
           </div>
-          <div style="font-size:12px; color:#666; line-height:1.5;">${_escHtml(accion)}</div>
+          <div style="font-size:13px; color:#f1f5f9; line-height:1.6;">${_escHtml(accion)}</div>
         </div>
       </div>`;
   }).join('');
@@ -1164,34 +1164,34 @@ function _renderAdminTimeline(tracking, historialAsig) {
       const motivo = h.motivo_cambio || 'Sin motivo registrado';
 
       return `
-        <div style="padding:10px 0; ${i < historialAsig.length - 1 ? 'border-bottom:1px solid #151515;' : ''}">
-          <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; flex-wrap:wrap;">
-            <span style="color:#666; font-size:12px;">${desde}</span>
-            <span style="color:#444; font-size:10px;">→</span>
-            <span style="color:#ccc; font-size:12px; font-weight:600;">${hacia}</span>
+        <div style="padding:12px 0; ${i < historialAsig.length - 1 ? 'border-bottom:1px solid #2a2a2a;' : ''}">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:5px; flex-wrap:wrap;">
+            <span style="color:#94a3b8; font-size:13px;">${desde}</span>
+            <span style="color:#64748b; font-size:13px;">→</span>
+            <span style="color:#f1f5f9; font-size:13px; font-weight:600;">${hacia}</span>
           </div>
-          <div style="font-size:11px; color:#555; margin-bottom:3px;">${_escHtml(motivo)}</div>
-          <div style="font-size:10px; color:#333;">Por: ${quien} · ${fecha}</div>
+          <div style="font-size:13px; color:#e2e8f0; margin-bottom:4px;">${_escHtml(motivo)}</div>
+          <div style="font-size:12px; color:#94a3b8;">Por: ${quien} · ${fecha}</div>
         </div>`;
     }).join('');
 
     reasigHtml = `
-      <div style="margin-top:14px; padding-top:14px; border-top:1px solid #151515;">
+      <div style="margin-top:14px; padding-top:14px; border-top:1px solid #2a2a2a;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-          <span style="font-size:10px; font-weight:700; color:#555; letter-spacing:1px; text-transform:uppercase;">Reasignaciones</span>
-          <span style="font-size:10px; font-weight:700; color:#888; font-variant-numeric:tabular-nums;">${historialAsig.length}</span>
+          <span style="font-size:13px; font-weight:700; color:#e2e8f0; letter-spacing:1px; text-transform:uppercase;">Reasignaciones</span>
+          <span style="font-size:13px; font-weight:700; color:#cbd5e1; font-variant-numeric:tabular-nums;">${historialAsig.length}</span>
         </div>
         ${reasigItems}
       </div>`;
   }
 
   return `
-    <div style="margin-top:20px; padding:16px 18px; background:#0a0a0a; border:1px solid #1a1a1a; border-radius:10px;">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #151515;">
-        <span style="font-size:11px; font-weight:700; color:#666; letter-spacing:1px; text-transform:uppercase;">Línea de Tiempo</span>
-        <span style="font-size:10px; font-weight:600; color:#444; font-variant-numeric:tabular-nums;">${tracking.length} eventos</span>
+    <div style="margin-top:20px; padding:16px 18px; background:#0d0d0d; border:1px solid #2a2a2a; border-radius:10px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid #2a2a2a;">
+        <span style="font-size:13px; font-weight:700; color:#e2e8f0; letter-spacing:1px; text-transform:uppercase;">Línea de Tiempo</span>
+        <span style="font-size:13px; font-weight:600; color:#cbd5e1; font-variant-numeric:tabular-nums;">${tracking.length} eventos</span>
       </div>
-      <div style="max-height:280px; overflow-y:auto;">
+      <div style="max-height:300px; overflow-y:auto;">
         ${items}
         ${reasigHtml}
       </div>
