@@ -36,7 +36,7 @@
         <div class="card p-3">
             <div class="met-label">En Proceso</div>
             <div id="metric-en-proceso" class="met-num azul">
-                <?= $metrics['en_proceso'] ?? 0 ?>
+                <?= ($metrics['en_proceso'] ?? 0) + ($metrics['en_revision'] ?? 0) ?>
             </div>
             <div class="met-sub">En curso</div>
         </div>
@@ -179,8 +179,8 @@
                         </div>
                         <div id="contenedor-nombre-personalizado" class="field mb-3 d-none">
                             <label>NOMBRE DEL SERVICIO REQUERIDO</label>
-                            <input type="text" name="servicio_personalizado" id="titulo_personalizado" class="field-input"
-                                placeholder="Ej: Gestion de Redes Sociales (Social Media)">
+                            <input type="text" name="servicio_personalizado" id="titulo_personalizado"
+                                class="field-input" placeholder="Ej: Gestion de Redes Sociales (Social Media)">
                         </div>
                         <div class="field mb-3">
                             <label>SERVICIO SELECCIONADO</label>
@@ -240,7 +240,8 @@
                         <div class="modo-flexible-aviso alert alert-info mb-3 alerta-flexible">
                             <i class="bi bi-info-circle-fill"></i>
                             <strong>Modo Flexible Activado</strong><br>
-                            Para este tipo de servicio, los campos de canales, formatos y público son <strong>opcionales</strong>.
+                            Para este tipo de servicio, los campos de canales, formatos y público son
+                            <strong>opcionales</strong>.
                             Puedes enviar solo tu idea básica y nuestro equipo te ayudará a completar los detalles.
                         </div>
 

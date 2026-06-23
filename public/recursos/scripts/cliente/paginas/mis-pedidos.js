@@ -241,7 +241,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const elTotal = document.getElementById("metric-total");
 
       if (elPendientes) elPendientes.textContent = metrics.pendientes ?? 0;
-      if (elEnProceso) elEnProceso.textContent = metrics.en_proceso ?? 0;
+      if (elEnProceso) elEnProceso.textContent = (metrics.en_proceso ?? 0) + (metrics.en_revision ?? 0);
       if (elFinalizados) elFinalizados.textContent = metrics.finalizados ?? 0;
       if (elTotal) elTotal.textContent = metrics.total ?? 0;
     } catch (error) {
