@@ -36,7 +36,7 @@
         <div class="card p-3">
             <div class="met-label">En Proceso</div>
             <div id="metric-en-proceso" class="met-num azul">
-                <?= $metrics['en_proceso'] ?? 0 ?>
+                <?= ($metrics['en_proceso'] ?? 0) + ($metrics['en_revision'] ?? 0) ?>
             </div>
             <div class="met-sub">En curso</div>
         </div>

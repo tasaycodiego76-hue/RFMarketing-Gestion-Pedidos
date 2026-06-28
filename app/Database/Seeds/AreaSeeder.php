@@ -11,55 +11,55 @@ class AreaSeeder extends Seeder
         $Areas_Empresas = [
             //AREAS DE LA UAI
             [
-                'ADMINISTRACION FINANCIERA Y TALENTO HUMANO',
-                'ÁREA COMERCIAL',
+                'ADMINISTRACION FINANCIERA Y TALENTO HUMANO', //
+                'ÁREA COMERCIAL', //
                 'ATENCIÓN AL CLIENTE',
                 'BIBLIOTECA',
-                'BIENESTAR UNIVERSITARIO',
-                'COBRANZAS Y CAJA',
+                'BIENESTAR UNIVERSITARIO', //
+                'COBRANZAS Y CAJA', //
                 'COMITÉ SEGURIDAD BIOLOGICA Y QUIMICA',
                 'COMITÉ DE SEGURIDAD Y SALUD EN EL TRABAJO',
                 'CONTABILIDAD',
                 'CONTROL INTERNO',
-                'COORDINACIÓN ADMINISTRATIVA Y ACADEMICA',
-                'DEFENSORIA UNIVERSITARIA',
+                'COORDINACIÓN ADMINISTRATIVA Y ACADEMICA', //
+                'DEFENSORIA UNIVERSITARIA', //
                 'DEPARTAMENTO ACADEMICO DE EEGG',
                 'DIRECCIÓN ADMINISTRATIVA',
-                'DIRECIÓN DE CALIDAD',
+                'DIRECIÓN DE CALIDAD', //
                 'DOCENTE',
                 'GERENCIA GENERAL',
-                'GRADOS Y TITULOS',
+                'GRADOS Y TITULOS', //
                 'INFRAESTRUCTURA',
                 'INVESTIGACION Y PRODUCCION INTELECTUAL',
                 'LABORATORIO',
-                'LOGÍSTICA - MANTENIMIENTO - SS.GG Y VIGILANCIA',
-                'MARKETING Y DISEÑO',
+                'LOGÍSTICA - MANTENIMIENTO - SS.GG Y VIGILANCIA', //
+                'MARKETING Y DISEÑO', //
                 'OFICINA CENTRAL DE TRÁMITE DOCUMENTARIO Y ARCHIVO (OCTDA)',
                 'PLANIFICACION ESTRATEGICA, PRESUPUESTO Y CONTROL',
-                'RESPONSABILIDAD SOCIAL',
+                'RESPONSABILIDAD SOCIAL', //
                 'SISTEMAS',
                 'SOPORTE TECNICO',
                 'SUB GERENCIA GENERAL',
                 'TÓPICO',
-                'REGISTROS ACADÉMICOS',
-                'VICERRECTORADO',
+                'REGISTROS ACADÉMICOS', //
+                'VICERRECTORADO', //
                 'VINCULO UNIVERSITARIO - EMPRESA Y BOLSA DE TRABAJO',
                 'DIRECCIÓN DE ADMINISTRACIÓN Y FINANZAS',
                 'DIRECCIÓN DE CONTABILIDAD',
                 'DIRECCIÓN DE DERECHO',
-                'DIRECCIÓN DE ING. DE SISTEMAS',
+                'DIRECCIÓN DE ING. DE SISTEMAS', //
                 'DIRECCIÓN DE ING. INDUSTRIAL',
                 'DIRECCIÓN DE INGENIERÍA CIVIL',
                 'DIRECCIÓN DE ARQUITECTURA',
-                'DIRECCIÓN DE ENFERMERÍA',
+                'DIRECCIÓN DE ENFERMERÍA', //
                 'DIRECCIÓN DE OBSTETRICIA',
                 'DIRECCIÓN DE PSICOLOGÍA',
                 'DIRECCIÓN DE MEDICINA HUMANA',
                 'DIRECCIÓN DE TECNOLOGÍA MÉDICA',
                 'TECNOLOGÍA DE LA INFORMACIÓN',
                 'SECRETARÍA DE FICA',
-                'SECRETARÍA DE FCS',
-                'ESCUELA DE POSGRADO',
+                'SECRETARÍA DE FCS', //
+                'ESCUELA DE POSGRADO', //
                 'SERVICIO PSICOPEDAGÓGICO'
             ],
             // AREAS EJEMPLO DE ADA BYRON

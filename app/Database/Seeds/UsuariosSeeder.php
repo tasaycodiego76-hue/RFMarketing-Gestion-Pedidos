@@ -43,7 +43,7 @@ class UsuariosSeeder extends Seeder
                 'estado' => true,
             ],
 
-            // ID 2: RODRIGO (Fotografía, responsable)
+            // ID 3: RODRIGO (Fotografía, responsable)
             [
                 'nombre' => 'RODRIGO ALEXANDER',
                 'apellidos' => 'FELIX HUAMAN',
@@ -59,7 +59,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => true,
                 'estado' => true,
             ],
-            // ID 3: NOEMI (Creación de Contenido)
+            // ID 4: NOEMI (Creación de Contenido)
             [
                 'nombre' => 'NOEMI',
                 'apellidos' => 'TORRES TINEDO',
@@ -75,7 +75,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
-            // ID 4: MARIA (Creación de Contenido)
+            // ID 5: MARIA (Creación de Contenido)
             [
                 'nombre' => 'MARIA',
                 'apellidos' => 'PIA CASTILLA',
@@ -91,7 +91,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
-            // ID 5: JHENINFER (Creación de Contenido)
+            // ID 6: JHENINFER (Creación de Contenido)
             [
                 'nombre' => 'JHENINFER MIRELLI',
                 'apellidos' => 'CCOICCA ALVAREZ',
@@ -107,7 +107,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
-            // ID 6: NICOL (Creación de Contenido, responsable)
+            // ID 7: NICOL (Creación de Contenido, responsable)
             [
                 'nombre' => 'NICOL MICHELLE',
                 'apellidos' => 'GUERRERO TORREALBA',
@@ -123,7 +123,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => true,
                 'estado' => true,
             ],
-            // ID 7: SONIA (Edición y Postproducción)
+            // ID 8: SONIA (Edición y Postproducción)
             [
                 'nombre' => 'SONIA ALEJANDRA',
                 'apellidos' => 'TELLO ROJAS',
@@ -139,7 +139,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
-            // ID 8: JOSE (Edición y Postproducción)
+            // ID 9: JOSE (Edición y Postproducción)
             [
                 'nombre' => 'JOSE',
                 'apellidos' => 'GUERRA CHACÓN',
@@ -155,7 +155,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
-            // ID 9: JONATHAN (Edición y Postproducción, responsable)
+            // ID 10: JONATHAN (Edición y Postproducción, responsable)
             [
                 'nombre' => 'JONATHAN',
                 'apellidos' => 'MEDINA CAMPOS',
@@ -171,7 +171,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => true,
                 'estado' => true,
             ],
-            // ID 10: FABRIZIO (Diseño Gráfico)
+            // ID 11: FABRIZIO (Diseño Gráfico)
             [
                 'nombre' => 'FABRIZIO',
                 'apellidos' => 'RAMOS TIPISMANA',
@@ -187,7 +187,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
-            // ID 11: NAYRU (Diseño Gráfico)
+            // ID 12: NAYRU (Diseño Gráfico)
             [
                 'nombre' => 'NAYRU',
                 'apellidos' => 'GOMEZ MAGALLANES',
@@ -200,10 +200,10 @@ class UsuariosSeeder extends Seeder
                 'rol' => 'empleado',
                 'idarea_agencia' => 1,
                 'idarea' => null,
-                'esresponsable' => false,
+                'esresponsable' => true,
                 'estado' => true,
             ],
-            // ID 12: JESUS (Diseño Gráfico, responsable)
+            // ID 13: JESUS (Diseño Gráfico)
             [
                 'nombre' => 'JESUS',
                 'apellidos' => 'DE LA CRUZ GARCÍA',
@@ -216,60 +216,254 @@ class UsuariosSeeder extends Seeder
                 'rol' => 'empleado',
                 'idarea_agencia' => 1,
                 'idarea' => null,
+                'esresponsable' => false,
+                'estado' => true,
+            ],
+
+            /* CLIENTES (representantes de empresa) */
+
+            /* UAI */
+            // ID 14 – ADMINISTRACIÓN FINANCIERA Y TALENTO HUMANO
+            [
+                'nombre' => 'CRISTINA VIVIANA',
+                'apellidos' => 'CASTILLO SANCHEZ',
+                'correo' => 'cristina.castillo@autonomadeica.edu.pe',
+                'telefono' => '986474103',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '40100001',
+                'usuario' => 'ccastillo_uai',
+                'clave' => password_hash('uai_40100001', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 1,
                 'esresponsable' => true,
                 'estado' => true,
             ],
 
-            // CLIENTES (representantes de empresa)     
-            // ID 13: ANA (cliente de UNIVERSIDAD AUTÓNOMA DE ICA)
+            // ID 15 – ÁREA COMERCIAL
             [
-                'nombre' => 'ANA',
-                'apellidos' => 'FLORES QUISPE',
-                'correo' => '62345678@uai.edu.pe',
-                'telefono' => '999888777',
+                'nombre' => 'ALLISSON',
+                'apellidos' => 'ZAMORA LUYO',
+                'correo' => 'allisson.zamora@autonomadeica.edu.pe',
+                'telefono' => '933967944',
                 'tipodoc' => 'DNI',
-                'numerodoc' => '62345678',
-                'usuario' => 'aflores_uai',
-                'clave' => password_hash('uai_62345678', PASSWORD_DEFAULT),
+                'numerodoc' => '40100002',
+                'usuario' => 'azamora_uai',
+                'clave' => password_hash('uai_40100002', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 2,
+                'esresponsable' => true,
+                'estado' => true,
+            ],
+
+            // ID 16 – BIENESTAR UNIVERSITARIO
+            [
+                'nombre' => 'JESSICA KHRISTEL',
+                'apellidos' => 'FERNANDINI VALENZUELA',
+                'correo' => 'jessica.fernandini@autonomadeica.edu.pe',
+                'telefono' => '977309094',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '40100003',
+                'usuario' => 'jfernandini_uai',
+                'clave' => password_hash('uai_40100003', PASSWORD_DEFAULT),
                 'rol' => 'cliente',
                 'idarea_agencia' => null,
                 'idarea' => 5,
-                'esresponsable' => false,
+                'esresponsable' => true,
                 'estado' => true,
             ],
-            // ID 14: PEDRO (cliente de UNIVERSIDAD AUTÓNOMA DE ICA)
+
+            // ID 17 – COBRANZAS Y CAJA
             [
-                'nombre' => 'PEDRO',
-                'apellidos' => 'GOMEZ TORRES',
-                'correo' => '62345679@uai.edu.pe',
-                'telefono' => '999111222',
+                'nombre' => 'MARYORITH',
+                'apellidos' => 'CASTILLON DE LA CRUZ',
+                'correo' => 'maryorith.castillon@autonomadeica.edu.pe',
+                'telefono' => '949092015',
                 'tipodoc' => 'DNI',
-                'numerodoc' => '62345679',
-                'usuario' => 'pgomez_uai',
-                'clave' => password_hash('uai_62345679', PASSWORD_DEFAULT),
+                'numerodoc' => '40100004',
+                'usuario' => 'mcastillon_uai',
+                'clave' => password_hash('uai_40100004', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 6,
+                'esresponsable' => true,
+                'estado' => true,
+            ],
+
+            // ID 18 – COORDINACIÓN ADMINISTRATIVA Y ACADÉMICA
+            [
+                'nombre' => 'ISMAEL ALONSO',
+                'apellidos' => 'JUNCO QUIJANDRIA',
+                'correo' => 'decanatura.fica@autonomadeica.edu.pe',
+                'telefono' => '951376674',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '40100005',
+                'usuario' => 'ijunco_uai',
+                'clave' => password_hash('uai_40100005', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 11,
+                'esresponsable' => true,
+                'estado' => true,
+            ],
+
+            // ID 19 – DEFENSORÍA UNIVERSITARIA
+            [
+                'nombre' => 'FRANCHESCA YSABELA',
+                'apellidos' => 'BARRAZA LY',
+                'correo' => 'franchesca.barraza@autonomadeica.edu.pe',
+                'telefono' => '906097826',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '40100006',
+                'usuario' => 'fbarraza_uai',
+                'clave' => password_hash('uai_40100006', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 12,
+                'esresponsable' => true,
+                'estado' => true,
+            ],
+
+            // ID 20 – DIRECCIÓN DE CALIDAD
+            [
+                'nombre' => 'ELOISA',
+                'apellidos' => 'CALLAO CUBILLAS',
+                'correo' => 'calidad@autonomadeica.edu.pe',
+                'telefono' => '983490647',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '40100007',
+                'usuario' => 'ecallao_uai',
+                'clave' => password_hash('uai_40100007', PASSWORD_DEFAULT),
                 'rol' => 'cliente',
                 'idarea_agencia' => null,
                 'idarea' => 15,
-                'esresponsable' => false,
+                'esresponsable' => true,
                 'estado' => true,
             ],
-            // ID 15: MARIA (cliente de UNIVERSIDAD AUTÓNOMA DE ICA)
+
+            // ID 21 – MARKETING Y DISEÑO
             [
-                'nombre' => 'MARIA',
-                'apellidos' => 'RUIZ LOPEZ',
-                'correo' => '62345680@uai.edu.pe',
-                'telefono' => '999333444',
+                'nombre' => 'LEANDRO JOSE',
+                'apellidos' => 'MACHADO GARCIA',
+                'correo' => 'leandro.machado@autonomadeica.edu.pe',
+                'telefono' => '994163219',
                 'tipodoc' => 'DNI',
-                'numerodoc' => '62345680',
-                'usuario' => 'mruiz_uai',
-                'clave' => password_hash('uai_62345680', PASSWORD_DEFAULT),
+                'numerodoc' => '40100010',
+                'usuario' => 'lmachado_uai',
+                'clave' => password_hash('uai_40100010', PASSWORD_DEFAULT),
                 'rol' => 'cliente',
                 'idarea_agencia' => null,
-                'idarea' => 35,
-                'esresponsable' => false,
+                'idarea' => 23,
+                'esresponsable' => true,
                 'estado' => true,
             ],
-            // ID 16: LUIS (cliente de COLEGIO ADA BYRON)
+
+            // ID 22 – RESPONSABILIDAD SOCIAL
+            [
+                'nombre' => 'DAYANA IVET',
+                'apellidos' => 'ROJAS GOÑI',
+                'correo' => 'responsabilidad.social@autonomadeica.edu.pe',
+                'telefono' => '934568254',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '40100011',
+                'usuario' => 'drojas_uai',
+                'clave' => password_hash('uai_40100011', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 26,
+                'esresponsable' => true,
+                'estado' => true,
+            ],
+
+            // ID 23 – TÓPICO 
+            [
+                'nombre' => 'MARIA DEL ROSARIO',
+                'apellidos' => 'FLORES ANCHANTE',
+                'correo' => 'servicio.salud.ica@autonomadeica.edu.pe',
+                'telefono' => '987322831',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '40100012',
+                'usuario' => 'mflores_uai',
+                'clave' => password_hash('uai_40100012', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 30,
+                'esresponsable' => true,
+                'estado' => true,
+            ],
+
+            // ID 24 – REGISTROS ACADÉMICOS
+            [
+                'nombre' => 'LENNY MARITE',
+                'apellidos' => 'NANO INUMA',
+                'correo' => 'registros.academicos@autonomadeica.edu.pe',
+                'telefono' => '903229754',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '40100013',
+                'usuario' => 'lnano_uai',
+                'clave' => password_hash('uai_40100013', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 31,
+                'esresponsable' => true,
+                'estado' => true,
+            ],
+
+            // ID 25 – VÍNCULO UNIVERSITARIO - EMPRESA Y BOLSA DE TRABAJO
+            [
+                'nombre' => 'EDUARDO FRANCISCO',
+                'apellidos' => 'TASAYCO MUÑOZ',
+                'correo' => 'dvue-bt@autonomadeica.edu.pe',
+                'telefono' => '998879409',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '40100015',
+                'usuario' => 'etasayco_uai',
+                'clave' => password_hash('uai_40100015', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 33,
+                'esresponsable' => true,
+                'estado' => true,
+            ],
+
+            // ID 26 – ESCUELA DE POSGRADO
+            [
+                'nombre' => 'GYANNELLA',
+                'apellidos' => 'HUAMAN MENDOZA',
+                'correo' => 'direccion.epg@autonomadeica.edu.pe',
+                'telefono' => '932754204',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '40100019',
+                'usuario' => 'ghuaman_uai',
+                'clave' => password_hash('uai_40100019', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 49,
+                'esresponsable' => true,
+                'estado' => true,
+            ],
+
+            // ID 27 – SERVICIO PSICOPEDAGÓGICO
+            [
+                'nombre' => 'JANET MELISSA',
+                'apellidos' => 'FIGUEROA GONZALES',
+                'correo' => 'servicio.psicopedagogico@autonomadeica.edu.pe',
+                'telefono' => '960988270',
+                'tipodoc' => 'DNI',
+                'numerodoc' => '40100020',
+                'usuario' => 'jfigueroa_uai',
+                'clave' => password_hash('uai_40100020', PASSWORD_DEFAULT),
+                'rol' => 'cliente',
+                'idarea_agencia' => null,
+                'idarea' => 50,
+                'esresponsable' => true,
+                'estado' => true,
+            ],
+
+
+            /* ADA BYRON */
+            // ID 28
             [
                 'nombre' => 'LUIS',
                 'apellidos' => 'MENDOZA RIVAS',
@@ -285,7 +479,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
-            // ID 17: CARLOS (cliente de COLEGIO ADA BYRON)
+            // ID 29
             [
                 'nombre' => 'CARLOS',
                 'apellidos' => 'PAREDES VELA',
@@ -301,7 +495,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
-            // ID 18: ELENA (cliente de COLEGIO ADA BYRON)
+            // ID 30
             [
                 'nombre' => 'ELENA',
                 'apellidos' => 'SOLIS BARRERA',
@@ -317,7 +511,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
-
+            // ID 31
             [
                 'nombre' => 'DIEGO',
                 'apellidos' => 'TASAYCO HUACCAMAYTA',
@@ -333,7 +527,9 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
-            // ID 19: CARLOS (cliente de URBANO & MODERNO)
+
+            /* URBANO & MODERNO */
+            // ID 32
             [
                 'nombre' => 'CARLOS ALBERTO',
                 'apellidos' => 'MENDOZA PALOMINO',
@@ -350,7 +546,7 @@ class UsuariosSeeder extends Seeder
                 'estado' => true,
             ],
 
-            // ID 20: MILAGROS (cliente de URBANO & MODERNO)
+            // ID 33
             [
                 'nombre' => 'MILAGROS ROCIO',
                 'apellidos' => 'ANCHANTE GOMEZ',
@@ -367,7 +563,7 @@ class UsuariosSeeder extends Seeder
                 'estado' => true,
             ],
 
-            // ID 21: JORGE (cliente de URBANO & MODERNO)
+            // ID 34
             [
                 'nombre' => 'JORGE LUIS',
                 'apellidos' => 'CARRANZA NAVARRO',
@@ -383,6 +579,7 @@ class UsuariosSeeder extends Seeder
                 'esresponsable' => false,
                 'estado' => true,
             ],
+            // ID 35
             [
                 'nombre' => 'SANDRO STEVEN',
                 'apellidos' => 'RODRIGUEZ ANCHANTE',
